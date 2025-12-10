@@ -124,83 +124,103 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
 [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
 
-# ========================
+# -----------------------------
 # Yazi Setup
-# ========================
+# -----------------------------
+export EDITOR="nvim"
+export VISUAL="nvim"
+
 function y() {
     local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
     yazi "$@" --cwd-file="$tmp"
-    if cwd="$(command batcat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+    if cwd="$(command bat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
         builtin cd -- "$cwd"
     fi
     rm -- "$tmp"
 }
 
-# ========================
-# fzf & fdfind Config
-# ========================
-FD_EXCLUDES=(
-    --strip-cwd-prefix
-    --exclude .git
-    --exclude node_modules
-    --exclude .idea
-    --exclude .cargo
-    --exclude .bash
-    --exclude .cache
-    --exclude .var
-    --exclude .rustup
-    --exclude .dotnet
-    --exclude .claude
-    --exclude .icons
-    --exclude .gnupg
-)
+# -----------------------------
+# Yazi Keybinding: alt+f
+# -----------------------------
 
-export FZF_DEFAULT_COMMAND="fdfind --type f ${FD_EXCLUDES[*]}"
+function _yazi_key() {
+    zle -I
+    y
+}
+
+zle -N yazi_key _yazi_key
+
+bindkey '^[f' yazi_key
+
+
+# -----------------------------
+# fzf & fd Config
+# -----------------------------
+FD_EXCLUDES="--strip-cwd-prefix \
+--exclude .git \
+--exclude node_modules \
+--exclude .idea \
+--exclude .cargo \
+--exclude .bash \
+--exclude .cache \
+--exclude .var \
+--exclude .rustup \
+--exclude .dotnet \
+--exclude .claude \
+--exclude .icons \
+--exclude .gnupg"
+
+export FZF_DEFAULT_COMMAND="fd --type=f $FD_EXCLUDES"
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-export FZF_ALT_C_COMMAND="fdfind --type d ${FD_EXCLUDES[*]}"
+export FZF_ALT_C_COMMAND="fd --type=d $FD_EXCLUDES"
 
-# Dracula Theme
-export FZF_DEFAULT_OPTS="--ansi \
---height=50% \
---layout=reverse \
---cycle \
---border=rounded \
---prompt='❯ ' \
---pointer='➤ ' \
---marker='✓ ' \
---color=fg:#f8f8f2,bg:#282a36,hl:#bd93f9 \
---color=fg+:#f8f8f2,bg+:#44475a,hl+:#bd93f9 \
---color=info:#ffb86c,prompt:#50fa7b,pointer:#bd93f9,marker:#ff5555,spinner:#ffb86c,header:#8be9fd"
+# Dracula fzf theme
+export FZF_DEFAULT_OPTS="
+--ansi
+--height=50%
+--layout=reverse
+--cycle
+--border=rounded
+--prompt='❯ '
+--pointer='➤ '
+--marker='✓ '
+--preview-window=right,70%,border-left
+--color=fg+:#50fa7b,bg+:-1,hl+:#50fa7b
+--color=fg:#f8f8f2,bg:-1,hl:#bd93f9
+--color=border:#6272a4,header:#8be9fd
+--color=info:#ffb86c,prompt:#50fa7b
+--color=pointer:#bd93f9,marker:#ff5555,spinner:#ffb86c
+"
 
-# Custom fzf wrapper
 fzf() {
     local show_hidden=false
     local args=()
     while [[ $# -gt 0 ]]; do
         case $1 in
-            -l) show_hidden=true; shift ;;
-            *) args+=("$1"); shift ;;
+        -l) show_hidden=true; shift ;;
+        *) args+=("$1"); shift ;;
         esac
     done
 
     if [[ "$show_hidden" == true ]]; then
-        FZF_DEFAULT_COMMAND="fdfind --type f --hidden --cycle ${FD_EXCLUDES[*]}" command fzf "${args[@]}"
+        FZF_DEFAULT_COMMAND="fd --type=f --hidden $FD_EXCLUDES" command fzf "${args[@]}"
     else
         command fzf "${args[@]}"
     fi
 }
 
-_fzf_compgen_path() { fdfind --exclude .git . "$1"; }
-_fzf_compgen_dir()  { fdfind --type d --exclude .git . "$1"; }
+_fzf_compgen_path() { fd --exclude .git . "$1"; }
+_fzf_compgen_dir()  { fd --type=d --exclude .git . "$1"; }
 
-show_file_or_dir_preview='if [ -d {} ]; then eza --tree --color=always {} | head -200; else bat -n --color=always --line-range :500 {}; fi'
-export FZF_CTRL_T_OPTS="--preview \"$show_file_or_dir_preview\""
-export FZF_ALT_C_OPTS="--preview \"eza --tree --color=always {} | head -200\""
+show_file_or_dir_preview="if [ -d {} ]; then eza --icons --tree --color=always {} | head -200; else bat -n --color=always --line-range :500 {}; fi"
+
+export FZF_CTRL_T_OPTS="--preview '$show_file_or_dir_preview'"
+export FZF_ALT_C_OPTS="--preview 'eza --icons --tree --color=always {} | head -200'"
 
 _fzf_comprun() {
     local command=$1; shift
     case "$command" in
-        cd)           fzf --preview 'eza --tree --color=always {} | head -200' "$@" ;;
+        cd)           fzf --preview 'eza --icons --tree --color=always {} | head -200' "$@" ;;
         export|unset) fzf --preview "eval 'echo ${}'" "$@" ;;
         ssh)          fzf --preview 'dig {}' "$@" ;;
         *)            fzf --preview "$show_file_or_dir_preview" "$@" ;;

@@ -128,10 +128,10 @@ function gt() {
                 fi
             ;;
             *"Recent Commits"*)
-                echo -e "${BLUE}  Last 5 commits (ascending):${RESET}"
+                echo -e "${BLUE}  Last 10 commits :${RESET}"
                 total=$(git rev-list --count HEAD)
                 start=$((total-4))  # first number for the last 5 commits
-                git log -n 5 --pretty=format:"%s" --reverse \
+                git log -n 10 --pretty=format:"%s" --reverse \
                 | awk -v start="$start" '{print start++ ". " $0}'
             ;;
             *"Exit"*)
@@ -168,41 +168,38 @@ alias updapp="yay -Syu --noconfirm"
 alias rmf="sudo rm -rf"
 alias remove="sudo pacman -Rns"
 alias cln='sudo pacman -Rns $(pacman -Qdtq) && sudo pacman -Sc --noconfirm'
-alias ins="sudo pacman -S"
+alias ins="sudo pacman -S --noconfirm"
 alias omz="omz update"
 alias exir="exit"
 alias mk="mkdir"
 alias nr="sudo systemctl restart NetworkManager"
 alias ff="fastfetch"
-alias his="history | fzf --tac --preview 'echo {} | sed \"s/ *[0-9]* *//\" | bat --language sh --style=plain --paging=never' | sed 's/ *[0-9]* *//' | xargs -r zsh -i -c"
 alias zsrc="source ~/.zshrc"
 alias btop="btop --force-utf"
 alias z="zoxide"
+alias cdc="cd -"
 
 # Files
 alias l="eza -la --icons --git --color=always --level=1 --no-time --no-user --tree"
 alias ll="eza -la --icons --git --color=always --level=2 --no-time --no-user --tree"
 alias lll="eza -la --icons --git --color=always --level=3 --no-time --no-user --tree"
+alias llll="eza -la --icons --git --color=always --level=4 --no-time --no-user --tree"
 alias cat="bat -pp"
-alias f="spf"
-alias s="spf"
+alias s="yazi"
 alias cargoi="cargo-seek"
 
 # Dev
 alias start="npm run dev"
-alias code="code-insiders ."
+alias cn="cargo new"
+alias cr="cargo run"
+alias ca="cargo add"
 alias gc="git clone"
 alias gs="git status"
 alias gr="git remote set-url origin "
 alias ga="git add ."
 alias gp="git push -u origin main"
-alias pserver="python3 -m http.server"
+alias pserver="python3 -m http.server 80"
 alias doc="sudo docker"
-alias msf="sudo docker run -it --name metasploitable2 \
-  -p 80:80 -p 21:21 -p 22:22 -p 445:445 \
-  -p 3306:3306 -p 5900:5900 -p 6667:6667 -p 8787:8787 \
-  tleemcjr/metasploitable2"
-
 
 # -----------------------------
 # Auto-suggestions
@@ -241,17 +238,30 @@ esac
 # -----------------------------
 # Yazi Setup
 # -----------------------------
-export EDITOR="code-insiders"
-export VISUAL="$EDITOR"
+export EDITOR="nvim"
+export VISUAL="nvim"
 
 function y() {
     local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
     yazi "$@" --cwd-file="$tmp"
-    if cwd="$(command batcat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+    if cwd="$(command bat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
         builtin cd -- "$cwd"
     fi
     rm -- "$tmp"
 }
+
+# -----------------------------
+# Yazi Keybinding: alt+f
+# -----------------------------
+
+function _yazi_key() {
+    zle -I
+    y
+}
+
+zle -N yazi_key _yazi_key
+
+bindkey '^[f' yazi_key
 
 
 # -----------------------------
@@ -285,9 +295,12 @@ export FZF_DEFAULT_OPTS="
 --prompt='❯ '
 --pointer='➤ '
 --marker='✓ '
---color=fg:#f8f8f2,bg:#282a36,hl:#bd93f9
---color=fg+:#f8f8f2,bg+:#44475a,hl+:#bd93f9
---color=info:#ffb86c,prompt:#50fa7b,pointer:#bd93f9,marker:#ff5555,spinner:#ffb86c,header:#8be9fd
+--preview-window=right,70%,border-left
+--color=fg+:#50fa7b,bg+:-1,hl+:#50fa7b
+--color=fg:#f8f8f2,bg:-1,hl:#bd93f9
+--color=border:#6272a4,header:#8be9fd
+--color=info:#ffb86c,prompt:#50fa7b
+--color=pointer:#bd93f9,marker:#ff5555,spinner:#ffb86c
 "
 
 fzf() {
@@ -310,15 +323,15 @@ fzf() {
 _fzf_compgen_path() { fd --exclude .git . "$1"; }
 _fzf_compgen_dir()  { fd --type=d --exclude .git . "$1"; }
 
-show_file_or_dir_preview="if [ -d {} ]; then eza --tree --color=always {} | head -200; else batcat -n --color=always --line-range :500 {}; fi"
+show_file_or_dir_preview="if [ -d {} ]; then eza --icons --tree --color=always {} | head -200; else bat -n --color=always --line-range :500 {}; fi"
 
 export FZF_CTRL_T_OPTS="--preview '$show_file_or_dir_preview'"
-export FZF_ALT_C_OPTS="--preview 'eza --tree --color=always {} | head -200'"
+export FZF_ALT_C_OPTS="--preview 'eza --icons --tree --color=always {} | head -200'"
 
 _fzf_comprun() {
     local command=$1; shift
     case "$command" in
-        cd)           fzf --preview 'eza --tree --color=always {} | head -200' "$@" ;;
+        cd)           fzf --preview 'eza --icons --tree --color=always {} | head -200' "$@" ;;
         export|unset) fzf --preview "eval 'echo ${}'" "$@" ;;
         ssh)          fzf --preview 'dig {}' "$@" ;;
         *)            fzf --preview "$show_file_or_dir_preview" "$@" ;;

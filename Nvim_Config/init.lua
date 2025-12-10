@@ -8,8 +8,8 @@ require 'options'
 require 'keymaps'
 require 'lazy-init'
 
-vim.api.nvim_create_autocmd("User", {
-    pattern = "VeryLazy",
+vim.api.nvim_create_autocmd('User', {
+    pattern = 'VeryLazy',
     callback = function()
         -- General Editor Transparent Background
         vim.cmd [[
@@ -43,5 +43,5 @@ vim.api.nvim_create_autocmd("User", {
             hi LspInfoBorder guibg=none ctermbg=none
             hi DiagnosticFloatBg guibg=none ctermbg=none
         ]]
-    end
+    end,
 })

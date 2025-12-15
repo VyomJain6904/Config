@@ -7,6 +7,9 @@ local opts = {
 -- Clear highlights on search when pressing <Esc> in normal mode
 keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
+-- Alt+Backspace: delete previous word
+keymap.set('i', '<A-BS>', '<C-w>', { noremap = true })
+
 -- Split windows
 keymap.set('n', 'sh', ':vsplit<Return>', opts)
 keymap.set('n', 'sv', ':split<Return>', opts)
@@ -100,3 +103,8 @@ keymap.set('n', '<A-Down>', ':m .+1<CR>==', opts)
 -- For visual mode (VS Code behavior)
 keymap.set('v', '<A-Up>', ":m '<-2<CR>gv=gv", opts)
 keymap.set('v', '<A-Down>', ":m '>+1<CR>gv=gv", opts)
+
+-- For CheatSheat Preview
+vim.keymap.set('n', '<leader>ch', function()
+    require('util.cheatsheat').open()
+end, { desc = 'Cheatsheet Show keymaps' })

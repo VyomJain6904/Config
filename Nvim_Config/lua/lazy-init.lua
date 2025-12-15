@@ -104,6 +104,9 @@ require('lazy').setup({
             import = 'plugins.ui.dressing',
         },
         {
+            import = 'plugins.ui.indent',
+        },
+        {
             import = 'plugins.ui.treesitter-context',
         },
         {

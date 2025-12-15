@@ -7,8 +7,8 @@ vim.opt.number = true
 -- Relative numbers
 vim.opt.relativenumber = false
 
--- Disable wrap
-vim.wo.wrap = true
+-- Enable wrap
+vim.wo.wrap = false
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
@@ -54,7 +54,7 @@ vim.opt.list = true
 vim.opt.listchars = {
     tab = '» ',
     trail = '·',
-    nbsp = '␣'
+    nbsp = '␣',
 }
 
 -- Preview substitutions live, as you type!
@@ -71,3 +71,5 @@ vim.opt.termguicolors = true
 
 -- Set statusline to be global
 vim.opt.laststatus = 3
+
+vim.opt.listchars:append 'space:⋅'

@@ -1,5 +1,5 @@
-return {{
-    "davidmh/mdx.nvim",
-    config = true,
-    dependencies = {"nvim-treesitter/nvim-treesitter"}
-}}
+return {
+    'davidmh/mdx.nvim',
+    ft = { 'mdx' },
+    config = function() end,
+}

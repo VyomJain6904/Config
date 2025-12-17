@@ -5,14 +5,37 @@ local opts = {
 }
 
 -- Clear highlights on search when pressing <Esc> in normal mode
-keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
+vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 -- Alt+Backspace: delete previous word
-keymap.set('i', '<A-BS>', '<C-w>', { noremap = true })
+vim.keymap.set(
+    'i',
+    '<A-BS>',
+    '<C-w>',
+    { desc = 'Clear Word [ctrl + w]' },
+    { noremap = true }
+)
 
 -- Split windows
-keymap.set('n', 'sh', ':vsplit<Return>', opts)
-keymap.set('n', 'sv', ':split<Return>', opts)
+vim.keymap.set('n', 'sv', ':vsplit<Return>', { desc = 'Vertical Split' })
+vim.keymap.set('n', 'shh', ':split<Return>', { desc = 'Horizontal Split' })
+
+-- Window navigation
+vim.keymap.set('n', '<leader>wh', '<C-w>h', { desc = 'Focus Window left' })
+vim.keymap.set('n', '<leader>wj', '<C-w>j', { desc = 'Focus Window down' })
+vim.keymap.set('n', '<leader>wk', '<C-w>k', { desc = 'Focus Window up' })
+vim.keymap.set('n', '<leader>wl', '<C-w>l', { desc = 'Focus Window right' })
+
+-- Arrow keys version
+vim.keymap.set('n', '<leader>w<Left>', '<C-w>h', { desc = 'Focus Window left' })
+vim.keymap.set('n', '<leader>w<Down>', '<C-w>j', { desc = 'Focus Window down' })
+vim.keymap.set('n', '<leader>w<Up>', '<C-w>k', { desc = 'Focus Window up' })
+vim.keymap.set(
+    'n',
+    '<leader>w<Right>',
+    '<C-w>l',
+    { desc = 'Focus Window right' }
+)
 
 -- Tabs
 keymap.set('n', 'te', ':tabedit', opts)
@@ -80,29 +103,71 @@ keymap.set('v', '>', '>gv')
 
 -- Custom keymaps
 -- Copy Line Down (Shift + Alt + Down)
-keymap.set('n', '<S-A-Down>', 'yyp', opts)
+vim.keymap.set(
+    'n',
+    '<S-A-Down>',
+    'yyp',
+    { desc = 'Copy Line Down [Shift + alt + Down]' },
+    opts
+)
 
 -- Copy Line Up (Shift + Alt + Up)
-keymap.set('n', '<S-A-Up>', 'yyP', opts)
+vim.keymap.set(
+    'n',
+    '<S-A-Up>',
+    'yyP',
+    { desc = 'Copy Line UP [Shit + alt + Up]' },
+    opts
+)
 
 -- Open Folder (Ctrl + O)
 -- Equivalent: open file browser in Neovim
-keymap.set('n', '<C-o>', ':Oil<CR>', opts) -- If using oil.nvim
+vim.keymap.set(
+    'n',
+    '<C-o>',
+    ':Oil<CR>',
+    { desc = 'Open Folder [ctrl + o]' },
+    opts
+) -- If using oil.nvim
 -- OR if using netrw
 -- keymap.set("n", "<C-o>", ":Ex<CR>", opts)
 
 -- Multiple cursors (Ctrl+Shift+Up / Ctrl+Shift+Down)
 -- Using vim-visual-multi plugin
-keymap.set('n', '<C-S-Up>', '<Plug>(VM-Add-Cursor-Up)', {})
-keymap.set('n', '<C-S-Down>', '<Plug>(VM-Add-Cursor-Down)', {})
+vim.keymap.set(
+    'n',
+    '<C-S-Up>',
+    '<Plug>(VM-Add-Cursor-Up)',
+    { desc = 'Multiple Cursors [ctrl + shift + up]' },
+    {}
+)
+vim.keymap.set(
+    'n',
+    '<C-S-Down>',
+    '<Plug>(VM-Add-Cursor-Down)',
+    { desc = 'Multiple Cursors [ctrl + shift + down]' },
+    {}
+)
 
 -- Move Line Up/Down (Alt + Up / Alt + Down)
-keymap.set('n', '<A-Up>', ':m .-2<CR>==', opts)
-keymap.set('n', '<A-Down>', ':m .+1<CR>==', opts)
+vim.keymap.set(
+    'n',
+    '<A-Up>',
+    ':m .-2<CR>==',
+    { desc = 'Move line up [alt + up]' },
+    opts
+)
+vim.keymap.set(
+    'n',
+    '<A-Down>',
+    ':m .+1<CR>==',
+    { desc = 'Move lne down [alt + down]' },
+    opts
+)
 
 -- For visual mode (VS Code behavior)
-keymap.set('v', '<A-Up>', ":m '<-2<CR>gv=gv", opts)
-keymap.set('v', '<A-Down>', ":m '>+1<CR>gv=gv", opts)
+vim.keymap.set('v', '<A-Up>', ":m '<-2<CR>gv=gv", opts)
+vim.keymap.set('v', '<A-Down>', ":m '>+1<CR>gv=gv", opts)
 
 -- For CheatSheat Preview
 vim.keymap.set('n', '<leader>ch', function()

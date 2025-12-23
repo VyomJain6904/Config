@@ -1,0 +1,88 @@
+############################
+# BASIC
+############################
+set $mod Mod4
+font pango:JetBrainsMono Nerd Font 13
+
+# Default split: side-by-side
+default_orientation horizontal
+
+# Stable focus behavior
+focus_follows_mouse no
+mouse_warping none
+
+############################
+# AUTOSTART
+############################
+exec_always --no-startup-id feh --bg-scale ~/Pictures/w5.jpg
+exec --no-startup-id nm-applet
+
+# Polybar (clean restart)
+exec_always --no-startup-id killall polybar
+exec_always --no-startup-id ~/.config/polybar/launch_polybar.sh
+
+############################
+# APPS
+############################
+set $term alacritty
+set $browser firefox
+set $editor subl
+
+bindsym $mod+Return exec $term
+bindsym $mod+b exec $browser
+bindsym $mod+s exec --no-startup-id $editor
+bindsym $mod+c exec --no-startup-id caido
+
+############################
+# FOCUS (ARROW KEYS)
+############################
+bindsym $mod+Left  focus left
+bindsym $mod+Down  focus down
+bindsym $mod+Up    focus up
+bindsym $mod+Right focus right
+
+############################
+# LAYOUT
+############################
+bindsym $mod+v split v
+bindsym $mod+h split h
+bindsym $mod+f fullscreen toggle
+bindsym $mod+Shift+space floating toggle
+
+############################
+# WORKSPACES (NUMBERS ONLY)
+############################
+bindsym $mod+1 workspace 1
+bindsym $mod+2 workspace 2
+bindsym $mod+3 workspace 3
+bindsym $mod+4 workspace 4
+bindsym $mod+5 workspace 5
+
+bindsym $mod+Shift+1 move container to workspace 1
+bindsym $mod+Shift+2 move container to workspace 2
+bindsym $mod+Shift+3 move container to workspace 3
+bindsym $mod+Shift+4 move container to workspace 4
+bindsym $mod+Shift+5 move container to workspace 5
+
+############################
+# SYSTEM
+############################
+bindsym $mod+q kill
+bindsym $mod+Shift+r restart
+bindsym $mod+Shift+c reload
+bindsym $mod+Shift+e exec "i3-msg exit"
+
+############################
+# RESIZE MODE (ONLY WHEN NEEDED)
+############################
+mode "resize" {
+    bindsym h resize shrink width 10 px
+    bindsym l resize grow width 10 px
+    bindsym j resize grow height 10 px
+    bindsym k resize shrink height 10 px
+
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+bindsym $mod+r mode "resize"
+

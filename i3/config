@@ -2,13 +2,20 @@
 # BASIC
 ############################
 set $mod Mod4
-font pango:JetBrainsMono Nerd Font 13
+font pango:JetBrainsMono Nerd Font 0
+default_border pixel 2
+default_floating_border pixel 2
 
-# Default split: side-by-side
+
+############################
+# Default split: Vertical
+############################
 default_orientation horizontal
 
+############################
 # Stable focus behavior
-focus_follows_mouse no
+############################
+focus_follows_mouse yes
 mouse_warping none
 
 ############################
@@ -16,8 +23,11 @@ mouse_warping none
 ############################
 exec_always --no-startup-id feh --bg-scale ~/Pictures/w5.jpg
 exec --no-startup-id nm-applet
+exec_always --no-startup-id setenv QT_QPA_PLATFORMTHEME qt6ct
 
-# Polybar (clean restart)
+############################
+# Polybar
+############################
 exec_always --no-startup-id killall polybar
 exec_always --no-startup-id ~/.config/polybar/launch_polybar.sh
 
@@ -32,9 +42,10 @@ bindsym $mod+Return exec $term
 bindsym $mod+b exec $browser
 bindsym $mod+s exec --no-startup-id $editor
 bindsym $mod+c exec --no-startup-id caido
+bindsym $mod+w exec --no-startup-id wireshark
 
 ############################
-# FOCUS (ARROW KEYS)
+# FOCUS
 ############################
 bindsym $mod+Left  focus left
 bindsym $mod+Down  focus down
@@ -44,25 +55,35 @@ bindsym $mod+Right focus right
 ############################
 # LAYOUT
 ############################
-bindsym $mod+v split v
-bindsym $mod+h split h
+bindsym $mod+v split h
+bindsym $mod+h split v
 bindsym $mod+f fullscreen toggle
 bindsym $mod+Shift+space floating toggle
 
 ############################
-# WORKSPACES (NUMBERS ONLY)
+# WORKSPACES
 ############################
 bindsym $mod+1 workspace 1
 bindsym $mod+2 workspace 2
 bindsym $mod+3 workspace 3
 bindsym $mod+4 workspace 4
 bindsym $mod+5 workspace 5
+bindsym $mod+6 workspace 6
+bindsym $mod+7 workspace 7
+bindsym $mod+8 workspace 8
+bindsym $mod+9 workspace 9
+bindsym $mod+0 workspace 10
 
 bindsym $mod+Shift+1 move container to workspace 1
 bindsym $mod+Shift+2 move container to workspace 2
 bindsym $mod+Shift+3 move container to workspace 3
 bindsym $mod+Shift+4 move container to workspace 4
 bindsym $mod+Shift+5 move container to workspace 5
+bindsym $mod+Shift+6 move container to workspace 6
+bindsym $mod+Shift+7 move container to workspace 7
+bindsym $mod+Shift+8 move container to workspace 8
+bindsym $mod+Shift+9 move container to workspace 9
+bindsym $mod+Shift+0 move container to workspace 10
 
 ############################
 # SYSTEM
@@ -73,7 +94,7 @@ bindsym $mod+Shift+c reload
 bindsym $mod+Shift+e exec "i3-msg exit"
 
 ############################
-# RESIZE MODE (ONLY WHEN NEEDED)
+# RESIZE MODE
 ############################
 mode "resize" {
     bindsym h resize shrink width 10 px
@@ -85,4 +106,20 @@ mode "resize" {
     bindsym Escape mode "default"
 }
 bindsym $mod+r mode "resize"
+
+############################
+# Move window
+############################
+bindsym $mod+Shift+Left  move left
+bindsym $mod+Shift+Right move right
+bindsym $mod+Shift+Up    move up
+bindsym $mod+Shift+Down  move down
+
+############################
+# COLORS
+############################
+client.focused          #50FA7B  #50FA7B   #282A36  #50FA7B   #50FA7B
+client.focused_inactive #44475A  #44475A   #F8F8F2  #44475A   #44475A
+client.unfocused        #282A36  #282A36   #6272A4  #282A36   #282A36
+client.urgent           #FF5555  #FF5555   #F8F8F2  #FF5555   #FF5555
 

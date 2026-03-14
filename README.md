@@ -18,6 +18,8 @@ git clone https://github.com/zsh-users/zsh-syntax-highlighting ~/.oh-my-zsh/plug
 git clone https://github.com/zsh-users/zsh-completions ~/.oh-my-zsh/plugins/zsh-completions
 git clone https://github.com/zsh-users/zsh-history-substring-search ~/.oh-my-zsh/plugins/zsh-history-substring-search
 git clone https://github.com/romkatv/zsh-defer.git ~/.oh-my-zsh/plugins/zsh-defer
+curl -sS https://starship.rs/install.sh | sh
+
 ```
 
 ### Install the following Plugins :

@@ -25,7 +25,7 @@ curl -sS https://starship.rs/install.sh | sh
 ### Install the following Plugins :
 
 ```sh
-sudo apt install fzf eza fd yazi jq zoxide fastfetch batcat tldr ripgrep poppler -y # For Ubuntu / Debain Based
+sudo apt install fzf eza fd-find jq zoxide fastfetch bat ripgrep -y # For Ubuntu / Debain Based
 ```
 
 ```sh

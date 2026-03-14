@@ -1,0 +1,73 @@
+[env]
+TERM = "xterm-256color"
+
+[window]
+opacity = 1
+#decorations = "none"
+
+[cursor]
+style = "Beam"
+unfocused_hollow = true
+
+[font]
+size = 14.0
+
+[font.normal]
+family = "JetBrainsMono Nerd Font"
+style = "Regular"
+
+[font.bold]
+family = "JetBrainsMono Nerd Font"
+style = "Bold"
+
+[font.italic]
+family = "JetBrainsMono Nerd Font"
+style = "Italic"
+
+[font.bold_italic]
+family = "JetBrainsMono Nerd Font"
+style = "Bold Italic"
+
+# =========================
+# Dracula Colors
+# =========================
+[colors.primary]
+background = "#1B1D27"
+foreground = "#F8F8F2"
+
+[colors.cursor]
+text = "#1B1D27"
+cursor = "#F8F8F2"
+
+[colors.selection]
+text = "#1B1D27"
+background = "#FF79C6"
+
+[colors.normal]
+black   = "#14151D"
+red     = "#FF5555"
+green   = "#50FA7B"
+yellow  = "#F1FA8C"
+blue    = "#BD93F9"
+magenta = "#FF79C6"
+cyan    = "#8BE9FD"
+white   = "#F8F8F2"
+
+[colors.bright]
+black   = "#44475A"
+red     = "#FF6E6E"
+green   = "#69FF94"
+yellow  = "#FFFFA5"
+blue    = "#D6ACFF"
+magenta = "#FF92DF"
+cyan    = "#A4FFFF"
+white   = "#FFFFFF"
+
+[[colors.indexed_colors]]
+index = 16
+color = "#FFB86C"
+
+[[colors.indexed_colors]]
+index = 17
+color = "#FF5555"
+

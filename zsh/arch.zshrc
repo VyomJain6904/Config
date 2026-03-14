@@ -163,12 +163,12 @@ PROMPT='[%F{red}󰣇 %c%f] [%F{green}  $(get_ip_address)%f] $(git_branch)➤ 
 # System
 alias cls="clear"
 alias cl="clear"
-alias upd="sudo pacman -Syu --noconfirm"
-alias updapp="yay -Syu --noconfirm"
+alias upd="sudo pacman -Syu"
+alias updapp="yay -Syu"
 alias rmf="sudo rm -rf"
 alias remove="sudo pacman -Rns"
-alias cln='sudo pacman -Rns $(pacman -Qdtq) && sudo pacman -Sc --noconfirm'
-alias ins="sudo pacman -S --noconfirm"
+alias cln='sudo pacman -Rns $(pacman -Qdtq) && sudo pacman -Sc'
+alias ins="sudo pacman -S"
 alias omz="omz update"
 alias exir="exit"
 alias mk="mkdir"
@@ -180,7 +180,7 @@ alias z="zoxide"
 alias cdc="cd -"
 
 # Files
-alias l="eza -la --icons --git --color=always --level=1 --no-time --no-user --tree"
+alias l="eza -l --icons --git --color=always --level=1 --no-time --no-user --tree"
 alias ll="eza -la --icons --git --color=always --level=2 --no-time --no-user --tree"
 alias lll="eza -la --icons --git --color=always --level=3 --no-time --no-user --tree"
 alias llll="eza -la --icons --git --color=always --level=4 --no-time --no-user --tree"
@@ -190,6 +190,7 @@ alias cargoi="cargo-seek"
 
 # Dev
 alias start="npm run dev"
+alias bstart="bun run dev"
 alias cn="cargo new"
 alias cr="cargo run"
 alias ca="cargo add"
@@ -359,3 +360,14 @@ autoload -U compinit && compinit
 eval "$(register-python-argcomplete pipx)"
 autoload -U bashcompinit
 bashcompinit
+
+export PATH="$HOME/.npm-global/bin:$PATH"
+
+# bun completions
+[ -s "/home/jain/.bun/_bun" ] && source "/home/jain/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+export PATH="/usr/bin:$PATH"

@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Control Center</title>
+<style>
+@font-face {
+  font-family: 'fontello';
+  src: url('file:///home/jain/.local/share/fonts/fontello.woff2') format('woff2'),
+       url('file:///home/jain/.local/share/fonts/fontello.woff')  format('woff'),
+       url('file:///home/jain/.local/share/fonts/fontello.ttf')   format('truetype');
+  font-weight: normal; font-style: normal;
+}
+[class^="icon-"]:before,[class*=" icon-"]:before {
+  font-family:'fontello'; font-style:normal; font-weight:normal; speak:never;
+  display:inline-block; text-decoration:inherit; font-variant:normal;
+  text-transform:none; line-height:1; -webkit-font-smoothing:antialiased;
+}
+.icon-volume-off:before  { content: '\e800'; }
+.icon-volume-down:before { content: '\e801'; }
+.icon-volume-up:before   { content: '\e802'; }
+.icon-headphones:before  { content: '\e803'; }
+.icon-light-up:before    { content: '\e809'; }
+.icon-adjust:before      { content: '\e80a'; }
+.icon-power:before       { content: '\e811'; }
+.icon-sun:before         { content: '\e813'; }
+.icon-flash:before       { content: '\e81d'; }
+.icon-videocam:before    { content: '\e81f'; }
+.icon-bluetooth:before   { content: '\f293'; }
+.icon-bluetooth-b:before { content: '\f294'; }
+.icon-wifi:before        { content: '\f1eb'; }
+.icon-battery-4:before   { content: '\f240'; }
+.icon-battery-3:before   { content: '\f241'; }
+.icon-battery-2:before   { content: '\f242'; }
+.icon-battery-1:before   { content: '\f243'; }
+.icon-battery-0:before   { content: '\f244'; }
+.icon-music:before       { content: '\e806'; }
+.icon-speaker:before     { content: '\e802'; }
+.icon-mouse:before       { content: '\e80a'; }
+.icon-phone:before       { content: '\e81f'; }
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-font-smoothing:antialiased; }
+
+:root {
+  --bg:   rgba(32,34,38,0.68);
+  --card: rgba(72,74,80,0.46);
+  --hov:  rgba(88,90,98,0.58);
+  --sep:  rgba(255,255,255,0.07);
+  --blue: #0a84ff;
+  --grn:  #30d158;
+  --red:  #ff453a;
+  --amb:  #ff9f0a;
+  --t1:   rgba(255,255,255,0.95);
+  --t2:   rgba(255,255,255,0.42);
+  --t3:   rgba(255,255,255,0.20);
+  --r:    13px;
+}
+
+html {
+  background: transparent !important;
+  width: 100%; height: 100%;
+}
+body {
+  background: transparent !important;
+  font-family: -apple-system, "SF Pro Text", "Helvetica Neue", sans-serif;
+  padding: 7px 12px 7px 7px;
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── PANEL ── */
+.panel {
+  width: 300px;
+  background: var(--bg);
+  backdrop-filter: blur(96px) saturate(255%);
+  -webkit-backdrop-filter: blur(96px) saturate(255%);
+  border-radius: 18px;
+  border: .5px solid rgba(255,255,255,0.22);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    0 16px 42px rgba(0,0,0,0.55),
+    inset 0 1px 0 rgba(255,255,255,0.20),
+    inset 0 0 0 .5px rgba(255,255,255,0.10);
+  animation: pop .16s cubic-bezier(.2,.85,.3,1.05) both;
+}
+.panel::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 44%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.13), rgba(255,255,255,0));
+  pointer-events: none;
+}
+@keyframes pop {
+  from { opacity:0; transform: scale(.95) translateY(-5px); }
+  to   { opacity:1; transform: scale(1)   translateY(0); }
+}
+
+/* ── TOP GRID ── */
+.topgrid { display: grid; grid-template-columns: 55% 1fr; gap: 5px; }
+
+.netcard { background: var(--card); border-radius: var(--r); overflow: hidden; }
+.netitem {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 9px; cursor: pointer;
+  transition: background .1s; position: relative;
+}
+.netitem:hover  { background: rgba(255,255,255,.07); }
+.netitem:active { background: rgba(255,255,255,.12); }
+.netitem + .netitem::before {
+  content: ''; position: absolute; top: 0; left: 38px; right: 0;
+  height: .5px; background: var(--sep);
+}
+
+.ic {
+  width: 26px; height: 26px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: background .2s; font-size: 13px; color: #fff;
+}
+.ic.on  { background: var(--blue); }
+.ic.off { background: rgba(80,80,84,.95); }
+
+.nname { font-size: 11.5px; font-weight: 600; color: var(--t1); line-height: 1.2; }
+.nsub  {
+  font-size: 10px; color: var(--t2); margin-top: 1px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 86px;
+}
+.chev { margin-left: auto; color: var(--t3); flex-shrink: 0; }
+
+/* right col */
+.rcol { display: flex; flex-direction: column; gap: 5px; }
+.rtile {
+  background: var(--card); border-radius: var(--r);
+  padding: 5px 10px; display: flex; align-items: center; gap: 7px;
+  cursor: pointer; transition: background .1s; flex: 1; min-height: 38px;
+}
+.rtile:hover  { background: var(--hov); }
+.rtile:active { transform: scale(.97); }
+.rico {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: rgba(80,80,84,.95);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-size: 14px; color: #fff;
+}
+.rlbl { font-size: 11.5px; font-weight: 600; color: var(--t1); }
+
+/* ── SLIDERS ── */
+.slcard { background: var(--card); border-radius: var(--r); padding: 6px 11px 8px; }
+.slhead { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+.slname { font-size: 11.5px; font-weight: 600; color: var(--t1); flex: 1; }
+.slpct  {
+  font-size: 11.5px; color: var(--t2);
+  font-variant-numeric: tabular-nums; min-width: 34px; text-align: right;
+}
+.sltrk {
+  position: relative; height: 5px;
+  background: rgba(255,255,255,.11); border-radius: 3px;
+}
+.slfil {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  background: #fff; border-radius: 3px; pointer-events: none;
+}
+input.rng {
+  -webkit-appearance: none;
+  position: absolute; left: 0; right: 0; top: -9px;
+  width: 100%; background: transparent; cursor: pointer; margin: 0;
+}
+input.rng::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 21px; height: 21px; border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 5px rgba(0,0,0,.55);
+  cursor: pointer; transition: transform .1s;
+}
+input.rng:active::-webkit-slider-thumb { transform: scale(1.1); }
+
+/* ── INFO ROW ── */
+.inforow { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+.infotile {
+  background: var(--card); border-radius: var(--r);
+  padding: 6px 10px; display: flex; align-items: center; gap: 8px;
+}
+.ival { font-size: 12.5px; font-weight: 600; color: var(--t1); }
+.isub { font-size: 10px; color: var(--t2); margin-top: 1px; }
+.tmpring {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: rgba(255,159,10,.14);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+
+/* ══════════════════════════════
+   SUBMENUS — rendered inside the window bounds
+══════════════════════════════ */
+.smenu {
+  position: absolute;
+  background: rgba(34,36,40,0.70);
+  backdrop-filter: blur(88px) saturate(240%);
+  -webkit-backdrop-filter: blur(88px) saturate(240%);
+  border-radius: 14px;
+  border: .5px solid rgba(255,255,255,.22);
+  box-shadow: 0 12px 36px rgba(0,0,0,.50), inset 0 1px 0 rgba(255,255,255,.16);
+  width: 248px;
+  padding: 4px 0;
+  z-index: 9999;
+  display: none;
+  max-height: min(320px, calc(100vh - 16px));
+  overflow-y: auto;
+}
+.smenu.show { display: block; animation: min .13s cubic-bezier(.2,.85,.3,1.1) both; }
+@keyframes min {
+  from { opacity:0; transform: scale(.93) translateY(-4px); }
+  to   { opacity:1; transform: scale(1)   translateY(0); }
+}
+
+.mhdr {
+  padding: 7px 13px 4px;
+  font-size: 10.5px; font-weight: 700;
+  color: var(--t2); letter-spacing: .06em; text-transform: uppercase;
+}
+.msep { height: .5px; background: var(--sep); margin: 3px 0; }
+
+.mitem {
+  display: flex; align-items: center; gap: 9px;
+  padding: 6px 12px; cursor: pointer; transition: background .1s;
+}
+.mitem:hover  { background: rgba(255,255,255,.07); }
+.mitem:active { background: rgba(255,255,255,.11); }
+
+.mchk {
+  width: 14px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--blue);
+}
+.mname { font-size: 12.5px; color: var(--t1); font-weight: 500; }
+.msub2 { font-size: 10.5px; color: var(--t2); margin-top: 1px; }
+
+/* device icon bubble in submenu */
+.btico {
+  width: 26px; height: 26px; border-radius: 8px;
+  background: rgba(255,255,255,.1);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-size: 13px; color: #fff;
+}
+.soico {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: rgba(255,255,255,.1);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-size: 13px; color: #fff;
+}
+
+/* signal bars */
+.sigsvg { flex-shrink: 0; }
+
+.spin {
+  width: 12px; height: 12px; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.14); border-top-color: var(--blue);
+  animation: sp .7s linear infinite;
+}
+@keyframes sp { to { transform: rotate(360deg); } }
+
+.mftr {
+  display: flex; gap: 5px;
+  padding: 4px 12px; border-top: .5px solid var(--sep); margin-top: 2px;
+}
+.mact {
+  background: rgba(255,255,255,.09); border: none; border-radius: 7px;
+  font-size: 11px; font-weight: 600; color: var(--t1);
+  padding: 5px 10px; cursor: pointer; transition: background .1s;
+  font-family: inherit;
+}
+.mact:hover { background: rgba(255,255,255,.15); }
+</style>
+</head>
+<body>
+
+<!-- ── Submenus (outside .panel so they're not clipped) ── -->
+<div class="smenu" id="wifimenu">
+  <div class="mhdr">Wi-Fi</div>
+  <div id="wifilist"></div>
+  <div class="msep"></div>
+  <div class="mftr">
+    <button class="mact" onclick="execCmd('networkmanager_dmenu');closeMenus()">+ Other…</button>
+    <button class="mact" onclick="execCmd('ghostty -e nmtui &');closeMenus()">Settings</button>
+  </div>
+</div>
+
+<div class="smenu" id="btmenu">
+  <div class="mhdr">Bluetooth</div>
+  <div id="btlist"></div>
+  <div class="msep"></div>
+  <div class="mftr">
+    <button class="mact" onclick="execCmd('blueman-manager &');closeMenus()">+ Add Device</button>
+    <button class="mact" onclick="execCmd('ghostty -e bluetoothctl &');closeMenus()">Settings</button>
+  </div>
+</div>
+
+<div class="smenu" id="soundmenu">
+  <div class="mhdr">Output Device</div>
+  <div id="soundlist"></div>
+  <div class="msep"></div>
+  <div class="mftr">
+    <button class="mact" onclick="execCmd('pavucontrol &');closeMenus();">Sound Settings</button>
+  </div>
+</div>
+
+<!-- ── PANEL ── -->
+<div class="panel">
+
+  <!-- Top grid -->
+  <div class="topgrid">
+    <div class="netcard">
+
+      <div class="netitem" onclick="toggleWifi()" id="wifi-row">
+        <div class="ic on" id="wic">
+          <span class="icon-wifi"></span>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div class="nname">Wi-Fi</div>
+          <div class="nsub" id="wssid">Connected</div>
+        </div>
+        <div class="chev">›</div>
+      </div>
+
+      <div class="netitem" onclick="toggleBluetooth()" id="bt-row">
+        <div class="ic on" id="btic">
+          <span class="icon-bluetooth"></span>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div class="nname">Bluetooth</div>
+          <div class="nsub" id="btsub">On</div>
+        </div>
+        <div class="chev">›</div>
+      </div>
+
+    </div>
+
+    <div class="rcol">
+      <div class="rtile" onclick="execAndClose('flameshot gui')">
+        <div class="rico"><span class="icon-videocam"></span></div>
+        <div class="rlbl">Screenshot</div>
+      </div>
+      <div class="rtile" id="power-row" onclick="execAndClose('systemctl poweroff')">
+        <div class="rico" style="background:#ff453a;"><span class="icon-power"></span></div>
+        <div class="rlbl">Power Off</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Brightness -->
+  <div class="slcard">
+    <div class="slhead">
+      <span class="icon-light-up" style="font-size:16px;color:#fff;flex-shrink:0;"></span>
+      <span class="slname">Display</span>
+      <span class="slpct" id="brival">80%</span>
+    </div>
+    <div class="sltrk">
+      <div class="slfil" id="brifil" style="width:80%"></div>
+      <input type="range" class="rng" id="brightness" min="5" max="100" value="80" oninput="onBri(this.value)">
+    </div>
+  </div>
+
+  <!-- Sound — right-click for outputs -->
+  <div class="slcard" id="sound-row" style="cursor:context-menu">
+    <div class="slhead">
+      <span id="volico" class="icon-volume-up" style="font-size:16px;color:#fff;flex-shrink:0;"></span>
+      <span class="slname">Sound</span>
+      <span class="slpct" id="volval">80%</span>
+    </div>
+    <div class="sltrk">
+      <div class="slfil" id="volfil" style="width:80%"></div>
+      <input type="range" class="rng" id="volume" min="0" max="100" value="80" oninput="onVol(this.value)">
+    </div>
+  </div>
+
+  <!-- Battery + Temp -->
+  <div class="inforow">
+
+    <div class="infotile">
+      <span id="batico" class="icon-battery-4" style="font-size:22px;color:#30d158;flex-shrink:0;"></span>
+      <div>
+        <div class="ival" id="battpct">--%</div>
+        <div class="isub" id="battstat">--</div>
+      </div>
+    </div>
+
+    <div class="infotile">
+      <div class="tmpring">
+        <span class="icon-adjust" style="font-size:15px;color:#ff9f0a;"></span>
+      </div>
+      <div>
+        <div class="ival" id="tempval" style="color:#ff9f0a">--°C</div>
+        <div class="isub">CPU Temp</div>
+      </div>
+    </div>
+
+  </div>
+
+</div><!-- /panel -->
+
+<script>
+/* ── Disable native context menu globally ── */
+document.addEventListener('contextmenu', e => e.preventDefault());
+
+/* ── Right-click via mousedown button===2 (WebKit2GTK safe) ── */
+document.addEventListener('mousedown', function(e) {
+  if (e.button !== 2) return;
+  e.preventDefault();
+  e.stopPropagation();
+
+  // Walk up from target to find which trigger was right-clicked
+  let el = e.target;
+  while (el && el !== document.body) {
+    if (el.id === 'wifi-row')  { switchMenu(el, 'wifimenu');  return; }
+    if (el.id === 'bt-row')    { switchMenu(el, 'btmenu');    return; }
+    if (el.id === 'sound-row') { switchMenu(el, 'soundmenu'); return; }
+    if (el.id === 'power-row') {
+      closeMenus(true);
+      execCmd('__close__');
+      setTimeout(() => execCmd('~/.local/bin/powermenu'), 170);
+      return;
+    }
+    el = el.parentElement;
+  }
+
+  closeMenus();
+}, true); // capture phase so range inputs don't block it
+
+/* ── Global key handler ── */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    if (activeMenu) { closeMenus(); }
+    else { execCmd('__close__'); }
+  }
+});
+
+function reportPanelSize() {
+  const panel = document.querySelector('.panel');
+  if (!panel) return;
+  const rect = panel.getBoundingClientRect();
+  const st = getComputedStyle(document.body);
+  const pl = parseFloat(st.paddingLeft) || 0;
+  const pr = parseFloat(st.paddingRight) || 0;
+  const pt = parseFloat(st.paddingTop) || 0;
+  const pb = parseFloat(st.paddingBottom) || 0;
+  const width = Math.ceil(rect.width + pl + pr);
+  const height = Math.ceil(rect.height + pt + pb);
+  execCmd(`__panel_size__:${width},${height}`);
+}
+
+/* ── CC: init + periodic refresh ── */
+function CC(bp, bs, bc, bf, temp, vol, muted, bri, wssid, won, bton) {
+
+  // Battery icon (fontello)
+  const pct = parseInt(bp) || 0;
+  const bico = document.getElementById('batico');
+  if (bc || bf) {
+    bico.className = 'icon-flash';
+    bico.style.color = '#30d158';
+  } else if (pct > 75) { bico.className='icon-battery-4'; bico.style.color='#30d158'; }
+  else if (pct > 50)   { bico.className='icon-battery-3'; bico.style.color='#30d158'; }
+  else if (pct > 25)   { bico.className='icon-battery-2'; bico.style.color='var(--amb)'; }
+  else if (pct > 10)   { bico.className='icon-battery-1'; bico.style.color='var(--red)'; }
+  else                 { bico.className='icon-battery-0'; bico.style.color='var(--red)'; }
+
+  document.getElementById('battpct').textContent  = pct + '%';
+  document.getElementById('battstat').textContent = bc ? 'Charging' : bf ? 'Full' : bs;
+
+  // Temp
+  const tv = document.getElementById('tempval');
+  tv.textContent = (temp > 0 ? temp : '--') + '°C';
+  tv.style.color = temp >= 90 ? '#ff453a' : '#ff9f0a';
+
+  // Volume
+  const v = parseInt(vol) || 0;
+  document.getElementById('volume').value       = v;
+  document.getElementById('volfil').style.width = v + '%';
+  document.getElementById('volval').textContent = muted ? 'Muted' : v + '%';
+  const vico = document.getElementById('volico');
+  if (muted)     { vico.className = 'icon-volume-off';  vico.style.color = '#ff453a'; }
+  else if (v<30) { vico.className = 'icon-volume-down'; vico.style.color = '#fff'; }
+  else           { vico.className = 'icon-volume-up';   vico.style.color = '#fff'; }
+
+  // Brightness
+  const b = parseInt(bri) || 0;
+  document.getElementById('brightness').value   = b;
+  document.getElementById('brifil').style.width = b + '%';
+  document.getElementById('brival').textContent = b + '%';
+
+  // WiFi
+  document.getElementById('wic').className      = 'ic ' + (won ? 'on' : 'off');
+  document.getElementById('wssid').textContent  = won ? (wssid || 'Connected') : 'Off';
+
+  // BT
+  document.getElementById('btic').className     = 'ic ' + (bton ? 'on' : 'off');
+  document.getElementById('btsub').textContent  = bton ? 'On' : 'Off';
+
+  requestAnimationFrame(reportPanelSize);
+}
+
+function execCmd(c)        { try { window.__exec && window.__exec(c); } catch(e){} }
+function execAndClose(c)   { execCmd(c); setTimeout(() => execCmd('__close__'), 80); }
+
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(reportPanelSize, 50);
+  setTimeout(reportPanelSize, 220);
+});
+
+function onBri(v) {
+  document.getElementById('brifil').style.width = v + '%';
+  document.getElementById('brival').textContent = v + '%';
+  execCmd('brightnessctl set ' + v + '%');
+}
+function onVol(v) {
+  document.getElementById('volfil').style.width = v + '%';
+  document.getElementById('volval').textContent = v + '%';
+  execCmd('pactl set-sink-volume @DEFAULT_SINK@ ' + v + '%');
+}
+
+function toggleWifi() {
+  const on = document.getElementById('wic').classList.contains('on');
+  document.getElementById('wic').className      = 'ic ' + (on ? 'off' : 'on');
+  document.getElementById('wssid').textContent  = on ? 'Off' : 'Connecting…';
+  execCmd(on ? 'nmcli radio wifi off' : 'nmcli radio wifi on');
+}
+function toggleBluetooth() {
+  const on = document.getElementById('btic').classList.contains('on');
+  document.getElementById('btic').className     = 'ic ' + (on ? 'off' : 'on');
+  document.getElementById('btsub').textContent  = on ? 'Off' : 'On';
+  execCmd(on ? 'bluetoothctl power off' : 'bluetoothctl power on');
+}
+
+/* ── Submenus ── */
+var activeMenu = null;
+
+function menuLoading(id, text) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = `<div class="mitem" style="opacity:.72"><div class="mchk"></div><div class="mname">${text}</div></div>`;
+}
+
+function requestMenuRefresh(kind) {
+  execCmd(`__refresh__:${kind}`);
+}
+
+function sigBars(lv) {
+  return [1,2,3,4].map(i => {
+    const h = i*3+2, on = i<=lv;
+    return `<rect x="${(i-1)*5}" y="${14-h}" width="3" height="${h}" rx="1"
+      fill="${on?'rgba(255,255,255,.86)':'rgba(255,255,255,.18)'}"/>`;
+  }).join('');
+}
+const chkSvg = () => `<svg width="13" height="10" viewBox="0 0 14 11" fill="none">
+  <path d="M1 5l4 4L13 1" stroke="#0a84ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>`;
+
+const btIcons = {
+  headphones: `<span class="icon-headphones"></span>`,
+  speaker:    `<span class="icon-volume-up"></span>`,
+  mouse:      `<span class="icon-adjust"></span>`,
+  phone:      `<span class="icon-videocam"></span>`,
+  default:    `<span class="icon-bluetooth"></span>`,
+};
+
+function buildWifi() {
+  const nets = window.WIFI_NETWORKS || [];
+  document.getElementById('wifilist').innerHTML = nets.length
+    ? nets.map(n => `
+      <div class="mitem" onclick="connWifi('${n.ssid.replace(/'/g,"\\'")}')">
+        <div class="mchk">${n.connected ? chkSvg() : ''}</div>
+        <div style="flex:1;min-width:0;">
+          <div class="mname">${n.ssid}</div>
+          ${n.connected ? '<div class="msub2">Connected</div>' : ''}
+        </div>
+        <svg class="sigsvg" width="20" height="14" viewBox="0 0 20 14" fill="none">${sigBars(n.signal)}</svg>
+      </div>`).join('')
+    : `<div class="mitem" style="opacity:.6"><div class="mchk"></div>
+       <div class="mname">Scanning…</div></div>`;
+}
+
+function buildBt() {
+  const devs = window.BT_DEVICES || [];
+  document.getElementById('btlist').innerHTML = devs.length
+    ? devs.map(d => `
+      <div class="mitem" onclick="connBt('${d.name.replace(/'/g,"\\'")}',this)">
+        <div class="mchk">${d.connected ? chkSvg() : ''}</div>
+        <div class="btico">${btIcons[d.type] || btIcons.default}</div>
+        <div style="flex:1;min-width:0;">
+          <div class="mname">${d.name}</div>
+          <div class="msub2">${d.connected ? 'Connected' : 'Not Connected'}</div>
+        </div>
+      </div>`).join('')
+    : `<div class="mitem" style="opacity:.6"><div class="mchk"></div>
+       <div class="mname">No paired devices</div></div>`;
+}
+
+function buildSound() {
+  const outs = window.SOUND_OUTPUTS || [];
+  document.getElementById('soundlist').innerHTML = outs.length
+    ? outs.map(o => `
+      <div class="mitem" onclick="setOutput('${o.name.replace(/'/g,"\\'")}',this)">
+        <div class="mchk">${o.active ? chkSvg() : ''}</div>
+        <div class="soico"><span class="icon-volume-up"></span></div>
+        <div style="flex:1;min-width:0;">
+          <div class="mname">${o.desc}</div>
+          <div class="msub2">${o.active ? 'Selected' : ''}</div>
+        </div>
+      </div>`).join('')
+    : `<div class="mitem" style="opacity:.6"><div class="mchk"></div>
+       <div class="mname">No outputs found</div></div>`;
+}
+
+function openMenuAt(triggerEl, id) {
+  const panel = document.querySelector('.panel');
+  if (!panel) return;
+  const pr = panel.getBoundingClientRect();
+
+  if (id === 'wifimenu') {
+    menuLoading('wifilist', 'Scanning Wi-Fi...');
+    requestMenuRefresh('wifi');
+  }
+  if (id === 'btmenu') {
+    menuLoading('btlist', 'Scanning Bluetooth...');
+    requestMenuRefresh('bt');
+  }
+  if (id === 'soundmenu') {
+    menuLoading('soundlist', 'Loading outputs...');
+    requestMenuRefresh('sound');
+  }
+
+  const menu = document.getElementById(id);
+  const mw   = 248;
+  const tr   = triggerEl.getBoundingClientRect();
+  let left   = tr.left;
+  let top    = tr.bottom + 5;
+
+  const maxH = Math.max(120, Math.floor(pr.height - 14));
+  menu.style.maxHeight = `${maxH}px`;
+
+  // Clamp to panel bounds
+  if (left + mw > pr.right - 4) left = pr.right - mw - 4;
+  if (left < pr.left + 4) left = pr.left + 4;
+
+  // Measure menu height, then flip/clamp inside panel
+  const prevDisplay = menu.style.display;
+  const prevVisibility = menu.style.visibility;
+  const prevLeft = menu.style.left;
+  const prevTop = menu.style.top;
+  menu.style.display = 'block';
+  menu.style.visibility = 'hidden';
+  menu.style.left = '0';
+  menu.style.top = '0';
+  const mh = menu.offsetHeight;
+  menu.style.display = prevDisplay;
+  menu.style.visibility = prevVisibility;
+  menu.style.left = prevLeft;
+  menu.style.top = prevTop;
+  if (top + mh > pr.bottom - 6) top = tr.top - mh - 4;
+  if (top < pr.top + 4) top = pr.top + 4;
+
+  menu.style.left = left + 'px';
+  menu.style.top  = top  + 'px';
+  menu.style.display = 'block';
+  menu.style.zIndex = '10001';
+  menu.classList.add('show');
+  activeMenu = menu;
+}
+
+function switchMenu(triggerEl, id) {
+  closeMenus(true);
+  requestAnimationFrame(() => openMenuAt(triggerEl, id));
+}
+
+function closeMenus(cl = true) {
+  document.querySelectorAll('.smenu').forEach(m => {
+    m.classList.remove('show');
+    m.style.display = 'none';
+    m.style.left = '';
+    m.style.top = '';
+  });
+  if (cl) activeMenu = null;
+}
+document.addEventListener('click', e => {
+  if (activeMenu && !activeMenu.contains(e.target)) closeMenus();
+});
+
+function connWifi(ssid) {
+  closeMenus();
+  document.getElementById('wssid').textContent = 'Connecting…';
+  execCmd(`nmcli dev wifi connect "${ssid}"`);
+  setTimeout(() => document.getElementById('wssid').textContent = ssid, 2500);
+}
+
+function connBt(name, el) {
+  const c = el.querySelector('.mchk'), s = el.querySelector('.msub2');
+  if (c.innerHTML.trim()) {
+    c.innerHTML = ''; s.textContent = 'Not Connected';
+    execCmd('bluetoothctl disconnect');
+  } else {
+    c.innerHTML = `<div class="spin"></div>`; s.textContent = 'Connecting…';
+    execCmd(`bluetoothctl connect $(bluetoothctl devices | grep "${name}" | awk '{print $2}')`);
+    setTimeout(() => { c.innerHTML = chkSvg(); s.textContent = 'Connected'; }, 2500);
+  }
+}
+
+function setOutput(sn, el) {
+  document.querySelectorAll('#soundlist .mchk').forEach(c => c.innerHTML = '');
+  document.querySelectorAll('#soundlist .msub2').forEach(s => { if (s.textContent==='Selected') s.textContent=''; });
+  el.querySelector('.mchk').innerHTML = chkSvg();
+  el.querySelector('.msub2').textContent = 'Selected';
+  execCmd(`pactl set-default-sink ${sn}`);
+  execCmd(`pactl list sink-inputs short | awk '{print $1}' | xargs -I{} pactl move-sink-input {} ${sn}`);
+  setTimeout(() => closeMenus(), 400);
+}
+</script>
+</body>
+</html>

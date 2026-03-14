@@ -1,0 +1,108 @@
+@import "colors.rasi"
+
+configuration {
+    font:       "JetBrainsMono Nerd Font 12";
+    show-icons: true;
+    icon-theme: "Papirus-Dark";
+}
+
+window {
+    transparency:       "real";
+    background-color:   @bg;
+    border:             0px 0px 1px 0px solid;
+    border-color:       @border;
+    border-radius:      0px;
+    location:           north;
+    anchor:             north;
+    width:              100%;
+    x-offset:           0px;
+    y-offset:           0px;
+    padding:            0px;
+}
+
+mainbox {
+    background-color:   @transparent;
+    orientation:        horizontal;
+    spacing:            0px;
+    padding:            4px 12px;
+    children:           [ inputbar, listview ];
+}
+
+inputbar {
+    background-color:   @transparent;
+    spacing:            8px;
+    padding:            4px 8px;
+    expand:             false;
+    children:           [ prompt, entry ];
+}
+
+prompt {
+    background-color:   @transparent;
+    text-color:         @selected;
+    font:               "JetBrainsMono Nerd Font 13";
+    vertical-align:     0.5;
+    expand:             false;
+    padding:            0px 4px;
+}
+
+entry {
+    background-color:   @transparent;
+    text-color:         @fg;
+    font:               "JetBrainsMono Nerd Font 12";
+    placeholder:        "Search…";
+    placeholder-color:  @fg-dim;
+    vertical-align:     0.5;
+    cursor:             text;
+    expand:             false;
+    width:              14em;
+}
+
+listview {
+    background-color:   @transparent;
+    layout:             horizontal;
+    lines:              1;
+    columns:            20;
+    fixed-height:       true;
+    fixed-columns:      true;
+    scrollbar:          false;
+    spacing:            4px;
+    padding:            0px;
+    cycle:              true;
+    dynamic:            true;
+}
+
+element {
+    background-color:   @transparent;
+    text-color:         @fg;
+    border-radius:      6px;
+    padding:            5px 10px;
+    spacing:            6px;
+    cursor:             pointer;
+}
+
+element normal.normal    { background-color: @transparent; text-color: @fg; }
+element alternate.normal { background-color: @transparent; text-color: @fg; }
+
+element selected.normal {
+    background-color:   @selected;
+    text-color:         @selected-fg;
+}
+
+element normal.active    { text-color: @active; }
+element normal.urgent    { text-color: @urgent; }
+element selected.active  { background-color: @selected; text-color: @selected-fg; }
+element selected.urgent  { background-color: @urgent;   text-color: @selected-fg; }
+
+element-icon {
+    background-color:   @transparent;
+    size:               18px;
+    vertical-align:     0.5;
+}
+
+element-text {
+    background-color:   @transparent;
+    text-color:         inherit;
+    vertical-align:     0.5;
+    horizontal-align:   0;
+    font:               "JetBrainsMono Nerd Font 12";
+}

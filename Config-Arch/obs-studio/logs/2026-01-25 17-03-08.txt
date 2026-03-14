@@ -1,0 +1,303 @@
+17:03:08.286: Using EGL/X11
+17:03:08.287: CPU Name: AMD Ryzen 5 5600H with Radeon Graphics
+17:03:08.287: CPU Speed: 3253.854MHz
+17:03:08.287: Physical Cores: 6, Logical Cores: 12
+17:03:08.287: Physical Memory: 19849MB Total, 4205MB Free
+17:03:08.287: Kernel Version: Linux 6.12.67-1-lts
+17:03:08.287: Distribution: "Arch Linux" Unknown
+17:03:08.287: Desktop Environment: KDE (KDE)
+17:03:08.287: Session Type: x11
+17:03:08.287: Window System: X11.0, Vendor: The X.Org Foundation, Version: 1.21.1
+17:03:08.288: Current Date/Time: 2026-01-25, 05:03:08 PM IST
+17:03:08.288: Browser Hardware Acceleration: true
+17:03:08.288: Qt Version: 6.10.1 (runtime), 6.10.1 (compiled)
+17:03:08.288: Portable mode: false
+17:03:08.340: OBS 32.0.4 (linux)
+17:03:08.340: ---------------------------------
+17:03:08.342: ---------------------------------
+17:03:08.342: audio settings reset:
+17:03:08.342: 	samples per sec: 48000
+17:03:08.342: 	speakers:        2
+17:03:08.342: 	max buffering:   960 milliseconds
+17:03:08.342: 	buffering type:  dynamically increasing
+17:03:08.343: ---------------------------------
+17:03:08.343: Initializing OpenGL...
+17:03:08.414: Loading up OpenGL on adapter AMD AMD Radeon Graphics (radeonsi, renoir, ACO, DRM 3.61, 6.12.67-1-lts)
+17:03:08.414: OpenGL loaded successfully, version 4.6 (Core Profile) Mesa 25.3.4-arch1.1, shading language 4.60
+17:03:08.441: ---------------------------------
+17:03:08.441: video settings reset:
+17:03:08.441: 	base resolution:   1920x1080
+17:03:08.441: 	output resolution: 1920x1080
+17:03:08.441: 	downscale filter:  Bicubic
+17:03:08.441: 	fps:               60/1
+17:03:08.441: 	format:            NV12
+17:03:08.441: 	YUV mode:          Rec. 709/Partial
+17:03:08.441: NV12 texture support enabled
+17:03:08.441: P010 texture support not available
+17:03:08.443: Audio monitoring device:
+17:03:08.443: 	name: Default
+17:03:08.443: 	id: default
+17:03:08.445: ---------------------------------
+17:03:08.446: Failed to load 'en-US' text for module: 'decklink-captions.so'
+17:03:08.447: Failed to load 'en-US' text for module: 'decklink-output-ui.so'
+17:03:08.448: A DeckLink iterator could not be created.  The DeckLink drivers may not be installed
+17:03:08.448: Failed to initialize module 'decklink.so'
+17:03:08.559: [pipewire] Available capture sources:
+17:03:08.559: [pipewire]     - Monitor source
+17:03:08.559: [pipewire]     - Window source
+17:03:08.565: v4l2loopback not installed, virtual camera not registered
+17:03:10.281: VAAPI: API version 1.22
+17:03:10.336: FFmpeg VAAPI H264 encoding supported
+17:03:10.604: FFmpeg VAAPI AV1 encoding supported
+17:03:10.861: FFmpeg VAAPI HEVC encoding supported
+17:03:11.033: [obs-nvenc] NVENC version: 13.0 (compiled) / 13.0 (driver), CUDA driver version: 13.10, AV1 supported: false
+17:03:11.532: [obs-websocket] [obs_module_load] you can haz websockets (Version: 5.6.3 | RPC Version: 1)
+17:03:11.532: [obs-websocket] [obs_module_load] Qt version (compile-time): 6.10.1 | Qt version (run-time): 6.10.1
+17:03:11.532: [obs-websocket] [obs_module_load] Linked ASIO Version: 103600
+17:03:11.536: [obs-websocket] [obs_module_load] Module loaded.
+17:03:11.539: ---------------------------------
+17:03:11.539:   Loaded Modules:
+17:03:11.539:     text-freetype2.so
+17:03:11.539:     rtmp-services.so
+17:03:11.539:     obs-x264.so
+17:03:11.539:     obs-websocket.so
+17:03:11.539:     obs-webrtc.so
+17:03:11.539:     obs-vst.so
+17:03:11.539:     obs-transitions.so
+17:03:11.539:     obs-qsv11.so
+17:03:11.539:     obs-outputs.so
+17:03:11.539:     obs-nvenc.so
+17:03:11.539:     obs-libfdk.so
+17:03:11.539:     obs-filters.so
+17:03:11.539:     obs-ffmpeg.so
+17:03:11.539:     linux-v4l2.so
+17:03:11.539:     linux-pulseaudio.so
+17:03:11.539:     linux-pipewire.so
+17:03:11.539:     linux-jack.so
+17:03:11.539:     linux-capture.so
+17:03:11.539:     linux-alsa.so
+17:03:11.539:     image-source.so
+17:03:11.539:     frontend-tools.so
+17:03:11.540:     decklink-output-ui.so
+17:03:11.540:     decklink-captions.so
+17:03:11.540: ---------------------------------
+17:03:11.540: ---------------------------------
+17:03:11.540: Available Encoders:
+17:03:11.540:   Video Encoders:
+17:03:11.540: 	- ffmpeg_svt_av1 (SVT-AV1)
+17:03:11.540: 	- ffmpeg_aom_av1 (AOM AV1)
+17:03:11.540: 	- ffmpeg_vaapi_tex (FFmpeg VAAPI H.264)
+17:03:11.540: 	- av1_ffmpeg_vaapi_tex (FFmpeg VAAPI AV1)
+17:03:11.540: 	- hevc_ffmpeg_vaapi_tex (FFmpeg VAAPI HEVC)
+17:03:11.540: 	- obs_nvenc_h264_tex (NVIDIA NVENC H.264)
+17:03:11.540: 	- obs_nvenc_hevc_tex (NVIDIA NVENC HEVC)
+17:03:11.540: 	- obs_x264 (x264)
+17:03:11.540:   Audio Encoders:
+17:03:11.540: 	- ffmpeg_aac (FFmpeg AAC)
+17:03:11.540: 	- ffmpeg_opus (FFmpeg Opus)
+17:03:11.540: 	- ffmpeg_pcm_s16le (FFmpeg PCM (16-bit))
+17:03:11.540: 	- ffmpeg_pcm_s24le (FFmpeg PCM (24-bit))
+17:03:11.540: 	- ffmpeg_pcm_f32le (FFmpeg PCM (32-bit float))
+17:03:11.540: 	- ffmpeg_alac (FFmpeg ALAC (24-bit))
+17:03:11.540: 	- ffmpeg_flac (FFmpeg FLAC (16-bit))
+17:03:11.540: 	- libfdk_aac (libfdk AAC)
+17:03:11.540: ==== Startup complete ===============================================
+17:03:11.564: Failed to register with host portal QDBusError("org.freedesktop.portal.Error.Failed", "Could not register app ID: Connection already associated with an application ID")
+17:03:11.564: All scene data cleared
+17:03:11.564: ------------------------------------------------
+17:03:11.569: Device for 'Audio Output Capture' source Desktop Audio is also used for audio monitoring.
+17:03:11.569: Deduplication logic is being applied to all monitored sources.
+17:03:11.569: pulse-input: Server name: 'PulseAudio (on PipeWire 1.4.10) 15.0.0'
+17:03:11.569: pulse-input: Audio format: s32le, 48000 Hz, 2 channels
+17:03:11.569: pulse-input: Started recording from 'alsa_output.pci-0000_05_00.6.analog-stereo.monitor' (default)
+17:03:11.569: [Loaded global audio device]: 'Desktop Audio'
+17:03:11.570: pulse-input: Server name: 'PulseAudio (on PipeWire 1.4.10) 15.0.0'
+17:03:11.570: pulse-input: Audio format: s32le, 48000 Hz, 2 channels
+17:03:11.570: pulse-input: Started recording from 'alsa_input.pci-0000_05_00.6.analog-stereo' (default)
+17:03:11.571: [Loaded global audio device]: 'Mic/Aux'
+17:03:11.571:     - filter: 'Noise Suppression' (noise_suppress_filter_v2)
+17:03:11.571:     - filter: 'Noise Gate' (noise_gate_filter)
+17:03:11.571:     - filter: 'Compressor' (compressor_filter)
+17:03:11.571: PipeWire initialized
+17:03:11.571: PipeWire initialized
+17:03:11.573: Switched to scene 'Scene'
+17:03:11.573: ------------------------------------------------
+17:03:11.573: Loaded scenes:
+17:03:11.573: - scene 'Scene':
+17:03:11.573:     - source: 'Screen Capture LG Monitor' (pipewire-screen-capture-source)
+17:03:11.573:     - source: 'Screen Capture Laptop' (pipewire-screen-capture-source)
+17:03:11.573: ------------------------------------------------
+17:03:11.653: Device for 'Audio Output Capture' source Desktop Audio is also used for audio monitoring.
+17:03:11.653: Deduplication logic is being applied to all monitored sources.
+17:03:11.830: [pipewire] Failed to create session, denied or cancelled by user
+17:03:11.830: [pipewire] Failed to create session, denied or cancelled by user
+17:03:12.204: adding 42 milliseconds of audio buffering, total audio buffering is now 42 milliseconds (source: Desktop Audio)
+17:03:12.204: 
+17:03:31.642: PipeWire initialized
+17:03:31.644: User added source 'Screen Capture (PipeWire)' (pipewire-screen-capture-source) to scene 'Scene'
+17:03:31.670: [pipewire] Failed to create session, denied or cancelled by user
+17:03:38.758: User Removed source 'Screen Capture (PipeWire)' (pipewire-screen-capture-source) from scene 'Scene'
+17:03:41.203: failed to create compose table
+17:06:00.932: User added source 'Window Capture (Xcomposite)' (xcomposite_input) to scene 'Scene'
+17:06:09.710: [window-capture: 'Window Capture (Xcomposite)'] update settings:
+17:06:09.710: 	title: Aceternity UI Pro - Google Chrome
+17:06:09.710: 	class: google-chrome
+17:06:09.710: 
+17:06:13.144: [window-capture: 'Window Capture (Xcomposite)'] update settings:
+17:06:13.144: 	title: Aceternity UI Pro - Google Chrome
+17:06:13.144: 	class: google-chrome
+17:06:13.144: 
+17:06:13.360: [window-capture: 'Window Capture (Xcomposite)'] update settings:
+17:06:13.360: 	title: Aceternity UI Pro - Google Chrome
+17:06:13.360: 	class: google-chrome
+17:06:13.360: 
+17:06:13.827: [window-capture: 'Window Capture (Xcomposite)'] update settings:
+17:06:13.827: 	title: Aceternity UI Pro - Google Chrome
+17:06:13.827: 	class: google-chrome
+17:06:13.827: 
+17:06:13.993: [window-capture: 'Window Capture (Xcomposite)'] update settings:
+17:06:13.993: 	title: Aceternity UI Pro - Google Chrome
+17:06:13.993: 	class: google-chrome
+17:06:13.993: 
+17:06:14.143: [window-capture: 'Window Capture (Xcomposite)'] update settings:
+17:06:14.143: 	title: Aceternity UI Pro - Google Chrome
+17:06:14.143: 	class: google-chrome
+17:06:14.143: 
+17:06:14.293: [window-capture: 'Window Capture (Xcomposite)'] update settings:
+17:06:14.293: 	title: Aceternity UI Pro - Google Chrome
+17:06:14.293: 	class: google-chrome
+17:06:14.293: 
+17:06:14.443: [window-capture: 'Window Capture (Xcomposite)'] update settings:
+17:06:14.443: 	title: Aceternity UI Pro - Google Chrome
+17:06:14.443: 	class: google-chrome
+17:06:14.443: 
+17:06:14.593: [window-capture: 'Window Capture (Xcomposite)'] update settings:
+17:06:14.593: 	title: Aceternity UI Pro - Google Chrome
+17:06:14.593: 	class: google-chrome
+17:06:14.593: 
+17:06:14.743: [window-capture: 'Window Capture (Xcomposite)'] update settings:
+17:06:14.743: 	title: Aceternity UI Pro - Google Chrome
+17:06:14.743: 	class: google-chrome
+17:06:14.743: 
+17:06:14.893: [window-capture: 'Window Capture (Xcomposite)'] update settings:
+17:06:14.893: 	title: Aceternity UI Pro - Google Chrome
+17:06:14.893: 	class: google-chrome
+17:06:14.893: 
+17:06:15.043: [window-capture: 'Window Capture (Xcomposite)'] update settings:
+17:06:15.043: 	title: Aceternity UI Pro - Google Chrome
+17:06:15.043: 	class: google-chrome
+17:06:15.043: 
+17:06:15.193: [window-capture: 'Window Capture (Xcomposite)'] update settings:
+17:06:15.193: 	title: Aceternity UI Pro - Google Chrome
+17:06:15.193: 	class: google-chrome
+17:06:15.193: 
+17:06:15.343: [window-capture: 'Window Capture (Xcomposite)'] update settings:
+17:06:15.343: 	title: Aceternity UI Pro - Google Chrome
+17:06:15.343: 	class: google-chrome
+17:06:15.343: 
+17:06:15.493: [window-capture: 'Window Capture (Xcomposite)'] update settings:
+17:06:15.493: 	title: Aceternity UI Pro - Google Chrome
+17:06:15.493: 	class: google-chrome
+17:06:15.493: 
+17:06:15.643: [window-capture: 'Window Capture (Xcomposite)'] update settings:
+17:06:15.643: 	title: Aceternity UI Pro - Google Chrome
+17:06:15.643: 	class: google-chrome
+17:06:15.643: 
+17:06:15.793: [window-capture: 'Window Capture (Xcomposite)'] update settings:
+17:06:15.793: 	title: Aceternity UI Pro - Google Chrome
+17:06:15.793: 	class: google-chrome
+17:06:15.793: 
+17:06:15.943: [window-capture: 'Window Capture (Xcomposite)'] update settings:
+17:06:15.943: 	title: Aceternity UI Pro - Google Chrome
+17:06:15.943: 	class: google-chrome
+17:06:15.943: 
+17:06:16.093: [window-capture: 'Window Capture (Xcomposite)'] update settings:
+17:06:16.093: 	title: Aceternity UI Pro - Google Chrome
+17:06:16.093: 	class: google-chrome
+17:06:16.093: 
+17:06:16.243: [window-capture: 'Window Capture (Xcomposite)'] update settings:
+17:06:16.243: 	title: Aceternity UI Pro - Google Chrome
+17:06:16.243: 	class: google-chrome
+17:06:16.243: 
+17:06:16.393: [window-capture: 'Window Capture (Xcomposite)'] update settings:
+17:06:16.393: 	title: Aceternity UI Pro - Google Chrome
+17:06:16.393: 	class: google-chrome
+17:06:16.393: 
+17:06:16.543: [window-capture: 'Window Capture (Xcomposite)'] update settings:
+17:06:16.543: 	title: Aceternity UI Pro - Google Chrome
+17:06:16.543: 	class: google-chrome
+17:06:16.543: 
+17:06:16.693: [window-capture: 'Window Capture (Xcomposite)'] update settings:
+17:06:16.693: 	title: Aceternity UI Pro - Google Chrome
+17:06:16.693: 	class: google-chrome
+17:06:16.693: 
+17:06:16.844: [window-capture: 'Window Capture (Xcomposite)'] update settings:
+17:06:16.844: 	title: Aceternity UI Pro - Google Chrome
+17:06:16.844: 	class: google-chrome
+17:06:16.844: 
+17:06:16.993: [window-capture: 'Window Capture (Xcomposite)'] update settings:
+17:06:16.993: 	title: Aceternity UI Pro - Google Chrome
+17:06:16.993: 	class: google-chrome
+17:06:16.993: 
+17:06:17.143: [window-capture: 'Window Capture (Xcomposite)'] update settings:
+17:06:17.143: 	title: Aceternity UI Pro - Google Chrome
+17:06:17.143: 	class: google-chrome
+17:06:17.143: 
+17:06:17.293: [window-capture: 'Window Capture (Xcomposite)'] update settings:
+17:06:17.293: 	title: Aceternity UI Pro - Google Chrome
+17:06:17.293: 	class: google-chrome
+17:06:17.293: 
+17:06:17.443: [window-capture: 'Window Capture (Xcomposite)'] update settings:
+17:06:17.443: 	title: Aceternity UI Pro - Google Chrome
+17:06:17.443: 	class: google-chrome
+17:06:17.443: 
+17:06:17.593: [window-capture: 'Window Capture (Xcomposite)'] update settings:
+17:06:17.593: 	title: Aceternity UI Pro - Google Chrome
+17:06:17.593: 	class: google-chrome
+17:06:17.593: 
+17:06:17.743: [window-capture: 'Window Capture (Xcomposite)'] update settings:
+17:06:17.743: 	title: Aceternity UI Pro - Google Chrome
+17:06:17.743: 	class: google-chrome
+17:06:17.743: 
+17:06:17.893: [window-capture: 'Window Capture (Xcomposite)'] update settings:
+17:06:17.893: 	title: Aceternity UI Pro - Google Chrome
+17:06:17.893: 	class: google-chrome
+17:06:17.893: 
+17:06:56.699: Last log entry repeated for 136 more lines
+17:06:56.699: [obs-nvenc: 'advanced_video_recording'] Not running on NVIDIA GPU, falling back to non-texture encoder
+17:06:56.784: [obs-nvenc: 'advanced_video_recording'] settings:
+17:06:56.784: 	codec:        HEVC
+17:06:56.784: 	rate_control: CBR
+17:06:56.784: 	bitrate:      10000
+17:06:56.784: 	keyint:       250
+17:06:56.784: 	preset:       p5
+17:06:56.784: 	tuning:       hq
+17:06:56.784: 	multipass:    qres
+17:06:56.784: 	profile:      main
+17:06:56.784: 	width:        1920
+17:06:56.784: 	height:       1080
+17:06:56.784: 	b-frames:     2
+17:06:56.784: 	b-ref-mode:   0
+17:06:56.784: 	lookahead:    true (8 frames)
+17:06:56.784: 	aq:           true
+17:06:56.784: 
+17:06:56.887: ---------------------------------
+17:06:56.895: [FFmpeg pcm_s24le encoder: 'Track1'] bitrate: 0, channels: 2, channel_layout: stereo, track: 1
+17:06:56.895: 
+17:06:56.914: ==== Recording Start ===============================================
+17:06:56.914: [ffmpeg muxer: 'adv_file_output'] Writing file '/home/jain/Videos/2026-01-25 17-06-56.mkv'...
+17:07:13.951: [ffmpeg muxer: 'adv_file_output'] Output of file '/home/jain/Videos/2026-01-25 17-06-56.mkv' stopped
+17:07:13.951: Output 'adv_file_output': stopping
+17:07:13.951: Output 'adv_file_output': Total frames output: 1003
+17:07:13.951: Output 'adv_file_output': Total drawn frames: 1022
+17:07:13.954: ==== Recording Stop ================================================
+17:10:00.857: User Removed source 'Window Capture (Xcomposite)' (xcomposite_input) from scene 'Scene'
+17:10:14.216: User Removed source 'Screen Capture Laptop' (pipewire-screen-capture-source) from scene 'Scene'
+17:10:31.520: ==== Shutting down ==================================================
+17:10:31.523: pulse-input: Stopped recording from 'alsa_output.pci-0000_05_00.6.analog-stereo.monitor'
+17:10:31.523: pulse-input: Got 17594 packets with 21112800 frames
+17:10:31.523: Deduplication logic stopped.
+17:10:31.523: pulse-input: Stopped recording from 'alsa_input.pci-0000_05_00.6.analog-stereo'
+17:10:31.523: pulse-input: Got 17593 packets with 21111600 frames
+17:10:31.577: All scene data cleared
+17:10:31.577: ------------------------------------------------

@@ -1,0 +1,116 @@
+@import "colors.rasi"
+
+configuration {
+    font:                "JetBrainsMono Nerd Font 14";
+    show-icons:          true;
+    icon-theme:          "MacTahoe";
+    drun-display-format: "{name}";
+    display-drun:        "";
+    display-run:         "";
+    display-window:      "";
+    matching:            "fuzzy";
+    sort:                true;
+    kb-cancel:           "Escape,Super+space";
+}
+
+window {
+    transparency:        "real";
+    background-color:    #1a1a1a99;
+    border:              1px solid;
+    border-color:        #ffffff22;
+    border-radius:       18px;
+    width:               780px;
+    location:            center;
+    y-offset:            -60px;
+    padding:             0px;
+}
+
+mainbox {
+    background-color:    transparent;
+    spacing:             0px;
+    padding:             0px;
+    children:            [ inputbar, separator, listview ];
+}
+
+inputbar {
+    background-color:    transparent;
+    padding:             14px 22px;
+    spacing:             12px;
+    children:            [ textbox-prompt-colon, entry ];
+}
+
+textbox-prompt-colon {
+    expand:              false;
+    str:                 "󰍉";
+    font:                "JetBrainsMono Nerd Font 20";
+    text-color:          #888888;
+    background-color:    transparent;
+    vertical-align:      0.5;
+    horizontal-align:    0.5;
+}
+
+entry {
+    background-color:    transparent;
+    text-color:          #ebebeb;
+    font:                "JetBrainsMono Nerd Font 20";
+    placeholder:         "Search";
+    placeholder-color:   #555555;
+    vertical-align:      0.5;
+    cursor:              text;
+}
+
+separator {
+    background-color:    #ffffff15;
+    expand:              false;
+    height:              1px;
+    margin:              0px;
+}
+
+listview {
+    background-color:    transparent;
+    lines:               8;
+    columns:             1;
+    fixed-height:        false;
+    scrollbar:           false;
+    spacing:             0px;
+    padding:             4px;
+    border:              0px;
+    cycle:               true;
+    dynamic:             true;
+}
+
+element {
+    background-color:    transparent;
+    text-color:          #ebebeb;
+    border-radius:       8px;
+    padding:             7px 10px;
+    spacing:             12px;
+    cursor:              pointer;
+}
+
+element normal.normal    { background-color: transparent;  text-color: #ebebeb; }
+element alternate.normal { background-color: transparent;  text-color: #ebebeb; }
+
+element selected.normal  {
+    background-color:    #3b7dddBB;
+    text-color:          #ffffff;
+}
+
+element normal.urgent    { text-color: #f38ba8; }
+element selected.urgent  { background-color: #f38ba8; text-color: #ffffff; }
+element normal.active    { text-color: #a6e3a1; }
+element selected.active  { background-color: #3b7dddBB; text-color: #ffffff; }
+
+element-icon {
+    background-color:    transparent;
+    size:                30px;
+    vertical-align:      0.5;
+}
+
+element-text {
+    background-color:    transparent;
+    text-color:          inherit;
+    vertical-align:      0.5;
+    horizontal-align:    0;
+    highlight:           bold;
+}

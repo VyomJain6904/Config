@@ -1,0 +1,186 @@
+20:24:00.360: Using EGL/X11
+20:24:00.360: CPU Name: AMD Ryzen 5 5600H with Radeon Graphics
+20:24:00.360: CPU Speed: 4067.417MHz
+20:24:00.361: Physical Cores: 6, Logical Cores: 12
+20:24:00.361: Physical Memory: 19844MB Total, 15224MB Free
+20:24:00.361: Kernel Version: Linux 6.18.7-arch1-1
+20:24:00.361: Distribution: "Arch Linux" Unknown
+20:24:00.361: Desktop Environment: KDE (KDE)
+20:24:00.361: Session Type: x11
+20:24:00.361: Window System: X11.0, Vendor: The X.Org Foundation, Version: 1.21.1
+20:24:00.372: Current Date/Time: 2026-02-05, 08:24:00 PM IST
+20:24:00.372: Browser Hardware Acceleration: true
+20:24:00.372: Qt Version: 6.10.2 (runtime), 6.10.1 (compiled)
+20:24:00.372: Portable mode: false
+20:24:00.459: OBS 32.0.4 (linux)
+20:24:00.459: ---------------------------------
+20:24:00.466: ---------------------------------
+20:24:00.466: audio settings reset:
+20:24:00.466: 	samples per sec: 48000
+20:24:00.466: 	speakers:        2
+20:24:00.466: 	max buffering:   960 milliseconds
+20:24:00.466: 	buffering type:  dynamically increasing
+20:24:00.472: ---------------------------------
+20:24:00.472: Initializing OpenGL...
+20:24:00.527: Loading up OpenGL on adapter AMD AMD Radeon Graphics (radeonsi, renoir, ACO, DRM 3.64, 6.18.7-arch1-1)
+20:24:00.527: OpenGL loaded successfully, version 4.6 (Core Profile) Mesa 25.3.4-arch1.1, shading language 4.60
+20:24:00.569: ---------------------------------
+20:24:00.569: video settings reset:
+20:24:00.569: 	base resolution:   1920x1080
+20:24:00.569: 	output resolution: 1920x1080
+20:24:00.569: 	downscale filter:  Bicubic
+20:24:00.569: 	fps:               60/1
+20:24:00.569: 	format:            NV12
+20:24:00.569: 	YUV mode:          Rec. 709/Partial
+20:24:00.570: NV12 texture support enabled
+20:24:00.570: P010 texture support not available
+20:24:00.573: Audio monitoring device:
+20:24:00.573: 	name: Default
+20:24:00.573: 	id: default
+20:24:00.577: ---------------------------------
+20:24:00.579: Failed to load 'en-US' text for module: 'decklink-captions.so'
+20:24:00.583: Failed to load 'en-US' text for module: 'decklink-output-ui.so'
+20:24:00.585: A DeckLink iterator could not be created.  The DeckLink drivers may not be installed
+20:24:00.585: Failed to initialize module 'decklink.so'
+20:24:00.813: [pipewire] Available capture sources:
+20:24:00.813: [pipewire]     - Monitor source
+20:24:00.813: [pipewire]     - Window source
+20:24:00.825: v4l2loopback not installed, virtual camera not registered
+20:24:03.050: VAAPI: API version 1.22
+20:24:03.106: FFmpeg VAAPI H264 encoding supported
+20:24:03.356: FFmpeg VAAPI AV1 encoding supported
+20:24:03.582: FFmpeg VAAPI HEVC encoding supported
+20:24:03.792: [obs-nvenc] NVENC version: 13.0 (compiled) / 13.0 (driver), CUDA driver version: 13.10, AV1 supported: false
+20:24:04.313: [obs-websocket] [obs_module_load] you can haz websockets (Version: 5.6.3 | RPC Version: 1)
+20:24:04.313: [obs-websocket] [obs_module_load] Qt version (compile-time): 6.10.1 | Qt version (run-time): 6.10.2
+20:24:04.313: [obs-websocket] [obs_module_load] Linked ASIO Version: 103600
+20:24:04.330: [obs-websocket] [obs_module_load] Module loaded.
+20:24:04.344: ---------------------------------
+20:24:04.344:   Loaded Modules:
+20:24:04.344:     text-freetype2.so
+20:24:04.344:     rtmp-services.so
+20:24:04.344:     obs-x264.so
+20:24:04.344:     obs-websocket.so
+20:24:04.344:     obs-webrtc.so
+20:24:04.344:     obs-vst.so
+20:24:04.344:     obs-transitions.so
+20:24:04.344:     obs-qsv11.so
+20:24:04.344:     obs-outputs.so
+20:24:04.344:     obs-nvenc.so
+20:24:04.344:     obs-libfdk.so
+20:24:04.344:     obs-filters.so
+20:24:04.344:     obs-ffmpeg.so
+20:24:04.344:     linux-v4l2.so
+20:24:04.344:     linux-pulseaudio.so
+20:24:04.344:     linux-pipewire.so
+20:24:04.344:     linux-jack.so
+20:24:04.344:     linux-capture.so
+20:24:04.344:     linux-alsa.so
+20:24:04.344:     image-source.so
+20:24:04.344:     frontend-tools.so
+20:24:04.344:     decklink-output-ui.so
+20:24:04.344:     decklink-captions.so
+20:24:04.344: ---------------------------------
+20:24:04.350: ---------------------------------
+20:24:04.350: Available Encoders:
+20:24:04.350:   Video Encoders:
+20:24:04.350: 	- ffmpeg_svt_av1 (SVT-AV1)
+20:24:04.350: 	- ffmpeg_aom_av1 (AOM AV1)
+20:24:04.350: 	- ffmpeg_vaapi_tex (FFmpeg VAAPI H.264)
+20:24:04.350: 	- av1_ffmpeg_vaapi_tex (FFmpeg VAAPI AV1)
+20:24:04.350: 	- hevc_ffmpeg_vaapi_tex (FFmpeg VAAPI HEVC)
+20:24:04.350: 	- obs_nvenc_h264_tex (NVIDIA NVENC H.264)
+20:24:04.350: 	- obs_nvenc_hevc_tex (NVIDIA NVENC HEVC)
+20:24:04.350: 	- obs_x264 (x264)
+20:24:04.350:   Audio Encoders:
+20:24:04.350: 	- ffmpeg_aac (FFmpeg AAC)
+20:24:04.350: 	- ffmpeg_opus (FFmpeg Opus)
+20:24:04.351: 	- ffmpeg_pcm_s16le (FFmpeg PCM (16-bit))
+20:24:04.351: 	- ffmpeg_pcm_s24le (FFmpeg PCM (24-bit))
+20:24:04.351: 	- ffmpeg_pcm_f32le (FFmpeg PCM (32-bit float))
+20:24:04.351: 	- ffmpeg_alac (FFmpeg ALAC (24-bit))
+20:24:04.351: 	- ffmpeg_flac (FFmpeg FLAC (16-bit))
+20:24:04.351: 	- libfdk_aac (libfdk AAC)
+20:24:04.351: ==== Startup complete ===============================================
+20:24:04.392: Failed to register with host portal QDBusError("org.freedesktop.portal.Error.Failed", "Could not register app ID: Connection already associated with an application ID")
+20:24:04.392: All scene data cleared
+20:24:04.392: ------------------------------------------------
+20:24:04.401: Device for 'Audio Output Capture' source Desktop Audio is also used for audio monitoring.
+20:24:04.401: Deduplication logic is being applied to all monitored sources.
+20:24:04.401: pulse-input: Server name: 'PulseAudio (on PipeWire 1.4.10) 15.0.0'
+20:24:04.401: pulse-input: Audio format: s32le, 48000 Hz, 2 channels
+20:24:04.401: pulse-input: Started recording from 'alsa_output.pci-0000_05_00.1.pro-output-3.monitor' (default)
+20:24:04.402: [Loaded global audio device]: 'Desktop Audio'
+20:24:04.402: pulse-input: Server name: 'PulseAudio (on PipeWire 1.4.10) 15.0.0'
+20:24:04.402: pulse-input: Audio format: s32le, 48000 Hz, 2 channels
+20:24:04.402: pulse-input: Started recording from 'alsa_input.pci-0000_05_00.6.analog-stereo' (default)
+20:24:04.423: Device for 'Audio Output Capture' source Desktop Audio is also used for audio monitoring.
+20:24:04.423: Deduplication logic is being applied to all monitored sources.
+20:24:04.425: [Loaded global audio device]: 'Mic/Aux'
+20:24:04.425:     - filter: 'Noise Suppression' (noise_suppress_filter_v2)
+20:24:04.425:     - filter: 'Noise Gate' (noise_gate_filter)
+20:24:04.425:     - filter: 'Compressor' (compressor_filter)
+20:24:04.425: PipeWire initialized
+20:24:04.426: Switched to scene 'Scene'
+20:24:04.426: ------------------------------------------------
+20:24:04.426: Loaded scenes:
+20:24:04.426: - scene 'Scene':
+20:24:04.426:     - source: 'Screen Capture LG Monitor' (pipewire-screen-capture-source)
+20:24:04.426: ------------------------------------------------
+20:24:04.476: [pipewire] Failed to create session, denied or cancelled by user
+20:24:04.989: adding 21 milliseconds of audio buffering, total audio buffering is now 21 milliseconds (source: Desktop Audio)
+20:24:04.989: 
+20:24:05.096: adding 42 milliseconds of audio buffering, total audio buffering is now 64 milliseconds (source: Mic/Aux)
+20:24:05.096: 
+20:24:57.996: PipeWire initialized
+20:24:57.999: User added source 'Screen Capture (PipeWire)' (pipewire-screen-capture-source) to scene 'Scene'
+20:24:58.020: [pipewire] Failed to create session, denied or cancelled by user
+20:25:17.032: User Removed source 'Screen Capture (PipeWire)' (pipewire-screen-capture-source) from scene 'Scene'
+20:25:21.659: User Removed source 'Screen Capture LG Monitor' (pipewire-screen-capture-source) from scene 'Scene'
+20:25:26.942: User added source 'Display Capture (XSHM)' (xshm_input_v2) to scene 'Scene'
+20:25:30.172: xshm-input: Geometry 1920x1080 @ 1920,0
+20:29:18.077: adding 64 milliseconds of audio buffering, total audio buffering is now 128 milliseconds (source: Mic/Aux)
+20:29:18.077: 
+20:36:11.005: adding 85 milliseconds of audio buffering, total audio buffering is now 213 milliseconds (source: Mic/Aux)
+20:36:11.005: 
+20:36:15.059: adding 106 milliseconds of audio buffering, total audio buffering is now 320 milliseconds (source: Mic/Aux)
+20:36:15.059: 
+21:20:30.709: [obs-nvenc: 'advanced_video_recording'] Not running on NVIDIA GPU, falling back to non-texture encoder
+21:20:30.794: [obs-nvenc: 'advanced_video_recording'] settings:
+21:20:30.794: 	codec:        HEVC
+21:20:30.794: 	rate_control: CBR
+21:20:30.794: 	bitrate:      10000
+21:20:30.794: 	keyint:       250
+21:20:30.794: 	preset:       p5
+21:20:30.794: 	tuning:       hq
+21:20:30.794: 	multipass:    qres
+21:20:30.794: 	profile:      main
+21:20:30.794: 	width:        1920
+21:20:30.794: 	height:       1080
+21:20:30.794: 	b-frames:     2
+21:20:30.794: 	b-ref-mode:   0
+21:20:30.794: 	lookahead:    true (8 frames)
+21:20:30.794: 	aq:           true
+21:20:30.794: 
+21:20:30.845: ---------------------------------
+21:20:30.846: [FFmpeg pcm_s24le encoder: 'Track1'] bitrate: 0, channels: 2, channel_layout: stereo, track: 1
+21:20:30.846: 
+21:20:30.849: ==== Recording Start ===============================================
+21:20:30.849: [ffmpeg muxer: 'adv_file_output'] Writing file '/home/jain/Videos/2026-02-05 21-20-30.mkv'...
+21:55:48.204: output adv_file_output paused
+22:03:08.529: output adv_file_output unpaused
+22:04:07.159: output adv_file_output paused
+22:17:40.639: output adv_file_output unpaused
+22:17:40.992: [ffmpeg muxer: 'adv_file_output'] Output of file '/home/jain/Videos/2026-02-05 21-20-30.mkv' stopped
+22:17:40.993: Output 'adv_file_output': stopping
+22:17:40.993: Output 'adv_file_output': Total frames output: 130560
+22:17:40.993: Output 'adv_file_output': Total drawn frames: 205809
+22:17:40.993: ==== Recording Stop ================================================
+22:23:21.322: ==== Shutting down ==================================================
+22:23:21.326: pulse-input: Stopped recording from 'alsa_output.pci-0000_05_00.1.pro-output-3.monitor'
+22:23:21.326: pulse-input: Got 286190 packets with 343428000 frames
+22:23:21.326: Deduplication logic stopped.
+22:23:21.326: pulse-input: Stopped recording from 'alsa_input.pci-0000_05_00.6.analog-stereo'
+22:23:21.326: pulse-input: Got 286219 packets with 343462800 frames
+22:23:21.344: All scene data cleared
+22:23:21.344: ------------------------------------------------

@@ -1,0 +1,91 @@
+@import "colors.rasi"
+
+configuration {
+    font:       "JetBrainsMono Nerd Font 14";
+    show-icons: false;
+}
+
+window {
+    transparency:       "real";
+    background-color:   @bg;
+    border:             1px solid;
+    border-color:       @border;
+    border-radius:      20px;
+    width:              320px;
+    location:           center;
+    padding:            0px;
+}
+
+mainbox {
+    background-color:   @transparent;
+    spacing:            0px;
+    padding:            0px;
+    children:           [ inputbar, listview ];
+}
+
+inputbar {
+    background-color:   @transparent;
+    padding:            22px 20px 16px 20px;
+    spacing:            12px;
+    children:           [ prompt, entry ];
+    border-radius:      20px 20px 0px 0px;
+    border:             0px 0px 1px 0px solid;
+    border-color:       @border;
+}
+
+prompt {
+    background-color:   @transparent;
+    text-color:         @fg-dim;
+    font:               "JetBrainsMono Nerd Font 16";
+    vertical-align:     0.5;
+    expand:             false;
+}
+
+entry {
+    background-color:   @transparent;
+    text-color:         @fg;
+    font:               "JetBrainsMono Nerd Font 16";
+    placeholder:        "Power Menu";
+    placeholder-color:  @fg-dim;
+    vertical-align:     0.5;
+    cursor:             text;
+}
+
+listview {
+    background-color:   @transparent;
+    lines:              5;
+    columns:            1;
+    fixed-height:       true;
+    scrollbar:          false;
+    spacing:            0px;
+    padding:            10px;
+    cycle:              false;
+    dynamic:            false;
+}
+
+element {
+    background-color:   @transparent;
+    text-color:         @fg;
+    border-radius:      12px;
+    padding:            12px 16px;
+    spacing:            14px;
+    cursor:             pointer;
+    font:               "JetBrainsMono Nerd Font 14";
+}
+
+element normal.normal    { background-color: @transparent; text-color: @fg; }
+element alternate.normal { background-color: @transparent; text-color: @fg; }
+
+element selected.normal {
+    background-color:   @bg-alt;
+    text-color:         @fg;
+    border:             1px solid;
+    border-color:       @border-focus;
+}
+
+element-text {
+    background-color:   @transparent;
+    text-color:         inherit;
+    vertical-align:     0.5;
+    horizontal-align:   0;
+}

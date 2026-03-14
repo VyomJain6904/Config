@@ -1,0 +1,39 @@
+2025/09/28-12:45:04.366 14cf Reusing MANIFEST /home/jain/.config/obsidian/IndexedDB/app_obsidian.md_0.indexeddb.leveldb/MANIFEST-000001
+2025/09/28-12:45:04.366 14cf Recovering log #33
+2025/09/28-12:45:04.489 14cf Reusing old log /home/jain/.config/obsidian/IndexedDB/app_obsidian.md_0.indexeddb.leveldb/000033.log 
+2025/09/28-12:45:07.807 14d0 Level-0 table #38: started
+2025/09/28-12:45:07.835 14d0 Level-0 table #38: 1298512 bytes OK
+2025/09/28-12:45:07.848 14d0 Delete type=0 #33
+2025/09/28-12:46:04.512 14d0 Compacting 1@1 + 1@2 files
+2025/09/28-12:46:04.537 14d0 Generated table #39@1: 1005 keys, 225722 bytes
+2025/09/28-12:46:04.537 14d0 Compacted 1@1 + 1@2 files => 225722 bytes
+2025/09/28-12:46:04.539 14d0 compacted to: files[ 0 0 1 0 0 0 0 ]
+2025/09/28-13:10:28.968 14d0 Level-0 table #41: started
+2025/09/28-13:10:28.994 14d0 Level-0 table #41: 1145678 bytes OK
+2025/09/28-13:10:29.026 14d0 Delete type=0 #37
+2025/09/28-13:10:29.026 14d0 Delete type=2 #35
+2025/09/28-13:10:29.026 14d0 Delete type=2 #38
+2025/09/28-13:11:42.568 14d0 Compacting 1@1 + 1@2 files
+2025/09/28-13:11:42.588 14d0 Generated table #42@1: 1124 keys, 180065 bytes
+2025/09/28-13:11:42.588 14d0 Compacted 1@1 + 1@2 files => 180065 bytes
+2025/09/28-13:11:42.590 14d0 compacted to: files[ 0 0 1 0 0 0 0 ]
+2025/09/28-13:11:42.590 14d0 Delete type=2 #41
+2025/09/28-13:11:42.590 14d0 Delete type=2 #39
+2025/09/28-14:15:06.124 14d0 Level-0 table #44: started
+2025/09/28-14:15:06.142 14d0 Level-0 table #44: 1223418 bytes OK
+2025/09/28-14:15:06.146 14d0 Delete type=0 #40
+2025/09/28-14:16:21.249 14d0 Compacting 1@1 + 1@2 files
+2025/09/28-14:16:21.270 14d0 Generated table #45@1: 1197 keys, 224228 bytes
+2025/09/28-14:16:21.270 14d0 Compacted 1@1 + 1@2 files => 224228 bytes
+2025/09/28-14:16:21.294 14d0 compacted to: files[ 0 0 1 0 0 0 0 ]
+2025/09/28-14:16:21.294 14d0 Delete type=2 #44
+2025/09/28-14:16:21.295 14d0 Delete type=2 #42
+2025/09/28-14:51:38.476 14d0 Level-0 table #47: started
+2025/09/28-14:51:38.492 14d0 Level-0 table #47: 1192131 bytes OK
+2025/09/28-14:51:38.495 14d0 Delete type=0 #43
+2025/09/28-14:55:06.127 14d0 Compacting 1@1 + 1@2 files
+2025/09/28-14:55:06.166 14d0 Generated table #48@1: 1321 keys, 262818 bytes
+2025/09/28-14:55:06.166 14d0 Compacted 1@1 + 1@2 files => 262818 bytes
+2025/09/28-14:55:06.208 14d0 compacted to: files[ 0 0 1 0 0 0 0 ]
+2025/09/28-14:55:06.208 14d0 Delete type=2 #45
+2025/09/28-14:55:06.208 14d0 Delete type=2 #47

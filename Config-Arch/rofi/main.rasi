@@ -1,0 +1,148 @@
+@import "colors.rasi"
+
+configuration {
+    font:                   "JetBrainsMono Nerd Font 13";
+    show-icons:             true;
+    icon-theme:             "Papirus-Dark";
+    drun-display-format:    "{name}";
+    display-drun:           "  Apps";
+    display-run:            "  Run";
+    display-window:         "  Windows";
+    display-filebrowser:    "  Files";
+    kb-cancel:              "Escape,Super+space";
+    matching:               "fuzzy";
+    sort:                   true;
+    sorting-method:         "fzf";
+}
+
+window {
+    transparency:       "real";
+    background-color:   @bg;
+    border:             1px solid;
+    border-color:       @border;
+    border-radius:      16px;
+    width:              620px;
+    location:           center;
+    y-offset:           -80px;
+    padding:            0px;
+    cursor:             "default";
+}
+
+mainbox {
+    background-color:   @transparent;
+    children:           [ inputbar, listview ];
+    spacing:            0px;
+    padding:            0px;
+}
+
+inputbar {
+    background-color:   @transparent;
+    border-radius:      16px 16px 0px 0px;
+    padding:            14px 18px;
+    spacing:            12px;
+    children:           [ icon-search, entry, mode-indicator ];
+}
+
+icon-search {
+    expand:             false;
+    background-color:   @transparent;
+    text-color:         @fg-dim;
+    font:               "JetBrainsMono Nerd Font 18";
+    str:                "󰍉";
+    vertical-align:     0.5;
+}
+
+entry {
+    background-color:   @transparent;
+    text-color:         @fg;
+    font:               "JetBrainsMono Nerd Font 18";
+    placeholder:        "Spotlight Search";
+    placeholder-color:  @fg-dim;
+    vertical-align:     0.5;
+    cursor:             text;
+}
+
+mode-indicator {
+    background-color:   @bg-hover;
+    text-color:         @fg-sub;
+    font:               "JetBrainsMono Nerd Font 10";
+    border-radius:      6px;
+    padding:            4px 10px;
+    expand:             false;
+    vertical-align:     0.5;
+}
+
+listview {
+    background-color:   @transparent;
+    lines:              9;
+    columns:            1;
+    fixed-height:       false;
+    scrollbar:          false;
+    spacing:            2px;
+    padding:            8px;
+    border:             1px 0 0 0 solid;
+    border-color:       @border;
+    cycle:              true;
+    dynamic:            true;
+}
+
+element {
+    background-color:   @transparent;
+    text-color:         @fg;
+    border-radius:      10px;
+    padding:            9px 10px;
+    spacing:            12px;
+    cursor:             pointer;
+}
+
+element normal.normal    { background-color: @transparent; text-color: @fg; }
+element alternate.normal { background-color: @transparent; text-color: @fg; }
+
+element selected.normal {
+    background-color:   @selected;
+    text-color:         @selected-fg;
+}
+
+element normal.active        { text-color: @active; }
+element selected.active      { background-color: @selected; text-color: @selected-fg; }
+element normal.urgent        { text-color: @urgent; }
+element selected.urgent      { background-color: @urgent; text-color: @selected-fg; }
+
+element-icon {
+    background-color:   @transparent;
+    size:               28px;
+    vertical-align:     0.5;
+    cursor:             inherit;
+}
+
+element-text {
+    background-color:   @transparent;
+    text-color:         inherit;
+    font:               "JetBrainsMono Nerd Font 13";
+    vertical-align:     0.5;
+    horizontal-align:   0;
+    highlight:          bold @selected;
+    cursor:             inherit;
+}
+
+message {
+    background-color:   @bg-hover;
+    border-radius:      0px 0px 10px 10px;
+    padding:            6px 14px;
+    border:             1px 0 0 0 solid;
+    border-color:       @border;
+}
+
+textbox {
+    background-color:   @transparent;
+    text-color:         @fg-sub;
+    font:               "JetBrainsMono Nerd Font 11";
+    vertical-align:     0.5;
+    horizontal-align:   0;
+}
+
+error-message {
+    background-color:   @transparent;
+    text-color:         @urgent;
+    padding:            6px 14px;
+}

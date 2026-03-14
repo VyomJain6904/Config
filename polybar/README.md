@@ -1,2 +1,0 @@
-# Polybar 
-![Polybar](./Polybar.png)

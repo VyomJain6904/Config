@@ -1,61 +1,83 @@
-############################
-# BASIC
-############################
+workspace_auto_back_and_forth yes
 set $mod Mod4
-font pango:JetBrainsMono Nerd Font 0
+font pango:JetBrainsMono Nerd Font 10
+
 default_border pixel 2
 default_floating_border pixel 2
 
-
-############################
-# Default split: Vertical
-############################
-default_orientation horizontal
-
-############################
-# Stable focus behavior
-############################
 focus_follows_mouse yes
 mouse_warping none
 
-############################
-# AUTOSTART
-############################
-exec_always --no-startup-id feh --bg-scale ~/Pictures/w5.jpg
-exec --no-startup-id nm-applet
-exec_always --no-startup-id setenv QT_QPA_PLATFORMTHEME qt6ct
-
-############################
-# Polybar
-############################
-exec_always --no-startup-id killall polybar
-exec_always --no-startup-id ~/.config/polybar/launch_polybar.sh
-
-############################
-# APPS
-############################
 set $term alacritty
 set $browser firefox
 set $editor subl
 
-bindsym $mod+Return exec $term
+exec_always --no-startup-id feh --bg-scale ~/Pictures/w5.jpg
+
+exec --no-startup-id nm-applet
+exec --no-startup-id dunst
+exec --no-startup-id /usr/lib/mate-polkit/polkit-mate-authentication-agent-1
+
+exec_always --no-startup-id setenv QT_QPA_PLATFORMTHEME qt6ct
+
+exec_always --no-startup-id killall polybar
+exec_always --no-startup-id ~/.config/polybar/launch_polybar.sh
+exec_always --no-startup-id xinput set-prop "MSFT0002:00 04F3:31AD Touchpad" "libinput Tapping Enabled" 1
+exec_always --no-startup-id xinput set-prop "MSFT0002:00 04F3:31AD Touchpad" "libinput Click Method Enabled" 1 0
+exec_always --no-startup-id xinput set-prop "MSFT0002:00 04F3:31AD Touchpad" "libinput Natural Scrolling Enabled" 0
+
+############################
+# TERMINAL / APPS
+############################
+
+bindsym $mod+t exec $term
 bindsym $mod+b exec $browser
 bindsym $mod+s exec --no-startup-id $editor
-bindsym $mod+c exec --no-startup-id caido
 bindsym $mod+w exec --no-startup-id wireshark
+bindsym $mod+v exec --no-startup-id code
+bindsym $mod+c exec --no-startup-id caido
+bindsym $mod+e exec --no-startup-id thunar
+bindsym $mod+n exec --no-startup-id obsidian
+
+bindsym $mod+Shift+s exec flameshot gui -c -p ~/Pictures/Screenshots/
+
+############################
+# LAUNCHERS
+############################
+
+bindsym $mod+space exec --no-startup-id rofi -show drun -theme ~/.config/rofi/spotlight.rasi
+
+############################
+# WINDOW CONTROL
+############################
+
+bindsym $mod+q kill
 
 ############################
 # FOCUS
 ############################
-bindsym $mod+Left  focus left
-bindsym $mod+Down  focus down
-bindsym $mod+Up    focus up
+
+bindsym $mod+Left focus left
+bindsym $mod+Down focus down
+bindsym $mod+Up focus up
 bindsym $mod+Right focus right
+
+############################
+# MOVE WINDOW
+############################
+
+bindsym $mod+Shift+Left move left
+bindsym $mod+Shift+Down move down
+bindsym $mod+Shift+Up move up
+bindsym $mod+Shift+Right move right
 
 ############################
 # LAYOUT
 ############################
-bindsym $mod+v split h
+
+default_orientation horizontal
+
+bindsym $mod+Return split h
 bindsym $mod+h split v
 bindsym $mod+f fullscreen toggle
 bindsym $mod+Shift+space floating toggle
@@ -63,39 +85,44 @@ bindsym $mod+Shift+space floating toggle
 ############################
 # WORKSPACES
 ############################
-bindsym $mod+1 workspace 1
-bindsym $mod+2 workspace 2
-bindsym $mod+3 workspace 3
-bindsym $mod+4 workspace 4
-bindsym $mod+5 workspace 5
-bindsym $mod+6 workspace 6
-bindsym $mod+7 workspace 7
-bindsym $mod+8 workspace 8
-bindsym $mod+9 workspace 9
-bindsym $mod+0 workspace 10
 
-bindsym $mod+Shift+1 move container to workspace 1
-bindsym $mod+Shift+2 move container to workspace 2
-bindsym $mod+Shift+3 move container to workspace 3
-bindsym $mod+Shift+4 move container to workspace 4
-bindsym $mod+Shift+5 move container to workspace 5
-bindsym $mod+Shift+6 move container to workspace 6
-bindsym $mod+Shift+7 move container to workspace 7
-bindsym $mod+Shift+8 move container to workspace 8
-bindsym $mod+Shift+9 move container to workspace 9
-bindsym $mod+Shift+0 move container to workspace 10
+set $ws1 "1"
+set $ws2 "2"
+set $ws3 "3"
+set $ws4 "4"
+set $ws5 "5"
+set $ws6 "6"
+set $ws7 "7"
+set $ws8 "8"
+set $ws9 "9"
+set $ws10 "10"
 
-############################
-# SYSTEM
-############################
-bindsym $mod+q kill
-bindsym $mod+Shift+r restart
-bindsym $mod+Shift+c reload
-bindsym $mod+Shift+e exec "i3-msg exit"
+bindsym $mod+1 workspace number $ws1
+bindsym $mod+2 workspace number $ws2
+bindsym $mod+3 workspace number $ws3
+bindsym $mod+4 workspace number $ws4
+bindsym $mod+5 workspace number $ws5
+bindsym $mod+6 workspace number $ws6
+bindsym $mod+7 workspace number $ws7
+bindsym $mod+8 workspace number $ws8
+bindsym $mod+9 workspace number $ws9
+bindsym $mod+0 workspace number $ws10
+
+bindsym $mod+Shift+1 move container to workspace number $ws1
+bindsym $mod+Shift+2 move container to workspace number $ws2
+bindsym $mod+Shift+3 move container to workspace number $ws3
+bindsym $mod+Shift+4 move container to workspace number $ws4
+bindsym $mod+Shift+5 move container to workspace number $ws5
+bindsym $mod+Shift+6 move container to workspace number $ws6
+bindsym $mod+Shift+7 move container to workspace number $ws7
+bindsym $mod+Shift+8 move container to workspace number $ws8
+bindsym $mod+Shift+9 move container to workspace number $ws9
+bindsym $mod+Shift+0 move container to workspace number $ws10
 
 ############################
 # RESIZE MODE
 ############################
+
 mode "resize" {
     bindsym h resize shrink width 10 px
     bindsym l resize grow width 10 px
@@ -105,21 +132,36 @@ mode "resize" {
     bindsym Return mode "default"
     bindsym Escape mode "default"
 }
+
 bindsym $mod+r mode "resize"
 
 ############################
-# Move window
+# SYSTEM
 ############################
-bindsym $mod+Shift+Left  move left
-bindsym $mod+Shift+Right move right
-bindsym $mod+Shift+Up    move up
-bindsym $mod+Shift+Down  move down
+
+bindsym $mod+Shift+c reload
+bindsym $mod+Shift+r restart
+bindsym $mod+Shift+e exec "i3-msg exit"
 
 ############################
-# COLORS
+# GAPS
 ############################
-client.focused          #50FA7B  #50FA7B   #282A36  #50FA7B   #50FA7B
-client.focused_inactive #44475A  #44475A   #F8F8F2  #44475A   #44475A
-client.unfocused        #282A36  #282A36   #6272A4  #282A36   #282A36
-client.urgent           #FF5555  #FF5555   #F8F8F2  #FF5555   #FF5555
 
+gaps inner 8
+gaps outer 0
+smart_gaps off
+
+############################
+# WINDOW RULES
+############################
+
+for_window [class="Firefox" title="Picture-in-Picture"] floating enable, sticky enable
+
+############################
+# BAR
+############################
+
+bar {
+mode invisible
+tray_output none
+}

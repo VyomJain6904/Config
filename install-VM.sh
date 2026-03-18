@@ -246,31 +246,81 @@ XINITRC
   chmod +x "${HOME}/.xinitrc"
   ok "~/.xinitrc"
 
-  # Auto-startx on TTY1
-  ZPROFILE="${HOME}/.zprofile"
-  if ! grep -q 'startx' "$ZPROFILE" 2>/dev/null; then
-    cat >>"$ZPROFILE" <<'ZPROF'
+  # Auto-startx on TTY1 — written to ALL login shell configs
+  # Kali uses zsh by default; .zprofile is the login file for zsh.
+  # .bash_profile and .profile are added later as fallbacks.
+  for shell_rc in "${HOME}/.zprofile" "${HOME}/.zlogin"; do
+    if ! grep -q 'startx' "$shell_rc" 2>/dev/null; then
+      cat >>"$shell_rc" <<'ZPROF'
 
 # Auto-start i3 on TTY1
 if [ -z "${DISPLAY}" ] && [ "$(tty)" = "/dev/tty1" ]; then
   exec startx
 fi
 ZPROF
-    ok "~/.zprofile  auto-startx on TTY1"
-  else
-    warn "startx already in ~/.zprofile"
-  fi
-
-  # Disable display manager
-  for dm in gdm3 gdm lightdm sddm kdm lxdm; do
-    if systemctl is-enabled "$dm" &>/dev/null 2>&1; then
-      sudo systemctl disable "$dm" &>/dev/null || true
-      ok "Disabled DM: ${dm}"
+      ok "$shell_rc  auto-startx on TTY1"
+    else
+      warn "$shell_rc already has startx — skipped"
     fi
   done
 
+  # ── Kill display manager — every method, no survivors ──
+  info "Disabling all display managers..."
+
+  # 1. systemctl disable + stop (catches systemd-managed DMs)
+  for dm in gdm3 gdm lightdm sddm kdm lxdm display-manager; do
+    systemctl is-active "$dm" &>/dev/null && sudo systemctl stop "$dm" &>/dev/null || true
+    systemctl is-enabled "$dm" &>/dev/null && sudo systemctl disable "$dm" &>/dev/null || true
+    # mask so nothing can re-enable it before reboot
+    sudo systemctl mask "$dm" &>/dev/null || true
+  done
+
+  # 2. /etc/X11/default-display-manager — used by Debian/Kali even
+  #    when systemd isn't managing the DM directly
+  if [ -f /etc/X11/default-display-manager ]; then
+    sudo mv /etc/X11/default-display-manager \
+      /etc/X11/default-display-manager.bak
+    ok "/etc/X11/default-display-manager backed up + removed"
+  fi
+
+  # 3. /etc/systemd/system/display-manager.service symlink
+  if [ -L /etc/systemd/system/display-manager.service ]; then
+    sudo rm -f /etc/systemd/system/display-manager.service
+    ok "display-manager.service symlink removed"
+  fi
+
+  # 4. Force multi-user target as default
   sudo systemctl set-default multi-user.target &>/dev/null
+  sudo systemctl daemon-reload &>/dev/null
   ok "systemd default → multi-user.target (TTY)"
+
+  # 5. ~/.bash_profile fallback for bash logins (some distros use this)
+  BASH_PROFILE="${HOME}/.bash_profile"
+  if ! grep -q 'startx' "$BASH_PROFILE" 2>/dev/null; then
+    cat >>"$BASH_PROFILE" <<'BASHPROF'
+
+# Auto-start i3 on TTY1
+if [ -z "${DISPLAY}" ] && [ "$(tty)" = "/dev/tty1" ]; then
+  exec startx
+fi
+BASHPROF
+    ok "~/.bash_profile  auto-startx on TTY1"
+  fi
+
+  # 6. ~/.profile fallback (sh-compatible, covers all login shells)
+  PROFILE="${HOME}/.profile"
+  if ! grep -q 'startx' "$PROFILE" 2>/dev/null; then
+    cat >>"$PROFILE" <<'PROF'
+
+# Auto-start i3 on TTY1
+if [ -z "${DISPLAY}" ] && [ "$(tty)" = "/dev/tty1" ]; then
+  exec startx
+fi
+PROF
+    ok "~/.profile  auto-startx on TTY1"
+  fi
+
+  ok "All display managers disabled + masked"
 
   # Write phase marker so Phase 2 knows DE list to purge
   echo "$DETECTED_DES" >"$PHASE_MARKER"

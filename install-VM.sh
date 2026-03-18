@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -uo pipefail
 
 # ══════════════════════════════════════════════════════════════════
 #  Vyom's VM Setup Installer
@@ -87,22 +87,31 @@ apt_q() {
   local opts=(-y -qq -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold")
   export DEBIAN_FRONTEND=noninteractive
   case "$sub" in
-  update) sudo apt-get update -qq "$@" &>/dev/null ;;
-  upgrade) sudo apt-get upgrade "${opts[@]}" "$@" &>/dev/null ;;
-  install) sudo apt-get install "${opts[@]}" "$@" &>/dev/null ;;
+  update) sudo apt-get update -qq "$@" &>/dev/null || true ;;
+  upgrade) sudo apt-get upgrade "${opts[@]}" "$@" &>/dev/null || true ;;
+  install) sudo apt-get install "${opts[@]}" "$@" &>/dev/null || true ;;
   purge) sudo apt-get purge "${opts[@]}" "$@" &>/dev/null || true ;;
   autoremove) sudo apt-get autoremove "${opts[@]}" --purge &>/dev/null || true ;;
   autoclean) sudo apt-get autoclean -qq &>/dev/null || true ;;
   esac
+  return 0
 }
 
 # polkit varies across distro versions
+# policykit-1 removed in Debian 12+ / Kali 2023+ — replaced by polkitd + pkexec
+# apt-cache show exits 100 when package missing — must suppress for set -e
 install_polkit() {
-  if apt-cache show policykit-1 &>/dev/null; then
+  # apt-cache show exits 100 for unknown packages.
+  # Under set -e, even inside an if-condition this can kill the script.
+  # Capture exit code manually to stay safe.
+  local has_old=0
+  apt-cache show policykit-1 &>/dev/null && has_old=1 || has_old=0
+  if [ "$has_old" -eq 1 ]; then
     apt_q install policykit-1
   else
     apt_q install polkitd pkexec
   fi
+  sudo apt-mark manual policykit-1 polkitd pkexec &>/dev/null || true
 }
 
 # ─────────────────────────────────────────────
@@ -212,6 +221,17 @@ run_phase1() {
   IFS= read -r ans
   [[ "${ans,,}" == "n" ]] && echo "" && echo -e "  ${GRAY}Cancelled.${RESET}" && exit 0
   echo ""
+
+  # Cache sudo credentials upfront — one password prompt, nothing mid-install
+  echo -e "  ${GRAY}·  Caching sudo credentials...${RESET}"
+  sudo -v
+  # Keep sudo alive for the duration of the script
+  (while true; do
+    sudo -v
+    sleep 50
+  done) &
+  SUDO_KEEPALIVE_PID=$!
+  trap 'kill $SUDO_KEEPALIVE_PID 2>/dev/null' EXIT
 
   # ── System update ──
   step "System Update"
@@ -375,6 +395,15 @@ run_phase2() {
   IFS= read -r ans
   [[ "${ans,,}" == "n" ]] && echo "" && echo -e "  ${GRAY}Cancelled.${RESET}" && exit 0
   echo ""
+
+  echo -e "  ${GRAY}·  Caching sudo credentials...${RESET}"
+  sudo -v
+  (while true; do
+    sudo -v
+    sleep 50
+  done) &
+  SUDO_KEEPALIVE_PID=$!
+  trap 'kill $SUDO_KEEPALIVE_PID 2>/dev/null' EXIT
 
   # ── System update ──
   step "System Update"

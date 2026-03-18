@@ -12,7 +12,7 @@ set $term alacritty
 set $browser firefox
 set $editor subl
 
-exec_always --no-startup-id feh --bg-scale ~/Pictures/w5.jpg
+exec_always --no-startup-id feh --bg-scale ~/Pictures/w10.jpg
 
 exec --no-startup-id nm-applet
 exec --no-startup-id dunst
@@ -22,9 +22,6 @@ exec_always --no-startup-id setenv QT_QPA_PLATFORMTHEME qt6ct
 
 exec_always --no-startup-id killall polybar
 exec_always --no-startup-id ~/.config/polybar/launch_polybar.sh
-exec_always --no-startup-id xinput set-prop "MSFT0002:00 04F3:31AD Touchpad" "libinput Tapping Enabled" 1
-exec_always --no-startup-id xinput set-prop "MSFT0002:00 04F3:31AD Touchpad" "libinput Click Method Enabled" 1 0
-exec_always --no-startup-id xinput set-prop "MSFT0002:00 04F3:31AD Touchpad" "libinput Natural Scrolling Enabled" 0
 
 ############################
 # TERMINAL / APPS
@@ -40,12 +37,6 @@ bindsym $mod+e exec --no-startup-id thunar
 bindsym $mod+n exec --no-startup-id obsidian
 
 bindsym $mod+Shift+s exec flameshot gui -c -p ~/Pictures/Screenshots/
-
-############################
-# LAUNCHERS
-############################
-
-bindsym $mod+space exec --no-startup-id rofi -show drun -theme ~/.config/rofi/spotlight.rasi
 
 ############################
 # WINDOW CONTROL

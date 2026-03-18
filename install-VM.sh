@@ -36,27 +36,6 @@ ARROW="${CYAN}▶${RESET}"
 # ─────────────────────────────────────────────
 #  UI
 # ─────────────────────────────────────────────
-intro() {
-  clear
-  echo ""
-  echo -e "${PURPLE}${BOLD}  ██╗   ██╗██╗   ██╗ ██████╗ ███╗   ███╗${RESET}"
-  echo -e "${PURPLE}${BOLD}  ██║   ██║╚██╗ ██╔╝██╔═══██╗████╗ ████║${RESET}"
-  echo -e "${CYAN}${BOLD}  ██║   ██║ ╚████╔╝ ██║   ██║██╔████╔██║${RESET}"
-  echo -e "${CYAN}${BOLD}  ╚██╗ ██╔╝  ╚██╔╝  ██║   ██║██║╚██╔╝██║${RESET}"
-  echo -e "${PINK}${BOLD}   ╚████╔╝    ██║   ╚██████╔╝██║ ╚═╝ ██║${RESET}"
-  echo -e "${PINK}${BOLD}    ╚═══╝     ╚═╝    ╚═════╝ ╚═╝     ╚═╝${RESET}"
-  echo ""
-  echo -e "  ${GRAY}VM Setup Installer  ·  dev + pentesting${RESET}"
-  echo -e "  ${GRAY}Ubuntu / Debian / Kali  ·  Dracula${RESET}"
-  echo ""
-  echo -e "${GRAY}  ┌─────────────────────────────────────────┐${RESET}"
-  echo -e "${GRAY}  │${RESET}  ${PURPLE}Target${RESET}  Virtual Machine only            ${GRAY}│${RESET}"
-  echo -e "${GRAY}  │${RESET}  ${PURPLE}Author${RESET}  Vyom Jain                       ${GRAY}│${RESET}"
-  echo -e "${GRAY}  │${RESET}  ${PURPLE}Repo  ${RESET}  github.com/VyomJain6904/Config  ${GRAY}│${RESET}"
-  echo -e "${GRAY}  └─────────────────────────────────────────┘${RESET}"
-  echo ""
-}
-
 step() {
   echo ""
   echo -e "${GRAY}┌──────────────────────────────────────────${RESET}"
@@ -394,11 +373,11 @@ XINITRC
     info "Installing Oh My Zsh (non-interactive git clone)..."
     if command -v timeout &>/dev/null; then
       timeout 120 env GIT_TERMINAL_PROMPT=0 git clone --depth 1 \
-        https://github.com/ohmyzsh/ohmyzsh.git "${HOME}/.oh-my-zsh" &>/dev/null || \
+        https://github.com/ohmyzsh/ohmyzsh.git "${HOME}/.oh-my-zsh" &>/dev/null ||
         warn "Oh My Zsh clone timed out/failed — continuing"
     else
       env GIT_TERMINAL_PROMPT=0 git clone --depth 1 \
-        https://github.com/ohmyzsh/ohmyzsh.git "${HOME}/.oh-my-zsh" &>/dev/null || \
+        https://github.com/ohmyzsh/ohmyzsh.git "${HOME}/.oh-my-zsh" &>/dev/null ||
         warn "Oh My Zsh clone failed — continuing"
     fi
     [ -d "${HOME}/.oh-my-zsh" ] && ok "Oh My Zsh" || warn "Oh My Zsh not installed"
@@ -831,7 +810,7 @@ run_phase2() {
 
   # ── Safety checks ──
   step "Safety checks before purge"
-  [ "$(systemctl get-default 2>/dev/null || true)" = "multi-user.target" ] || \
+  [ "$(systemctl get-default 2>/dev/null || true)" = "multi-user.target" ] ||
     die "Phase 2 blocked: default target is not multi-user.target"
   any_display_manager_active && die "Phase 2 blocked: a display manager is still active"
   require_packages_installed xorg xinit i3 i3status i3lock feh
@@ -895,8 +874,6 @@ run_phase2() {
 # ══════════════════════════════════════════════
 #  ENTRY
 # ══════════════════════════════════════════════
-intro
-
 command -v apt &>/dev/null || die "apt not found — Ubuntu/Debian/Kali only."
 
 STATE="$(read_setup_state)"

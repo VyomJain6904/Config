@@ -225,7 +225,6 @@ if selected "i3_setup"; then
     i3lock \
     dmenu \
     feh \
-    picom \
     arandr \
     xclip \
     xdotool \
@@ -241,9 +240,6 @@ if selected "i3_setup"; then
 
 # Load Xresources if present
 [ -f ~/.Xresources ] && xrdb -merge ~/.Xresources
-
-# Compositor
-picom --daemon 2>/dev/null &
 
 # Set wallpaper if feh config exists
 [ -f ~/.fehbg ] && ~/.fehbg &

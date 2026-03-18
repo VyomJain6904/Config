@@ -30,38 +30,110 @@ source ~/.oh-my-zsh/plugins/zsh-defer/zsh-defer.plugin.zsh
 zsh-defer source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 zsh-defer source /usr/share/zsh-history-substring-search/zsh-history-substring-search.zsh
 
-# ========================
-# Custom Prompt Functions
-# ========================
-get_ip_address() {
-    local tun0_ip eth0_ip wlan0_ip
+# -----------------------------
+# Github Workflow with fzf
+# -----------------------------
+function gt() {
+    # Colors
+    local RED=$'\033[1;31m'
+    local GREEN=$'\033[1;32m'
+    local YELLOW=$'\033[1;33m'
+    local BLUE=$'\033[1;34m'
+    local CYAN=$'\033[1;36m'
+    local MAGENTA=$'\033[1;35m'
+    local RESET=$'\033[0m'
 
-    tun0_ip=$(ip -4 addr show tun0 2>/dev/null | awk '/inet / {print $2}' | cut -d/ -f1)
-    eth0_ip=$(ip -4 addr show eth0 2>/dev/null | awk '/inet / {print $2}' | cut -d/ -f1)
-    wlan0_ip=$(ip -4 addr show wlan0 2>/dev/null | awk '/inet / {print $2}' | cut -d/ -f1)
-
-    if [[ -n "$tun0_ip" ]]; then
-        echo "%F{red}󰖂 %F{red}${tun0_ip}%f"
-    elif [[ -n "$eth0_ip" ]]; then
-        echo "%F{green}󰈀 %F{green}${eth0_ip}%f"
-    elif [[ -n "$wlan0_ip" ]]; then
-        echo "%F{yellow} %F{yellow}${wlan0_ip}%f"
-    else
-        echo "%F{white}󰤮 %F{white}No IP%f"
+    if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+        echo -e "  ${RED}  Not in a Git repository!${RESET}"
+        return 1
     fi
+
+    local exit_requested=false
+
+    while [[ "$exit_requested" == false ]]; do
+        local options=(
+            "${BLUE}  Git Status${RESET}"
+            "${YELLOW}  Git Add${RESET}"
+            "${GREEN}  Git Commit${RESET}"
+            "${MAGENTA}  Git Push${RESET}"
+            "${CYAN}  Recent Commits${RESET}"
+            "${RED}󰩈  Exit${RESET}"
+        )
+
+        local choice=$(printf "%s\n" "${options[@]}" \
+            | command fzf \
+            --ansi \
+            --prompt=" ${CYAN}Git › ${RESET}" \
+            --header="${MAGENTA}Repository: $(basename "$(git rev-parse --show-toplevel 2>/dev/null)")${RESET}" \
+            --border=rounded \
+            --height=40% \
+            --reverse \
+            --cycle \
+        --bind='ctrl-c:abort,esc:abort')
+
+        if [[ $? -ne 0 ]] || [[ -z "$choice" ]]; then
+            echo -e "\n  ${YELLOW}󰩈  Exited.${RESET}"
+            break
+        fi
+
+        case $choice in
+            *"Git Status"*)
+                echo -e "${BLUE}  Repository Status:${RESET}"
+                git status
+            ;;
+            *"Git Add"*)
+                git add .
+                echo -e "  ${GREEN}  Files staged.${RESET}"
+            ;;
+            *"Git Commit"*)
+                if git diff --cached --quiet 2>/dev/null; then
+                    echo -e "  ${YELLOW}  No staged changes.${RESET}"
+                else
+                    echo -ne "${CYAN}  Commit message:${RESET} "
+                    read msg
+                    if [[ -n "$msg" ]]; then
+                        git commit -m "$msg"
+                        echo -e "  ${GREEN}  Commit created.${RESET}"
+                    else
+                        echo -e "  ${RED}  Commit message cannot be empty.${RESET}"
+                    fi
+                fi
+            ;;
+            *"Git Push"*)
+                local current_branch=$(git branch --show-current 2>/dev/null)
+                echo -e "${BLUE}  Pushing branch: ${MAGENTA}${current_branch}${RESET}"
+                if git push 2>/dev/null; then
+                    echo -e "  ${GREEN}  Push successful.${RESET}"
+                else
+                    git push -u origin "$current_branch"
+                    [[ $? -eq 0 ]] && echo -e "  ${GREEN}  Push successful.${RESET}" \
+                    || echo -e "  ${RED}  Push failed.${RESET}"
+                fi
+            ;;
+            *"Recent Commits"*)
+                echo -e "${BLUE}  Last 10 commits :${RESET}"
+                total=$(git rev-list --count HEAD)
+                start=$((total-4))  # first number for the last 5 commits
+                git log -n 10 --pretty=format:"%s" --reverse \
+                | awk -v start="$start" '{print start++ ". " $0}'
+            ;;
+            *"Exit"*)
+                echo -e "  ${GREEN}󰩈  Exiting Github Workflow.${RESET}"
+                exit_requested=true
+            ;;
+        esac
+
+        if [[ "$exit_requested" == false ]]; then
+            echo ""
+            echo -e "${CYAN}⏎ Press Enter to continue...${RESET}"
+            read
+            clear
+        fi
+    done
 }
 
 
-
-git_branch() {
-    if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-        local branch
-        branch=$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse --short HEAD 2>/dev/null)
-        echo "[%{$fg[black]%}  $branch%{$reset_color%}]"
-    fi
-}
-
-PROMPT='[%F{red} %c%f] [$(get_ip_address)%f] ➤ '
+PROMPT='[%F{#FF79C6} %c%f] ➤ '
 
 # ========================
 # Aliases
@@ -86,24 +158,19 @@ alias nr="sudo systemctl restart NetworkManager"
 alias z="source ~/.zshrc"
 
 # --- Productivity ---
-alias l="eza --color=always -la --git --icons=always --tree --level=1 --no-time --no-user"
+alias l="eza --color=always -l --git --icons=always --tree --level=1 --no-time --no-user"
 alias ll="eza --color=always -la --git --icons=always --tree --level=2 --no-time --no-user"
 alias lll="eza --color=always -la --git --icons=always --tree --level=3 --no-time --no-user"
 alias gt="git clone"
 alias msf="msfconsole"
-alias bat="batcat"
-alias thm="cd /home/kali/HTB/vpn/ && sudo openvpn thm.ovpn"
-alias htb="cd /home/kali/HTB/vpn/ && sudo openvpn htb_labs.ovpn"
-alias hs="cd /home/kali/HTB/vpn/ && sudo openvpn hs_lab.ovpn"
+alias cat="batcat"
 alias fd="fdfind"
 alias f="fzf"
 alias ff="fastfetch"
-alias splunk="cd /opt/splunk/bin && sudo ./splunk start"
 alias pserver="cd ~/tools/ && python3 -m http.server"
 alias bhu="cd /home/kali/tools && sudo ./bloodhound-cli up"
 alias bhd="cd /home/kali/tools && sudo ./bloodhound-cli down"
-alias s="spf"
-alias run="go run"
+alias s="yazi"
 
 # Target IP :
 target() {
@@ -133,7 +200,7 @@ export VISUAL="nvim"
 function y() {
     local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
     yazi "$@" --cwd-file="$tmp"
-    if cwd="$(command bat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+    if cwd="$(command cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
         builtin cd -- "$cwd"
     fi
     rm -- "$tmp"
@@ -212,7 +279,7 @@ fzf() {
 _fzf_compgen_path() { fd --exclude .git . "$1"; }
 _fzf_compgen_dir()  { fd --type=d --exclude .git . "$1"; }
 
-show_file_or_dir_preview="if [ -d {} ]; then eza --icons --tree --color=always {} | head -200; else bat -n --color=always --line-range :500 {}; fi"
+show_file_or_dir_preview="if [ -d {} ]; then eza --icons --tree --color=always {} | head -200; else cat -n --color=always --line-range :500 {}; fi"
 
 export FZF_CTRL_T_OPTS="--preview '$show_file_or_dir_preview'"
 export FZF_ALT_C_OPTS="--preview 'eza --icons --tree --color=always {} | head -200'"

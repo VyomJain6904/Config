@@ -3,43 +3,87 @@ set -euo pipefail
 
 # ══════════════════════════════════════════════════════════════════
 #  Vyom's VM Setup Installer
-#  Target: Ubuntu / Debian based Virtual Machines ONLY
+#  Target : Ubuntu / Debian based Virtual Machines ONLY
 #  Purpose: Lightweight dev + pentesting environment
 # ══════════════════════════════════════════════════════════════════
 
 # ─────────────────────────────────────────────
-#  Preflight checks
+#  Dracula palette (ANSI true-colour)
+# ─────────────────────────────────────────────
+R='\033[0m'
+BOLD='\033[1m'
+
+C_PURPLE='\033[38;2;189;147;249m'
+C_CYAN='\033[38;2;139;233;253m'
+C_GREEN='\033[38;2;80;250;123m'
+C_YELLOW='\033[38;2;241;250;140m'
+C_RED='\033[38;2;255;85;85m'
+C_FG='\033[38;2;248;248;242m'
+C_COMMENT='\033[38;2;98;114;164m'
+
+BOX_TOP="┌"
+BOX_MID="│"
+BOX_BOT="└"
+DOT_ON="◆"
+DOT_OFF="◇"
+CHK="✓"
+WARN_SYM="⚠"
+SKIP_SYM="↺"
+STEP_SYM="▶"
+
+# ─────────────────────────────────────────────
+#  UI primitives
+# ─────────────────────────────────────────────
+box_open() { echo -e "${C_PURPLE}${BOX_TOP}${R} ${BOLD}${C_FG}$1${R}"; }
+box_line() { echo -e "${C_PURPLE}${BOX_MID}${R}  ${C_FG}$1${R}"; }
+box_hint() { echo -e "${C_PURPLE}${BOX_MID}${R}  ${C_COMMENT}$1${R}"; }
+box_close() { echo -e "${C_PURPLE}${BOX_BOT}${R}"; }
+
+ok() { echo -e "  ${C_GREEN}${CHK}${R}  ${C_FG}$1${R}"; }
+warn() { echo -e "  ${C_YELLOW}${WARN_SYM}${R}  ${C_YELLOW}$1${R}"; }
+skip() { echo -e "  ${C_COMMENT}${SKIP_SYM}${R}  ${C_COMMENT}$1${R}"; }
+step() { echo -e "\n  ${C_CYAN}${STEP_SYM}${R}  ${C_CYAN}${BOLD}$1${R}"; }
+
+section() {
+  echo ""
+  echo -e "${C_PURPLE}${BOX_TOP}──────────────────────────────────────────${R}"
+  echo -e "${C_PURPLE}${BOX_MID}${R}  ${BOLD}${C_CYAN}$1${R}"
+  echo -e "${C_PURPLE}${BOX_BOT}──────────────────────────────────────────${R}"
+}
+
+confirm() {
+  local prompt="$1" default="${2:-y}"
+  if [[ "$default" == "y" ]]; then
+    echo -e "${C_PURPLE}${BOX_MID}${R}  ${C_FG}${prompt}${R} ${C_COMMENT}[Y/n]${R}" >&2
+  else
+    echo -e "${C_PURPLE}${BOX_MID}${R}  ${C_FG}${prompt}${R} ${C_COMMENT}[y/N]${R}" >&2
+  fi
+  printf "${C_PURPLE}${BOX_MID}${R}  ${C_PURPLE}${DOT_ON}${R} " >&2
+  local yn
+  read -r yn </dev/tty
+  case "${yn,,}" in
+  y | yes) return 0 ;;
+  n | no) return 1 ;;
+  "") [[ "$default" == "y" ]] && return 0 || return 1 ;;
+  *) return 1 ;;
+  esac
+}
+
+# ─────────────────────────────────────────────
+#  Preflight
 # ─────────────────────────────────────────────
 if ! command -v apt >/dev/null 2>&1; then
-  echo "Error: apt not found. This installer targets Ubuntu/Debian systems."
+  echo -e "  ${C_RED}✖${R}  apt not found — Ubuntu/Debian only."
   exit 1
 fi
 
-if ! command -v whiptail >/dev/null 2>&1; then
-  echo "Installing whiptail for interactive menu..."
-  sudo apt-get install -y whiptail
-fi
-
 # ─────────────────────────────────────────────
-#  Config-VM settings
+#  Config
 # ─────────────────────────────────────────────
 REPO_URL="https://github.com/VyomJain6904/Config.git"
 REPO_BRANCH="main"
-
-BASE_PACKAGES=(
-  git
-  alacritty
-  i3
-  neovim
-  polybar
-)
-
-CONFIG_ITEMS=(
-  alacritty
-  i3
-  nvim
-  polybar
-)
+BASE_PACKAGES=(git alacritty i3 neovim polybar)
+CONFIG_ITEMS=(alacritty i3 nvim polybar)
 
 # ─────────────────────────────────────────────
 #  DE detection
@@ -78,167 +122,221 @@ detect_installed_des() {
 DETECTED_DES=$(detect_installed_des)
 
 # ─────────────────────────────────────────────
-#  Interactive selection via whiptail
+#  Component state
 # ─────────────────────────────────────────────
-if [ -n "$DETECTED_DES" ]; then
-  DE_LABEL="i3 setup  (detected: ${DETECTED_DES}  → will remove)"
-else
-  DE_LABEL="i3 setup  (xorg + xinit + i3 as default on TTY)"
-fi
+declare -A SEL
+SEL[i3_setup]=1
+SEL[base_configs]=1
+SEL[zsh_setup]=1
+SEL[yazi]=1
+SEL[pipewire]=1
+SEL[nodejs]=1
+SEL[bun]=1
+SEL[rust]=1
+SEL[go]=1
+SEL[code]=1
+SEL[sublime]=1
+SEL[antigravity]=1
+SEL[opencode]=1
+SEL[codex_cli]=1
 
-CHOICES=$(whiptail --title "Vyom's VM Setup Installer" \
-  --checklist "Select components to install:\n(SPACE to toggle, ENTER to confirm, ESC to cancel)" \
-  34 70 20 \
-  "i3_setup" "${DE_LABEL}" ON \
-  "base_configs" "Core configs  (alacritty / i3 / nvim / polybar)" ON \
-  "zsh_setup" "Zsh  (Oh-My-Zsh + plugins + starship + font)" ON \
-  "yazi" "Yazi  (terminal file manager via cargo)" ON \
-  "pipewire" "PipeWire audio  (+ WirePlumber + pavucontrol)" ON \
-  "nodejs" "Node.js  (latest LTS via nvm)" ON \
-  "bun" "Bun  (JS runtime & package manager)" ON \
-  "rust" "Rust  (via rustup)" ON \
-  "go" "Go  (latest stable)" ON \
-  "code" "VS Code" ON \
-  "sublime" "Sublime Text" ON \
-  "antigravity" "Antigravity" ON \
-  "opencode" "OpenCode CLI  (via bun)" ON \
-  "codex_cli" "Codex CLI  (via npm)" ON \
-  3>&1 1>&2 2>&3)
+declare -A LABELS
+LABELS[i3_setup]="i3 setup          xorg + xinit + i3 as default on TTY"
+LABELS[base_configs]="Base configs       alacritty / i3 / nvim / polybar"
+LABELS[zsh_setup]="Zsh               Oh-My-Zsh + plugins + starship + font"
+LABELS[yazi]="Yazi              terminal file manager  (via cargo)"
+LABELS[pipewire]="PipeWire          audio + wireplumber + pavucontrol"
+LABELS[nodejs]="Node.js           latest LTS via nvm"
+LABELS[bun]="Bun               JS runtime & package manager"
+LABELS[rust]="Rust              via rustup"
+LABELS[go]="Go                latest stable"
+LABELS[code]="VS Code"
+LABELS[sublime]="Sublime Text"
+LABELS[antigravity]="Antigravity"
+LABELS[opencode]="OpenCode CLI      via bun"
+LABELS[codex_cli]="Codex CLI         via npm"
 
-EXIT_STATUS=$?
-if [ $EXIT_STATUS -ne 0 ]; then
-  echo "Installation cancelled."
-  exit 0
-fi
+KEYS=(i3_setup base_configs zsh_setup yazi pipewire nodejs bun rust go code sublime antigravity opencode codex_cli)
 
-CHOICES="${CHOICES//\"/}"
+selected() { [[ "${SEL[$1]}" -eq 1 ]]; }
 
-selected() {
-  [[ " $CHOICES " == *" $1 "* ]]
+# ─────────────────────────────────────────────
+#  Header
+# ─────────────────────────────────────────────
+clear
+echo ""
+echo -e "  ${BOLD}${C_PURPLE}Vyom's VM Setup${R}  ${C_COMMENT}Ubuntu / Debian  ·  dev + pentesting${R}"
+echo -e "  ${C_COMMENT}────────────────────────────────────────────${R}"
+echo ""
+
+# ─────────────────────────────────────────────
+#  Component selection  (clack / opencode style)
+# ─────────────────────────────────────────────
+_print_items() {
+  local i=1
+  for key in "${KEYS[@]}"; do
+    if selected "$key"; then
+      echo -e "${C_PURPLE}${BOX_MID}${R}  ${C_PURPLE}${DOT_ON}${R}  ${BOLD}${C_FG}$(printf '%2d' $i)${R}  ${C_FG}${LABELS[$key]}${R}"
+    else
+      echo -e "${C_PURPLE}${BOX_MID}${R}  ${C_COMMENT}${DOT_OFF}${R}  ${C_COMMENT}$(printf '%2d' $i)  ${LABELS[$key]}${R}"
+    fi
+    ((i++))
+  done
+  box_hint ""
 }
+
+_item_lines=$((${#KEYS[@]} + 1)) # items + trailing hint line
+
+box_open "Select components to install"
+box_hint "Number(s) to toggle  ·  a = all  ·  n = none  ·  Enter to confirm"
+box_hint ""
+_print_items
+
+while true; do
+  printf "${C_PURPLE}${BOX_BOT}${R}  ${C_FG}Toggle » ${R}"
+  read -r input </dev/tty
+
+  case "${input,,}" in
+  "") break ;;
+  a) for k in "${KEYS[@]}"; do SEL[$k]=1; done ;;
+  n) for k in "${KEYS[@]}"; do SEL[$k]=0; done ;;
+  *)
+    input="${input//,/ }"
+    for num in $input; do
+      if [[ "$num" =~ ^[0-9]+$ ]] && ((num >= 1 && num <= ${#KEYS[@]})); then
+        key="${KEYS[$((num - 1))]}"
+        SEL[$key]=$((1 - SEL[$key]))
+      fi
+    done
+    ;;
+  esac
+
+  # Redraw — move cursor up over items + hint + bottom line
+  for ((i = 0; i < _item_lines + 1; i++)); do printf '\033[1A\033[2K'; done
+  _print_items
+done
+
+echo ""
+
+# ─────────────────────────────────────────────
+#  Final selection summary
+# ─────────────────────────────────────────────
+box_open "Installing"
+for key in "${KEYS[@]}"; do
+  if selected "$key"; then
+    echo -e "${C_PURPLE}${BOX_MID}${R}  ${C_PURPLE}${DOT_ON}${R}  ${C_FG}${LABELS[$key]}${R}"
+  else
+    echo -e "${C_PURPLE}${BOX_MID}${R}  ${C_COMMENT}${DOT_OFF}${R}  ${C_COMMENT}${LABELS[$key]}${R}"
+  fi
+done
+box_close
+echo ""
 
 # ─────────────────────────────────────────────
 #  DE removal confirmation
 # ─────────────────────────────────────────────
 WILL_REMOVE_DE=false
 if selected "i3_setup" && [ -n "$DETECTED_DES" ]; then
-  if whiptail --title "⚠  DE Removal Warning" --yesno \
-    "The following desktop environment(s) were detected:\n\n  ${DETECTED_DES}\n\nThis script will:\n  PHASE 1  (now)\n    • Install i3 + xorg + xinit\n    • Set i3 as default TTY session\n    • Disable display manager\n    • Reboot into i3\n\n  PHASE 2  (automatically after reboot)\n    • Remove detected DE(s) from within i3\n    • Purge orphaned packages\n    • Critical services (pipewire, dbus, udisks2) are protected\n\nThis is IRREVERSIBLE. Proceed?" \
-    24 65; then
+  box_open "Desktop Environment Detected"
+  box_line "Found: ${C_YELLOW}${DETECTED_DES}${R}"
+  box_hint ""
+  box_hint "Phase 1  (now)   install i3 + xorg, disable DM, reboot"
+  box_hint "Phase 2  (boot)  auto-purge old DE, critical services protected"
+  box_hint ""
+  box_hint "This is IRREVERSIBLE."
+  if confirm "Remove detected DE(s) after reboot?"; then
     WILL_REMOVE_DE=true
+    box_line "${C_GREEN}DE removal scheduled${R}"
   else
-    whiptail --title "i3 Setup" --msgbox \
-      "DE removal skipped.\ni3 + xorg will still be installed and set as default,\nbut the existing DE will NOT be removed." \
-      11 58
+    box_line "${C_COMMENT}DE removal skipped — i3 will still be installed${R}"
   fi
+  box_close
+  echo ""
 fi
 
 # ─────────────────────────────────────────────
-#  Cleanup on exit
+#  Final go / no-go
+# ─────────────────────────────────────────────
+box_open "Ready to install"
+box_hint "This will modify your system."
+if ! confirm "Proceed?"; then
+  box_line "${C_COMMENT}Cancelled — nothing was changed${R}"
+  box_close
+  echo ""
+  exit 0
+fi
+box_close
+echo ""
+
+# ─────────────────────────────────────────────
+#  Shared helpers
 # ─────────────────────────────────────────────
 temp_dir=""
-cleanup() {
-  if [ -n "${temp_dir}" ] && [ -d "${temp_dir}" ]; then
-    rm -rf "${temp_dir}"
-  fi
-}
+cleanup() { [ -n "${temp_dir}" ] && [ -d "${temp_dir}" ] && rm -rf "${temp_dir}"; }
 trap cleanup EXIT
 
 copy_config_dir() {
-  local source_dir="$1"
-  local target_dir="$2"
-  mkdir -p "$(dirname "${target_dir}")"
-  rm -rf "${target_dir}"
-  mkdir -p "${target_dir}"
-  cp -a "${source_dir}/." "${target_dir}/"
+  local src="$1" dst="$2"
+  mkdir -p "$(dirname "${dst}")"
+  rm -rf "${dst}"
+  mkdir -p "${dst}"
+  cp -a "${src}/." "${dst}/"
 }
 
 REPO_CLONED=false
 ensure_repo_cloned() {
   if [ "$REPO_CLONED" = false ]; then
-    echo "▶ Cloning config repo (sparse)..."
+    step "Cloning config repo (sparse)"
     temp_dir="$(mktemp -d)"
     git clone --depth 1 --filter=blob:none --sparse \
       --branch "${REPO_BRANCH}" "${REPO_URL}" "${temp_dir}/repo"
     git -C "${temp_dir}/repo" sparse-checkout set Config-VM
     REPO_CLONED=true
+    ok "Repo cloned"
   fi
 }
 
 zshrc_append() {
-  local marker="$1"
-  local block="$2"
-  local zshrc="${HOME}/.zshrc"
-  if [ -f "$zshrc" ] && ! grep -qF "$marker" "$zshrc"; then
-    printf '\n%s\n' "$block" >>"$zshrc"
-  fi
+  local marker="$1" block="$2" zshrc="${HOME}/.zshrc"
+  [ -f "$zshrc" ] && ! grep -qF "$marker" "$zshrc" && printf '\n%s\n' "$block" >>"$zshrc"
 }
 
-# ─────────────────────────────────────────────
+# ══════════════════════════════════════════════
 #  System update
-# ─────────────────────────────────────────────
-echo ""
-echo "╔══════════════════════════════════════════╗"
-echo "║        Updating system packages          ║"
-echo "╚══════════════════════════════════════════╝"
-sudo apt update
-sudo apt upgrade -y
-sudo apt install -y curl wget gpg ca-certificates unzip git build-essential
+# ══════════════════════════════════════════════
+section "System Update"
+sudo apt update -qq
+sudo apt upgrade -y -qq
+sudo apt install -y -qq curl wget gpg ca-certificates unzip git build-essential
+ok "System packages updated"
 
 # ══════════════════════════════════════════════
 #  i3 SETUP
 # ══════════════════════════════════════════════
 if selected "i3_setup"; then
-  echo ""
-  echo "╔══════════════════════════════════════════╗"
-  echo "║       Installing i3 + Xorg stack         ║"
-  echo "╚══════════════════════════════════════════╝"
+  section "i3 + Xorg  (VM lean install)"
 
-  # VM-only essentials — no compositor, no gnome deps, no NM
-  # Networking is handled by the hypervisor automatically
   sudo apt install -y \
-    xorg \
-    xinit \
-    xserver-xorg \
-    xserver-xorg-input-all \
-    x11-xserver-utils \
-    i3 \
-    i3status \
-    i3lock \
-    dmenu \
-    feh \
-    arandr \
-    xclip \
-    xdotool \
-    numlockx \
-    dbus-x11 \
-    policykit-1 \
-    udisks2 \
-    upower \
-    xdg-user-dirs \
-    xdg-utils \
-    dunst
-  echo "  ✓ Xorg + i3 stack installed (no compositor, no gnome deps)"
+    xorg xinit xserver-xorg xserver-xorg-input-all \
+    x11-xserver-utils i3 i3status i3lock dmenu \
+    feh arandr xclip xdotool numlockx dbus-x11 \
+    policykit-1 udisks2 upower \
+    xdg-user-dirs xdg-utils dunst
+  ok "Xorg + i3 stack installed  (no compositor · no gnome deps)"
 
-  # ── ~/.xinitrc — no picom, no nm-applet (VM doesn't need them) ──
-  echo "▶ Configuring ~/.xinitrc..."
+  step "Configuring ~/.xinitrc"
   cat >"${HOME}/.xinitrc" <<'EOF'
 #!/bin/sh
-# ~/.xinitrc — VM setup (no compositor, networking handled by hypervisor)
-
+# ~/.xinitrc — VM setup  (no compositor, networking via hypervisor)
 [ -f ~/.Xresources ] && xrdb -merge ~/.Xresources
 [ -f ~/.fehbg ] && ~/.fehbg &
-
-# Notification daemon
 dunst &
-
 exec i3
 EOF
   chmod +x "${HOME}/.xinitrc"
-  echo "  ✓ ~/.xinitrc configured (lean, VM-safe)"
+  ok "~/.xinitrc configured"
 
-  # ── Auto-startx on TTY1 ──
-  echo "▶ Configuring auto-startx on TTY1..."
+  step "Configuring auto-startx on TTY1"
   ZPROFILE="${HOME}/.zprofile"
   if ! grep -q 'startx' "$ZPROFILE" 2>/dev/null; then
     cat >>"$ZPROFILE" <<'EOF'
@@ -248,33 +346,28 @@ if [ -z "${DISPLAY}" ] && [ "$(tty)" = "/dev/tty1" ]; then
   exec startx
 fi
 EOF
-    echo "  ✓ ~/.zprofile updated"
+    ok "~/.zprofile updated"
   else
-    echo "  ↺ startx already in ~/.zprofile — skipping"
+    skip "startx already in ~/.zprofile"
   fi
 
-  # ── Disable display manager ──
-  echo "▶ Disabling display manager (if any)..."
+  step "Disabling display manager"
   for dm in gdm3 gdm lightdm sddm kdm lxdm; do
     if systemctl is-enabled "$dm" &>/dev/null; then
       sudo systemctl disable "$dm" || true
-      echo "  ✓ Disabled: ${dm}"
+      ok "Disabled: ${dm}"
     fi
   done
 
-  # ── TTY as default target ──
   sudo systemctl set-default multi-user.target
-  echo "  ✓ Default target → multi-user.target (TTY)"
+  ok "Default target → multi-user.target (TTY)"
 
-  # ── Phase 2 DE removal service ──
   if [ "$WILL_REMOVE_DE" = true ]; then
-    echo "▶ Registering post-reboot DE removal service..."
+    step "Registering post-reboot DE removal service"
 
     PURGE_PKGS=""
     for de in $DETECTED_DES; do
-      if [ -n "${DE_PACKAGES[$de]:-}" ]; then
-        PURGE_PKGS="${PURGE_PKGS} ${DE_PACKAGES[$de]}"
-      fi
+      [ -n "${DE_PACKAGES[$de]:-}" ] && PURGE_PKGS="${PURGE_PKGS} ${DE_PACKAGES[$de]}"
     done
     PURGE_PKGS="${PURGE_PKGS# }"
 
@@ -282,40 +375,24 @@ EOF
 #!/usr/bin/env bash
 set -euo pipefail
 logger -t de-cleanup "Starting DE removal: ${DETECTED_DES}"
-
-# Pin everything critical — autoremove must never touch these
 apt-mark manual \
-  dbus \
-  dbus-x11 \
-  policykit-1 \
-  udisks2 \
-  upower \
-  dunst \
-  xdg-utils \
-  xdg-user-dirs \
-  pipewire \
-  pipewire-pulse \
-  pipewire-alsa \
-  wireplumber \
-  pavucontrol \
-  bluez \
-  bluetooth 2>/dev/null || true
-
+  dbus dbus-x11 policykit-1 udisks2 upower dunst \
+  xdg-utils xdg-user-dirs \
+  pipewire pipewire-pulse pipewire-alsa \
+  wireplumber pavucontrol bluez bluetooth 2>/dev/null || true
 apt-get purge -y ${PURGE_PKGS} 2>/dev/null || true
 apt-get autoremove -y --purge
 apt-get autoclean -y
-
-logger -t de-cleanup "DE removal complete. Disabling service."
+logger -t de-cleanup "Done. Disabling service."
 systemctl disable de-cleanup.service
-rm -f /etc/systemd/system/de-cleanup.service
-rm -f /usr/local/bin/de-cleanup.sh
+rm -f /etc/systemd/system/de-cleanup.service /usr/local/bin/de-cleanup.sh
 systemctl daemon-reload
 CLEANUP_EOF
     sudo chmod +x /usr/local/bin/de-cleanup.sh
 
     sudo tee /etc/systemd/system/de-cleanup.service >/dev/null <<UNIT_EOF
 [Unit]
-Description=Post-reboot DE removal (auto-generated by setup.sh)
+Description=Post-reboot DE removal (auto-generated)
 After=network.target
 ConditionPathExists=/usr/local/bin/de-cleanup.sh
 
@@ -329,10 +406,9 @@ StandardError=journal
 [Install]
 WantedBy=multi-user.target
 UNIT_EOF
-
     sudo systemctl daemon-reload
     sudo systemctl enable de-cleanup.service
-    echo "  ✓ de-cleanup.service registered (runs once on next boot)"
+    ok "de-cleanup.service registered — runs once on boot, then deletes itself"
   fi
 fi
 
@@ -340,23 +416,19 @@ fi
 #  BASE CONFIGS
 # ══════════════════════════════════════════════
 if selected "base_configs"; then
-  echo ""
-  echo "╔══════════════════════════════════════════╗"
-  echo "║     Installing base packages & configs   ║"
-  echo "╚══════════════════════════════════════════╝"
+  section "Base Packages + Configs  (Config-VM)"
   sudo apt install -y "${BASE_PACKAGES[@]}"
-
   ensure_repo_cloned
 
-  echo "▶ Copying configs from Config-VM to ~/.config/..."
+  step "Copying configs to ~/.config/"
   for item in "${CONFIG_ITEMS[@]}"; do
-    source_path="${temp_dir}/repo/Config-VM/${item}"
-    target_path="${HOME}/.config/${item}"
-    if [ -d "${source_path}" ]; then
-      copy_config_dir "${source_path}" "${target_path}"
-      echo "  ✓ ${item}  →  ${target_path}"
+    src="${temp_dir}/repo/Config-VM/${item}"
+    dst="${HOME}/.config/${item}"
+    if [ -d "${src}" ]; then
+      copy_config_dir "${src}" "${dst}"
+      ok "${item}  →  ${dst}"
     else
-      echo "  ⚠ Skipped ${item}: not found in repo at Config-VM/${item}"
+      warn "Skipped ${item}: not found in repo at Config-VM/${item}"
     fi
   done
 fi
@@ -365,73 +437,68 @@ fi
 #  ZSH SETUP
 # ══════════════════════════════════════════════
 if selected "zsh_setup"; then
-  echo ""
-  echo "╔══════════════════════════════════════════╗"
-  echo "║          Setting up Zsh environment      ║"
-  echo "╚══════════════════════════════════════════╝"
+  section "Zsh Environment"
 
   sudo apt install -y zsh
   sudo chsh -s "$(which zsh)" "$USER" || true
+  ok "zsh installed + set as default shell"
 
-  echo "▶ Installing Oh My Zsh..."
+  step "Installing Oh My Zsh"
   if [ ! -d "${HOME}/.oh-my-zsh" ]; then
-    RUNZSH=no CHSH=no \
-      sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+    RUNZSH=no CHSH=no sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+    ok "Oh My Zsh installed"
   else
-    echo "  ↺ Already present — skipping"
+    skip "Oh My Zsh already present"
   fi
 
-  echo "▶ Cloning Zsh plugins..."
+  step "Cloning plugins"
   ZSH_PLUGINS="${HOME}/.oh-my-zsh/plugins"
-
   clone_plugin() {
     local repo="$1" dest="$2"
     if [ ! -d "${dest}" ]; then
-      git clone --depth 1 "${repo}" "${dest}"
-      echo "  ✓ $(basename "${dest}")"
+      git clone --depth 1 "${repo}" "${dest}" -q
+      ok "$(basename "${dest}")"
     else
-      echo "  ↺ $(basename "${dest}") already exists — skipping"
+      skip "$(basename "${dest}") already exists"
     fi
   }
-
   clone_plugin "https://github.com/zsh-users/zsh-autosuggestions" "${ZSH_PLUGINS}/zsh-autosuggestions"
   clone_plugin "https://github.com/zsh-users/zsh-syntax-highlighting" "${ZSH_PLUGINS}/zsh-syntax-highlighting"
   clone_plugin "https://github.com/zsh-users/zsh-completions" "${ZSH_PLUGINS}/zsh-completions"
   clone_plugin "https://github.com/zsh-users/zsh-history-substring-search" "${ZSH_PLUGINS}/zsh-history-substring-search"
   clone_plugin "https://github.com/romkatv/zsh-defer.git" "${ZSH_PLUGINS}/zsh-defer"
 
-  echo "▶ Installing Starship prompt..."
+  step "Installing Starship prompt"
   curl -sS https://starship.rs/install.sh | sh -s -- --yes
+  ok "Starship installed"
 
-  echo "▶ Installing Zsh companion tools..."
+  step "Installing companion tools"
   sudo apt install -y fzf eza fd-find jq zoxide fastfetch bat ripgrep
-  echo "  ✓ fzf  eza  fd-find  jq  zoxide  fastfetch  bat  ripgrep"
+  ok "fzf  eza  fd-find  jq  zoxide  fastfetch  bat  ripgrep"
 
-  echo "▶ Installing JetBrainsMono Nerd Font v3.4.0..."
+  step "Installing JetBrainsMono Nerd Font v3.4.0"
   FONT_DIR="${HOME}/.local/share/fonts"
   mkdir -p "${FONT_DIR}"
-  FONT_ZIP="${FONT_DIR}/JetBrainsMono.zip"
-  wget -q -O "${FONT_ZIP}" \
+  wget -q -O "${FONT_DIR}/JetBrainsMono.zip" \
     "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/JetBrainsMono.zip"
-  unzip -qo "${FONT_ZIP}" -d "${FONT_DIR}"
-  rm -f "${FONT_ZIP}"
+  unzip -qo "${FONT_DIR}/JetBrainsMono.zip" -d "${FONT_DIR}"
+  rm -f "${FONT_DIR}/JetBrainsMono.zip"
   fc-cache -fv >/dev/null 2>&1
-  echo "  ✓ JetBrainsMono Nerd Font installed"
+  ok "JetBrainsMono Nerd Font installed"
 
-  echo "▶ Fetching .zshrc from Config-VM/zsh/.zshrc..."
+  step "Fetching .zshrc from Config-VM/zsh/.zshrc"
   ensure_repo_cloned
-
-  ZSHRC_SOURCE="${temp_dir}/repo/Config-VM/zsh/.zshrc"
-  if [ -f "${ZSHRC_SOURCE}" ]; then
+  ZSHRC_SRC="${temp_dir}/repo/Config-VM/zsh/.zshrc"
+  if [ -f "${ZSHRC_SRC}" ]; then
     if [ -f "${HOME}/.zshrc" ]; then
       BACKUP="${HOME}/.zshrc.bak.$(date +%Y%m%d_%H%M%S)"
       cp "${HOME}/.zshrc" "${BACKUP}"
-      echo "  ℹ Backed up old .zshrc → ${BACKUP}"
+      ok "Backed up old .zshrc → ${BACKUP}"
     fi
-    cp "${ZSHRC_SOURCE}" "${HOME}/.zshrc"
-    echo "  ✓ .zshrc replaced from repo"
+    cp "${ZSHRC_SRC}" "${HOME}/.zshrc"
+    ok ".zshrc replaced from repo"
   else
-    echo "  ⚠ Config-VM/zsh/.zshrc not found in repo"
+    warn "Config-VM/zsh/.zshrc not found in repo"
   fi
 fi
 
@@ -439,13 +506,10 @@ fi
 #  YAZI
 # ══════════════════════════════════════════════
 if selected "yazi"; then
-  echo ""
-  echo "╔══════════════════════════════════════════╗"
-  echo "║     Installing Yazi (terminal FM)        ║"
-  echo "╚══════════════════════════════════════════╝"
+  section "Yazi  (terminal file manager)"
 
   if ! command -v cargo >/dev/null 2>&1; then
-    echo "  ⚠ cargo not found — installing Rust first..."
+    warn "cargo not found — installing Rust first"
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
     source "$HOME/.cargo/env"
     zshrc_append '.cargo/env' '. "$HOME/.cargo/env"'
@@ -453,54 +517,42 @@ if selected "yazi"; then
     [ -f "$HOME/.cargo/env" ] && source "$HOME/.cargo/env"
   fi
 
-  echo "▶ Building yazi-fm + yazi-cli (may take a few minutes)..."
+  step "Building yazi-fm + yazi-cli  (may take a few minutes)"
   cargo install --locked yazi-fm yazi-cli
-  echo "  ✓ Yazi installed"
-
+  ok "Yazi installed  — run: yazi"
   zshrc_append '.cargo/bin' 'export PATH="$HOME/.cargo/bin:$PATH"'
 fi
 
 # ══════════════════════════════════════════════
-#  PIPEWIRE AUDIO
+#  PIPEWIRE
 # ══════════════════════════════════════════════
 if selected "pipewire"; then
-  echo ""
-  echo "╔══════════════════════════════════════════╗"
-  echo "║        Installing PipeWire Audio         ║"
-  echo "╚══════════════════════════════════════════╝"
+  section "PipeWire Audio"
 
   sudo apt install -y \
-    pipewire \
-    pipewire-pulse \
-    pipewire-alsa \
-    wireplumber \
-    pavucontrol \
-    playerctl
+    pipewire pipewire-pulse pipewire-alsa \
+    wireplumber pavucontrol playerctl
 
-  # Disable PulseAudio if present
   systemctl --user disable --now pulseaudio.service pulseaudio.socket 2>/dev/null || true
   systemctl --user mask pulseaudio 2>/dev/null || true
-
-  # Enable PipeWire for current user
   systemctl --user enable --now pipewire pipewire-pulse wireplumber
-  echo "  ✓ PipeWire + WirePlumber + pavucontrol installed"
-  echo "  ✓ PulseAudio masked, PipeWire active"
+
+  ok "PipeWire + WirePlumber + pavucontrol installed"
+  ok "PulseAudio masked — PipeWire active"
 fi
 
 # ══════════════════════════════════════════════
-#  NODE.JS via nvm
+#  NODE.JS
 # ══════════════════════════════════════════════
 if selected "nodejs"; then
-  echo ""
-  echo "╔══════════════════════════════════════════╗"
-  echo "║          Installing Node.js (nvm)        ║"
-  echo "╚══════════════════════════════════════════╝"
+  section "Node.js  (via nvm)"
+
   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/HEAD/install.sh | bash
   export NVM_DIR="$HOME/.nvm"
   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
   nvm install --lts
   nvm use --lts
-  echo "  ✓ Node.js $(node -v) installed"
+  ok "Node.js $(node -v) installed"
 
   zshrc_append 'NVM_DIR' \
     '# nvm
@@ -513,14 +565,12 @@ fi
 #  BUN
 # ══════════════════════════════════════════════
 if selected "bun"; then
-  echo ""
-  echo "╔══════════════════════════════════════════╗"
-  echo "║               Installing Bun             ║"
-  echo "╚══════════════════════════════════════════╝"
+  section "Bun"
+
   curl -fsSL https://bun.sh/install | bash
   export BUN_INSTALL="$HOME/.bun"
   export PATH="$BUN_INSTALL/bin:$PATH"
-  echo "  ✓ Bun $(bun --version) installed"
+  ok "Bun $(bun --version) installed"
 
   zshrc_append 'BUN_INSTALL' \
     '# bun
@@ -532,18 +582,16 @@ fi
 #  RUST
 # ══════════════════════════════════════════════
 if selected "rust"; then
-  echo ""
-  echo "╔══════════════════════════════════════════╗"
-  echo "║              Installing Rust             ║"
-  echo "╚══════════════════════════════════════════╝"
+  section "Rust"
+
   if ! command -v cargo >/dev/null 2>&1; then
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
     source "$HOME/.cargo/env"
   else
-    echo "  Rust already installed — running rustup update..."
+    skip "Rust already installed — running rustup update"
     rustup update stable
   fi
-  echo "  ✓ $(rustc --version) installed"
+  ok "$(rustc --version)"
 
   zshrc_append '.cargo/env' \
     '# rust / cargo
@@ -554,19 +602,17 @@ fi
 #  GO
 # ══════════════════════════════════════════════
 if selected "go"; then
-  echo ""
-  echo "╔══════════════════════════════════════════╗"
-  echo "║               Installing Go              ║"
-  echo "╚══════════════════════════════════════════╝"
+  section "Go"
+
   GO_VERSION=$(curl -fsSL "https://go.dev/VERSION?m=text" | head -1)
-  GO_TARBALL="${GO_VERSION}.linux-amd64.tar.gz"
-  echo "  Downloading ${GO_VERSION}..."
-  curl -fsSL "https://go.dev/dl/${GO_TARBALL}" -o "/tmp/${GO_TARBALL}"
+  GO_TAR="${GO_VERSION}.linux-amd64.tar.gz"
+  step "Downloading ${GO_VERSION}"
+  curl -fsSL "https://go.dev/dl/${GO_TAR}" -o "/tmp/${GO_TAR}"
   sudo rm -rf /usr/local/go
-  sudo tar -C /usr/local -xzf "/tmp/${GO_TARBALL}"
-  rm "/tmp/${GO_TARBALL}"
+  sudo tar -C /usr/local -xzf "/tmp/${GO_TAR}"
+  rm "/tmp/${GO_TAR}"
   export PATH="/usr/local/go/bin:$PATH"
-  echo "  ✓ $(go version) installed"
+  ok "$(go version)"
 
   zshrc_append '/usr/local/go/bin' \
     '# go
@@ -577,46 +623,38 @@ fi
 #  VS CODE
 # ══════════════════════════════════════════════
 if selected "code"; then
-  echo ""
-  echo "╔══════════════════════════════════════════╗"
-  echo "║              Installing VS Code          ║"
-  echo "╚══════════════════════════════════════════╝"
+  section "VS Code"
+
   wget -qO- https://packages.microsoft.com/keys/microsoft.asc |
     gpg --dearmor |
     sudo tee /etc/apt/keyrings/microsoft.gpg >/dev/null
   echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] \
 https://packages.microsoft.com/repos/code stable main" |
     sudo tee /etc/apt/sources.list.d/vscode.list >/dev/null
-  sudo apt update
-  sudo apt install -y code
-  echo "  ✓ VS Code $(code --version | head -1) installed"
+  sudo apt update -qq && sudo apt install -y code
+  ok "VS Code $(code --version | head -1)"
 fi
 
 # ══════════════════════════════════════════════
 #  SUBLIME TEXT
 # ══════════════════════════════════════════════
 if selected "sublime"; then
-  echo ""
-  echo "╔══════════════════════════════════════════╗"
-  echo "║           Installing Sublime Text        ║"
-  echo "╚══════════════════════════════════════════╝"
+  section "Sublime Text"
+
   wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg |
     sudo tee /etc/apt/keyrings/sublimehq-pub.asc >/dev/null
   printf 'Types: deb\nURIs: https://download.sublimetext.com/\nSuites: apt/stable/\nSigned-By: /etc/apt/keyrings/sublimehq-pub.asc\n' |
     sudo tee /etc/apt/sources.list.d/sublime-text.sources >/dev/null
-  sudo apt-get update
-  sudo apt-get install -y sublime-text
-  echo "  ✓ Sublime Text installed"
+  sudo apt-get update -qq && sudo apt-get install -y sublime-text
+  ok "Sublime Text installed"
 fi
 
 # ══════════════════════════════════════════════
 #  ANTIGRAVITY
 # ══════════════════════════════════════════════
 if selected "antigravity"; then
-  echo ""
-  echo "╔══════════════════════════════════════════╗"
-  echo "║           Installing Antigravity         ║"
-  echo "╚══════════════════════════════════════════╝"
+  section "Antigravity"
+
   sudo mkdir -p /etc/apt/keyrings
   curl -fsSL https://us-central1-apt.pkg.dev/doc/repo-signing-key.gpg |
     sudo gpg --dearmor --yes -o /etc/apt/keyrings/antigravity-repo-key.gpg
@@ -624,22 +662,20 @@ if selected "antigravity"; then
 https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev/ \
 antigravity-debian main" |
     sudo tee /etc/apt/sources.list.d/antigravity.list >/dev/null
-  sudo apt update && sudo apt install -y antigravity
-  echo "  ✓ Antigravity installed"
+  sudo apt update -qq && sudo apt install -y antigravity
+  ok "Antigravity installed"
 fi
 
 # ══════════════════════════════════════════════
 #  OPENCODE CLI
 # ══════════════════════════════════════════════
 if selected "opencode"; then
-  echo ""
-  echo "╔══════════════════════════════════════════╗"
-  echo "║          Installing OpenCode CLI         ║"
-  echo "╚══════════════════════════════════════════╝"
+  section "OpenCode CLI"
+
   export BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
   export PATH="$BUN_INSTALL/bin:$PATH"
   if ! command -v bun >/dev/null 2>&1; then
-    echo "  ⚠ bun not found — installing bun first..."
+    warn "bun not found — installing bun first"
     curl -fsSL https://bun.sh/install | bash
     export PATH="$BUN_INSTALL/bin:$PATH"
     zshrc_append 'BUN_INSTALL' \
@@ -648,19 +684,17 @@ export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"'
   fi
   bun install -g opencode-ai
-  echo "  ✓ OpenCode CLI installed"
+  ok "OpenCode CLI installed"
 fi
 
 # ══════════════════════════════════════════════
 #  CODEX CLI
 # ══════════════════════════════════════════════
 if selected "codex_cli"; then
-  echo ""
-  echo "╔══════════════════════════════════════════╗"
-  echo "║           Installing Codex CLI           ║"
-  echo "╚══════════════════════════════════════════╝"
+  section "Codex CLI"
+
   if ! command -v npm >/dev/null 2>&1; then
-    echo "  ⚠ npm not found — installing Node.js via nvm first..."
+    warn "npm not found — installing Node.js via nvm first"
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/HEAD/install.sh | bash
     export NVM_DIR="$HOME/.nvm"
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
@@ -671,92 +705,54 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"'
   fi
   npm install -g @openai/codex
-  echo "  ✓ Codex CLI installed"
+  ok "Codex CLI installed"
 fi
 
 # ══════════════════════════════════════════════
-#  SUMMARY
+#  DONE
 # ══════════════════════════════════════════════
 echo ""
-echo "╔══════════════════════════════════════════╗"
-echo "║          ✅  Installation Done!          ║"
-echo "╚══════════════════════════════════════════╝"
-echo ""
-echo "Installed components:"
-for item in $CHOICES; do
-  echo "  ✓  ${item}"
-done
-echo ""
-
-if selected "i3_setup"; then
-  echo "────────────────────────────────────────────"
-  echo "  i3 / Xorg notes:"
-  echo "  • No compositor (picom) — not needed in VM"
-  echo "  • No nm-applet — hypervisor handles networking"
-  echo "  • dunst running as notification daemon"
-  echo "  • ~/.zprofile: auto-startx on TTY1 login"
-  echo "  • systemd default target → multi-user (TTY)"
-  if [ -n "$DETECTED_DES" ]; then
-    if [ "$WILL_REMOVE_DE" = true ]; then
-      echo "  • de-cleanup.service will purge [${DETECTED_DES}]"
-      echo "    on next boot, then disable itself permanently"
-    else
-      echo "  • DE removal SKIPPED (user opted out)"
-    fi
+echo -e "${C_PURPLE}${BOX_TOP}──────────────────────────────────────────${R}"
+echo -e "${C_PURPLE}${BOX_MID}${R}  ${BOLD}${C_GREEN}  Installation complete${R}"
+echo -e "${C_PURPLE}${BOX_MID}${R}"
+for key in "${KEYS[@]}"; do
+  if selected "$key"; then
+    echo -e "${C_PURPLE}${BOX_MID}${R}  ${C_GREEN}${CHK}${R}  ${C_FG}${LABELS[$key]}${R}"
   fi
-  echo "────────────────────────────────────────────"
-  echo ""
+done
+echo -e "${C_PURPLE}${BOX_MID}${R}"
+if selected "i3_setup"; then
+  echo -e "${C_PURPLE}${BOX_MID}${R}  ${C_COMMENT}i3     no compositor · networking via hypervisor${R}"
+  [ "$WILL_REMOVE_DE" = true ] &&
+    echo -e "${C_PURPLE}${BOX_MID}${R}  ${C_COMMENT}       de-cleanup.service purges [${DETECTED_DES}] on next boot${R}"
 fi
-
-if selected "pipewire"; then
-  echo "────────────────────────────────────────────"
-  echo "  PipeWire notes:"
-  echo "  • PulseAudio masked — PipeWire handles audio"
-  echo "  • Use pavucontrol for GUI volume control"
-  echo "  • playerctl for media player control"
-  echo "────────────────────────────────────────────"
-  echo ""
-fi
-
 if selected "zsh_setup"; then
-  echo "────────────────────────────────────────────"
-  echo "  Zsh notes:"
-  echo "  • Default shell changed to zsh (re-login to apply)"
-  echo "  • Old .zshrc backed up before replacement"
-  echo "  • JetBrainsMono Nerd Font → ~/.local/share/fonts"
-  echo "────────────────────────────────────────────"
-  echo ""
+  echo -e "${C_PURPLE}${BOX_MID}${R}  ${C_COMMENT}zsh    re-login or run  exec zsh  to apply${R}"
 fi
-
-if selected "yazi"; then
-  echo "────────────────────────────────────────────"
-  echo "  Yazi: run with  yazi  |  config: ~/.config/yazi/"
-  echo "────────────────────────────────────────────"
-  echo ""
+if selected "pipewire"; then
+  echo -e "${C_PURPLE}${BOX_MID}${R}  ${C_COMMENT}audio  PulseAudio masked · use pavucontrol for volume${R}"
 fi
+echo -e "${C_PURPLE}${BOX_BOT}──────────────────────────────────────────${R}"
+echo ""
 
 # ─────────────────────────────────────────────
 #  Reboot prompt
 # ─────────────────────────────────────────────
 if selected "i3_setup"; then
-  echo ""
-  REBOOT_MSG="Reboot required to enter i3.\n\n"
-  REBOOT_MSG+="  • Boot to TTY (multi-user.target)\n"
-  REBOOT_MSG+="  • Login at TTY1 → startx launches i3 automatically"
-  if [ "$WILL_REMOVE_DE" = true ]; then
-    REBOOT_MSG+="\n  • de-cleanup.service will purge [${DETECTED_DES}]"
-    REBOOT_MSG+="\n    on next boot, then disable itself"
-  fi
-  REBOOT_MSG+="\n\nReboot now?"
-
-  if whiptail --title "Reboot Required" --yesno "$REBOOT_MSG" 18 62; then
-    echo "Rebooting in 3 seconds..."
+  box_open "Reboot required"
+  box_hint "TTY login at TTY1  →  startx  →  i3 launches automatically"
+  [ "$WILL_REMOVE_DE" = true ] &&
+    box_hint "de-cleanup.service purges [${DETECTED_DES}] on first boot, then disables"
+  if confirm "Reboot now?"; then
+    box_line "${C_CYAN}Rebooting in 3 seconds…${R}"
+    box_close
     sleep 3
     sudo reboot
   else
-    echo "⚠  Reboot skipped. Run  sudo reboot  when ready."
+    box_line "${C_COMMENT}Skipped — run  sudo reboot  when ready${R}"
+    box_close
   fi
 else
-  echo "⚠  Run  exec zsh  or open a new terminal to apply all changes."
+  echo -e "  ${C_COMMENT}Run  exec zsh  or open a new terminal to apply all changes.${R}"
 fi
 echo ""

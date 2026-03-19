@@ -407,6 +407,96 @@ require_command_installed() {
   command -v "$cmd" &>/dev/null || die "${label} install failed (missing command: ${cmd})"
 }
 
+cmd_version_line() {
+  local cmd="$1"
+  case "$cmd" in
+  code) code --version 2>/dev/null | head -n 1 ;;
+  opencode) opencode --version 2>/dev/null | head -n 1 ;;
+  codex) codex --version 2>/dev/null | head -n 1 ;;
+  yazi) yazi --version 2>/dev/null | head -n 1 ;;
+  thunar) thunar --version 2>/dev/null | head -n 1 ;;
+  node) node --version 2>/dev/null | head -n 1 ;;
+  npm) npm --version 2>/dev/null | head -n 1 ;;
+  bun) bun --version 2>/dev/null | head -n 1 ;;
+  *) "$cmd" --version 2>/dev/null | head -n 1 ;;
+  esac
+}
+
+ensure_bun() {
+  if command -v bun &>/dev/null; then
+    ok "Bun already installed"
+    info "bun version: $(cmd_version_line bun)"
+    return 0
+  fi
+
+  step "Bun (required for OpenCode CLI)"
+  if command -v timeout &>/dev/null; then
+    timeout 180 bash -lc 'curl -fsSL https://bun.sh/install | bash' &>/tmp/bun-install.log ||
+      die "Bun install timed out/failed (see /tmp/bun-install.log)"
+  else
+    bash -lc 'curl -fsSL https://bun.sh/install | bash' &>/tmp/bun-install.log ||
+      die "Bun install failed (see /tmp/bun-install.log)"
+  fi
+
+  export BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
+  export PATH="$BUN_INSTALL/bin:$PATH"
+  require_command_installed bun "Bun"
+  zshrc_append 'BUN_INSTALL' \
+    '# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"'
+  ok "Bun installed"
+  info "bun version: $(cmd_version_line bun)"
+}
+
+ensure_node_npm() {
+  if command -v npm &>/dev/null && command -v node &>/dev/null; then
+    ok "Node.js + npm already installed"
+    info "node version: $(cmd_version_line node)"
+    info "npm version: $(cmd_version_line npm)"
+    return 0
+  fi
+
+  step "Node.js + npm (required for Codex CLI)"
+  if command -v timeout &>/dev/null; then
+    timeout 180 bash -lc 'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/HEAD/install.sh | bash' &>/tmp/nvm-install.log ||
+      warn "nvm bootstrap timed out/failed (see /tmp/nvm-install.log)"
+  else
+    bash -lc 'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/HEAD/install.sh | bash' &>/tmp/nvm-install.log ||
+      warn "nvm bootstrap failed (see /tmp/nvm-install.log)"
+  fi
+
+  export NVM_DIR="$HOME/.nvm"
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" || true
+
+  if command -v nvm &>/dev/null; then
+    if command -v timeout &>/dev/null; then
+      timeout 300 bash -lc "export NVM_DIR='$HOME/.nvm'; [ -s \"\$NVM_DIR/nvm.sh\" ] && . \"\$NVM_DIR/nvm.sh\"; nvm install --lts; nvm use --lts" &>/tmp/node-install.log ||
+        warn "Node install via nvm timed out/failed (see /tmp/node-install.log)"
+    else
+      bash -lc "export NVM_DIR='$HOME/.nvm'; [ -s \"\$NVM_DIR/nvm.sh\" ] && . \"\$NVM_DIR/nvm.sh\"; nvm install --lts; nvm use --lts" &>/tmp/node-install.log ||
+        warn "Node install via nvm failed (see /tmp/node-install.log)"
+    fi
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" || true
+    nvm use --lts &>/dev/null || true
+  fi
+
+  if ! command -v npm &>/dev/null || ! command -v node &>/dev/null; then
+    warn "Falling back to apt for nodejs/npm"
+    apt_install_strict nodejs npm &>/tmp/node-apt-install.log || die "Node/npm apt install failed (see /tmp/node-apt-install.log)"
+  fi
+
+  require_command_installed node "Node.js"
+  require_command_installed npm "npm"
+  zshrc_append 'NVM_DIR' \
+    '# nvm
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"'
+  ok "Node.js + npm installed"
+  info "node version: $(cmd_version_line node)"
+  info "npm version: $(cmd_version_line npm)"
+}
+
 available_kb() {
   local path="$1" line
   line="$(df -Pk "$path" 2>/dev/null | tail -n 1)"
@@ -626,6 +716,168 @@ run_post_install_health_check() {
   print_summary_table
 }
 
+install_selected_optional_apps() {
+  # ── Thunar ──
+  if flag_enabled "$INSTALL_THUNAR"; then
+    if command -v thunar &>/dev/null; then
+      ok "Thunar already installed"
+      info "thunar version: $(cmd_version_line thunar)"
+    else
+      step "Thunar  (GUI file manager)"
+      apt_q install thunar thunar-volman
+      require_command_installed thunar "Thunar"
+      ok "Thunar installed"
+      info "thunar version: $(cmd_version_line thunar)"
+    fi
+  else
+    warn "Thunar disabled by INSTALL_THUNAR=${INSTALL_THUNAR}"
+  fi
+
+  # ── Yazi ──
+  if flag_enabled "$INSTALL_YAZI"; then
+    if command -v yazi &>/dev/null; then
+      ok "Yazi already installed"
+      info "yazi version: $(cmd_version_line yazi)"
+    else
+      step "Yazi  (terminal file manager)"
+      local CARGO_TMP_DIR="${HOME}/.cache/cargo-tmp"
+      local CARGO_TARGET_DIR_PATH="${HOME}/.cache/cargo-target"
+      local MIN_YAZI_BUILD_KB=1048576
+      local TMP_AVAIL_KB HOME_AVAIL_KB
+
+      mkdir -p "$CARGO_TMP_DIR" "$CARGO_TARGET_DIR_PATH"
+
+      TMP_AVAIL_KB="$(available_kb "$CARGO_TMP_DIR")"
+      HOME_AVAIL_KB="$(available_kb "$HOME")"
+
+      if [ "$TMP_AVAIL_KB" -lt "$MIN_YAZI_BUILD_KB" ] || [ "$HOME_AVAIL_KB" -lt "$MIN_YAZI_BUILD_KB" ]; then
+        warn "Skipping Yazi: low build space (tmp=${TMP_AVAIL_KB}KB home=${HOME_AVAIL_KB}KB)"
+        warn "Free space or set INSTALL_YAZI=0 to skip permanently"
+        INSTALL_YAZI=0
+      else
+        if ! command -v cargo &>/dev/null; then
+          info "Installing Rust for cargo..."
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y &>/dev/null || true
+          source "$HOME/.cargo/env" &>/dev/null || true
+          zshrc_append '.cargo/env' '. "$HOME/.cargo/env"'
+          ok "Rust installed"
+        else
+          source "$HOME/.cargo/env" &>/dev/null || true
+        fi
+        info "Building yazi-fm + yazi-cli (few minutes)..."
+        if TMPDIR="$CARGO_TMP_DIR" CARGO_TARGET_DIR="$CARGO_TARGET_DIR_PATH" cargo install --locked yazi-fm yazi-cli &>/tmp/yazi-build.log; then
+          zshrc_append '.cargo/bin' 'export PATH="$HOME/.cargo/bin:$PATH"'
+          export PATH="$HOME/.cargo/bin:$PATH"
+          if command -v yazi &>/dev/null; then
+            ok "Yazi installed"
+            info "yazi version: $(cmd_version_line yazi)"
+          else
+            warn "Yazi binary not found after build — skipping Yazi checks"
+            INSTALL_YAZI=0
+          fi
+        else
+          warn "Yazi build failed (see /tmp/yazi-build.log)"
+          warn "Try manually: TMPDIR=\"$CARGO_TMP_DIR\" CARGO_TARGET_DIR=\"$CARGO_TARGET_DIR_PATH\" cargo install --locked yazi-fm yazi-cli"
+          INSTALL_YAZI=0
+        fi
+      fi
+    fi
+  else
+    warn "Yazi disabled by INSTALL_YAZI=${INSTALL_YAZI}"
+  fi
+
+  # ── VS Code ──
+  if flag_enabled "$INSTALL_VSCODE"; then
+    if command -v code &>/dev/null; then
+      ok "VS Code already installed"
+      info "code version: $(cmd_version_line code)"
+    else
+      step "VS Code"
+      info "Adding Microsoft repo..."
+      sudo mkdir -p /etc/apt/keyrings
+      wget -qO- https://packages.microsoft.com/keys/microsoft.asc |
+        gpg --dearmor 2>/dev/null |
+        sudo tee /etc/apt/keyrings/microsoft.gpg >/dev/null
+      echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] \
+https://packages.microsoft.com/repos/code stable main" |
+        sudo tee /etc/apt/sources.list.d/vscode.list >/dev/null
+      apt_q update
+      apt_q install code
+      require_command_installed code "VS Code"
+      ok "VS Code installed"
+      info "code version: $(cmd_version_line code)"
+    fi
+  else
+    warn "VS Code disabled by INSTALL_VSCODE=${INSTALL_VSCODE}"
+  fi
+
+  # ── Antigravity ──
+  if flag_enabled "$INSTALL_ANTIGRAVITY"; then
+    if dpkg -s antigravity &>/dev/null; then
+      ok "Antigravity already installed"
+      info "antigravity version: $(dpkg-query -W -f='${Version}' antigravity 2>/dev/null || echo unknown)"
+    else
+      step "Antigravity"
+      info "Adding repo..."
+      sudo mkdir -p /etc/apt/keyrings
+      curl -fsSL https://us-central1-apt.pkg.dev/doc/repo-signing-key.gpg |
+        sudo gpg --dearmor --yes -o /etc/apt/keyrings/antigravity-repo-key.gpg &>/dev/null || true
+      echo "deb [signed-by=/etc/apt/keyrings/antigravity-repo-key.gpg] \
+https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev/ antigravity-debian main" |
+        sudo tee /etc/apt/sources.list.d/antigravity.list >/dev/null
+      apt_q update
+      apt_q install antigravity
+      require_packages_installed antigravity
+      ok "Antigravity installed"
+      info "antigravity version: $(dpkg-query -W -f='${Version}' antigravity 2>/dev/null || echo unknown)"
+    fi
+  else
+    warn "Antigravity disabled by INSTALL_ANTIGRAVITY=${INSTALL_ANTIGRAVITY}"
+  fi
+
+  # ── OpenCode CLI ──
+  if flag_enabled "$INSTALL_OPENCODE"; then
+    if command -v opencode &>/dev/null; then
+      ok "OpenCode CLI already installed"
+      info "opencode version: $(cmd_version_line opencode)"
+    else
+      step "OpenCode CLI  (via bun)"
+      ensure_bun
+      if command -v timeout &>/dev/null; then
+        timeout 240 bun install -g opencode-ai &>/tmp/opencode-install.log || die "OpenCode CLI install timed out/failed (see /tmp/opencode-install.log)"
+      else
+        bun install -g opencode-ai &>/tmp/opencode-install.log || die "OpenCode CLI install failed (see /tmp/opencode-install.log)"
+      fi
+      require_command_installed opencode "OpenCode CLI"
+      ok "OpenCode CLI installed"
+      info "opencode version: $(cmd_version_line opencode)"
+    fi
+  else
+    warn "OpenCode CLI disabled by INSTALL_OPENCODE=${INSTALL_OPENCODE}"
+  fi
+
+  # ── Codex CLI ──
+  if flag_enabled "$INSTALL_CODEX"; then
+    if command -v codex &>/dev/null; then
+      ok "Codex CLI already installed"
+      info "codex version: $(cmd_version_line codex)"
+    else
+      step "Codex CLI  (via npm)"
+      ensure_node_npm
+      if command -v timeout &>/dev/null; then
+        timeout 240 npm install -g @openai/codex &>/tmp/codex-install.log || die "Codex CLI install timed out/failed (see /tmp/codex-install.log)"
+      else
+        npm install -g @openai/codex &>/tmp/codex-install.log || die "Codex CLI install failed (see /tmp/codex-install.log)"
+      fi
+      require_command_installed codex "Codex CLI"
+      ok "Codex CLI installed"
+      info "codex version: $(cmd_version_line codex)"
+    fi
+  else
+    warn "Codex CLI disabled by INSTALL_CODEX=${INSTALL_CODEX}"
+  fi
+}
+
 run_full_setup_stack() {
   info "Optional apps flags: VSCode=${INSTALL_VSCODE}  Antigravity=${INSTALL_ANTIGRAVITY}  OpenCode=${INSTALL_OPENCODE}  Codex=${INSTALL_CODEX}  Yazi=${INSTALL_YAZI}  Thunar=${INSTALL_THUNAR}"
 
@@ -772,198 +1024,7 @@ XINITRC
   systemctl --user enable --now pipewire pipewire-pulse wireplumber &>/dev/null || true
   ok "PipeWire active"
 
-  # ── Thunar ──
-  if flag_enabled "$INSTALL_THUNAR"; then
-    step "Thunar  (GUI file manager)"
-    apt_q install thunar thunar-volman
-    require_command_installed thunar "Thunar"
-    ok "Thunar installed"
-  else
-    warn "Thunar disabled by INSTALL_THUNAR=${INSTALL_THUNAR}"
-  fi
-
-  # ── Yazi ──
-  if flag_enabled "$INSTALL_YAZI"; then
-    step "Yazi  (terminal file manager)"
-    local CARGO_TMP_DIR="${HOME}/.cache/cargo-tmp"
-    local CARGO_TARGET_DIR_PATH="${HOME}/.cache/cargo-target"
-    local MIN_YAZI_BUILD_KB=1048576
-    local TMP_AVAIL_KB HOME_AVAIL_KB
-
-    mkdir -p "$CARGO_TMP_DIR" "$CARGO_TARGET_DIR_PATH"
-
-    TMP_AVAIL_KB="$(available_kb "$CARGO_TMP_DIR")"
-    HOME_AVAIL_KB="$(available_kb "$HOME")"
-
-    if [ "$TMP_AVAIL_KB" -lt "$MIN_YAZI_BUILD_KB" ] || [ "$HOME_AVAIL_KB" -lt "$MIN_YAZI_BUILD_KB" ]; then
-      warn "Skipping Yazi: low build space (tmp=${TMP_AVAIL_KB}KB home=${HOME_AVAIL_KB}KB)"
-      warn "Free space or set INSTALL_YAZI=0 to skip permanently"
-      INSTALL_YAZI=0
-    else
-      if ! command -v cargo &>/dev/null; then
-        info "Installing Rust for cargo..."
-        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y &>/dev/null || true
-        source "$HOME/.cargo/env" &>/dev/null || true
-        zshrc_append '.cargo/env' '. "$HOME/.cargo/env"'
-        ok "Rust installed"
-      else
-        source "$HOME/.cargo/env" &>/dev/null || true
-      fi
-      info "Building yazi-fm + yazi-cli (few minutes)..."
-      if TMPDIR="$CARGO_TMP_DIR" CARGO_TARGET_DIR="$CARGO_TARGET_DIR_PATH" cargo install --locked yazi-fm yazi-cli &>/tmp/yazi-build.log; then
-        zshrc_append '.cargo/bin' 'export PATH="$HOME/.cargo/bin:$PATH"'
-        export PATH="$HOME/.cargo/bin:$PATH"
-        if command -v yazi &>/dev/null; then
-          ok "Yazi installed"
-        else
-          warn "Yazi binary not found after build — skipping Yazi checks"
-          INSTALL_YAZI=0
-        fi
-      else
-        warn "Yazi build failed (see /tmp/yazi-build.log)"
-        warn "Try manually: TMPDIR=\"$CARGO_TMP_DIR\" CARGO_TARGET_DIR=\"$CARGO_TARGET_DIR_PATH\" cargo install --locked yazi-fm yazi-cli"
-        INSTALL_YAZI=0
-      fi
-    fi
-  else
-    warn "Yazi disabled by INSTALL_YAZI=${INSTALL_YAZI}"
-  fi
-
-  # ── Node.js ──
-  step "Node.js LTS  (via nvm)"
-  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/HEAD/install.sh 2>/dev/null | bash &>/dev/null || true
-  export NVM_DIR="$HOME/.nvm"
-  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" || true
-  nvm install --lts &>/dev/null || warn "nvm install failed"
-  nvm use --lts &>/dev/null || true
-  ok "Node.js $(node -v 2>/dev/null || echo 'installed')"
-  zshrc_append 'NVM_DIR' \
-    '# nvm
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"'
-
-  # ── Bun ──
-  step "Bun"
-  curl -fsSL https://bun.sh/install | bash &>/dev/null || true
-  export BUN_INSTALL="$HOME/.bun"
-  export PATH="$BUN_INSTALL/bin:$PATH"
-  ok "Bun $(bun --version 2>/dev/null || echo 'installed')"
-  zshrc_append 'BUN_INSTALL' \
-    '# bun
-export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"'
-
-  # ── Rust ──
-  step "Rust  (via rustup)"
-  if ! command -v cargo &>/dev/null; then
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y &>/dev/null || true
-    source "$HOME/.cargo/env" &>/dev/null || true
-  else
-    rustup update stable &>/dev/null || true
-  fi
-  ok "$(rustc --version 2>/dev/null || echo 'rust installed')"
-  zshrc_append '.cargo/env' '. "$HOME/.cargo/env"'
-
-  # ── Go ──
-  step "Go  (latest stable)"
-  local GO_VERSION
-  GO_VERSION=$(curl -fsSL "https://go.dev/VERSION?m=text" 2>/dev/null | head -1 || true)
-  if [ -z "$GO_VERSION" ]; then
-    warn "Could not fetch Go version — skipping Go install"
-  else
-    info "Downloading ${GO_VERSION}..."
-    curl -fsSL "https://go.dev/dl/${GO_VERSION}.linux-amd64.tar.gz" -o /tmp/go.tar.gz || true
-    sudo rm -rf /usr/local/go
-    sudo tar -C /usr/local -xzf /tmp/go.tar.gz &>/dev/null || true
-    rm -f /tmp/go.tar.gz
-    export PATH="/usr/local/go/bin:$PATH"
-    ok "$(go version 2>/dev/null || echo 'go installed')"
-    zshrc_append '/usr/local/go/bin' 'export PATH="/usr/local/go/bin:$PATH"'
-  fi
-
-  # ── VS Code ──
-  if flag_enabled "$INSTALL_VSCODE"; then
-    step "VS Code"
-    info "Adding Microsoft repo..."
-    sudo mkdir -p /etc/apt/keyrings
-    wget -qO- https://packages.microsoft.com/keys/microsoft.asc |
-      gpg --dearmor 2>/dev/null |
-      sudo tee /etc/apt/keyrings/microsoft.gpg >/dev/null
-    echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] \
-https://packages.microsoft.com/repos/code stable main" |
-      sudo tee /etc/apt/sources.list.d/vscode.list >/dev/null
-    apt_q update
-    apt_q install code
-    require_command_installed code "VS Code"
-    ok "VS Code installed"
-  else
-    warn "VS Code disabled by INSTALL_VSCODE=${INSTALL_VSCODE}"
-  fi
-
-  # ── Antigravity ──
-  if flag_enabled "$INSTALL_ANTIGRAVITY"; then
-    step "Antigravity"
-    info "Adding repo..."
-    sudo mkdir -p /etc/apt/keyrings
-    curl -fsSL https://us-central1-apt.pkg.dev/doc/repo-signing-key.gpg |
-      sudo gpg --dearmor --yes -o /etc/apt/keyrings/antigravity-repo-key.gpg &>/dev/null || true
-    echo "deb [signed-by=/etc/apt/keyrings/antigravity-repo-key.gpg] \
-https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev/ antigravity-debian main" |
-      sudo tee /etc/apt/sources.list.d/antigravity.list >/dev/null
-    apt_q update
-    apt_q install antigravity
-    require_packages_installed antigravity
-    ok "Antigravity installed"
-  else
-    warn "Antigravity disabled by INSTALL_ANTIGRAVITY=${INSTALL_ANTIGRAVITY}"
-  fi
-
-  # ── OpenCode CLI ──
-  if flag_enabled "$INSTALL_OPENCODE"; then
-    step "OpenCode CLI  (via bun)"
-    export BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
-    export PATH="$BUN_INSTALL/bin:$PATH"
-    if ! command -v bun &>/dev/null; then
-      if ! (curl -fsSL https://bun.sh/install | bash &>/tmp/bun-install.log); then
-        die "Bun install failed (see /tmp/bun-install.log)"
-      fi
-      export PATH="$BUN_INSTALL/bin:$PATH"
-      zshrc_append 'BUN_INSTALL' \
-        '# bun
-export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"'
-    fi
-    require_command_installed bun "Bun"
-    bun install -g opencode-ai &>/tmp/opencode-install.log || die "OpenCode CLI install failed (see /tmp/opencode-install.log)"
-    require_command_installed opencode "OpenCode CLI"
-    ok "OpenCode CLI installed"
-  else
-    warn "OpenCode CLI disabled by INSTALL_OPENCODE=${INSTALL_OPENCODE}"
-  fi
-
-  # ── Codex CLI ──
-  if flag_enabled "$INSTALL_CODEX"; then
-    step "Codex CLI  (via npm)"
-    if ! command -v npm &>/dev/null; then
-      if ! (curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/HEAD/install.sh 2>/tmp/nvm-install.log | bash &>/tmp/nvm-install.log); then
-        die "nvm install failed (see /tmp/nvm-install.log)"
-      fi
-      export NVM_DIR="$HOME/.nvm"
-      [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" || true
-      nvm install --lts &>/tmp/node-install.log && nvm use --lts &>/tmp/node-install.log || die "Node/npm install failed (see /tmp/node-install.log)"
-      zshrc_append 'NVM_DIR' \
-        '# nvm
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"'
-    fi
-    require_command_installed npm "npm"
-    npm install -g @openai/codex &>/tmp/codex-install.log || die "Codex CLI install failed (see /tmp/codex-install.log)"
-    require_command_installed codex "Codex CLI"
-    ok "Codex CLI installed"
-  else
-    warn "Codex CLI disabled by INSTALL_CODEX=${INSTALL_CODEX}"
-  fi
+  install_selected_optional_apps
 
   run_post_install_health_check
 }
@@ -1288,6 +1349,29 @@ run_phase2() {
   echo ""
 }
 
+run_repair_mode() {
+  panel_header "Repair Mode" "Setup already completed — checking selected apps" "Missing selected apps will be installed"
+
+  info "Caching sudo..."
+  sudo -v
+  start_sudo_keepalive
+
+  step "Preferences"
+  select_optional_apps_interactive
+  select_file_manager_mode_interactive
+  info "Selected: VSCode=${INSTALL_VSCODE} Antigravity=${INSTALL_ANTIGRAVITY} OpenCode=${INSTALL_OPENCODE} Codex=${INSTALL_CODEX} Yazi=${INSTALL_YAZI} Thunar=${INSTALL_THUNAR}"
+
+  prefetch_assets_parallel
+
+  step "System Update"
+  apt_q update
+  apt_q upgrade
+  ok "System up to date"
+
+  install_selected_optional_apps
+  run_post_install_health_check
+}
+
 # ══════════════════════════════════════════════
 #  ENTRY
 # ══════════════════════════════════════════════
@@ -1307,6 +1391,6 @@ elif [ "$STATE" = "phase1_done" ]; then
   echo -e "  ${DIAMOND} ${BOLD}${CYAN}Phase 2 detected${RESET}  ${GRAY}— post-reboot cleanup${RESET}"
   run_phase2
 else
-  echo -e "  ${DIAMOND} ${BOLD}${CYAN}Setup already completed${RESET}  ${GRAY}— nothing to reinstall${RESET}"
-  run_post_install_health_check
+  echo -e "  ${DIAMOND} ${BOLD}${CYAN}Setup already completed${RESET}  ${GRAY}— running repair mode${RESET}"
+  run_repair_mode
 fi

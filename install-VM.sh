@@ -32,17 +32,123 @@ DIAMOND_E="${GRAY}◇${RESET}"
 TICK="${GREEN}✓${RESET}"
 WARN="${YELLOW}▲${RESET}"
 ARROW="${CYAN}▶${RESET}"
+BOX_RULE="──────────────────────────────────────────────────"
 
 # ─────────────────────────────────────────────
 #  UI
 # ─────────────────────────────────────────────
-step() {
+panel_open() {
   echo ""
-  echo -e "${GRAY}┌──────────────────────────────────────────${RESET}"
-  echo -e "${BAR}  ${DIAMOND} ${BOLD}${PURPLE}$1${RESET}"
-  echo -e "${GRAY}└──────────────────────────────────────────${RESET}"
+  echo -e "${GRAY}┌${BOX_RULE}${RESET}"
+}
+
+panel_line() {
+  echo -e "${BAR}  $1"
+}
+
+panel_close() {
+  echo -e "${GRAY}└${BOX_RULE}${RESET}"
   echo ""
 }
+
+panel_header() {
+  panel_open
+  panel_line "${DIAMOND} ${BOLD}${PINK}$1${RESET}"
+  [ -n "${2:-}" ] && panel_line "${GRAY}$2${RESET}"
+  [ -n "${3:-}" ] && panel_line "${GRAY}$3${RESET}"
+  panel_close
+}
+
+step() {
+  panel_open
+  panel_line "${DIAMOND} ${BOLD}${PURPLE}$1${RESET}"
+  panel_close
+}
+
+select_optional_apps_interactive() {
+  local options=("VS Code" "Antigravity" "Yazi")
+  local vars=("INSTALL_VSCODE" "INSTALL_ANTIGRAVITY" "INSTALL_YAZI")
+  local selected=(0 0 0)
+  local idx=0 count="${#options[@]}"
+  local i key seq mark line cursor
+
+  if [ ! -t 0 ] || [ ! -t 1 ]; then
+    warn "Non-interactive shell: using existing optional app flags"
+    return 0
+  fi
+
+  for i in "${!vars[@]}"; do
+    if flag_enabled "${!vars[i]}"; then
+      selected[i]=1
+    fi
+  done
+
+  while true; do
+    clear
+    panel_header "Optional Apps" "Select apps to install in Phase 1"
+    panel_open
+    panel_line "${GRAY}Select optional apps${RESET}"
+    panel_line ""
+
+    for i in "${!options[@]}"; do
+      if [ "${selected[i]}" -eq 1 ]; then
+        mark="${GREEN}●${RESET}"
+      else
+        mark="${GRAY}○${RESET}"
+      fi
+
+      if [ "$i" -eq "$idx" ]; then
+        cursor="${CYAN}▸${RESET}"
+        line="${cursor} ${mark}  ${FG}${options[i]}${RESET}"
+      else
+        cursor=" "
+        line="${cursor} ${mark}  ${GRAY}${options[i]}${RESET}"
+      fi
+      panel_line "$line"
+    done
+
+    panel_line ""
+    panel_line "${DIM}...${RESET}"
+    panel_line "${DIM}↑/↓ move • Space/Enter: toggle • c: confirm • q: cancel${RESET}"
+    panel_close
+
+    IFS= read -rsn1 key || key=""
+    if [ "$key" = $'\x1b' ]; then
+      IFS= read -rsn2 seq || seq=""
+      key+="$seq"
+    fi
+
+    case "$key" in
+    $'\x1b[A')
+      idx=$((idx - 1))
+      [ "$idx" -lt 0 ] && idx=$((count - 1))
+      ;;
+    $'\x1b[B')
+      idx=$((idx + 1))
+      [ "$idx" -ge "$count" ] && idx=0
+      ;;
+    " " | $'\n' | $'\r')
+      if [ "${selected[idx]}" -eq 1 ]; then
+        selected[idx]=0
+      else
+        selected[idx]=1
+      fi
+      ;;
+    c | C)
+      for i in "${!vars[@]}"; do
+        printf -v "${vars[i]}" '%s' "${selected[i]}"
+      done
+      clear
+      return 0
+      ;;
+    q | Q)
+      clear
+      die "Optional app selection cancelled"
+      ;;
+    esac
+  done
+}
+
 ok() { echo -e "  ${TICK}  ${GREEN}$1${RESET}"; }
 warn() { echo -e "  ${WARN}  ${YELLOW}$1${RESET}"; }
 info() { echo -e "  ${GRAY}·  $1${RESET}"; }
@@ -309,6 +415,7 @@ run_post_install_health_check() {
 }
 
 run_full_setup_stack() {
+  select_optional_apps_interactive
   info "Optional apps flags: VSCode=${INSTALL_VSCODE}  Antigravity=${INSTALL_ANTIGRAVITY}  Yazi=${INSTALL_YAZI}"
 
   # ── Core packages for final desktop ──
@@ -629,13 +736,7 @@ detect_des() {
 #  PHASE 1
 # ══════════════════════════════════════════════
 run_phase1() {
-  echo ""
-  echo -e "${GRAY}┌──────────────────────────────────────────────────${RESET}"
-  echo -e "${BAR}  ${DIAMOND} ${BOLD}${PINK}Phase 1 of 2${RESET}"
-  echo -e "${BAR}  ${GRAY}Install i3 + Xorg  ·  kill DM  ·  reboot${RESET}"
-  echo -e "${BAR}  ${GRAY}Run this script again after reboot for Phase 2${RESET}"
-  echo -e "${GRAY}└──────────────────────────────────────────────────${RESET}"
-  echo ""
+  panel_header "Phase 1 of 2" "Install i3 + Xorg + apps + configs" "Run this script again after reboot for Phase 2"
 
   local DETECTED_DES
   DETECTED_DES=$(detect_des)
@@ -749,17 +850,15 @@ XINITRC
   ok "Phase 1 state saved (${STATE_FILE})"
 
   # ── Done ──
-  echo ""
-  echo -e "${GRAY}┌──────────────────────────────────────────────────${RESET}"
-  echo -e "${BAR}  ${DIAMOND} ${BOLD}${PINK}Phase 1 complete${RESET}"
-  echo -e "${BAR}"
-  echo -e "${BAR}  ${GRAY}After reboot you will land on TTY login.${RESET}"
-  echo -e "${BAR}  ${GRAY}Login as your user — i3 starts automatically.${RESET}"
-  echo -e "${BAR}"
-  echo -e "${BAR}  ${GRAY}If the screen is black: check /tmp/startx.log${RESET}"
-  echo -e "${BAR}  ${GRAY}Open a terminal in i3 then run this script again.${RESET}"
-  echo -e "${GRAY}└──────────────────────────────────────────────────${RESET}"
-  echo ""
+  panel_open
+  panel_line "${DIAMOND} ${BOLD}${PINK}Phase 1 complete${RESET}"
+  panel_line ""
+  panel_line "${GRAY}After reboot you will land on TTY login.${RESET}"
+  panel_line "${GRAY}Login as your user — i3 starts automatically.${RESET}"
+  panel_line ""
+  panel_line "${GRAY}If the screen is black: check /tmp/startx.log${RESET}"
+  panel_line "${GRAY}Open a terminal in i3 then run this script again.${RESET}"
+  panel_close
   echo -ne "  ${DIAMOND_E} ${FG}Reboot now?${RESET}  ${DIM}[${RESET}${GREEN}Y${RESET}${DIM}/n]${RESET}  "
   IFS= read -r rb
   echo ""
@@ -776,12 +875,7 @@ XINITRC
 #  PHASE 2
 # ══════════════════════════════════════════════
 run_phase2() {
-  echo ""
-  echo -e "${GRAY}┌──────────────────────────────────────────────────${RESET}"
-  echo -e "${BAR}  ${DIAMOND} ${BOLD}${PINK}Phase 2 of 2${RESET}"
-  echo -e "${BAR}  ${GRAY}Verify i3/TTY baseline  ·  purge old DE + bloat${RESET}"
-  echo -e "${GRAY}└──────────────────────────────────────────────────${RESET}"
-  echo ""
+  panel_header "Phase 2 of 2" "Verify i3/TTY baseline  ·  purge old DE + bloat"
 
   local DETECTED_DES=""
   DETECTED_DES="$(read_detected_des)"
@@ -859,13 +953,9 @@ run_phase2() {
   run_post_install_health_check
 
   # ── Done ──
-  echo ""
-  echo -e "${GRAY}  ┌─────────────────────────────────────────┐${RESET}"
-  echo -e "${GRAY}  │${RESET}                                         ${GRAY}│${RESET}"
-  echo -e "${GRAY}  │${RESET}  ${GREEN}${BOLD}✓  Setup complete!${RESET}                     ${GRAY}│${RESET}"
-  echo -e "${GRAY}  │${RESET}                                         ${GRAY}│${RESET}"
-  echo -e "${GRAY}  └─────────────────────────────────────────┘${RESET}"
-  echo ""
+  panel_open
+  panel_line "${GREEN}${BOLD}✓  Setup complete!${RESET}"
+  panel_close
   echo -e "  ${ARROW}  Run ${CYAN}exec zsh${RESET} to load the new shell"
   echo -e "  ${ARROW}  Polybar network — check interface with ${CYAN}ip link${RESET}"
   echo ""

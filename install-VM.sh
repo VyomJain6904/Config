@@ -177,6 +177,26 @@ apt_q() {
   esac
 }
 
+apt_install_strict() {
+  export DEBIAN_FRONTEND=noninteractive
+  local opts=(-y
+    -o Dpkg::Options::="--force-confdef"
+    -o Dpkg::Options::="--force-confold")
+  sudo apt-get install "${opts[@]}" "$@"
+}
+
+resolve_i3_package() {
+  if apt-cache show i3 &>/dev/null; then
+    echo "i3"
+    return 0
+  fi
+  if apt-cache show i3-wm &>/dev/null; then
+    echo "i3-wm"
+    return 0
+  fi
+  return 1
+}
+
 # ─────────────────────────────────────────────
 #  polkit — version-aware
 # ─────────────────────────────────────────────
@@ -763,13 +783,17 @@ run_phase1() {
 
   # ── Install i3 + Xorg ──
   step "i3 + Xorg  (minimal — no compositor)"
-  info "Installing packages..."
-  apt_q install \
+  local I3_PKG
+  I3_PKG="$(resolve_i3_package)" || die "Could not resolve i3 package (tried: i3, i3-wm). Run apt update and check repositories."
+  info "Installing packages (i3 package: ${I3_PKG})..."
+  apt_install_strict \
     xorg xinit xserver-xorg xserver-xorg-input-all \
-    x11-xserver-utils i3 i3status i3lock \
+    x11-xserver-utils "${I3_PKG}" i3status i3lock \
     feh xclip xdotool numlockx dbus-x11 xterm \
-    udisks2 upower xdg-user-dirs xdg-utils dunst
-  require_packages_installed xorg xinit i3 i3status i3lock feh xterm
+    udisks2 upower xdg-user-dirs xdg-utils dunst || \
+    die "Failed to install core i3/Xorg packages. Check apt output above."
+  require_packages_installed xorg xinit i3status i3lock feh xterm
+  require_command_installed i3 "i3 window manager"
   ok "Xorg + i3 installed"
 
   info "Installing polkit..."
@@ -907,7 +931,8 @@ run_phase2() {
   [ "$(systemctl get-default 2>/dev/null || true)" = "multi-user.target" ] ||
     die "Phase 2 blocked: default target is not multi-user.target"
   any_display_manager_active && die "Phase 2 blocked: a display manager is still active"
-  require_packages_installed xorg xinit i3 i3status i3lock feh
+  require_packages_installed xorg xinit i3status i3lock feh
+  require_command_installed i3 "i3 window manager"
   ok "Running on TTY+i3 baseline, safe to continue"
 
   # ── Purge old DE ──

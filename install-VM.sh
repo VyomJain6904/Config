@@ -634,8 +634,8 @@ run_post_install_health_check() {
     local row app_name selected installed version formatted version_short
 
     echo ""
-    echo "+---------------------------------------------------------------+"
-    echo "| Installation Summary                                          |"
+    echo "+----------------------------------------------------------------+"
+    echo "| Installation Summary                                           |"
     echo "+----------------+-------+--------+------------------------------+"
     echo "| App            | Sel   | Inst   | Version                      |"
     echo "+----------------+-------+--------+------------------------------+"

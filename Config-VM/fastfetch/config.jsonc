@@ -1,0 +1,114 @@
+{
+    "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+    "logo": {
+        "type": "file",
+        "source": "/home/jain/.config/fastfetch/asci2.txt",
+        "color": {
+            "1": "white"
+        },
+        "height": 5,
+        "width": 15
+    },
+    "modules": [
+        "break",
+        {
+            "type": "custom",
+            "format": "┌─────────────────────Hardware───────────────────┐"
+        },
+        {
+            "type": "host",
+            "key": " PC   ",
+            "keyColor": "green"
+        },
+        {
+            "type": "cpu",
+            "key": "│ ├󰻠  ",
+            "showPeCoreCount": true,
+            "keyColor": "green"
+        },
+        {
+            "type": "gpu",
+            "key": "│ ├󰢮  ",
+            "hideType": "integrated",
+            "keyColor": "green",
+            "showMemory": true,
+            "gpuIndex": 0
+        },
+        {
+            "type": "memory",
+            "key": "│ ├  ",
+            "keyColor": "green"
+        },
+        {
+            "type": "disk",
+            "key": "└ └  ",
+            "keyColor": "green"
+        },
+        {
+            "type": "custom",
+            "format": "└────────────────────────────────────────────────┘"
+        },
+        "break",
+        {
+            "type": "custom",
+            "format": "┌────────────────────Software────────────────────┐"
+        },
+        {
+            "type": "os",
+            "key": " OS   ",
+            "keyColor": "yellow"
+        },
+        {
+            "type": "kernel",
+            "key": "│ ├  ",
+            "keyColor": "yellow"
+        },
+        {
+            "type": "packages",
+            "key": "│ ├󰏖  ",
+            "keyColor": "yellow"
+        },
+        {
+            "type": "uptime",
+            "key": "│ ├󰅐  ",
+            "keyColor": "yellow"
+        },
+        {
+            "type": "shell",
+            "key": "└ └  ",
+            "keyColor": "yellow"
+        },
+        {
+            "type": "custom",
+            "format": "└────────────────────────────────────────────────┘"
+        },
+        "break",
+        {
+            "type": "custom",
+            "format": "┌─────────────────────Display────────────────────┐"
+        },
+        {
+            "type": "de",
+            "key": " DE   ",
+            "keyColor": "blue"
+        },
+        {
+            "type": "display",
+            "key": "│ ├󰍹  ",
+            "keyColor": "blue",
+            "displayIndex": 0,
+            "showName": true,
+            "showResolution": true,
+            "showRefreshRate": true
+        },
+        {
+            "type": "wm",
+            "key": "└ └  ",
+            "keyColor": "blue"
+        },
+        {
+            "type": "custom",
+            "format": "└────────────────────────────────────────────────┘"
+        }
+    ]
+}

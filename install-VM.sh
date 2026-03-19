@@ -1,18 +1,10 @@
 #!/usr/bin/env bash
-# ══════════════════════════════════════════════════════════════════
-#  Vyom's VM Setup Installer
-#  Target : Ubuntu / Debian / Kali — Virtual Machine ONLY
-#
-#  PHASE 1  (first run)   — install i3 + Xorg + apps + configs, reboot
-#  PHASE 2  (second run)  — verify i3/TTY baseline, purge old DE + bloat
-# ══════════════════════════════════════════════════════════════════
-
 # No set -e — we handle every error explicitly.
 # -u catches unbound variables. pipefail catches broken pipes.
 set -uo pipefail
 
 # ─────────────────────────────────────────────
-#  Dracula palette
+# palette
 # ─────────────────────────────────────────────
 PURPLE='\033[38;2;189;147;249m'
 CYAN='\033[38;2;139;233;253m'
@@ -32,7 +24,7 @@ DIAMOND_E="${GRAY}◇${RESET}"
 TICK="${GREEN}✓${RESET}"
 WARN="${YELLOW}▲${RESET}"
 ARROW="${CYAN}▶${RESET}"
-BOX_RULE="──────────────────────────────────────────────────"
+BOX_RULE="────────────────────────────────────────────────────────────────"
 
 # ─────────────────────────────────────────────
 #  UI
@@ -342,9 +334,18 @@ prefetch_assets_parallel() {
   local font_pid=$!
 
   local failed=0
-  wait "$repo_pid" || { warn "Config repo prefetch failed"; failed=1; }
-  wait "$wallpaper_pid" || { warn "Wallpaper prefetch failed"; failed=1; }
-  wait "$font_pid" || { warn "Font prefetch failed"; failed=1; }
+  wait "$repo_pid" || {
+    warn "Config repo prefetch failed"
+    failed=1
+  }
+  wait "$wallpaper_pid" || {
+    warn "Wallpaper prefetch failed"
+    failed=1
+  }
+  wait "$font_pid" || {
+    warn "Font prefetch failed"
+    failed=1
+  }
 
   [ -f "$PREFETCH_WALLPAPER" ] && ok "Wallpaper prefetched" || warn "Wallpaper prefetch missing"
   [ -f "$PREFETCH_FONT_ZIP" ] && ok "Font zip prefetched" || warn "Font prefetch missing"
@@ -431,7 +432,6 @@ ensure_bun() {
     return 0
   fi
 
-  step "Bun (required for OpenCode CLI)"
   if command -v timeout &>/dev/null; then
     timeout 180 bash -lc 'curl -fsSL https://bun.sh/install | bash' &>/tmp/bun-install.log ||
       die "Bun install timed out/failed (see /tmp/bun-install.log)"
@@ -459,7 +459,6 @@ ensure_node_npm() {
     return 0
   fi
 
-  step "Node.js + npm (latest)"
   if command -v timeout &>/dev/null; then
     timeout 180 bash -lc 'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/HEAD/install.sh | bash' &>/tmp/nvm-install.log ||
       warn "nvm bootstrap timed out/failed (see /tmp/nvm-install.log)"
@@ -498,12 +497,10 @@ export NVM_DIR="$HOME/.nvm"
 
 ensure_rust_latest() {
   if command -v cargo &>/dev/null && command -v rustup &>/dev/null; then
-    step "Rust (latest stable)"
     rustup update stable &>/tmp/rust-update.log || warn "Rust update failed (see /tmp/rust-update.log)"
   elif command -v cargo &>/dev/null; then
     ok "Rust already installed"
   else
-    step "Rust (latest stable)"
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y &>/tmp/rust-install.log || die "Rust install failed (see /tmp/rust-install.log)"
   fi
 
@@ -513,7 +510,6 @@ ensure_rust_latest() {
 }
 
 ensure_go_latest() {
-  step "Go (latest)"
   local GO_VERSION
   GO_VERSION=$(curl -fsSL "https://go.dev/VERSION?m=text" 2>/dev/null | head -1 || true)
   [ -n "$GO_VERSION" ] || die "Could not fetch latest Go version"
@@ -635,20 +631,24 @@ run_post_install_health_check() {
   }
 
   print_summary_table() {
-    local row app_name selected installed version formatted
+    local row app_name selected installed version formatted version_short
 
-    panel_open
-    panel_line "${DIAMOND} ${BOLD}${PINK}Installation Summary${RESET}"
-    panel_line "${DIM}App               Selected  Installed  Version${RESET}"
-    panel_line "${DIM}------------------------------------------------${RESET}"
+    echo ""
+    echo "+---------------------------------------------------------------+"
+    echo "| Installation Summary                                          |"
+    echo "+----------------+-------+--------+------------------------------+"
+    echo "| App            | Sel   | Inst   | Version                      |"
+    echo "+----------------+-------+--------+------------------------------+"
 
     for row in "${summary_rows[@]}"; do
       IFS='|' read -r app_name selected installed version <<<"$row"
-      printf -v formatted '%-16s %-8s %-9s %s' "$app_name" "$selected" "$installed" "${version:--}"
-      panel_line "${FG}${formatted}${RESET}"
+      version_short="${version:--}"
+      [ "${#version_short}" -gt 28 ] && version_short="${version_short:0:25}..."
+      printf '| %-14s | %-5s | %-6s | %-28s |\n' "$app_name" "$selected" "$installed" "$version_short"
     done
 
-    panel_close
+    echo "+----------------+-------+--------+------------------------------+"
+    echo ""
   }
 
   check_cmd i3
@@ -669,7 +669,10 @@ run_post_install_health_check() {
     installed="no"
     version="-"
   fi
-  [ "$selected" = "yes" ] && [ "$installed" = "no" ] && { warn "code missing"; failed=$((failed + 1)); }
+  [ "$selected" = "yes" ] && [ "$installed" = "no" ] && {
+    warn "code missing"
+    failed=$((failed + 1))
+  }
   add_summary_row "VS Code" "$selected" "$installed" "$version"
 
   selected="$(flag_enabled "$INSTALL_ANTIGRAVITY" && echo yes || echo no)"
@@ -680,7 +683,10 @@ run_post_install_health_check() {
     installed="no"
     version="-"
   fi
-  [ "$selected" = "yes" ] && [ "$installed" = "no" ] && { warn "antigravity package missing"; failed=$((failed + 1)); }
+  [ "$selected" = "yes" ] && [ "$installed" = "no" ] && {
+    warn "antigravity package missing"
+    failed=$((failed + 1))
+  }
   add_summary_row "Antigravity" "$selected" "$installed" "$version"
 
   selected="$(flag_enabled "$INSTALL_OPENCODE" && echo yes || echo no)"
@@ -691,7 +697,10 @@ run_post_install_health_check() {
     installed="no"
     version="-"
   fi
-  [ "$selected" = "yes" ] && [ "$installed" = "no" ] && { warn "opencode missing"; failed=$((failed + 1)); }
+  [ "$selected" = "yes" ] && [ "$installed" = "no" ] && {
+    warn "opencode missing"
+    failed=$((failed + 1))
+  }
   add_summary_row "OpenCode CLI" "$selected" "$installed" "$version"
 
   selected="$(flag_enabled "$INSTALL_CODEX" && echo yes || echo no)"
@@ -702,7 +711,10 @@ run_post_install_health_check() {
     installed="no"
     version="-"
   fi
-  [ "$selected" = "yes" ] && [ "$installed" = "no" ] && { warn "codex missing"; failed=$((failed + 1)); }
+  [ "$selected" = "yes" ] && [ "$installed" = "no" ] && {
+    warn "codex missing"
+    failed=$((failed + 1))
+  }
   add_summary_row "Codex CLI" "$selected" "$installed" "$version"
 
   selected="$(flag_enabled "$INSTALL_CLAUDE" && echo yes || echo no)"
@@ -713,7 +725,10 @@ run_post_install_health_check() {
     installed="no"
     version="-"
   fi
-  [ "$selected" = "yes" ] && [ "$installed" = "no" ] && { warn "claude missing"; failed=$((failed + 1)); }
+  [ "$selected" = "yes" ] && [ "$installed" = "no" ] && {
+    warn "claude missing"
+    failed=$((failed + 1))
+  }
   add_summary_row "Claude Code" "$selected" "$installed" "$version"
 
   selected="$(flag_enabled "$INSTALL_YAZI" && echo yes || echo no)"
@@ -724,7 +739,10 @@ run_post_install_health_check() {
     installed="no"
     version="-"
   fi
-  [ "$selected" = "yes" ] && [ "$installed" = "no" ] && { warn "yazi missing"; failed=$((failed + 1)); }
+  [ "$selected" = "yes" ] && [ "$installed" = "no" ] && {
+    warn "yazi missing"
+    failed=$((failed + 1))
+  }
   add_summary_row "Yazi" "$selected" "$installed" "$version"
 
   selected="$(flag_enabled "$INSTALL_THUNAR" && echo yes || echo no)"
@@ -735,7 +753,10 @@ run_post_install_health_check() {
     installed="no"
     version="-"
   fi
-  [ "$selected" = "yes" ] && [ "$installed" = "no" ] && { warn "thunar missing"; failed=$((failed + 1)); }
+  [ "$selected" = "yes" ] && [ "$installed" = "no" ] && {
+    warn "thunar missing"
+    failed=$((failed + 1))
+  }
   add_summary_row "Thunar" "$selected" "$installed" "$version"
 
   check_file "${HOME}/.xinitrc" "xinitrc"
@@ -773,7 +794,6 @@ run_post_install_health_check() {
 }
 
 install_selected_optional_apps() {
-  step "Runtime dependencies"
   ensure_runtime_dependencies
 
   # ── Thunar ──
@@ -781,7 +801,7 @@ install_selected_optional_apps() {
     if command -v thunar &>/dev/null; then
       ok "Thunar already installed"
     else
-      step "Installing Thunar"
+      info "Installing Thunar..."
       apt_q install thunar thunar-volman
       require_command_installed thunar "Thunar"
       ok "Thunar installed"
@@ -795,7 +815,7 @@ install_selected_optional_apps() {
     if command -v yazi &>/dev/null; then
       ok "Yazi already installed"
     else
-      step "Installing Yazi"
+      info "Installing Yazi..."
       local CARGO_TMP_DIR="${HOME}/.cache/cargo-tmp"
       local CARGO_TARGET_DIR_PATH="${HOME}/.cache/cargo-target"
       local MIN_YAZI_BUILD_KB=1048576
@@ -846,7 +866,7 @@ install_selected_optional_apps() {
     if command -v code &>/dev/null; then
       ok "VS Code already installed"
     else
-      step "Installing VS Code"
+      info "Installing VS Code..."
       info "Adding Microsoft repo..."
       sudo mkdir -p /etc/apt/keyrings
       wget -qO- https://packages.microsoft.com/keys/microsoft.asc |
@@ -869,7 +889,7 @@ https://packages.microsoft.com/repos/code stable main" |
     if dpkg -s antigravity &>/dev/null; then
       ok "Antigravity already installed"
     else
-      step "Installing Antigravity"
+      info "Installing Antigravity..."
       info "Adding repo..."
       sudo mkdir -p /etc/apt/keyrings
       curl -fsSL https://us-central1-apt.pkg.dev/doc/repo-signing-key.gpg |
@@ -891,7 +911,7 @@ https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev/ antigravi
     if command -v opencode &>/dev/null; then
       ok "OpenCode CLI already installed"
     else
-      step "Installing OpenCode CLI"
+      info "Installing OpenCode CLI..."
       if command -v timeout &>/dev/null; then
         timeout 240 bun install -g opencode-ai &>/tmp/opencode-install.log || die "OpenCode CLI install timed out/failed (see /tmp/opencode-install.log)"
       else
@@ -909,7 +929,7 @@ https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev/ antigravi
     if command -v codex &>/dev/null; then
       ok "Codex CLI already installed"
     else
-      step "Installing Codex CLI"
+      info "Installing Codex CLI..."
       if command -v timeout &>/dev/null; then
         timeout 240 npm install -g @openai/codex &>/tmp/codex-install.log || die "Codex CLI install timed out/failed (see /tmp/codex-install.log)"
       else
@@ -927,7 +947,7 @@ https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev/ antigravi
     if command -v claude &>/dev/null; then
       ok "Claude Code already installed"
     else
-      step "Installing Claude Code"
+      info "Installing Claude Code..."
       if command -v timeout &>/dev/null; then
         timeout 240 bash -lc 'curl -fsSL https://claude.ai/install.sh | bash' &>/tmp/claude-install.log || die "Claude Code install timed out/failed (see /tmp/claude-install.log)"
       else
@@ -1211,7 +1231,7 @@ run_phase1() {
       xorg xinit xserver-xorg xserver-xorg-input-all \
       x11-xserver-utils "${I3_PKG}" i3status i3lock \
       feh xclip xdotool numlockx dbus-x11 xterm \
-      udisks2 upower xdg-user-dirs xdg-utils dunst || \
+      udisks2 upower xdg-user-dirs xdg-utils dunst ||
       die "Failed to install core i3/Xorg packages. Check apt output above."
   fi
   require_packages_installed xorg xinit i3status i3lock feh xterm
@@ -1404,9 +1424,11 @@ run_phase2() {
   run_post_install_health_check
 
   # ── Done ──
-  panel_open
-  panel_line "${GREEN}${BOLD}✓  Setup complete!${RESET}"
-  panel_close
+  echo ""
+  echo "+---------------------------------------------------------------+"
+  echo "| Setup complete!                                               |"
+  echo "+---------------------------------------------------------------+"
+  echo ""
   echo -e "  ${ARROW}  Run ${CYAN}exec zsh${RESET} to load the new shell"
   echo -e "  ${ARROW}  Polybar network — check interface with ${CYAN}ip link${RESET}"
   echo ""

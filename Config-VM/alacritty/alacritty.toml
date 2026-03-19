@@ -10,7 +10,7 @@ style = "Beam"
 unfocused_hollow = true
 
 [font]
-size = 14.0
+size = 12.0
 
 [font.normal]
 family = "JetBrainsMono Nerd Font"

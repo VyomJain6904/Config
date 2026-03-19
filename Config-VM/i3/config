@@ -10,7 +10,7 @@ mouse_warping none
 
 set $term alacritty
 set $browser firefox
-set $editor subl
+set $editor nvim
 
 exec_always --no-startup-id feh --bg-scale ~/Pictures/w10.jpg
 
@@ -30,11 +30,9 @@ exec_always --no-startup-id ~/.config/polybar/launch_polybar.sh
 bindsym $mod+t exec $term
 bindsym $mod+b exec $browser
 bindsym $mod+s exec --no-startup-id $editor
-bindsym $mod+w exec --no-startup-id wireshark
 bindsym $mod+v exec --no-startup-id code
-bindsym $mod+c exec --no-startup-id caido
+bindsym $mod+a exec --no-startup-id antigravity
 bindsym $mod+e exec --no-startup-id thunar
-bindsym $mod+n exec --no-startup-id obsidian
 
 bindsym $mod+Shift+s exec flameshot gui -c -p ~/Pictures/Screenshots/
 

@@ -66,9 +66,9 @@ step() {
 }
 
 select_optional_apps_interactive() {
-  local options=("VS Code" "Antigravity" "OpenCode CLI" "Codex CLI")
-  local vars=("INSTALL_VSCODE" "INSTALL_ANTIGRAVITY" "INSTALL_OPENCODE" "INSTALL_CODEX")
-  local selected=(0 0 0 0)
+  local options=("VS Code" "Antigravity" "OpenCode CLI" "Codex CLI" "Claude Code")
+  local vars=("INSTALL_VSCODE" "INSTALL_ANTIGRAVITY" "INSTALL_OPENCODE" "INSTALL_CODEX" "INSTALL_CLAUDE")
+  local selected=(0 0 0 0 0)
   local i
 
   for i in "${!vars[@]}"; do
@@ -297,6 +297,7 @@ INSTALL_VSCODE="${INSTALL_VSCODE:-1}"
 INSTALL_ANTIGRAVITY="${INSTALL_ANTIGRAVITY:-1}"
 INSTALL_OPENCODE="${INSTALL_OPENCODE:-1}"
 INSTALL_CODEX="${INSTALL_CODEX:-1}"
+INSTALL_CLAUDE="${INSTALL_CLAUDE:-1}"
 INSTALL_YAZI="${INSTALL_YAZI:-1}"
 INSTALL_THUNAR="${INSTALL_THUNAR:-1}"
 FORCE_PHASE1="${FORCE_PHASE1:-0}"
@@ -413,6 +414,7 @@ cmd_version_line() {
   code) code --version 2>/dev/null | head -n 1 ;;
   opencode) opencode --version 2>/dev/null | head -n 1 ;;
   codex) codex --version 2>/dev/null | head -n 1 ;;
+  claude) claude --version 2>/dev/null | head -n 1 ;;
   yazi) yazi --version 2>/dev/null | head -n 1 ;;
   thunar) thunar --version 2>/dev/null | head -n 1 ;;
   node) node --version 2>/dev/null | head -n 1 ;;
@@ -457,7 +459,7 @@ ensure_node_npm() {
     return 0
   fi
 
-  step "Node.js + npm (required for Codex CLI)"
+  step "Node.js + npm (latest)"
   if command -v timeout &>/dev/null; then
     timeout 180 bash -lc 'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/HEAD/install.sh | bash' &>/tmp/nvm-install.log ||
       warn "nvm bootstrap timed out/failed (see /tmp/nvm-install.log)"
@@ -471,20 +473,17 @@ ensure_node_npm() {
 
   if command -v nvm &>/dev/null; then
     if command -v timeout &>/dev/null; then
-      timeout 300 bash -lc "export NVM_DIR='$HOME/.nvm'; [ -s \"\$NVM_DIR/nvm.sh\" ] && . \"\$NVM_DIR/nvm.sh\"; nvm install --lts; nvm use --lts" &>/tmp/node-install.log ||
-        warn "Node install via nvm timed out/failed (see /tmp/node-install.log)"
+      timeout 300 bash -lc "export NVM_DIR='$HOME/.nvm'; [ -s \"\$NVM_DIR/nvm.sh\" ] && . \"\$NVM_DIR/nvm.sh\"; nvm install node; nvm use node" &>/tmp/node-install.log ||
+        warn "Node latest install via nvm timed out/failed (see /tmp/node-install.log)"
     else
-      bash -lc "export NVM_DIR='$HOME/.nvm'; [ -s \"\$NVM_DIR/nvm.sh\" ] && . \"\$NVM_DIR/nvm.sh\"; nvm install --lts; nvm use --lts" &>/tmp/node-install.log ||
-        warn "Node install via nvm failed (see /tmp/node-install.log)"
+      bash -lc "export NVM_DIR='$HOME/.nvm'; [ -s \"\$NVM_DIR/nvm.sh\" ] && . \"\$NVM_DIR/nvm.sh\"; nvm install node; nvm use node" &>/tmp/node-install.log ||
+        warn "Node latest install via nvm failed (see /tmp/node-install.log)"
     fi
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" || true
-    nvm use --lts &>/dev/null || true
+    nvm use node &>/dev/null || true
   fi
 
-  if ! command -v npm &>/dev/null || ! command -v node &>/dev/null; then
-    warn "Falling back to apt for nodejs/npm"
-    apt_install_strict nodejs npm &>/tmp/node-apt-install.log || die "Node/npm apt install failed (see /tmp/node-apt-install.log)"
-  fi
+  command -v nvm &>/dev/null || die "nvm not available after bootstrap (see /tmp/nvm-install.log)"
 
   require_command_installed node "Node.js"
   require_command_installed npm "npm"
@@ -495,6 +494,51 @@ export NVM_DIR="$HOME/.nvm"
   ok "Node.js + npm installed"
   info "node version: $(cmd_version_line node)"
   info "npm version: $(cmd_version_line npm)"
+}
+
+ensure_rust_latest() {
+  if command -v cargo &>/dev/null && command -v rustup &>/dev/null; then
+    step "Rust (latest stable)"
+    rustup update stable &>/tmp/rust-update.log || warn "Rust update failed (see /tmp/rust-update.log)"
+  elif command -v cargo &>/dev/null; then
+    ok "Rust already installed"
+  else
+    step "Rust (latest stable)"
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y &>/tmp/rust-install.log || die "Rust install failed (see /tmp/rust-install.log)"
+  fi
+
+  source "$HOME/.cargo/env" &>/dev/null || true
+  zshrc_append '.cargo/env' '. "$HOME/.cargo/env"'
+  require_command_installed cargo "Rust cargo"
+}
+
+ensure_go_latest() {
+  step "Go (latest)"
+  local GO_VERSION
+  GO_VERSION=$(curl -fsSL "https://go.dev/VERSION?m=text" 2>/dev/null | head -1 || true)
+  [ -n "$GO_VERSION" ] || die "Could not fetch latest Go version"
+
+  local CURRENT_GO=""
+  CURRENT_GO="$(go version 2>/dev/null | awk '{print $3}' || true)"
+  if [ "$CURRENT_GO" = "$GO_VERSION" ]; then
+    ok "Go already latest (${GO_VERSION})"
+    return 0
+  fi
+
+  curl -fsSL "https://go.dev/dl/${GO_VERSION}.linux-amd64.tar.gz" -o /tmp/go.tar.gz || die "Go download failed"
+  sudo rm -rf /usr/local/go
+  sudo tar -C /usr/local -xzf /tmp/go.tar.gz &>/dev/null || die "Go extract failed"
+  rm -f /tmp/go.tar.gz
+  export PATH="/usr/local/go/bin:$PATH"
+  zshrc_append '/usr/local/go/bin' 'export PATH="/usr/local/go/bin:$PATH"'
+  require_command_installed go "Go"
+}
+
+ensure_runtime_dependencies() {
+  ensure_rust_latest
+  ensure_go_latest
+  ensure_node_npm
+  ensure_bun
 }
 
 available_kb() {
@@ -553,6 +597,7 @@ run_post_install_health_check() {
     code) code --version 2>/dev/null | head -n 1 ;;
     opencode) opencode --version 2>/dev/null | head -n 1 ;;
     codex) codex --version 2>/dev/null | head -n 1 ;;
+    claude) claude --version 2>/dev/null | head -n 1 ;;
     yazi) yazi --version 2>/dev/null | head -n 1 ;;
     thunar) thunar --version 2>/dev/null | head -n 1 ;;
     i3) i3 --version 2>/dev/null | head -n 1 ;;
@@ -660,6 +705,17 @@ run_post_install_health_check() {
   [ "$selected" = "yes" ] && [ "$installed" = "no" ] && { warn "codex missing"; failed=$((failed + 1)); }
   add_summary_row "Codex CLI" "$selected" "$installed" "$version"
 
+  selected="$(flag_enabled "$INSTALL_CLAUDE" && echo yes || echo no)"
+  if command -v claude &>/dev/null; then
+    installed="yes"
+    version="$(app_version claude)"
+  else
+    installed="no"
+    version="-"
+  fi
+  [ "$selected" = "yes" ] && [ "$installed" = "no" ] && { warn "claude missing"; failed=$((failed + 1)); }
+  add_summary_row "Claude Code" "$selected" "$installed" "$version"
+
   selected="$(flag_enabled "$INSTALL_YAZI" && echo yes || echo no)"
   if command -v yazi &>/dev/null; then
     installed="yes"
@@ -717,17 +773,18 @@ run_post_install_health_check() {
 }
 
 install_selected_optional_apps() {
+  step "Runtime dependencies"
+  ensure_runtime_dependencies
+
   # ── Thunar ──
   if flag_enabled "$INSTALL_THUNAR"; then
     if command -v thunar &>/dev/null; then
       ok "Thunar already installed"
-      info "thunar version: $(cmd_version_line thunar)"
     else
-      step "Thunar  (GUI file manager)"
+      step "Installing Thunar"
       apt_q install thunar thunar-volman
       require_command_installed thunar "Thunar"
       ok "Thunar installed"
-      info "thunar version: $(cmd_version_line thunar)"
     fi
   else
     warn "Thunar disabled by INSTALL_THUNAR=${INSTALL_THUNAR}"
@@ -737,9 +794,8 @@ install_selected_optional_apps() {
   if flag_enabled "$INSTALL_YAZI"; then
     if command -v yazi &>/dev/null; then
       ok "Yazi already installed"
-      info "yazi version: $(cmd_version_line yazi)"
     else
-      step "Yazi  (terminal file manager)"
+      step "Installing Yazi"
       local CARGO_TMP_DIR="${HOME}/.cache/cargo-tmp"
       local CARGO_TARGET_DIR_PATH="${HOME}/.cache/cargo-target"
       local MIN_YAZI_BUILD_KB=1048576
@@ -770,7 +826,6 @@ install_selected_optional_apps() {
           export PATH="$HOME/.cargo/bin:$PATH"
           if command -v yazi &>/dev/null; then
             ok "Yazi installed"
-            info "yazi version: $(cmd_version_line yazi)"
           else
             warn "Yazi binary not found after build — skipping Yazi checks"
             INSTALL_YAZI=0
@@ -790,9 +845,8 @@ install_selected_optional_apps() {
   if flag_enabled "$INSTALL_VSCODE"; then
     if command -v code &>/dev/null; then
       ok "VS Code already installed"
-      info "code version: $(cmd_version_line code)"
     else
-      step "VS Code"
+      step "Installing VS Code"
       info "Adding Microsoft repo..."
       sudo mkdir -p /etc/apt/keyrings
       wget -qO- https://packages.microsoft.com/keys/microsoft.asc |
@@ -805,7 +859,6 @@ https://packages.microsoft.com/repos/code stable main" |
       apt_q install code
       require_command_installed code "VS Code"
       ok "VS Code installed"
-      info "code version: $(cmd_version_line code)"
     fi
   else
     warn "VS Code disabled by INSTALL_VSCODE=${INSTALL_VSCODE}"
@@ -815,9 +868,8 @@ https://packages.microsoft.com/repos/code stable main" |
   if flag_enabled "$INSTALL_ANTIGRAVITY"; then
     if dpkg -s antigravity &>/dev/null; then
       ok "Antigravity already installed"
-      info "antigravity version: $(dpkg-query -W -f='${Version}' antigravity 2>/dev/null || echo unknown)"
     else
-      step "Antigravity"
+      step "Installing Antigravity"
       info "Adding repo..."
       sudo mkdir -p /etc/apt/keyrings
       curl -fsSL https://us-central1-apt.pkg.dev/doc/repo-signing-key.gpg |
@@ -829,7 +881,6 @@ https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev/ antigravi
       apt_q install antigravity
       require_packages_installed antigravity
       ok "Antigravity installed"
-      info "antigravity version: $(dpkg-query -W -f='${Version}' antigravity 2>/dev/null || echo unknown)"
     fi
   else
     warn "Antigravity disabled by INSTALL_ANTIGRAVITY=${INSTALL_ANTIGRAVITY}"
@@ -839,10 +890,8 @@ https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev/ antigravi
   if flag_enabled "$INSTALL_OPENCODE"; then
     if command -v opencode &>/dev/null; then
       ok "OpenCode CLI already installed"
-      info "opencode version: $(cmd_version_line opencode)"
     else
-      step "OpenCode CLI  (via bun)"
-      ensure_bun
+      step "Installing OpenCode CLI"
       if command -v timeout &>/dev/null; then
         timeout 240 bun install -g opencode-ai &>/tmp/opencode-install.log || die "OpenCode CLI install timed out/failed (see /tmp/opencode-install.log)"
       else
@@ -850,7 +899,6 @@ https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev/ antigravi
       fi
       require_command_installed opencode "OpenCode CLI"
       ok "OpenCode CLI installed"
-      info "opencode version: $(cmd_version_line opencode)"
     fi
   else
     warn "OpenCode CLI disabled by INSTALL_OPENCODE=${INSTALL_OPENCODE}"
@@ -860,10 +908,8 @@ https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev/ antigravi
   if flag_enabled "$INSTALL_CODEX"; then
     if command -v codex &>/dev/null; then
       ok "Codex CLI already installed"
-      info "codex version: $(cmd_version_line codex)"
     else
-      step "Codex CLI  (via npm)"
-      ensure_node_npm
+      step "Installing Codex CLI"
       if command -v timeout &>/dev/null; then
         timeout 240 npm install -g @openai/codex &>/tmp/codex-install.log || die "Codex CLI install timed out/failed (see /tmp/codex-install.log)"
       else
@@ -871,15 +917,32 @@ https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev/ antigravi
       fi
       require_command_installed codex "Codex CLI"
       ok "Codex CLI installed"
-      info "codex version: $(cmd_version_line codex)"
     fi
   else
     warn "Codex CLI disabled by INSTALL_CODEX=${INSTALL_CODEX}"
   fi
+
+  # ── Claude Code ──
+  if flag_enabled "$INSTALL_CLAUDE"; then
+    if command -v claude &>/dev/null; then
+      ok "Claude Code already installed"
+    else
+      step "Installing Claude Code"
+      if command -v timeout &>/dev/null; then
+        timeout 240 bash -lc 'curl -fsSL https://claude.ai/install.sh | bash' &>/tmp/claude-install.log || die "Claude Code install timed out/failed (see /tmp/claude-install.log)"
+      else
+        bash -lc 'curl -fsSL https://claude.ai/install.sh | bash' &>/tmp/claude-install.log || die "Claude Code install failed (see /tmp/claude-install.log)"
+      fi
+      require_command_installed claude "Claude Code"
+      ok "Claude Code installed"
+    fi
+  else
+    warn "Claude Code disabled by INSTALL_CLAUDE=${INSTALL_CLAUDE}"
+  fi
 }
 
 run_full_setup_stack() {
-  info "Optional apps flags: VSCode=${INSTALL_VSCODE}  Antigravity=${INSTALL_ANTIGRAVITY}  OpenCode=${INSTALL_OPENCODE}  Codex=${INSTALL_CODEX}  Yazi=${INSTALL_YAZI}  Thunar=${INSTALL_THUNAR}"
+  info "Optional apps flags: VSCode=${INSTALL_VSCODE}  Antigravity=${INSTALL_ANTIGRAVITY}  OpenCode=${INSTALL_OPENCODE}  Codex=${INSTALL_CODEX}  Claude=${INSTALL_CLAUDE}  Yazi=${INSTALL_YAZI}  Thunar=${INSTALL_THUNAR}"
 
   # ── Core packages for final desktop ──
   step "Core i3 packages + applications"
@@ -1124,7 +1187,7 @@ run_phase1() {
   step "Preferences"
   select_optional_apps_interactive
   select_file_manager_mode_interactive
-  info "Selected: VSCode=${INSTALL_VSCODE} Antigravity=${INSTALL_ANTIGRAVITY} OpenCode=${INSTALL_OPENCODE} Codex=${INSTALL_CODEX} Yazi=${INSTALL_YAZI} Thunar=${INSTALL_THUNAR}"
+  info "Selected: VSCode=${INSTALL_VSCODE} Antigravity=${INSTALL_ANTIGRAVITY} OpenCode=${INSTALL_OPENCODE} Codex=${INSTALL_CODEX} Claude=${INSTALL_CLAUDE} Yazi=${INSTALL_YAZI} Thunar=${INSTALL_THUNAR}"
 
   prefetch_assets_parallel
 
@@ -1359,7 +1422,7 @@ run_repair_mode() {
   step "Preferences"
   select_optional_apps_interactive
   select_file_manager_mode_interactive
-  info "Selected: VSCode=${INSTALL_VSCODE} Antigravity=${INSTALL_ANTIGRAVITY} OpenCode=${INSTALL_OPENCODE} Codex=${INSTALL_CODEX} Yazi=${INSTALL_YAZI} Thunar=${INSTALL_THUNAR}"
+  info "Selected: VSCode=${INSTALL_VSCODE} Antigravity=${INSTALL_ANTIGRAVITY} OpenCode=${INSTALL_OPENCODE} Codex=${INSTALL_CODEX} Claude=${INSTALL_CLAUDE} Yazi=${INSTALL_YAZI} Thunar=${INSTALL_THUNAR}"
 
   prefetch_assets_parallel
 

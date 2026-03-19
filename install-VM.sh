@@ -978,7 +978,7 @@ run_full_setup_stack() {
   step "Configs  (Config-VM)"
   ensure_repo_cloned
 
-  for item in alacritty i3 nvim polybar; do
+  for item in alacritty i3 nvim polybar fastfetch yazi; do
     local src="${TEMP_DIR}/repo/Config-VM/${item}"
     local dst="${HOME}/.config/${item}"
     if [ -d "$src" ]; then

@@ -66,9 +66,9 @@ step() {
 }
 
 select_optional_apps_interactive() {
-  local options=("VS Code" "Antigravity" "Yazi")
-  local vars=("INSTALL_VSCODE" "INSTALL_ANTIGRAVITY" "INSTALL_YAZI")
-  local selected=(0 0 0)
+  local options=("VS Code" "Antigravity" "OpenCode CLI" "Codex CLI")
+  local vars=("INSTALL_VSCODE" "INSTALL_ANTIGRAVITY" "INSTALL_OPENCODE" "INSTALL_CODEX")
+  local selected=(0 0 0 0)
   local idx=0 count="${#options[@]}"
   local i key seq mark line cursor
 
@@ -144,6 +144,83 @@ select_optional_apps_interactive() {
     q | Q)
       clear
       die "Optional app selection cancelled"
+      ;;
+    esac
+  done
+}
+
+select_file_manager_mode_interactive() {
+  local options=("Yazi only" "Thunar only" "Both")
+  local idx=2 key seq i
+
+  if [ ! -t 0 ] || [ ! -t 1 ]; then
+    warn "Non-interactive shell: using existing file manager flags"
+    return 0
+  fi
+
+  if flag_enabled "$INSTALL_YAZI" && ! flag_enabled "$INSTALL_THUNAR"; then
+    idx=0
+  elif ! flag_enabled "$INSTALL_YAZI" && flag_enabled "$INSTALL_THUNAR"; then
+    idx=1
+  else
+    idx=2
+  fi
+
+  while true; do
+    clear
+    panel_header "File Manager" "Choose which file manager(s) to install"
+    panel_open
+    panel_line "${GRAY}Enter: select  ·  ↑/↓: move  ·  q: cancel${RESET}"
+    panel_line ""
+
+    for i in "${!options[@]}"; do
+      if [ "$i" -eq "$idx" ]; then
+        panel_line "${CYAN}▸${RESET} ${GREEN}●${RESET}  ${FG}${options[i]}${RESET}"
+      else
+        panel_line "  ${GRAY}○${RESET}  ${GRAY}${options[i]}${RESET}"
+      fi
+    done
+
+    panel_line ""
+    panel_line "${DIM}Press Enter to confirm your file manager choice${RESET}"
+    panel_close
+
+    IFS= read -rsn1 key || key=""
+    if [ "$key" = $'\x1b' ]; then
+      IFS= read -rsn2 seq || seq=""
+      key+="$seq"
+    fi
+
+    case "$key" in
+    $'\x1b[A')
+      idx=$((idx - 1))
+      [ "$idx" -lt 0 ] && idx=2
+      ;;
+    $'\x1b[B')
+      idx=$((idx + 1))
+      [ "$idx" -gt 2 ] && idx=0
+      ;;
+    $'\n' | $'\r')
+      case "$idx" in
+      0)
+        INSTALL_YAZI=1
+        INSTALL_THUNAR=0
+        ;;
+      1)
+        INSTALL_YAZI=0
+        INSTALL_THUNAR=1
+        ;;
+      *)
+        INSTALL_YAZI=1
+        INSTALL_THUNAR=1
+        ;;
+      esac
+      clear
+      return 0
+      ;;
+    q | Q)
+      clear
+      die "File manager selection cancelled"
       ;;
     esac
   done
@@ -238,7 +315,10 @@ STATE_FILE="${STATE_DIR}/state"
 STATE_DE_FILE="${STATE_DIR}/detected_des"
 INSTALL_VSCODE="${INSTALL_VSCODE:-1}"
 INSTALL_ANTIGRAVITY="${INSTALL_ANTIGRAVITY:-1}"
+INSTALL_OPENCODE="${INSTALL_OPENCODE:-1}"
+INSTALL_CODEX="${INSTALL_CODEX:-1}"
 INSTALL_YAZI="${INSTALL_YAZI:-1}"
+INSTALL_THUNAR="${INSTALL_THUNAR:-1}"
 FORCE_PHASE1="${FORCE_PHASE1:-0}"
 TEMP_DIR=""
 REPO_CLONED=false
@@ -315,6 +395,13 @@ flag_enabled() {
 require_command_installed() {
   local cmd="$1" label="$2"
   command -v "$cmd" &>/dev/null || die "${label} install failed (missing command: ${cmd})"
+}
+
+available_kb() {
+  local path="$1" line
+  line="$(df -Pk "$path" 2>/dev/null | tail -n 1)"
+  set -- $line
+  echo "${4:-0}"
 }
 
 require_packages_installed() {
@@ -398,8 +485,17 @@ run_post_install_health_check() {
       failed=$((failed + 1))
     fi
   fi
+  if flag_enabled "$INSTALL_OPENCODE"; then
+    check_cmd opencode
+  fi
+  if flag_enabled "$INSTALL_CODEX"; then
+    check_cmd codex
+  fi
   if flag_enabled "$INSTALL_YAZI"; then
     check_cmd yazi
+  fi
+  if flag_enabled "$INSTALL_THUNAR"; then
+    check_cmd thunar
   fi
 
   check_file "${HOME}/.xinitrc" "xinitrc"
@@ -436,16 +532,17 @@ run_post_install_health_check() {
 
 run_full_setup_stack() {
   select_optional_apps_interactive
-  info "Optional apps flags: VSCode=${INSTALL_VSCODE}  Antigravity=${INSTALL_ANTIGRAVITY}  Yazi=${INSTALL_YAZI}"
+  select_file_manager_mode_interactive
+  info "Optional apps flags: VSCode=${INSTALL_VSCODE}  Antigravity=${INSTALL_ANTIGRAVITY}  OpenCode=${INSTALL_OPENCODE}  Codex=${INSTALL_CODEX}  Yazi=${INSTALL_YAZI}  Thunar=${INSTALL_THUNAR}"
 
   # ── Core packages for final desktop ──
   step "Core i3 packages + applications"
   apt_q install \
     git alacritty i3 neovim polybar \
-    flameshot thunar network-manager-gnome mate-polkit
+    flameshot network-manager-gnome mate-polkit
   require_packages_installed \
     git alacritty i3 neovim polybar \
-    flameshot thunar network-manager-gnome mate-polkit
+    flameshot network-manager-gnome mate-polkit
   ok "Core packages installed"
 
   # ── Configs ──
@@ -573,24 +670,59 @@ XINITRC
   systemctl --user enable --now pipewire pipewire-pulse wireplumber &>/dev/null || true
   ok "PipeWire active"
 
+  # ── Thunar ──
+  if flag_enabled "$INSTALL_THUNAR"; then
+    step "Thunar  (GUI file manager)"
+    apt_q install thunar thunar-volman
+    require_command_installed thunar "Thunar"
+    ok "Thunar installed"
+  else
+    warn "Thunar disabled by INSTALL_THUNAR=${INSTALL_THUNAR}"
+  fi
+
   # ── Yazi ──
   if flag_enabled "$INSTALL_YAZI"; then
     step "Yazi  (terminal file manager)"
-    if ! command -v cargo &>/dev/null; then
-      info "Installing Rust for cargo..."
-      curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y &>/dev/null || true
-      source "$HOME/.cargo/env" &>/dev/null || true
-      zshrc_append '.cargo/env' '. "$HOME/.cargo/env"'
-      ok "Rust installed"
+    local CARGO_TMP_DIR="${HOME}/.cache/cargo-tmp"
+    local CARGO_TARGET_DIR_PATH="${HOME}/.cache/cargo-target"
+    local MIN_YAZI_BUILD_KB=1048576
+    local TMP_AVAIL_KB HOME_AVAIL_KB
+
+    mkdir -p "$CARGO_TMP_DIR" "$CARGO_TARGET_DIR_PATH"
+
+    TMP_AVAIL_KB="$(available_kb "$CARGO_TMP_DIR")"
+    HOME_AVAIL_KB="$(available_kb "$HOME")"
+
+    if [ "$TMP_AVAIL_KB" -lt "$MIN_YAZI_BUILD_KB" ] || [ "$HOME_AVAIL_KB" -lt "$MIN_YAZI_BUILD_KB" ]; then
+      warn "Skipping Yazi: low build space (tmp=${TMP_AVAIL_KB}KB home=${HOME_AVAIL_KB}KB)"
+      warn "Free space or set INSTALL_YAZI=0 to skip permanently"
+      INSTALL_YAZI=0
     else
-      source "$HOME/.cargo/env" &>/dev/null || true
+      if ! command -v cargo &>/dev/null; then
+        info "Installing Rust for cargo..."
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y &>/dev/null || true
+        source "$HOME/.cargo/env" &>/dev/null || true
+        zshrc_append '.cargo/env' '. "$HOME/.cargo/env"'
+        ok "Rust installed"
+      else
+        source "$HOME/.cargo/env" &>/dev/null || true
+      fi
+      info "Building yazi-fm + yazi-cli (few minutes)..."
+      if TMPDIR="$CARGO_TMP_DIR" CARGO_TARGET_DIR="$CARGO_TARGET_DIR_PATH" cargo install --locked yazi-fm yazi-cli &>/tmp/yazi-build.log; then
+        zshrc_append '.cargo/bin' 'export PATH="$HOME/.cargo/bin:$PATH"'
+        export PATH="$HOME/.cargo/bin:$PATH"
+        if command -v yazi &>/dev/null; then
+          ok "Yazi installed"
+        else
+          warn "Yazi binary not found after build — skipping Yazi checks"
+          INSTALL_YAZI=0
+        fi
+      else
+        warn "Yazi build failed (see /tmp/yazi-build.log)"
+        warn "Try manually: TMPDIR=\"$CARGO_TMP_DIR\" CARGO_TARGET_DIR=\"$CARGO_TARGET_DIR_PATH\" cargo install --locked yazi-fm yazi-cli"
+        INSTALL_YAZI=0
+      fi
     fi
-    info "Building yazi-fm + yazi-cli (few minutes)..."
-    cargo install --locked yazi-fm yazi-cli &>/dev/null || die "Yazi build failed"
-    zshrc_append '.cargo/bin' 'export PATH="$HOME/.cargo/bin:$PATH"'
-    export PATH="$HOME/.cargo/bin:$PATH"
-    require_command_installed yazi "Yazi"
-    ok "Yazi installed"
   else
     warn "Yazi disabled by INSTALL_YAZI=${INSTALL_YAZI}"
   fi
@@ -686,34 +818,50 @@ https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev/ antigravi
   fi
 
   # ── OpenCode CLI ──
-  step "OpenCode CLI  (via bun)"
-  export BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
-  export PATH="$BUN_INSTALL/bin:$PATH"
-  if ! command -v bun &>/dev/null; then
-    curl -fsSL https://bun.sh/install | bash &>/dev/null || true
+  if flag_enabled "$INSTALL_OPENCODE"; then
+    step "OpenCode CLI  (via bun)"
+    export BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
     export PATH="$BUN_INSTALL/bin:$PATH"
-    zshrc_append 'BUN_INSTALL' \
-      '# bun
+    if ! command -v bun &>/dev/null; then
+      if ! (curl -fsSL https://bun.sh/install | bash &>/tmp/bun-install.log); then
+        die "Bun install failed (see /tmp/bun-install.log)"
+      fi
+      export PATH="$BUN_INSTALL/bin:$PATH"
+      zshrc_append 'BUN_INSTALL' \
+        '# bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"'
+    fi
+    require_command_installed bun "Bun"
+    bun install -g opencode-ai &>/tmp/opencode-install.log || die "OpenCode CLI install failed (see /tmp/opencode-install.log)"
+    require_command_installed opencode "OpenCode CLI"
+    ok "OpenCode CLI installed"
+  else
+    warn "OpenCode CLI disabled by INSTALL_OPENCODE=${INSTALL_OPENCODE}"
   fi
-  bun install -g opencode-ai &>/dev/null || true
-  ok "OpenCode CLI installed"
 
   # ── Codex CLI ──
-  step "Codex CLI  (via npm)"
-  if ! command -v npm &>/dev/null; then
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/HEAD/install.sh 2>/dev/null | bash &>/dev/null || true
-    export NVM_DIR="$HOME/.nvm"
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" || true
-    nvm install --lts &>/dev/null && nvm use --lts &>/dev/null || true
-    zshrc_append 'NVM_DIR' \
-      '# nvm
+  if flag_enabled "$INSTALL_CODEX"; then
+    step "Codex CLI  (via npm)"
+    if ! command -v npm &>/dev/null; then
+      if ! (curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/HEAD/install.sh 2>/tmp/nvm-install.log | bash &>/tmp/nvm-install.log); then
+        die "nvm install failed (see /tmp/nvm-install.log)"
+      fi
+      export NVM_DIR="$HOME/.nvm"
+      [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" || true
+      nvm install --lts &>/tmp/node-install.log && nvm use --lts &>/tmp/node-install.log || die "Node/npm install failed (see /tmp/node-install.log)"
+      zshrc_append 'NVM_DIR' \
+        '# nvm
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"'
+    fi
+    require_command_installed npm "npm"
+    npm install -g @openai/codex &>/tmp/codex-install.log || die "Codex CLI install failed (see /tmp/codex-install.log)"
+    require_command_installed codex "Codex CLI"
+    ok "Codex CLI installed"
+  else
+    warn "Codex CLI disabled by INSTALL_CODEX=${INSTALL_CODEX}"
   fi
-  npm install -g @openai/codex &>/dev/null || true
-  ok "Codex CLI installed"
 
   run_post_install_health_check
 }
@@ -750,6 +898,43 @@ detect_des() {
     esac
   done
   echo "${found[*]:-}"
+}
+
+cleanup_kali_undercover() {
+  step "Kali Undercover cleanup"
+
+  if dpkg -s kali-undercover &>/dev/null; then
+    info "Removing kali-undercover package..."
+    apt_q purge kali-undercover
+  fi
+
+  rm -f "${HOME}/.config/autostart/kali-undercover.desktop" &>/dev/null || true
+  sudo rm -f /etc/xdg/autostart/kali-undercover.desktop &>/dev/null || true
+  ok "Kali Undercover cleanup complete"
+}
+
+verify_de_removed() {
+  local detected_des="$1" de pkg
+  local -a leftovers=()
+  local -A seen=()
+
+  [ -z "$detected_des" ] && return 0
+
+  for de in $detected_des; do
+    for pkg in ${DE_PACKAGES[$de]:-}; do
+      [ -z "$pkg" ] && continue
+      [ -n "${seen[$pkg]:-}" ] && continue
+      seen[$pkg]=1
+      dpkg -s "$pkg" &>/dev/null && leftovers+=("$pkg")
+    done
+  done
+
+  if [ "${#leftovers[@]}" -eq 0 ]; then
+    ok "Previous DE packages removed successfully"
+    return 0
+  fi
+
+  warn "Some previous DE packages are still installed: ${leftovers[*]}"
 }
 
 # ══════════════════════════════════════════════
@@ -972,6 +1157,10 @@ run_phase2() {
 
     ok "Old DE cleanup finished"
   fi
+
+  cleanup_kali_undercover
+  verify_de_removed "$DETECTED_DES"
+
   write_setup_state "phase2_done"
   ok "Phase 2 state saved (${STATE_FILE})"
 

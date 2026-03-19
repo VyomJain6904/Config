@@ -163,7 +163,7 @@ alias ll="eza --color=always -la --git --icons=always --tree --level=2 --no-time
 alias lll="eza --color=always -la --git --icons=always --tree --level=3 --no-time --no-user"
 alias gt="git clone"
 alias msf="msfconsole"
-alias cat="batcat"
+alias cat="batcat -pp"
 alias fd="fdfind"
 alias f="fzf"
 alias ff="fastfetch"

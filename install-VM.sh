@@ -69,29 +69,84 @@ select_optional_apps_interactive() {
   local options=("VS Code" "Antigravity" "OpenCode CLI" "Codex CLI")
   local vars=("INSTALL_VSCODE" "INSTALL_ANTIGRAVITY" "INSTALL_OPENCODE" "INSTALL_CODEX")
   local selected=(0 0 0 0)
-  local idx=0 count="${#options[@]}"
-  local i key seq mark line cursor
+  local i
+
+  for i in "${!vars[@]}"; do
+    flag_enabled "${!vars[i]}" && selected[i]=1
+  done
+
+  interactive_select_menu "multi" "Optional Apps" "Select apps to install in Phase 1" options selected || return 1
+
+  for i in "${!vars[@]}"; do
+    printf -v "${vars[i]}" '%s' "${selected[i]}"
+  done
+}
+
+select_file_manager_mode_interactive() {
+  local options=("Yazi only" "Thunar only" "Both")
+  local selected=(0 0 1)
+
+  if flag_enabled "$INSTALL_YAZI" && ! flag_enabled "$INSTALL_THUNAR"; then
+    selected=(1 0 0)
+  elif ! flag_enabled "$INSTALL_YAZI" && flag_enabled "$INSTALL_THUNAR"; then
+    selected=(0 1 0)
+  fi
+
+  interactive_select_menu "radio" "File Manager" "Choose which file manager(s) to install" options selected || return 1
+
+  case "${selected[*]}" in
+  "1 0 0")
+    INSTALL_YAZI=1
+    INSTALL_THUNAR=0
+    ;;
+  "0 1 0")
+    INSTALL_YAZI=0
+    INSTALL_THUNAR=1
+    ;;
+  *)
+    INSTALL_YAZI=1
+    INSTALL_THUNAR=1
+    ;;
+  esac
+}
+
+read_keypress() {
+  local key seq
+  IFS= read -rsn1 key || key=""
+  if [ "$key" = $'\x1b' ]; then
+    IFS= read -rsn2 seq || seq=""
+    key+="$seq"
+  fi
+  printf '%s' "$key"
+}
+
+interactive_select_menu() {
+  local mode="$1" title="$2" subtitle="$3" options_name="$4" selected_name="$5"
+  local -n options_ref="$options_name"
+  local -n selected_ref="$selected_name"
+  local idx=0 count="${#options_ref[@]}" i mark line cursor key
 
   if [ ! -t 0 ] || [ ! -t 1 ]; then
-    warn "Non-interactive shell: using existing optional app flags"
+    warn "Non-interactive shell: using default selections"
     return 0
   fi
 
-  for i in "${!vars[@]}"; do
-    if flag_enabled "${!vars[i]}"; then
-      selected[i]=1
+  for i in "${!selected_ref[@]}"; do
+    if [ "${selected_ref[i]}" -eq 1 ]; then
+      idx="$i"
+      break
     fi
   done
 
   while true; do
     clear
-    panel_header "Optional Apps" "Select apps to install in Phase 1"
+    panel_header "$title" "$subtitle"
     panel_open
-    panel_line "${GRAY}Select optional apps${RESET}"
+    panel_line "${GRAY}Select options${RESET}"
     panel_line ""
 
-    for i in "${!options[@]}"; do
-      if [ "${selected[i]}" -eq 1 ]; then
+    for i in "${!options_ref[@]}"; do
+      if [ "${selected_ref[i]}" -eq 1 ]; then
         mark="${GREEN}●${RESET}"
       else
         mark="${GRAY}○${RESET}"
@@ -99,25 +154,20 @@ select_optional_apps_interactive() {
 
       if [ "$i" -eq "$idx" ]; then
         cursor="${CYAN}▸${RESET}"
-        line="${cursor} ${mark}  ${FG}${options[i]}${RESET}"
+        line="${cursor} ${mark}  ${FG}${options_ref[i]}${RESET}"
       else
         cursor=" "
-        line="${cursor} ${mark}  ${GRAY}${options[i]}${RESET}"
+        line="${cursor} ${mark}  ${GRAY}${options_ref[i]}${RESET}"
       fi
       panel_line "$line"
     done
 
     panel_line ""
     panel_line "${DIM}...${RESET}"
-    panel_line "${DIM}↑/↓ move • Space/Enter: toggle • c: confirm • q: cancel${RESET}"
+    panel_line "${DIM}↑/↓ move • Space/Enter select • c confirm • s defaults • q cancel${RESET}"
     panel_close
 
-    IFS= read -rsn1 key || key=""
-    if [ "$key" = $'\x1b' ]; then
-      IFS= read -rsn2 seq || seq=""
-      key+="$seq"
-    fi
-
+    key="$(read_keypress)"
     case "$key" in
     $'\x1b[A')
       idx=$((idx - 1))
@@ -128,99 +178,29 @@ select_optional_apps_interactive() {
       [ "$idx" -ge "$count" ] && idx=0
       ;;
     " " | $'\n' | $'\r')
-      if [ "${selected[idx]}" -eq 1 ]; then
-        selected[idx]=0
+      if [ "$mode" = "radio" ]; then
+        for i in "${!selected_ref[@]}"; do selected_ref[i]=0; done
+        selected_ref[idx]=1
       else
-        selected[idx]=1
+        if [ "${selected_ref[idx]}" -eq 1 ]; then
+          selected_ref[idx]=0
+        else
+          selected_ref[idx]=1
+        fi
       fi
       ;;
     c | C)
-      for i in "${!vars[@]}"; do
-        printf -v "${vars[i]}" '%s' "${selected[i]}"
-      done
       clear
+      return 0
+      ;;
+    s | S)
+      clear
+      warn "Using default selections"
       return 0
       ;;
     q | Q)
       clear
-      die "Optional app selection cancelled"
-      ;;
-    esac
-  done
-}
-
-select_file_manager_mode_interactive() {
-  local options=("Yazi only" "Thunar only" "Both")
-  local idx=2 key seq i
-
-  if [ ! -t 0 ] || [ ! -t 1 ]; then
-    warn "Non-interactive shell: using existing file manager flags"
-    return 0
-  fi
-
-  if flag_enabled "$INSTALL_YAZI" && ! flag_enabled "$INSTALL_THUNAR"; then
-    idx=0
-  elif ! flag_enabled "$INSTALL_YAZI" && flag_enabled "$INSTALL_THUNAR"; then
-    idx=1
-  else
-    idx=2
-  fi
-
-  while true; do
-    clear
-    panel_header "File Manager" "Choose which file manager(s) to install"
-    panel_open
-    panel_line "${GRAY}Enter: select  ·  ↑/↓: move  ·  q: cancel${RESET}"
-    panel_line ""
-
-    for i in "${!options[@]}"; do
-      if [ "$i" -eq "$idx" ]; then
-        panel_line "${CYAN}▸${RESET} ${GREEN}●${RESET}  ${FG}${options[i]}${RESET}"
-      else
-        panel_line "  ${GRAY}○${RESET}  ${GRAY}${options[i]}${RESET}"
-      fi
-    done
-
-    panel_line ""
-    panel_line "${DIM}Press Enter to confirm your file manager choice${RESET}"
-    panel_close
-
-    IFS= read -rsn1 key || key=""
-    if [ "$key" = $'\x1b' ]; then
-      IFS= read -rsn2 seq || seq=""
-      key+="$seq"
-    fi
-
-    case "$key" in
-    $'\x1b[A')
-      idx=$((idx - 1))
-      [ "$idx" -lt 0 ] && idx=2
-      ;;
-    $'\x1b[B')
-      idx=$((idx + 1))
-      [ "$idx" -gt 2 ] && idx=0
-      ;;
-    $'\n' | $'\r')
-      case "$idx" in
-      0)
-        INSTALL_YAZI=1
-        INSTALL_THUNAR=0
-        ;;
-      1)
-        INSTALL_YAZI=0
-        INSTALL_THUNAR=1
-        ;;
-      *)
-        INSTALL_YAZI=1
-        INSTALL_THUNAR=1
-        ;;
-      esac
-      clear
-      return 0
-      ;;
-    q | Q)
-      clear
-      die "File manager selection cancelled"
+      die "Selection cancelled"
       ;;
     esac
   done
@@ -322,9 +302,13 @@ INSTALL_THUNAR="${INSTALL_THUNAR:-1}"
 FORCE_PHASE1="${FORCE_PHASE1:-0}"
 TEMP_DIR=""
 REPO_CLONED=false
+PREFETCH_DIR=""
+PREFETCH_WALLPAPER=""
+PREFETCH_FONT_ZIP=""
 
 cleanup() {
   stop_sudo_keepalive
+  [ -n "$PREFETCH_DIR" ] && [ -d "$PREFETCH_DIR" ] && rm -rf "$PREFETCH_DIR" || true
   [ -n "$TEMP_DIR" ] && [ -d "$TEMP_DIR" ] && rm -rf "$TEMP_DIR" || true
 }
 trap cleanup EXIT
@@ -339,6 +323,32 @@ ensure_repo_cloned() {
     REPO_CLONED=true
     ok "Config repo cloned"
   fi
+}
+
+prefetch_assets_parallel() {
+  step "Prefetch assets (parallel)"
+  PREFETCH_DIR="$(mktemp -d)"
+  PREFETCH_WALLPAPER="${PREFETCH_DIR}/${WALLPAPER_NAME}"
+  PREFETCH_FONT_ZIP="${PREFETCH_DIR}/JetBrainsMono.zip"
+
+  info "Starting parallel downloads: config repo, wallpaper, fonts"
+
+  (ensure_repo_cloned) &
+  local repo_pid=$!
+  (curl -fsSL "${WALLPAPER_URL}" -o "${PREFETCH_WALLPAPER}") &
+  local wallpaper_pid=$!
+  (wget -q -O "${PREFETCH_FONT_ZIP}" "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/JetBrainsMono.zip") &
+  local font_pid=$!
+
+  local failed=0
+  wait "$repo_pid" || { warn "Config repo prefetch failed"; failed=1; }
+  wait "$wallpaper_pid" || { warn "Wallpaper prefetch failed"; failed=1; }
+  wait "$font_pid" || { warn "Font prefetch failed"; failed=1; }
+
+  [ -f "$PREFETCH_WALLPAPER" ] && ok "Wallpaper prefetched" || warn "Wallpaper prefetch missing"
+  [ -f "$PREFETCH_FONT_ZIP" ] && ok "Font zip prefetched" || warn "Font prefetch missing"
+
+  [ "$failed" -eq 0 ] && ok "Parallel prefetch complete" || warn "Prefetch completed with warnings"
 }
 
 copy_config_dir() {
@@ -445,11 +455,29 @@ run_post_install_health_check() {
   step "Post-install health check"
 
   local failed=0
+  local -a summary_rows=()
+
+  app_version() {
+    local cmd="$1"
+    case "$cmd" in
+    code) code --version 2>/dev/null | head -n 1 ;;
+    opencode) opencode --version 2>/dev/null | head -n 1 ;;
+    codex) codex --version 2>/dev/null | head -n 1 ;;
+    yazi) yazi --version 2>/dev/null | head -n 1 ;;
+    thunar) thunar --version 2>/dev/null | head -n 1 ;;
+    i3) i3 --version 2>/dev/null | head -n 1 ;;
+    nvim) nvim --version 2>/dev/null | head -n 1 ;;
+    *) "$cmd" --version 2>/dev/null | head -n 1 ;;
+    esac
+  }
 
   check_cmd() {
     local cmd="$1"
     if command -v "$cmd" &>/dev/null; then
       ok "$cmd available"
+      local ver
+      ver="$(app_version "$cmd")"
+      [ -n "$ver" ] && info "$cmd version: $ver"
     else
       warn "$cmd missing"
       failed=$((failed + 1))
@@ -466,6 +494,28 @@ run_post_install_health_check() {
     fi
   }
 
+  add_summary_row() {
+    local app_name="$1" selected="$2" installed="$3" version="$4"
+    summary_rows+=("${app_name}|${selected}|${installed}|${version}")
+  }
+
+  print_summary_table() {
+    local row app_name selected installed version formatted
+
+    panel_open
+    panel_line "${DIAMOND} ${BOLD}${PINK}Installation Summary${RESET}"
+    panel_line "${DIM}App               Selected  Installed  Version${RESET}"
+    panel_line "${DIM}------------------------------------------------${RESET}"
+
+    for row in "${summary_rows[@]}"; do
+      IFS='|' read -r app_name selected installed version <<<"$row"
+      printf -v formatted '%-16s %-8s %-9s %s' "$app_name" "$selected" "$installed" "${version:--}"
+      panel_line "${FG}${formatted}${RESET}"
+    done
+
+    panel_close
+  }
+
   check_cmd i3
   check_cmd startx
   check_cmd feh
@@ -474,29 +524,73 @@ run_post_install_health_check() {
   check_cmd nvim
   check_cmd git
 
-  if flag_enabled "$INSTALL_VSCODE"; then
-    check_cmd code
+  local selected installed version
+
+  selected="$(flag_enabled "$INSTALL_VSCODE" && echo yes || echo no)"
+  if command -v code &>/dev/null; then
+    installed="yes"
+    version="$(app_version code)"
+  else
+    installed="no"
+    version="-"
   fi
-  if flag_enabled "$INSTALL_ANTIGRAVITY"; then
-    if dpkg -s antigravity &>/dev/null; then
-      ok "antigravity package installed"
-    else
-      warn "antigravity package missing"
-      failed=$((failed + 1))
-    fi
+  [ "$selected" = "yes" ] && [ "$installed" = "no" ] && { warn "code missing"; failed=$((failed + 1)); }
+  add_summary_row "VS Code" "$selected" "$installed" "$version"
+
+  selected="$(flag_enabled "$INSTALL_ANTIGRAVITY" && echo yes || echo no)"
+  if dpkg -s antigravity &>/dev/null; then
+    installed="yes"
+    version="$(dpkg-query -W -f='${Version}' antigravity 2>/dev/null || echo unknown)"
+  else
+    installed="no"
+    version="-"
   fi
-  if flag_enabled "$INSTALL_OPENCODE"; then
-    check_cmd opencode
+  [ "$selected" = "yes" ] && [ "$installed" = "no" ] && { warn "antigravity package missing"; failed=$((failed + 1)); }
+  add_summary_row "Antigravity" "$selected" "$installed" "$version"
+
+  selected="$(flag_enabled "$INSTALL_OPENCODE" && echo yes || echo no)"
+  if command -v opencode &>/dev/null; then
+    installed="yes"
+    version="$(app_version opencode)"
+  else
+    installed="no"
+    version="-"
   fi
-  if flag_enabled "$INSTALL_CODEX"; then
-    check_cmd codex
+  [ "$selected" = "yes" ] && [ "$installed" = "no" ] && { warn "opencode missing"; failed=$((failed + 1)); }
+  add_summary_row "OpenCode CLI" "$selected" "$installed" "$version"
+
+  selected="$(flag_enabled "$INSTALL_CODEX" && echo yes || echo no)"
+  if command -v codex &>/dev/null; then
+    installed="yes"
+    version="$(app_version codex)"
+  else
+    installed="no"
+    version="-"
   fi
-  if flag_enabled "$INSTALL_YAZI"; then
-    check_cmd yazi
+  [ "$selected" = "yes" ] && [ "$installed" = "no" ] && { warn "codex missing"; failed=$((failed + 1)); }
+  add_summary_row "Codex CLI" "$selected" "$installed" "$version"
+
+  selected="$(flag_enabled "$INSTALL_YAZI" && echo yes || echo no)"
+  if command -v yazi &>/dev/null; then
+    installed="yes"
+    version="$(app_version yazi)"
+  else
+    installed="no"
+    version="-"
   fi
-  if flag_enabled "$INSTALL_THUNAR"; then
-    check_cmd thunar
+  [ "$selected" = "yes" ] && [ "$installed" = "no" ] && { warn "yazi missing"; failed=$((failed + 1)); }
+  add_summary_row "Yazi" "$selected" "$installed" "$version"
+
+  selected="$(flag_enabled "$INSTALL_THUNAR" && echo yes || echo no)"
+  if command -v thunar &>/dev/null; then
+    installed="yes"
+    version="$(app_version thunar)"
+  else
+    installed="no"
+    version="-"
   fi
+  [ "$selected" = "yes" ] && [ "$installed" = "no" ] && { warn "thunar missing"; failed=$((failed + 1)); }
+  add_summary_row "Thunar" "$selected" "$installed" "$version"
 
   check_file "${HOME}/.xinitrc" "xinitrc"
   check_file "${HOME}/.config/i3/config" "i3 config"
@@ -528,20 +622,20 @@ run_post_install_health_check() {
   else
     warn "Health check found ${failed} issue(s)"
   fi
+
+  print_summary_table
 }
 
 run_full_setup_stack() {
-  select_optional_apps_interactive
-  select_file_manager_mode_interactive
   info "Optional apps flags: VSCode=${INSTALL_VSCODE}  Antigravity=${INSTALL_ANTIGRAVITY}  OpenCode=${INSTALL_OPENCODE}  Codex=${INSTALL_CODEX}  Yazi=${INSTALL_YAZI}  Thunar=${INSTALL_THUNAR}"
 
   # ── Core packages for final desktop ──
   step "Core i3 packages + applications"
   apt_q install \
-    git alacritty i3 neovim polybar \
+    git alacritty neovim polybar \
     flameshot network-manager-gnome mate-polkit
   require_packages_installed \
-    git alacritty i3 neovim polybar \
+    git alacritty neovim polybar \
     flameshot network-manager-gnome mate-polkit
   ok "Core packages installed"
 
@@ -636,8 +730,12 @@ XINITRC
   info "JetBrainsMono Nerd Font v3.4.0..."
   local FONT_DIR="${HOME}/.local/share/fonts"
   mkdir -p "$FONT_DIR"
-  wget -q -O "$FONT_DIR/JetBrainsMono.zip" \
-    "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/JetBrainsMono.zip" &>/dev/null || true
+  if [ -f "$PREFETCH_FONT_ZIP" ]; then
+    cp "$PREFETCH_FONT_ZIP" "$FONT_DIR/JetBrainsMono.zip"
+  else
+    wget -q -O "$FONT_DIR/JetBrainsMono.zip" \
+      "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/JetBrainsMono.zip" &>/dev/null || true
+  fi
   unzip -qo "$FONT_DIR/JetBrainsMono.zip" -d "$FONT_DIR" &>/dev/null || true
   rm -f "$FONT_DIR/JetBrainsMono.zip"
   fc-cache -fv &>/dev/null || true
@@ -656,7 +754,11 @@ XINITRC
   step "Wallpaper (w10.jpg)"
   local WALLPAPER_PATH="${HOME}/Pictures/${WALLPAPER_NAME}"
   mkdir -p "${HOME}/Pictures"
-  curl -fsSL "${WALLPAPER_URL}" -o "${WALLPAPER_PATH}" || die "Failed to download wallpaper"
+  if [ -f "$PREFETCH_WALLPAPER" ]; then
+    cp "$PREFETCH_WALLPAPER" "$WALLPAPER_PATH"
+  else
+    curl -fsSL "${WALLPAPER_URL}" -o "${WALLPAPER_PATH}" || die "Failed to download wallpaper"
+  fi
   feh --bg-scale "${WALLPAPER_PATH}" &>/dev/null || warn "Could not apply wallpaper immediately"
   ok "Wallpaper set: ${WALLPAPER_PATH}"
 
@@ -958,6 +1060,13 @@ run_phase1() {
   sudo -v
   start_sudo_keepalive
 
+  step "Preferences"
+  select_optional_apps_interactive
+  select_file_manager_mode_interactive
+  info "Selected: VSCode=${INSTALL_VSCODE} Antigravity=${INSTALL_ANTIGRAVITY} OpenCode=${INSTALL_OPENCODE} Codex=${INSTALL_CODEX} Yazi=${INSTALL_YAZI} Thunar=${INSTALL_THUNAR}"
+
+  prefetch_assets_parallel
+
   # ── Update ──
   step "System Update"
   info "apt update + upgrade..."
@@ -968,15 +1077,19 @@ run_phase1() {
 
   # ── Install i3 + Xorg ──
   step "i3 + Xorg  (minimal — no compositor)"
-  local I3_PKG
-  I3_PKG="$(resolve_i3_package)" || die "Could not resolve i3 package (tried: i3, i3-wm). Run apt update and check repositories."
-  info "Installing packages (i3 package: ${I3_PKG})..."
-  apt_install_strict \
-    xorg xinit xserver-xorg xserver-xorg-input-all \
-    x11-xserver-utils "${I3_PKG}" i3status i3lock \
-    feh xclip xdotool numlockx dbus-x11 xterm \
-    udisks2 upower xdg-user-dirs xdg-utils dunst || \
-    die "Failed to install core i3/Xorg packages. Check apt output above."
+  if command -v i3 &>/dev/null && command -v xinit &>/dev/null; then
+    warn "i3 + xinit already installed — skipping core i3 install"
+  else
+    local I3_PKG
+    I3_PKG="$(resolve_i3_package)" || die "Could not resolve i3 package (tried: i3, i3-wm). Run apt update and check repositories."
+    info "Installing packages (i3 package: ${I3_PKG})..."
+    apt_install_strict \
+      xorg xinit xserver-xorg xserver-xorg-input-all \
+      x11-xserver-utils "${I3_PKG}" i3status i3lock \
+      feh xclip xdotool numlockx dbus-x11 xterm \
+      udisks2 upower xdg-user-dirs xdg-utils dunst || \
+      die "Failed to install core i3/Xorg packages. Check apt output above."
+  fi
   require_packages_installed xorg xinit i3status i3lock feh xterm
   require_command_installed i3 "i3 window manager"
   ok "Xorg + i3 installed"

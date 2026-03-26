@@ -864,6 +864,37 @@ ensure_oh_my_zsh_stack() {
   zshrc_append_if_missing 'eval "$(starship init zsh)"' 'eval "$(starship init zsh)"'
 }
 
+ensure_zsh_default_shell() {
+  info "Ensuring zsh is default shell"
+  pkg_install_best_effort zsh
+
+  local zsh_path current_shell
+  zsh_path="$(command -v zsh 2>/dev/null || true)"
+  [[ -n "$zsh_path" ]] || {
+    warn "zsh not found after install attempt"
+    return 1
+  }
+
+  current_shell="${SHELL:-}"
+  if [[ "$current_shell" == "$zsh_path" ]]; then
+    ok "zsh already default shell"
+    return 0
+  fi
+
+  if ! grep -qx "$zsh_path" /etc/shells 2>/dev/null; then
+    warn "zsh path not listed in /etc/shells: $zsh_path"
+    return 1
+  fi
+
+  if chsh -s "$zsh_path" "$USER" >/dev/null 2>&1; then
+    ok "Default shell changed to zsh (effective on next login)"
+    return 0
+  fi
+
+  warn "Could not set default shell automatically. Run: chsh -s $zsh_path"
+  return 1
+}
+
 ensure_jetbrains_font() {
   info "Ensuring JetBrainsMono Nerd Font"
   local font_dir="$HOME/.local/share/fonts"
@@ -1748,6 +1779,7 @@ main() {
   pkg_update_upgrade
   ensure_runtime_deps
   ensure_oh_my_zsh_stack
+  ensure_zsh_default_shell || true
   deploy_default_zshrc || true
   ensure_jetbrains_font
   install_selected_apps

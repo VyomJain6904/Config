@@ -101,7 +101,10 @@ cleanup_temp_repo() {
 trap cleanup_temp_repo EXIT
 
 ensure_not_root() {
-  [[ "$(id -u)" -eq 0 ]] && die "Run as regular user (sudo required), not root."
+  if [[ "$(id -u)" -eq 0 ]]; then
+    die "Run as regular user (sudo required), not root."
+  fi
+  return 0
 }
 
 ensure_sudo() {

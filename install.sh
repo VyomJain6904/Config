@@ -46,11 +46,20 @@ SYMBOL_UNSELECTED="o"
 
 STATE_STYLE=""
 STATE_LAST_OK=0
+STATE_PHASE="none"
+STATE_DETECTED_DE_PKGS=""
+CURRENT_DETECTED_DE_PKGS=""
 
 declare -a APP_KEYS=()
 declare -a APP_LABELS=()
 declare -a APP_SELECTED=()
 declare -a APP_DEFAULTS=()
+
+APT_CACHE_REFRESHED=0
+CONTEXT_BRANCH="main"
+
+declare -a DEFERRED_APP_KEYS=()
+declare -a DEFERRED_APP_REASONS=()
 
 print_usage() {
   cat <<'EOF'
@@ -88,12 +97,24 @@ ui_clear() {
   fi
 }
 
+current_phase_badge() {
+  case "$STATE_PHASE" in
+  none) printf 'phase 1/2' ;;
+  phase1_done) printf 'phase 2/2' ;;
+  phase2_done) printf 'phase 2/2 done' ;;
+  *) printf 'phase 1/2' ;;
+  esac
+}
+
 ui_prompt_line() {
   local cmd="$1"
-  printf '%b[%bConfig%b]%b [%b%s%b] [%bmain%b]%b %b%s%b\n' \
+  local phase_badge
+  phase_badge="$(current_phase_badge)"
+  printf '%b[%bConfig%b]%b [%b%s%b] [%b%s%b] [%b%s%b]%b %b%s%b\n' \
     "$COLOR_RESET" "$COLOR_PINK" "$COLOR_RESET" "$COLOR_RESET" \
     "$COLOR_CYAN" "$HOSTNAME_VAL" "$COLOR_RESET" \
-    "$COLOR_PURPLE" "$COLOR_RESET" "$COLOR_RESET" \
+    "$COLOR_PURPLE" "$CONTEXT_BRANCH" "$COLOR_RESET" \
+    "$COLOR_YELLOW" "$phase_badge" "$COLOR_RESET" \
     "$COLOR_GREEN" "$cmd" "$COLOR_RESET"
 }
 
@@ -111,6 +132,31 @@ ui_kv() {
 
 ui_hint() {
   printf '%b%s%b\n' "$COLOR_GRAY" "$1" "$COLOR_RESET"
+}
+
+print_phase_banner() {
+  local phase_label phase_desc
+  case "$STATE_PHASE" in
+  none)
+    phase_label="1/2"
+    phase_desc="Install + Configure i3/TTY"
+    ;;
+  phase1_done)
+    phase_label="2/2"
+    phase_desc="Post-reboot Health Check + Cleanup"
+    ;;
+  phase2_done)
+    phase_label="2/2"
+    phase_desc="Completed (verification mode)"
+    ;;
+  *)
+    phase_label="1/2"
+    phase_desc="Install"
+    ;;
+  esac
+
+  ui_section_title "Current Phase: ${phase_label}"
+  ui_tree_line "$phase_desc"
 }
 
 show_login_style_header() {
@@ -285,9 +331,7 @@ pkg_install_best_effort() {
   local missing=()
   local p
   for p in "$@"; do
-    if pkg_is_installed "$p"; then
-      ok "Package already installed: $p"
-    else
+    if ! pkg_is_installed "$p"; then
       missing+=("$p")
     fi
   done
@@ -295,20 +339,73 @@ pkg_install_best_effort() {
   [[ ${#missing[@]} -eq 0 ]] && return 0
 
   if pkg_install "${missing[@]}"; then
-    for p in "${missing[@]}"; do
-      ok "Installed package: $p"
-    done
+    ok "Installed ${#missing[@]} package(s)"
     return 0
   fi
 
   warn "Batch install failed; retrying package-by-package"
+  local installed_count=0
   for p in "${missing[@]}"; do
     if pkg_install "$p"; then
-      ok "Installed package: $p"
+      installed_count=$((installed_count + 1))
     else
       warn "Skipped unavailable package on ${OS_ID}: $p"
     fi
   done
+  [[ "$installed_count" -gt 0 ]] && ok "Installed ${installed_count}/${#missing[@]} package(s)"
+}
+
+extract_semver() {
+  local raw="$1"
+  printf '%s' "$raw" | grep -Eo '[0-9]+(\.[0-9]+){1,3}' | head -n1
+}
+
+command_semver() {
+  local cmd="$1"
+  local raw
+  raw="$($cmd --version 2>/dev/null | head -n1 || true)"
+  extract_semver "$raw"
+}
+
+detect_context_branch() {
+  local branch
+  branch="$(git -C "$SCRIPT_DIR" rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
+  [[ -n "$branch" ]] && CONTEXT_BRANCH="$branch"
+}
+
+apt_refresh_once() {
+  [[ "$PKG_MANAGER" == "apt" ]] || return 0
+  if [[ "$APT_CACHE_REFRESHED" -eq 0 ]]; then
+    if sudo apt-get update -y >/dev/null 2>&1; then
+      APT_CACHE_REFRESHED=1
+    else
+      warn "apt cache refresh failed; will retry later"
+    fi
+  fi
+}
+
+apt_installed_version() {
+  local pkg="$1"
+  dpkg-query -W -f='${Version}' "$pkg" 2>/dev/null || true
+}
+
+apt_candidate_version() {
+  local pkg="$1"
+  apt-cache policy "$pkg" 2>/dev/null | awk '/Candidate:/ {print $2; exit}'
+}
+
+apt_pkg_needs_install_or_update() {
+  local pkg="$1"
+  local installed candidate
+  installed="$(apt_installed_version "$pkg")"
+  candidate="$(apt_candidate_version "$pkg")"
+
+  # missing package or missing candidate metadata -> attempt install/update
+  if [[ -z "$installed" || -z "$candidate" || "$candidate" == "(none)" ]]; then
+    return 0
+  fi
+
+  [[ "$installed" != "$candidate" ]]
 }
 
 pkg_is_installed() {
@@ -327,14 +424,21 @@ load_state() {
     . "$STATE_FILE"
     STATE_STYLE="${STYLE:-}"
     STATE_LAST_OK="${LAST_OK:-0}"
+    STATE_PHASE="${PHASE:-none}"
+    STATE_DETECTED_DE_PKGS="${DETECTED_DE_PKGS:-}"
   fi
 }
 
 save_state() {
+  local ok_state="${1:-0}"
+  local phase_state="${2:-none}"
+  local de_pkgs_state="${3:-}"
   mkdir -p "$STATE_DIR"
   cat >"$STATE_FILE" <<EOF
 STYLE=${STYLE}
-LAST_OK=${1:-0}
+LAST_OK=${ok_state}
+PHASE=${phase_state}
+DETECTED_DE_PKGS=${de_pkgs_state}
 LAST_RUN_AT=$(date +%s)
 EOF
 }
@@ -412,13 +516,16 @@ reset_app_defaults() {
 }
 
 build_app_selection_for_style() {
+  local default_apt_only=1
+  [[ "$PKG_MANAGER" == "apt" ]] || default_apt_only=0
+
   APP_KEYS=()
   APP_LABELS=()
   APP_DEFAULTS=()
   APP_SELECTED=()
 
-  add_app_option "antigravity" "Antigravity" 1
-  add_app_option "code" "VS Code" 1
+  add_app_option "antigravity" "Antigravity" "$default_apt_only"
+  add_app_option "code" "VS Code" "$default_apt_only"
   add_app_option "opencode" "OpenCode CLI" 1
   add_app_option "codex" "Codex CLI" 1
   add_app_option "claude" "Claude Code" 1
@@ -510,7 +617,17 @@ print_selected_apps() {
   for i in "${!APP_KEYS[@]}"; do
     if [[ "${APP_SELECTED[$i]}" == "1" ]]; then
       ui_tree_line "${APP_LABELS[$i]}"
-      fi
+    fi
+  done
+  printf '\n'
+}
+
+print_deferred_apps() {
+  local i
+  [[ ${#DEFERRED_APP_KEYS[@]} -eq 0 ]] && return 0
+  ui_section_title "Deferred applications"
+  for i in "${!DEFERRED_APP_KEYS[@]}"; do
+    ui_tree_line "${DEFERRED_APP_KEYS[$i]}: ${DEFERRED_APP_REASONS[$i]}"
   done
   printf '\n'
 }
@@ -527,19 +644,40 @@ go_arch() {
 
 ensure_rust_latest() {
   info "Ensuring Rust is installed and updated"
+  local rust_check_log="/tmp/rustup-check.log"
   if ! command -v rustup >/dev/null 2>&1; then
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
   fi
   # shellcheck disable=SC1090
   [[ -f "$HOME/.cargo/env" ]] && . "$HOME/.cargo/env"
+
+  if command -v rustup >/dev/null 2>&1 && rustup check >"$rust_check_log" 2>&1; then
+    if grep -qE 'stable-.*Up to date' "$rust_check_log"; then
+      ok "Rust already latest"
+      return 0
+    fi
+  fi
+
   rustup update stable
 }
 
 ensure_go_latest() {
   info "Ensuring Go is latest"
-  local latest goversion tar_file
-  latest="$(curl -fsSL 'https://go.dev/VERSION?m=text' | head -n1)"
-  [[ -n "$latest" ]] || die "Unable to fetch latest Go version"
+  local latest goversion tar_file cache_dir min_go_kb free_kb
+  latest="$(curl -fsSL --retry 3 --connect-timeout 20 'https://go.dev/VERSION?m=text' 2>/dev/null | head -n1 || true)"
+  if [[ -z "$latest" ]]; then
+    if command -v go >/dev/null 2>&1; then
+      warn "Unable to fetch latest Go version from go.dev, keeping installed Go ($(go version | awk '{print $3}'))"
+      return 0
+    fi
+    warn "Unable to fetch latest Go version from go.dev, falling back to package manager Go"
+    case "$PKG_MANAGER" in
+    apt) pkg_install_best_effort golang-go ;;
+    dnf) pkg_install_best_effort golang ;;
+    pacman) pkg_install_best_effort go ;;
+    esac
+    return 0
+  fi
 
   if command -v go >/dev/null 2>&1; then
     goversion="$(go version | awk '{print $3}')"
@@ -552,10 +690,45 @@ ensure_go_latest() {
     return 0
   fi
 
-  tar_file="/tmp/${latest}.linux-$(go_arch).tar.gz"
-  curl -fsSL "https://go.dev/dl/${latest}.linux-$(go_arch).tar.gz" -o "$tar_file"
+  cache_dir="$HOME/.cache/config-installer"
+  mkdir -p "$cache_dir"
+  min_go_kb=307200
+  free_kb="$(available_kb "$cache_dir")"
+  if [[ "$free_kb" -lt "$min_go_kb" ]]; then
+    if command -v go >/dev/null 2>&1; then
+      warn "Low disk in $cache_dir (${free_kb}KB). Keeping installed Go ($(go version | awk '{print $3}'))."
+      return 0
+    fi
+    warn "Low disk in $cache_dir (${free_kb}KB). Falling back to package manager Go."
+    case "$PKG_MANAGER" in
+    apt) pkg_install_best_effort golang-go ;;
+    dnf) pkg_install_best_effort golang ;;
+    pacman) pkg_install_best_effort go ;;
+    esac
+    return 0
+  fi
+
+  tar_file="$cache_dir/${latest}.linux-$(go_arch).tar.gz"
+  if ! curl -fL --retry 3 --connect-timeout 20 "https://go.dev/dl/${latest}.linux-$(go_arch).tar.gz" -o "$tar_file"; then
+    warn "Go tarball download failed, falling back to package manager Go"
+    case "$PKG_MANAGER" in
+    apt) pkg_install_best_effort golang-go ;;
+    dnf) pkg_install_best_effort golang ;;
+    pacman) pkg_install_best_effort go ;;
+    esac
+    return 0
+  fi
   sudo rm -rf /usr/local/go
-  sudo tar -C /usr/local -xzf "$tar_file"
+  if ! sudo tar -C /usr/local -xzf "$tar_file"; then
+    warn "Go tarball extract failed, falling back to package manager Go"
+    rm -f "$tar_file"
+    case "$PKG_MANAGER" in
+    apt) pkg_install_best_effort golang-go ;;
+    dnf) pkg_install_best_effort golang ;;
+    pacman) pkg_install_best_effort go ;;
+    esac
+    return 0
+  fi
   rm -f "$tar_file"
 
   export PATH="/usr/local/go/bin:${PATH}"
@@ -566,6 +739,7 @@ ensure_go_latest() {
 
 ensure_node_latest() {
   info "Ensuring Node.js is latest via nvm"
+  local current_node latest_node
   if [[ ! -d "$HOME/.nvm" ]]; then
     curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
   fi
@@ -574,9 +748,16 @@ ensure_node_latest() {
   # shellcheck disable=SC1091
   . "$NVM_DIR/nvm.sh"
 
-  nvm install node
-  nvm alias default node
-  nvm use default >/dev/null
+  current_node="$(node -v 2>/dev/null || true)"
+  latest_node="$(nvm version node 2>/dev/null || true)"
+
+  if [[ -n "$current_node" && -n "$latest_node" && "$latest_node" != "N/A" && "$current_node" == "$latest_node" ]]; then
+    ok "Node already latest: ${current_node}"
+  else
+    nvm install node
+    nvm alias default node
+    nvm use default >/dev/null
+  fi
 
   if ! grep -q 'NVM_DIR' "$HOME/.profile" 2>/dev/null; then
     cat >>"$HOME/.profile" <<'EOF'
@@ -588,6 +769,7 @@ EOF
 
 ensure_bun_latest() {
   info "Ensuring Bun is latest"
+  local current_bun latest_bun
   if ! command -v bun >/dev/null 2>&1; then
     curl -fsSL https://bun.sh/install | bash
   fi
@@ -595,7 +777,13 @@ ensure_bun_latest() {
   export BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
   export PATH="$BUN_INSTALL/bin:${PATH}"
   if command -v bun >/dev/null 2>&1; then
-    bun upgrade || true
+    current_bun="$(bun --version 2>/dev/null || true)"
+    latest_bun="$(curl -fsSL --retry 2 --connect-timeout 10 https://bun.sh/version 2>/dev/null || true)"
+    if [[ -n "$latest_bun" && -n "$current_bun" && "$current_bun" == "$latest_bun" ]]; then
+      ok "Bun already latest: ${current_bun}"
+    else
+      bun upgrade || true
+    fi
   fi
 
   if ! grep -q 'BUN_INSTALL' "$HOME/.profile" 2>/dev/null; then
@@ -651,9 +839,9 @@ ensure_oh_my_zsh_stack() {
   pkg_install_best_effort zsh
 
   if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
-    timeout 180 env RUNZSH=no CHSH=no KEEP_ZSHRC=yes sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" >/dev/null 2>&1 || {
-      warn "Oh My Zsh auto-installer failed, using git clone fallback"
-      timeout 120 git clone --depth 1 https://github.com/ohmyzsh/ohmyzsh.git "$HOME/.oh-my-zsh" >/dev/null 2>&1 || true
+    timeout 120 git clone --depth 1 https://github.com/ohmyzsh/ohmyzsh.git "$HOME/.oh-my-zsh" >/dev/null 2>&1 || {
+      warn "Oh My Zsh clone failed"
+      return 1
     }
   fi
   [[ -d "$HOME/.oh-my-zsh" ]] && ok "Oh My Zsh ready" || warn "Oh My Zsh not available"
@@ -667,7 +855,10 @@ ensure_oh_my_zsh_stack() {
   clone_plugin_if_missing "https://github.com/romkatv/zsh-defer.git" "$zplugins/zsh-defer"
 
   if ! command -v starship >/dev/null 2>&1; then
-    timeout 120 sh -c "$(curl -fsSL https://starship.rs/install.sh)" -- -y >/dev/null 2>&1 || warn "Starship install failed"
+    pkg_install_best_effort starship || true
+  fi
+  if ! command -v starship >/dev/null 2>&1; then
+    timeout 120 bash -lc 'curl -fsSL https://starship.rs/install.sh | sh -s -- -y' >/dev/null 2>&1 || warn "Starship install failed"
   fi
   command -v starship >/dev/null 2>&1 && ok "Starship ready" || warn "Starship not available"
 
@@ -813,8 +1004,12 @@ fetch_style_from_github() {
   TMP_REPO_DIR="$(mktemp -d)"
   info "Fetching ${STYLE} from GitHub"
 
-  git clone --depth 1 --filter=blob:none --sparse --branch "$REPO_BRANCH" "$REPO_URL" "$TMP_REPO_DIR/repo"
-  git -C "$TMP_REPO_DIR/repo" sparse-checkout set "$STYLE"
+  timeout 120 git clone --depth 1 --filter=blob:none --sparse --branch "$REPO_BRANCH" "$REPO_URL" "$TMP_REPO_DIR/repo" || \
+    timeout 120 git clone --depth 1 --filter=blob:none --sparse --branch "$REPO_BRANCH" "$REPO_URL" "$TMP_REPO_DIR/repo" || \
+    die "Failed to clone config repo"
+  timeout 60 git -C "$TMP_REPO_DIR/repo" sparse-checkout set "$STYLE" || \
+    timeout 60 git -C "$TMP_REPO_DIR/repo" sparse-checkout set "$STYLE" || \
+    die "Failed sparse checkout for $STYLE"
 
   [[ -d "$TMP_REPO_DIR/repo/$STYLE" ]] || die "Style folder ${STYLE} not found in repo"
 }
@@ -904,20 +1099,57 @@ is_app_selected() {
   return 1
 }
 
-install_vscode() {
-  command -v code >/dev/null 2>&1 && {
-    ok "VS Code already installed"
+is_app_deferred() {
+  local key="$1"
+  local i
+  for i in "${!DEFERRED_APP_KEYS[@]}"; do
+    [[ "${DEFERRED_APP_KEYS[$i]}" == "$key" ]] && return 0
+  done
+  return 1
+}
+
+mark_app_deferred() {
+  local key="$1"
+  local reason="$2"
+  if ! is_app_deferred "$key"; then
+    DEFERRED_APP_KEYS+=("$key")
+    DEFERRED_APP_REASONS+=("$reason")
+  fi
+}
+
+is_app_supported_on_distro() {
+  local key="$1"
+  case "$key" in
+  code|antigravity)
+    [[ "$PKG_MANAGER" == "apt" ]]
+    ;;
+  *)
     return 0
-  }
+    ;;
+  esac
+}
+
+install_vscode() {
+  local installed candidate apt_arch
   case "$PKG_MANAGER" in
   apt)
-    local apt_arch
     apt_arch="$(dpkg --print-architecture 2>/dev/null || echo amd64)"
     sudo mkdir -p /etc/apt/keyrings
     wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /etc/apt/keyrings/microsoft.gpg >/dev/null
     printf 'deb [arch=%s signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/code stable main\n' "$apt_arch" | sudo tee /etc/apt/sources.list.d/vscode.list >/dev/null
-    sudo apt-get update -y
-    pkg_install code
+    apt_refresh_once
+
+    installed="$(apt_installed_version code)"
+    candidate="$(apt_candidate_version code)"
+    if [[ -n "$installed" && -n "$candidate" && "$candidate" != "(none)" && "$installed" == "$candidate" ]]; then
+      ok "VS Code already latest (${installed})"
+      return 0
+    fi
+
+    pkg_install code >/tmp/vscode-install.log 2>&1 || {
+      warn "VS Code install/update failed (see /tmp/vscode-install.log)"
+      return 1
+    }
     ;;
   *)
     warn "VS Code auto-install currently implemented for apt family only"
@@ -927,17 +1159,25 @@ install_vscode() {
 }
 
 install_antigravity() {
+  local installed candidate
   case "$PKG_MANAGER" in
   apt)
-    pkg_is_installed antigravity && {
-      ok "Antigravity already installed"
-      return 0
-    }
     sudo mkdir -p /etc/apt/keyrings
     curl -fsSL https://us-central1-apt.pkg.dev/doc/repo-signing-key.gpg | sudo gpg --dearmor --yes -o /etc/apt/keyrings/antigravity-repo-key.gpg
     printf 'deb [signed-by=/etc/apt/keyrings/antigravity-repo-key.gpg] https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev/ antigravity-debian main\n' | sudo tee /etc/apt/sources.list.d/antigravity.list >/dev/null
-    sudo apt-get update -y
-    pkg_install antigravity
+    apt_refresh_once
+
+    installed="$(apt_installed_version antigravity)"
+    candidate="$(apt_candidate_version antigravity)"
+    if [[ -n "$installed" && -n "$candidate" && "$candidate" != "(none)" && "$installed" == "$candidate" ]]; then
+      ok "Antigravity already latest (${installed})"
+      return 0
+    fi
+
+    pkg_install antigravity >/tmp/antigravity-install.log 2>&1 || {
+      warn "Antigravity install/update failed (see /tmp/antigravity-install.log)"
+      return 1
+    }
     ;;
   *)
     warn "Antigravity auto-install currently implemented for apt family only"
@@ -947,27 +1187,82 @@ install_antigravity() {
 }
 
 install_opencode() {
-  command -v opencode >/dev/null 2>&1 && {
-    ok "OpenCode CLI already installed"
-    return 0
+  local current latest
+  command -v bun >/dev/null 2>&1 || {
+    warn "bun not available; cannot install/update OpenCode CLI"
+    return 1
   }
-  timeout 240 bun install -g opencode-ai
+
+  if command -v opencode >/dev/null 2>&1; then
+    current="$(command_semver opencode)"
+    latest="$(npm view opencode-ai version 2>/dev/null || true)"
+    if [[ -n "$current" && -n "$latest" && "$current" == "$latest" ]]; then
+      ok "OpenCode CLI already latest (${current})"
+      return 0
+    fi
+    if [[ -z "$latest" && -n "$current" ]]; then
+      ok "OpenCode CLI already installed (${current}); latest check unavailable"
+      return 0
+    fi
+    [[ -n "$current" ]] && info "Updating OpenCode CLI (${current} -> ${latest:-unknown})"
+  fi
+  timeout 240 bun install -g opencode-ai >/tmp/opencode-install.log 2>&1 || {
+    warn "OpenCode CLI install/update failed (see /tmp/opencode-install.log)"
+    return 1
+  }
 }
 
 install_codex() {
-  command -v codex >/dev/null 2>&1 && {
-    ok "Codex CLI already installed"
-    return 0
+  local current latest
+  command -v npm >/dev/null 2>&1 || {
+    warn "npm not available; cannot install/update Codex CLI"
+    return 1
   }
-  timeout 240 npm install -g @openai/codex
+
+  if command -v codex >/dev/null 2>&1; then
+    current="$(command_semver codex)"
+    latest="$(npm view @openai/codex version 2>/dev/null || true)"
+    if [[ -n "$current" && -n "$latest" && "$current" == "$latest" ]]; then
+      ok "Codex CLI already latest (${current})"
+      return 0
+    fi
+    if [[ -z "$latest" && -n "$current" ]]; then
+      ok "Codex CLI already installed (${current}); latest check unavailable"
+      return 0
+    fi
+    [[ -n "$current" ]] && info "Updating Codex CLI (${current} -> ${latest:-unknown})"
+  fi
+  timeout 240 npm install -g @openai/codex >/tmp/codex-install.log 2>&1 || {
+    warn "Codex CLI install/update failed (see /tmp/codex-install.log)"
+    return 1
+  }
 }
 
 install_claude() {
-  command -v claude >/dev/null 2>&1 && {
-    ok "Claude Code already installed"
-    return 0
+  local current latest
+  command -v npm >/dev/null 2>&1 || {
+    warn "npm not available; cannot install/update Claude Code"
+    return 1
   }
-  timeout 240 bash -lc 'curl -fsSL https://claude.ai/install.sh | bash'
+
+  if command -v claude >/dev/null 2>&1; then
+    current="$(command_semver claude)"
+    latest="$(npm view @anthropic-ai/claude-code version 2>/dev/null || true)"
+    if [[ -n "$current" && -n "$latest" && "$current" == "$latest" ]]; then
+      ok "Claude Code already latest (${current})"
+      return 0
+    fi
+    # If latest can't be resolved, avoid unnecessary reinstall
+    if [[ -z "$latest" ]]; then
+      ok "Claude Code already installed (${current:-unknown}); latest check unavailable"
+      return 0
+    fi
+    [[ -n "$current" ]] && info "Updating Claude Code (${current} -> ${latest})"
+  fi
+  timeout 240 npm install -g @anthropic-ai/claude-code >/tmp/claude-install.log 2>&1 || {
+    warn "Claude Code install/update failed (see /tmp/claude-install.log)"
+    return 1
+  }
 }
 
 available_kb() {
@@ -1014,7 +1309,8 @@ install_yazi_from_cargo() {
   if [[ "$tmp_kb" -lt "$min_build_kb" || "$home_kb" -lt "$min_build_kb" ]]; then
     warn "Skipping Yazi build: low disk space (tmp=${tmp_kb}KB home=${home_kb}KB; need >=1GB each)"
     warn "Free space and re-run to install Yazi"
-    return 1
+    mark_app_deferred "yazi" "low disk space for cargo build"
+    return 0
   fi
 
   info "Building Yazi with HOME cache dirs (avoids /tmp memory/disk issues)"
@@ -1029,19 +1325,54 @@ install_yazi_from_cargo() {
   fi
 
   warn "Yazi install failed or timed out. Log: /tmp/yazi-install.log"
-  return 1
+  mark_app_deferred "yazi" "cargo install failed or timed out"
+  return 0
 }
 
 install_thunar() {
-  command -v thunar >/dev/null 2>&1 && {
-    ok "Thunar already installed"
-    return 0
-  }
+  if [[ "$PKG_MANAGER" == "apt" ]]; then
+    apt_refresh_once
+    if ! apt_pkg_needs_install_or_update thunar; then
+      ok "Thunar already latest"
+      return 0
+    fi
+  else
+    command -v thunar >/dev/null 2>&1 && {
+      ok "Thunar already installed"
+      return 0
+    }
+  fi
+
   case "$PKG_MANAGER" in
   apt) pkg_install thunar thunar-volman gvfs gvfs-backends ;;
   dnf) pkg_install thunar thunar-volman gvfs gvfs-archive ;;
   pacman) pkg_install thunar thunar-volman gvfs ;;
   esac
+}
+
+install_selected_extra_repo_apps() {
+  local extra_pkgs=("$@")
+  [[ ${#extra_pkgs[@]} -eq 0 ]] && return 0
+
+  if [[ "$PKG_MANAGER" == "apt" ]]; then
+    apt_refresh_once
+    local filtered=() pkg
+    for pkg in "${extra_pkgs[@]}"; do
+      if apt_pkg_needs_install_or_update "$pkg"; then
+        filtered+=("$pkg")
+      fi
+    done
+    if [[ ${#filtered[@]} -eq 0 ]]; then
+      ok "Selected repo apps already latest"
+      return 0
+    fi
+    info "Installing/updating selected style applications: ${filtered[*]}"
+    pkg_install_best_effort "${filtered[@]}"
+    return 0
+  fi
+
+  info "Installing selected style applications: ${extra_pkgs[*]}"
+  pkg_install_best_effort "${extra_pkgs[@]}"
 }
 
 install_selected_optional_apps() {
@@ -1062,8 +1393,7 @@ install_selected_optional_apps() {
   done
 
   if [[ ${#extra_pkgs[@]} -gt 0 ]]; then
-    info "Installing selected style applications: ${extra_pkgs[*]}"
-    pkg_install_best_effort "${extra_pkgs[@]}"
+    install_selected_extra_repo_apps "${extra_pkgs[@]}"
   fi
 }
 
@@ -1095,13 +1425,13 @@ verify_required() {
     required+=(i3)
   fi
 
-  if is_app_selected code && ! command -v code >/dev/null 2>&1; then missing+=("code"); fi
+  if is_app_selected code && is_app_supported_on_distro code && ! command -v code >/dev/null 2>&1; then missing+=("code"); fi
   if is_app_selected opencode && ! command -v opencode >/dev/null 2>&1; then missing+=("opencode"); fi
   if is_app_selected codex && ! command -v codex >/dev/null 2>&1; then missing+=("codex"); fi
   if is_app_selected claude && ! command -v claude >/dev/null 2>&1; then missing+=("claude"); fi
-  if is_app_selected yazi && ! command -v yazi >/dev/null 2>&1; then missing+=("yazi"); fi
+  if is_app_selected yazi && ! is_app_deferred yazi && ! command -v yazi >/dev/null 2>&1; then missing+=("yazi"); fi
   if is_app_selected thunar && ! command -v thunar >/dev/null 2>&1; then missing+=("thunar"); fi
-  if is_app_selected antigravity && [[ "$PKG_MANAGER" == "apt" ]] && ! pkg_is_installed antigravity; then missing+=("antigravity"); fi
+  if is_app_selected antigravity && is_app_supported_on_distro antigravity && ! pkg_is_installed antigravity; then missing+=("antigravity"); fi
 
   local c
   for c in "${required[@]}"; do
@@ -1118,6 +1448,22 @@ verify_required() {
   return 0
 }
 
+post_reboot_health_check() {
+  local missing=()
+  local c
+  local required=(i3 xinit zsh rustc go node bun)
+  for c in "${required[@]}"; do
+    command -v "$c" >/dev/null 2>&1 || missing+=("$c")
+  done
+
+  if [[ ${#missing[@]} -gt 0 ]]; then
+    warn "Post-reboot health check failed; missing: ${missing[*]}"
+    return 1
+  fi
+  ok "Post-reboot health check passed"
+  return 0
+}
+
 print_versions_report() {
   local tools=(git nvim tmux zsh starship rustc go node bun i3 i3status yazi thunar code opencode codex claude polybar rofi picom ghostty fastfetch btop bat)
   printf '\n=== Installed Tools and Versions ===\n'
@@ -1130,6 +1476,114 @@ print_versions_report() {
     fi
   done
   printf '\n'
+}
+
+detect_installed_de_packages_csv() {
+  local candidates=()
+  local found=()
+  local pkg
+
+  case "$PKG_MANAGER" in
+  apt)
+    candidates=(gnome-shell plasma-desktop xfce4 lxde-core lxqt cinnamon mate-desktop-environment budgie-desktop dde elementary-desktop gdm3 lightdm sddm)
+    ;;
+  dnf)
+    candidates=(gnome-shell plasma-desktop xfce4-session lxde-common lxqt-session cinnamon-session mate-session-manager budgie-desktop gdm lightdm sddm)
+    ;;
+  pacman)
+    candidates=(gnome plasma-desktop xfce4 lxde lxqt cinnamon mate budgie-desktop gdm lightdm sddm)
+    ;;
+  esac
+
+  for pkg in "${candidates[@]}"; do
+    if pkg_is_installed "$pkg"; then
+      found+=("$pkg")
+    fi
+  done
+
+  local joined=""
+  for pkg in "${found[@]}"; do
+    [[ -n "$joined" ]] && joined+=","
+    joined+="$pkg"
+  done
+  printf '%s' "$joined"
+}
+
+ensure_startx_profile_block() {
+  local profile_file="$1"
+  touch "$profile_file"
+  if ! grep -q 'exec startx 2>/tmp/startx.log' "$profile_file" 2>/dev/null; then
+    cat >>"$profile_file" <<'EOF'
+
+# Auto-start i3 on TTY1 login (added by config installer)
+if [ -z "${DISPLAY}" ] && [ "$(tty)" = "/dev/tty1" ]; then
+  exec startx 2>/tmp/startx.log
+fi
+EOF
+  fi
+}
+
+configure_i3_tty_default() {
+  info "Configuring i3 + TTY as default after reboot"
+
+  cat >"$HOME/.xinitrc" <<'EOF'
+#!/bin/sh
+[ -f "$HOME/.Xresources" ] && xrdb -merge "$HOME/.Xresources"
+[ -f "$HOME/.fehbg" ] && "$HOME/.fehbg" &
+dunst &
+if ! i3; then
+  xterm
+fi
+EOF
+  chmod +x "$HOME/.xinitrc"
+
+  ensure_startx_profile_block "$HOME/.zprofile"
+  ensure_startx_profile_block "$HOME/.bash_profile"
+
+  if command -v systemctl >/dev/null 2>&1; then
+    local dm
+    for dm in gdm3 gdm lightdm sddm kdm lxdm mdm display-manager; do
+      systemctl is-active "$dm" >/dev/null 2>&1 && sudo systemctl stop "$dm" >/dev/null 2>&1 || true
+      systemctl is-enabled "$dm" >/dev/null 2>&1 && sudo systemctl disable "$dm" >/dev/null 2>&1 || true
+      sudo systemctl mask "$dm" >/dev/null 2>&1 || true
+    done
+    sudo systemctl set-default multi-user.target >/dev/null 2>&1 || true
+    sudo systemctl daemon-reload >/dev/null 2>&1 || true
+  fi
+
+  ok "TTY + i3 default prepared"
+}
+
+purge_saved_desktops_and_bloat() {
+  local csv="$1"
+  [[ -z "$csv" ]] && {
+    info "No previously detected DE packages to purge"
+    return 0
+  }
+
+  local pkgs=()
+  local pkg
+  IFS=',' read -r -a pkgs <<<"$csv"
+  [[ ${#pkgs[@]} -eq 0 ]] && return 0
+
+  info "Purging previously detected desktop packages"
+  case "$PKG_MANAGER" in
+  apt)
+    sudo apt-get purge -y "${pkgs[@]}" >/dev/null 2>&1 || true
+    sudo apt-get autoremove -y --purge >/dev/null 2>&1 || true
+    sudo apt-get autoclean -y >/dev/null 2>&1 || true
+    ;;
+  dnf)
+    sudo dnf -y remove "${pkgs[@]}" >/dev/null 2>&1 || true
+    sudo dnf -y autoremove >/dev/null 2>&1 || true
+    ;;
+  pacman)
+    sudo pacman -Rns --noconfirm "${pkgs[@]}" >/dev/null 2>&1 || true
+    ;;
+  esac
+
+  rm -rf "$HOME/.config/gnome" "$HOME/.config/kde" "$HOME/.config/xfce4" "$HOME/.config/lxqt" "$HOME/.config/cinnamon" || true
+  ok "Legacy DE packages/config cleanup completed"
 }
 
 confirm_purge() {
@@ -1167,16 +1621,43 @@ purge_legacy_desktop_stacks() {
 }
 
 main() {
+  local is_first_run=0
   parse_args "$@"
+  detect_context_branch
+  load_state
   setup_ui
   show_login_style_header
   ensure_not_root
   detect_os
   detect_hardware
   detect_session
-  load_state
+  print_phase_banner
   print_detection_report
   ensure_sudo
+
+  if [[ "$STATE_PHASE" == "none" ]]; then
+    is_first_run=1
+    CURRENT_DETECTED_DE_PKGS="$(detect_installed_de_packages_csv)"
+    [[ -n "$CURRENT_DETECTED_DE_PKGS" ]] && info "Detected desktop packages for phase-2 purge: $CURRENT_DETECTED_DE_PKGS"
+  fi
+
+  if [[ "$STATE_PHASE" == "phase1_done" ]]; then
+    STYLE="${STATE_STYLE:-$STYLE}"
+    [[ -n "$STYLE" ]] || choose_style
+    info "Phase 2: post-reboot health check and cleanup"
+
+    if post_reboot_health_check; then
+      print_versions_report
+      purge_saved_desktops_and_bloat "$STATE_DETECTED_DE_PKGS"
+      save_state 1 phase2_done "$STATE_DETECTED_DE_PKGS"
+      ok "Phase 2 cleanup complete"
+      return 0
+    fi
+
+    warn "Health check failed; repair installation first and rerun"
+    save_state 0 phase1_done "$STATE_DETECTED_DE_PKGS"
+    return 1
+  fi
 
   if is_i3_tty_session; then
     info "Detected i3 + TTY session. Running full system update first."
@@ -1189,6 +1670,7 @@ main() {
   build_app_selection_for_style
   select_apps_interactive
   print_selected_apps
+  print_deferred_apps
 
   if [[ "$STATE_LAST_OK" == "1" && "$STATE_STYLE" == "$STYLE" ]]; then
     if verify_required; then
@@ -1211,14 +1693,26 @@ main() {
 
   if verify_required; then
     print_versions_report
-    save_state 1
-    if [[ "$STATE_LAST_OK" == "1" && -n "$STATE_STYLE" ]]; then
-      info "Re-run check: everything is healthy. Verify-only mode active."
-      info "No automatic purge was performed. Use --purge-legacy if desired."
+    print_deferred_apps
+    if [[ "$is_first_run" -eq 1 ]]; then
+      configure_i3_tty_default
+      save_state 1 phase1_done "$CURRENT_DETECTED_DE_PKGS"
+      info "Phase 1 complete. Reboot and run script again for cleanup phase."
+      if [[ "$IS_INTERACTIVE" -eq 1 ]]; then
+        local rb
+        printf 'Reboot now? [Y/n]: '
+        IFS= read -r rb
+        if [[ "${rb,,}" != "n" ]]; then
+          sudo reboot
+        fi
+      fi
+      return 0
     fi
+
+    save_state 1 phase2_done "${STATE_DETECTED_DE_PKGS:-$CURRENT_DETECTED_DE_PKGS}"
     purge_legacy_desktop_stacks
   else
-    save_state 0
+    save_state 0 "${STATE_PHASE:-none}" "${STATE_DETECTED_DE_PKGS:-$CURRENT_DETECTED_DE_PKGS}"
     warn "Install incomplete. Re-run the script; it will install remaining items."
     exit 1
   fi

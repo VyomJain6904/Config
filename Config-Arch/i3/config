@@ -13,7 +13,7 @@ set $term ghostty
 set $browser brave
 set $editor code
 
-exec_always --no-startup-id feh --bg-scale ~/Pictures/w3.jpg
+exec_always --no-startup-id feh --bg-scale ~/Pictures/wallpaper.jpg
 
 exec --no-startup-id nm-applet
 exec --no-startup-id dunst

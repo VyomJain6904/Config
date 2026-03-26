@@ -1076,6 +1076,22 @@ refresh_session_after_config_copy() {
   fi
 }
 
+deploy_default_wallpaper() {
+  local src="$SCRIPT_DIR/Wallpapers/w10.jpg"
+  local pics_dir="$HOME/Pictures"
+  local dst="$pics_dir/wallpaper.jpg"
+
+  if [[ ! -f "$src" ]]; then
+    warn "Default wallpaper source missing: $src"
+    return 1
+  fi
+
+  mkdir -p "$pics_dir"
+  cp -f "$src" "$dst"
+  ok "Wallpaper deployed: $dst"
+  return 0
+}
+
 install_selected_apps() {
   fetch_style_from_github
   resolve_package_sets
@@ -1090,6 +1106,7 @@ install_selected_apps() {
   install_selected_optional_apps
 
   deploy_style_configs
+  deploy_default_wallpaper || true
   refresh_session_after_config_copy
 
   cleanup_temp_repo

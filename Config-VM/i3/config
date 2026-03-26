@@ -12,7 +12,7 @@ set $term alacritty
 set $browser firefox
 set $editor nvim
 
-exec_always --no-startup-id feh --bg-scale ~/Pictures/w10.jpg
+exec_always --no-startup-id feh --bg-scale ~/Pictures/wallpaper.jpg
 
 exec --no-startup-id nm-applet
 exec --no-startup-id dunst

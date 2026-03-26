@@ -48,7 +48,7 @@ declare -a APP_DEFAULTS=()
 
 print_usage() {
   cat <<'EOF'
-Usage: ./install-unified.sh [--purge-legacy] [--help]
+Usage: ./install.sh [--purge-legacy] [--help]
 
 Options:
   --purge-legacy  Purge legacy desktop stacks after successful verification.
@@ -566,6 +566,88 @@ ensure_runtime_deps() {
   ensure_bun_latest
 }
 
+zshrc_append_if_missing() {
+  local marker="$1"
+  local block="$2"
+  local zshrc="$HOME/.zshrc"
+  touch "$zshrc"
+  if ! grep -qF "$marker" "$zshrc" 2>/dev/null; then
+    printf '\n%s\n' "$block" >>"$zshrc"
+  fi
+}
+
+clone_plugin_if_missing() {
+  local repo="$1"
+  local dst="$2"
+  local name
+  name="$(basename "$dst")"
+  if [[ -d "$dst" ]]; then
+    ok "$name already present"
+    return 0
+  fi
+  timeout 120 git clone --depth 1 "$repo" "$dst" >/dev/null 2>&1 || {
+    warn "Failed to clone ${name}"
+    return 1
+  }
+  ok "Installed plugin: $name"
+}
+
+ensure_oh_my_zsh_stack() {
+  info "Ensuring Oh My Zsh, plugins, and Starship"
+
+  pkg_install_best_effort zsh
+
+  if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
+    timeout 180 env RUNZSH=no CHSH=no KEEP_ZSHRC=yes sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" >/dev/null 2>&1 || {
+      warn "Oh My Zsh auto-installer failed, using git clone fallback"
+      timeout 120 git clone --depth 1 https://github.com/ohmyzsh/ohmyzsh.git "$HOME/.oh-my-zsh" >/dev/null 2>&1 || true
+    }
+  fi
+  [[ -d "$HOME/.oh-my-zsh" ]] && ok "Oh My Zsh ready" || warn "Oh My Zsh not available"
+
+  local zplugins="$HOME/.oh-my-zsh/plugins"
+  mkdir -p "$zplugins"
+  clone_plugin_if_missing "https://github.com/zsh-users/zsh-autosuggestions" "$zplugins/zsh-autosuggestions"
+  clone_plugin_if_missing "https://github.com/zsh-users/zsh-syntax-highlighting" "$zplugins/zsh-syntax-highlighting"
+  clone_plugin_if_missing "https://github.com/zsh-users/zsh-completions" "$zplugins/zsh-completions"
+  clone_plugin_if_missing "https://github.com/zsh-users/zsh-history-substring-search" "$zplugins/zsh-history-substring-search"
+  clone_plugin_if_missing "https://github.com/romkatv/zsh-defer.git" "$zplugins/zsh-defer"
+
+  if ! command -v starship >/dev/null 2>&1; then
+    timeout 120 sh -c "$(curl -fsSL https://starship.rs/install.sh)" -- -y >/dev/null 2>&1 || warn "Starship install failed"
+  fi
+  command -v starship >/dev/null 2>&1 && ok "Starship ready" || warn "Starship not available"
+
+  zshrc_append_if_missing 'source "$ZSH/oh-my-zsh.sh"' 'export ZSH="$HOME/.oh-my-zsh"'
+  zshrc_append_if_missing 'plugins=(' 'plugins=(git zsh-autosuggestions zsh-syntax-highlighting zsh-completions zsh-history-substring-search zsh-defer)'
+  zshrc_append_if_missing 'eval "$(starship init zsh)"' 'eval "$(starship init zsh)"'
+}
+
+ensure_jetbrains_font() {
+  info "Ensuring JetBrainsMono Nerd Font"
+  local font_dir="$HOME/.local/share/fonts"
+  local zip_path="$font_dir/JetBrainsMono.zip"
+  mkdir -p "$font_dir"
+
+  if ls "$font_dir"/JetBrainsMonoNerdFont-*.ttf >/dev/null 2>&1; then
+    ok "JetBrainsMono Nerd Font already installed"
+    return 0
+  fi
+
+  timeout 180 curl -fsSL "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/JetBrainsMono.zip" -o "$zip_path" || {
+    warn "Font download failed"
+    return 1
+  }
+  unzip -qo "$zip_path" -d "$font_dir" >/dev/null 2>&1 || {
+    warn "Font extraction failed"
+    rm -f "$zip_path"
+    return 1
+  }
+  rm -f "$zip_path"
+  command -v fc-cache >/dev/null 2>&1 && fc-cache -fv >/dev/null 2>&1 || true
+  ok "JetBrainsMono Nerd Font installed"
+}
+
 resolve_package_sets() {
   CORE_PACKAGES=()
   STYLE_UI_PACKAGES=()
@@ -832,7 +914,7 @@ cmd_version_line() {
 
 verify_required() {
   local missing=()
-  local required=(git nvim tmux rustc go node bun)
+  local required=(git nvim tmux zsh rustc go node bun)
 
   if [[ "$STYLE" == "Config-VM" ]]; then
     required+=(i3)
@@ -864,7 +946,7 @@ verify_required() {
 }
 
 print_versions_report() {
-  local tools=(git nvim tmux rustc go node bun i3 i3status yazi thunar code opencode codex claude polybar rofi picom ghostty fastfetch btop bat)
+  local tools=(git nvim tmux zsh starship rustc go node bun i3 i3status yazi thunar code opencode codex claude polybar rofi picom ghostty fastfetch btop bat)
   printf '\n=== Installed Tools and Versions ===\n'
   local t v
   for t in "${tools[@]}"; do
@@ -949,6 +1031,8 @@ main() {
 
   pkg_update_upgrade
   ensure_runtime_deps
+  ensure_oh_my_zsh_stack
+  ensure_jetbrains_font
   install_selected_apps
 
   if verify_required; then

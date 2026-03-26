@@ -517,7 +517,11 @@ build_app_selection_for_style() {
   add_app_option "opencode" "OpenCode CLI" 1
   add_app_option "codex" "Codex CLI" 1
   add_app_option "claude" "Claude Code" 1
-  add_app_option "yazi" "Yazi (cargo install)" 1
+  if [[ "$STYLE" == "Config-VM" ]]; then
+    add_app_option "yazi" "Yazi" 0
+  else
+    add_app_option "yazi" "Yazi" 1
+  fi
   add_app_option "thunar" "Thunar" 1
 
   if [[ "$STYLE" == "Config-Arch" ]]; then
@@ -651,6 +655,11 @@ ensure_rust_latest() {
 
 ensure_go_latest() {
   info "Ensuring Go is latest"
+  if command -v go >/dev/null 2>&1 && [[ "${FORCE_GO_UPDATE:-0}" != "1" ]]; then
+    ok "Go already installed ($(go version | awk '{print $3}')); skipping reinstall"
+    return 0
+  fi
+
   local latest goversion tar_file cache_dir min_go_kb free_kb
   latest="$(curl -fsSL --retry 3 --connect-timeout 20 'https://go.dev/VERSION?m=text' 2>/dev/null | head -n1 || true)"
   if [[ -z "$latest" ]]; then
@@ -1312,10 +1321,30 @@ install_yazi_build_deps() {
 
 install_yazi_from_cargo() {
   export PATH="$HOME/.cargo/bin:$PATH"
+  # shellcheck disable=SC1090
+  [[ -f "$HOME/.cargo/env" ]] && . "$HOME/.cargo/env"
+
   if command -v yazi >/dev/null 2>&1 || [[ -x "$HOME/.cargo/bin/yazi" ]]; then
     ok "Yazi already installed"
     return 0
   fi
+
+  # Fedora/Arch: install only via package manager
+  case "$PKG_MANAGER" in
+  dnf|pacman)
+    pkg_install_best_effort yazi || true
+    if command -v yazi >/dev/null 2>&1; then
+      ok "Yazi installed from package manager"
+      return 0
+    fi
+    mark_app_deferred "yazi" "package manager install failed on ${PKG_MANAGER}"
+    warn "Yazi package install failed on ${PKG_MANAGER}; skipping"
+    return 0
+    ;;
+  esac
+
+  # Debian/Ubuntu/Mint: use cargo path (package often unavailable/outdated)
+
   if ! command -v cargo >/dev/null 2>&1; then
     warn "cargo not available; cannot install yazi"
     return 1
@@ -1325,7 +1354,7 @@ install_yazi_from_cargo() {
 
   local cargo_tmp_dir="$HOME/.cache/cargo-tmp"
   local cargo_target_dir="$HOME/.cache/cargo-target"
-  local min_build_kb=1048576
+  local min_build_kb=262144
   local tmp_kb home_kb
 
   mkdir -p "$cargo_tmp_dir" "$cargo_target_dir"
@@ -1333,7 +1362,7 @@ install_yazi_from_cargo() {
   home_kb="$(available_kb "$HOME")"
 
   if [[ "$tmp_kb" -lt "$min_build_kb" || "$home_kb" -lt "$min_build_kb" ]]; then
-    warn "Skipping Yazi build: low disk space (tmp=${tmp_kb}KB home=${home_kb}KB; need >=1GB each)"
+    warn "Skipping Yazi build: low disk space (tmp=${tmp_kb}KB home=${home_kb}KB; need >=256MB each)"
     warn "Free space and re-run to install Yazi"
     mark_app_deferred "yazi" "low disk space for cargo build"
     return 0

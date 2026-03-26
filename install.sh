@@ -1057,6 +1057,25 @@ deploy_style_configs() {
   done
 }
 
+refresh_session_after_config_copy() {
+  info "Refreshing session hooks after config sync"
+
+  # Ensure new toolchain bins are visible to this run
+  export PATH="$HOME/.cargo/bin:/usr/local/go/bin:$PATH"
+
+  # Reload i3 config if i3 session is active
+  if command -v i3-msg >/dev/null 2>&1 && pgrep -x i3 >/dev/null 2>&1; then
+    i3-msg reload >/dev/null 2>&1 && ok "i3 config reloaded" || warn "i3 reload failed"
+  fi
+
+  # Source zshrc in a zsh subshell (safe for this bash installer)
+  if command -v zsh >/dev/null 2>&1 && [[ -f "$HOME/.zshrc" ]]; then
+    zsh -ic 'source ~/.zshrc' >/dev/null 2>&1 || true
+    ok "zshrc sourced in zsh subshell"
+    info "For current terminal, run: exec zsh"
+  fi
+}
+
 install_selected_apps() {
   fetch_style_from_github
   resolve_package_sets
@@ -1071,6 +1090,7 @@ install_selected_apps() {
   install_selected_optional_apps
 
   deploy_style_configs
+  refresh_session_after_config_copy
 
   cleanup_temp_repo
   ok "Temporary GitHub files cleaned"
@@ -1633,6 +1653,13 @@ main() {
     STYLE="${STATE_STYLE:-$STYLE}"
     [[ -n "$STYLE" ]] || choose_style
     info "Phase 2: post-reboot health check and cleanup"
+
+    if ! post_reboot_health_check; then
+      warn "Phase 2 health check failed; attempting automatic repair"
+      ensure_runtime_deps || true
+      refresh_session_after_config_copy
+      post_reboot_health_check || true
+    fi
 
     if post_reboot_health_check; then
       print_versions_report

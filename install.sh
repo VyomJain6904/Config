@@ -1274,10 +1274,11 @@ install_yazi_build_deps() {
 }
 
 install_yazi_from_cargo() {
-  command -v yazi >/dev/null 2>&1 && {
+  export PATH="$HOME/.cargo/bin:$PATH"
+  if command -v yazi >/dev/null 2>&1 || [[ -x "$HOME/.cargo/bin/yazi" ]]; then
     ok "Yazi already installed"
     return 0
-  }
+  fi
   if ! command -v cargo >/dev/null 2>&1; then
     warn "cargo not available; cannot install yazi"
     return 1
@@ -1388,18 +1389,18 @@ install_selected_optional_apps() {
 cmd_version_line() {
   local cmd="$1"
   case "$cmd" in
-  go) go version 2>/dev/null | head -n1 ;;
-  rustc) rustc --version 2>/dev/null | head -n1 ;;
-  node) node --version 2>/dev/null | head -n1 ;;
-  bun) bun --version 2>/dev/null | head -n1 ;;
-  nvim) nvim --version 2>/dev/null | head -n1 ;;
-  git) git --version 2>/dev/null | head -n1 ;;
-  i3) i3 --version 2>/dev/null | head -n1 ;;
-  i3status) i3status --version 2>/dev/null | head -n1 ;;
-  polybar) polybar --version 2>/dev/null | head -n1 ;;
-  rofi) rofi -version 2>/dev/null | head -n1 ;;
-  picom) picom --version 2>/dev/null | head -n1 ;;
-  *) "$cmd" --version 2>/dev/null | head -n1 ;;
+  go) { go version 2>/dev/null | head -n1; } || true ;;
+  rustc) { rustc --version 2>/dev/null | head -n1; } || true ;;
+  node) { node --version 2>/dev/null | head -n1; } || true ;;
+  bun) { bun --version 2>/dev/null | head -n1; } || true ;;
+  nvim) { nvim --version 2>/dev/null | head -n1; } || true ;;
+  git) { git --version 2>/dev/null | head -n1; } || true ;;
+  i3) { i3 --version 2>/dev/null | head -n1; } || true ;;
+  i3status) { i3status --version 2>/dev/null | head -n1; } || true ;;
+  polybar) { polybar --version 2>/dev/null | head -n1; } || true ;;
+  rofi) { rofi -version 2>/dev/null | head -n1; } || true ;;
+  picom) { picom --version 2>/dev/null | head -n1; } || true ;;
+  *) { "$cmd" --version 2>/dev/null | head -n1; } || true ;;
   esac
 }
 
@@ -1417,7 +1418,7 @@ verify_required() {
   if is_app_selected opencode && ! command -v opencode >/dev/null 2>&1; then missing+=("opencode"); fi
   if is_app_selected codex && ! command -v codex >/dev/null 2>&1; then missing+=("codex"); fi
   if is_app_selected claude && ! command -v claude >/dev/null 2>&1; then missing+=("claude"); fi
-  if is_app_selected yazi && ! is_app_deferred yazi && ! command -v yazi >/dev/null 2>&1; then missing+=("yazi"); fi
+  if is_app_selected yazi && ! is_app_deferred yazi && ! command -v yazi >/dev/null 2>&1 && [[ ! -x "$HOME/.cargo/bin/yazi" ]]; then missing+=("yazi"); fi
   if is_app_selected thunar && ! command -v thunar >/dev/null 2>&1; then missing+=("thunar"); fi
   if is_app_selected antigravity && is_app_supported_on_distro antigravity && ! pkg_is_installed antigravity; then missing+=("antigravity"); fi
 

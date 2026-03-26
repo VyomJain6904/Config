@@ -655,6 +655,12 @@ ensure_rust_latest() {
 
 ensure_go_latest() {
   info "Ensuring Go is latest"
+  if [[ -x "/usr/local/go/bin/go" ]]; then
+    export PATH="/usr/local/go/bin:$PATH"
+  elif [[ -x "/usr/lib/go/bin/go" ]]; then
+    export PATH="/usr/lib/go/bin:$PATH"
+  fi
+
   if command -v go >/dev/null 2>&1 && [[ "${FORCE_GO_UPDATE:-0}" != "1" ]]; then
     ok "Go already installed ($(go version | awk '{print $3}')); skipping reinstall"
     return 0
@@ -737,11 +743,24 @@ ensure_go_latest() {
 ensure_node_latest() {
   info "Ensuring Node.js is latest via nvm"
   local current_node latest_node
-  if [[ ! -d "$HOME/.nvm" ]]; then
-    curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+
+  if [[ -f "$HOME/.nvm/nvm.sh" ]]; then
+    export NVM_DIR="$HOME/.nvm"
+  elif [[ -f "$HOME/.config/nvm/nvm.sh" ]]; then
+    export NVM_DIR="$HOME/.config/nvm"
+  else
+    export NVM_DIR="$HOME/.nvm"
+    NVM_DIR="$NVM_DIR" curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+    if [[ ! -f "$HOME/.nvm/nvm.sh" && -f "$HOME/.config/nvm/nvm.sh" ]]; then
+      export NVM_DIR="$HOME/.config/nvm"
+    fi
   fi
 
-  export NVM_DIR="$HOME/.nvm"
+  if [[ ! -f "$NVM_DIR/nvm.sh" ]]; then
+    warn "nvm install incomplete: missing $NVM_DIR/nvm.sh"
+    return 1
+  fi
+
   # shellcheck disable=SC1091
   . "$NVM_DIR/nvm.sh"
 
@@ -757,8 +776,8 @@ ensure_node_latest() {
   fi
 
   if ! grep -q 'NVM_DIR' "$HOME/.profile" 2>/dev/null; then
-    cat >>"$HOME/.profile" <<'EOF'
-export NVM_DIR="$HOME/.nvm"
+    cat >>"$HOME/.profile" <<EOF
+export NVM_DIR="$NVM_DIR"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
 EOF
   fi
@@ -868,14 +887,14 @@ ensure_zsh_default_shell() {
   info "Ensuring zsh is default shell"
   pkg_install_best_effort zsh
 
-  local zsh_path current_shell
+  local zsh_path current_shell answer
   zsh_path="$(command -v zsh 2>/dev/null || true)"
   [[ -n "$zsh_path" ]] || {
     warn "zsh not found after install attempt"
     return 1
   }
 
-  current_shell="${SHELL:-}"
+  current_shell="$(getent passwd "$USER" | cut -d: -f7 2>/dev/null || echo "${SHELL:-}")"
   if [[ "$current_shell" == "$zsh_path" ]]; then
     ok "zsh already default shell"
     return 0
@@ -886,12 +905,24 @@ ensure_zsh_default_shell() {
     return 1
   fi
 
-  if chsh -s "$zsh_path" "$USER" >/dev/null 2>&1; then
+  if [[ "$IS_INTERACTIVE" -eq 1 ]]; then
+    printf 'Set zsh as default login shell now? [Y/n]: '
+    IFS= read -r answer
+    if [[ "${answer,,}" == "n" ]]; then
+      warn "Skipped changing default shell. Run manually: chsh -s $zsh_path"
+      return 0
+    fi
+  else
+    warn "Non-interactive shell: skipping chsh. Run manually: chsh -s $zsh_path"
+    return 0
+  fi
+
+  if timeout 20 chsh -s "$zsh_path" "$USER" >/dev/null 2>&1; then
     ok "Default shell changed to zsh (effective on next login)"
     return 0
   fi
 
-  warn "Could not set default shell automatically. Run: chsh -s $zsh_path"
+  warn "Could not set default shell automatically (or timed out). Run: chsh -s $zsh_path"
   return 1
 }
 
@@ -1119,15 +1150,33 @@ refresh_session_after_config_copy() {
 deploy_default_wallpaper() {
   local src="$SCRIPT_DIR/Wallpapers/w10.jpg"
   local pics_dir="$HOME/Pictures"
-  local dst="$pics_dir/wallpaper.jpg"
+  local dst="$pics_dir/wallpaper"
+  local dst_jpg="$pics_dir/wallpaper.jpg"
 
   if [[ ! -f "$src" ]]; then
-    warn "Default wallpaper source missing: $src"
-    return 1
+    local tmp_wall
+    tmp_wall="$(mktemp)"
+    if timeout 60 curl -fsSL "https://raw.githubusercontent.com/VyomJain6904/Config/main/Wallpapers/w10.jpg" -o "$tmp_wall"; then
+      src="$tmp_wall"
+    else
+      rm -f "$tmp_wall"
+      warn "Default wallpaper source missing and download failed"
+      return 1
+    fi
   fi
 
   mkdir -p "$pics_dir"
   cp -f "$src" "$dst"
+  cp -f "$src" "$dst_jpg"
+
+  if [[ "$src" == /tmp/* ]]; then
+    rm -f "$src"
+  fi
+
+  if command -v feh >/dev/null 2>&1; then
+    feh --bg-fill "$dst" >/dev/null 2>&1 || true
+  fi
+
   ok "Wallpaper deployed: $dst"
   return 0
 }

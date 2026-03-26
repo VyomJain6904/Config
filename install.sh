@@ -18,7 +18,6 @@ OS_VERSION=""
 PKG_MANAGER=""
 ARCH="$(uname -m)"
 KERNEL="$(uname -sr)"
-HOSTNAME_VAL="$(hostname 2>/dev/null || echo unknown)"
 VIRT="unknown"
 CPU_MODEL="unknown"
 MEM_TOTAL="unknown"
@@ -56,7 +55,6 @@ declare -a APP_SELECTED=()
 declare -a APP_DEFAULTS=()
 
 APT_CACHE_REFRESHED=0
-CONTEXT_BRANCH="main"
 
 declare -a DEFERRED_APP_KEYS=()
 declare -a DEFERRED_APP_REASONS=()
@@ -110,11 +108,8 @@ ui_prompt_line() {
   local cmd="$1"
   local phase_badge
   phase_badge="$(current_phase_badge)"
-  printf '%b[%bConfig%b]%b [%b%s%b] [%b%s%b] [%b%s%b]%b %b%s%b\n' \
-    "$COLOR_RESET" "$COLOR_PINK" "$COLOR_RESET" "$COLOR_RESET" \
-    "$COLOR_CYAN" "$HOSTNAME_VAL" "$COLOR_RESET" \
-    "$COLOR_PURPLE" "$CONTEXT_BRANCH" "$COLOR_RESET" \
-    "$COLOR_YELLOW" "$phase_badge" "$COLOR_RESET" \
+  printf '%b[%b%s%b]%b %b%s%b\n' \
+    "$COLOR_RESET" "$COLOR_YELLOW" "$phase_badge" "$COLOR_RESET" \
     "$COLOR_GREEN" "$cmd" "$COLOR_RESET"
 }
 
@@ -163,7 +158,7 @@ show_login_style_header() {
   printf '\n'
   ui_prompt_line "install auth list"
   printf '\n'
-  ui_tree_line "Config Unified Installer"
+  ui_tree_line "Unified Installer"
   ui_tree_line "Dracula Theme UI · v${SCRIPT_VERSION}"
   printf '\n'
 }
@@ -277,7 +272,6 @@ detect_session() {
 
 print_detection_report() {
   ui_section_title "System Detection"
-  ui_kv "Host:" "$HOSTNAME_VAL"
   ui_kv "OS:" "$OS_NAME (id=$OS_ID version=$OS_VERSION)"
   ui_kv "Package mgr:" "$PKG_MANAGER"
   ui_kv "Kernel:" "$KERNEL"
@@ -365,12 +359,6 @@ command_semver() {
   local raw
   raw="$($cmd --version 2>/dev/null | head -n1 || true)"
   extract_semver "$raw"
-}
-
-detect_context_branch() {
-  local branch
-  branch="$(git -C "$SCRIPT_DIR" rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
-  [[ -n "$branch" ]] && CONTEXT_BRANCH="$branch"
 }
 
 apt_refresh_once() {
@@ -1623,7 +1611,6 @@ purge_legacy_desktop_stacks() {
 main() {
   local is_first_run=0
   parse_args "$@"
-  detect_context_branch
   load_state
   setup_ui
   show_login_style_header

@@ -28,6 +28,7 @@ RUNNING_WM="unknown"
 PURGE_LEGACY=0
 TMP_REPO_DIR=""
 IS_INTERACTIVE=0
+USER_INPUT_TTY=""
 
 COLOR_RESET=""
 COLOR_PURPLE=""
@@ -70,7 +71,10 @@ EOF
 }
 
 setup_ui() {
-  if [[ -t 0 && -t 1 ]]; then
+  if [[ -t 1 && -r /dev/tty ]]; then
+    IS_INTERACTIVE=1
+    USER_INPUT_TTY="/dev/tty"
+  elif [[ -t 0 && -t 1 ]]; then
     IS_INTERACTIVE=1
   fi
   if [[ "$IS_INTERACTIVE" -eq 1 ]]; then
@@ -467,7 +471,11 @@ choose_style() {
   printf 'Enter choice [default %s]: ' "$default_choice"
 
   local answer
-  IFS= read -r answer
+  if [[ -n "$USER_INPUT_TTY" ]]; then
+    IFS= read -r answer < "$USER_INPUT_TTY"
+  else
+    IFS= read -r answer
+  fi
   answer="${answer:-$default_choice}"
   case "$answer" in
   1) STYLE="Config-VM" ;;
@@ -482,7 +490,11 @@ confirm_install_prompt() {
   [[ "$IS_INTERACTIVE" -eq 0 ]] && return 0
   local answer
   printf 'Install applications for %s now? [Y/n]: ' "$STYLE"
-  IFS= read -r answer
+  if [[ -n "$USER_INPUT_TTY" ]]; then
+    IFS= read -r answer < "$USER_INPUT_TTY"
+  else
+    IFS= read -r answer
+  fi
   [[ "${answer,,}" == "n" ]] && die "Cancelled by user"
 }
 
@@ -538,9 +550,17 @@ build_app_selection_for_style() {
 
 read_keypress() {
   local key seq
-  IFS= read -rsn1 key || key=""
+  if [[ -n "$USER_INPUT_TTY" ]]; then
+    IFS= read -rsn1 key < "$USER_INPUT_TTY" || key=""
+  else
+    IFS= read -rsn1 key || key=""
+  fi
   if [[ "$key" == $'\x1b' ]]; then
-    IFS= read -rsn2 seq || seq=""
+    if [[ -n "$USER_INPUT_TTY" ]]; then
+      IFS= read -rsn2 seq < "$USER_INPUT_TTY" || seq=""
+    else
+      IFS= read -rsn2 seq || seq=""
+    fi
     key+="$seq"
   fi
   printf '%s' "$key"
@@ -655,11 +675,29 @@ ensure_rust_latest() {
 
 ensure_go_latest() {
   info "Ensuring Go is latest"
+  if [[ -x "/usr/bin/go" ]]; then
+    export PATH="/usr/bin:$PATH"
+  fi
   if [[ -x "/usr/local/go/bin/go" ]]; then
     export PATH="/usr/local/go/bin:$PATH"
   elif [[ -x "/usr/lib/go/bin/go" ]]; then
     export PATH="/usr/lib/go/bin:$PATH"
   fi
+
+  case "$PKG_MANAGER" in
+  apt)
+    if pkg_is_installed golang-go && [[ "${FORCE_GO_UPDATE:-0}" != "1" ]]; then
+      ok "Go package already installed; skipping reinstall"
+      return 0
+    fi
+    ;;
+  dnf|pacman)
+    if pkg_is_installed go && [[ "${FORCE_GO_UPDATE:-0}" != "1" ]]; then
+      ok "Go package already installed; skipping reinstall"
+      return 0
+    fi
+    ;;
+  esac
 
   if command -v go >/dev/null 2>&1 && [[ "${FORCE_GO_UPDATE:-0}" != "1" ]]; then
     ok "Go already installed ($(go version | awk '{print $3}')); skipping reinstall"
@@ -744,6 +782,12 @@ ensure_node_latest() {
   info "Ensuring Node.js is latest via nvm"
   local current_node latest_node
 
+  current_node="$(node -v 2>/dev/null || true)"
+  if [[ -n "$current_node" && "${FORCE_NODE_UPDATE:-0}" != "1" ]]; then
+    ok "Node already installed (${current_node}); skipping reinstall"
+    return 0
+  fi
+
   if [[ -f "$HOME/.nvm/nvm.sh" ]]; then
     export NVM_DIR="$HOME/.nvm"
   elif [[ -f "$HOME/.config/nvm/nvm.sh" ]]; then
@@ -757,8 +801,14 @@ ensure_node_latest() {
   fi
 
   if [[ ! -f "$NVM_DIR/nvm.sh" ]]; then
-    warn "nvm install incomplete: missing $NVM_DIR/nvm.sh"
-    return 1
+    if [[ -f "$HOME/.config/nvm/nvm.sh" ]]; then
+      export NVM_DIR="$HOME/.config/nvm"
+    elif [[ -f "$HOME/.nvm/nvm.sh" ]]; then
+      export NVM_DIR="$HOME/.nvm"
+    else
+      warn "nvm install incomplete: missing nvm.sh (checked ~/.nvm and ~/.config/nvm)"
+      return 1
+    fi
   fi
 
   # shellcheck disable=SC1091
@@ -931,7 +981,11 @@ ensure_zsh_default_shell() {
 
   if [[ "$IS_INTERACTIVE" -eq 1 ]]; then
     printf 'Set zsh as default login shell now? [Y/n]: '
-    IFS= read -r answer
+    if [[ -n "$USER_INPUT_TTY" ]]; then
+      IFS= read -r answer < "$USER_INPUT_TTY"
+    else
+      IFS= read -r answer
+    fi
     if [[ "${answer,,}" == "n" ]]; then
       warn "Skipped changing default shell. Run manually: chsh -s $zsh_path"
       return 0
@@ -1160,6 +1214,21 @@ deploy_style_configs() {
   done
 }
 
+fix_polybar_permissions() {
+  local pdir="$HOME/.config/polybar"
+  [[ -d "$pdir" ]] || return 0
+
+  [[ -f "$pdir/launch.sh" ]] && chmod +x "$pdir/launch.sh" || true
+
+  local f
+  for f in "$pdir"/*.sh "$pdir"/scripts/*.sh "$pdir"/scripts/*; do
+    [[ -f "$f" ]] || continue
+    chmod +x "$f" || true
+  done
+
+  ok "Polybar executable permissions fixed"
+}
+
 refresh_session_after_config_copy() {
   info "Refreshing session hooks after config sync"
 
@@ -1237,6 +1306,7 @@ install_selected_apps() {
   install_selected_optional_apps
 
   deploy_style_configs
+  fix_polybar_permissions
   deploy_default_wallpaper || true
   refresh_session_after_config_copy
 
@@ -1766,7 +1836,11 @@ purge_saved_desktops_and_bloat() {
 confirm_purge() {
   printf 'Type PURGE to remove legacy desktop stacks and bloat: '
   local token
-  IFS= read -r token
+  if [[ -n "$USER_INPUT_TTY" ]]; then
+    IFS= read -r token < "$USER_INPUT_TTY"
+  else
+    IFS= read -r token
+  fi
   [[ "$token" == "PURGE" ]]
 }
 
@@ -1886,7 +1960,11 @@ main() {
       if [[ "$IS_INTERACTIVE" -eq 1 ]]; then
         local rb
         printf 'Reboot now? [Y/n]: '
-        IFS= read -r rb
+        if [[ -n "$USER_INPUT_TTY" ]]; then
+          IFS= read -r rb < "$USER_INPUT_TTY"
+        else
+          IFS= read -r rb
+        fi
         if [[ "${rb,,}" != "n" ]]; then
           sudo reboot
         fi

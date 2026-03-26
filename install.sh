@@ -701,6 +701,55 @@ ensure_jetbrains_font() {
   ok "JetBrainsMono Nerd Font installed"
 }
 
+deploy_default_zshrc() {
+  info "Applying distro-specific default .zshrc"
+
+  local src=""
+  local raw_url=""
+  local tmp_file=""
+  local target_zshrc="$HOME/.zshrc"
+
+  case "$OS_ID" in
+  ubuntu | debian | linuxmint)
+    src="$SCRIPT_DIR/zsh/.zshrc"
+    raw_url="https://raw.githubusercontent.com/VyomJain6904/Config/main/zsh/.zshrc"
+    ;;
+  arch)
+    src="$SCRIPT_DIR/zsh/arch.zshrc"
+    raw_url="https://raw.githubusercontent.com/VyomJain6904/Config/main/zsh/arch.zshrc"
+    ;;
+  *)
+    if [[ "$PKG_MANAGER" == "pacman" ]]; then
+      src="$SCRIPT_DIR/zsh/arch.zshrc"
+      raw_url="https://raw.githubusercontent.com/VyomJain6904/Config/main/zsh/arch.zshrc"
+    else
+      src="$SCRIPT_DIR/zsh/.zshrc"
+      raw_url="https://raw.githubusercontent.com/VyomJain6904/Config/main/zsh/.zshrc"
+    fi
+    ;;
+  esac
+
+  rm -f "$target_zshrc"
+
+  if [[ -f "$src" ]]; then
+    cp "$src" "$target_zshrc"
+    ok "Default .zshrc copied from local template"
+    return 0
+  fi
+
+  tmp_file="$(mktemp)"
+  if timeout 120 curl -fsSL "$raw_url" -o "$tmp_file"; then
+    cp "$tmp_file" "$target_zshrc"
+    rm -f "$tmp_file"
+    ok "Default .zshrc downloaded and applied"
+    return 0
+  fi
+
+  rm -f "$tmp_file"
+  warn "Could not apply distro template .zshrc (local + remote missing)"
+  return 1
+}
+
 resolve_package_sets() {
   CORE_PACKAGES=()
   STYLE_UI_PACKAGES=()
@@ -921,6 +970,26 @@ install_claude() {
   timeout 240 bash -lc 'curl -fsSL https://claude.ai/install.sh | bash'
 }
 
+available_kb() {
+  local path="$1"
+  set -- $(df -Pk "$path" 2>/dev/null | tail -n 1)
+  printf '%s' "${4:-0}"
+}
+
+install_yazi_build_deps() {
+  case "$PKG_MANAGER" in
+  apt)
+    pkg_install_best_effort pkg-config libssl-dev
+    ;;
+  dnf)
+    pkg_install_best_effort pkgconf-pkg-config openssl-devel
+    ;;
+  pacman)
+    pkg_install_best_effort pkgconf openssl
+    ;;
+  esac
+}
+
 install_yazi_from_cargo() {
   command -v yazi >/dev/null 2>&1 && {
     ok "Yazi already installed"
@@ -930,7 +999,37 @@ install_yazi_from_cargo() {
     warn "cargo not available; cannot install yazi"
     return 1
   fi
-  timeout 900 cargo install --locked yazi-fm yazi-cli
+
+  install_yazi_build_deps
+
+  local cargo_tmp_dir="$HOME/.cache/cargo-tmp"
+  local cargo_target_dir="$HOME/.cache/cargo-target"
+  local min_build_kb=1048576
+  local tmp_kb home_kb
+
+  mkdir -p "$cargo_tmp_dir" "$cargo_target_dir"
+  tmp_kb="$(available_kb "$cargo_tmp_dir")"
+  home_kb="$(available_kb "$HOME")"
+
+  if [[ "$tmp_kb" -lt "$min_build_kb" || "$home_kb" -lt "$min_build_kb" ]]; then
+    warn "Skipping Yazi build: low disk space (tmp=${tmp_kb}KB home=${home_kb}KB; need >=1GB each)"
+    warn "Free space and re-run to install Yazi"
+    return 1
+  fi
+
+  info "Building Yazi with HOME cache dirs (avoids /tmp memory/disk issues)"
+  if TMPDIR="$cargo_tmp_dir" CARGO_TARGET_DIR="$cargo_target_dir" \
+    timeout 1800 cargo install --locked yazi-fm yazi-cli &>/tmp/yazi-install.log; then
+    export PATH="$HOME/.cargo/bin:$PATH"
+    if ! grep -q 'HOME/.cargo/bin' "$HOME/.profile" 2>/dev/null; then
+      printf '\nexport PATH="$HOME/.cargo/bin:$PATH"\n' >>"$HOME/.profile"
+    fi
+    ok "Yazi installed successfully"
+    return 0
+  fi
+
+  warn "Yazi install failed or timed out. Log: /tmp/yazi-install.log"
+  return 1
 }
 
 install_thunar() {
@@ -1106,6 +1205,7 @@ main() {
   pkg_update_upgrade
   ensure_runtime_deps
   ensure_oh_my_zsh_stack
+  deploy_default_zshrc || true
   ensure_jetbrains_font
   install_selected_apps
 

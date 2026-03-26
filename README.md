@@ -1,9 +1,9 @@
-# Unified Config Installer
+# Config Installation
 
 This repository provides a unified installation flow for developer-focused setups with two style profiles:
 
-- `Config-VM` (minimal)
-- `Config-Arch` (modern + blurred)
+- `Virtual Machine` (minimal)
+- `Base System` (modern + blurred)
 
 The installer auto-detects OS, package manager, DE/session, and hardware, then applies the selected style.
 
@@ -17,10 +17,6 @@ The installer auto-detects OS, package manager, DE/session, and hardware, then a
 
 ## Install From Release
 
-Latest released installer asset URL:
-
-`https://github.com/VyomJain6904/Config/releases/download/v1.0/install.sh`
-
 Download and run:
 
 ```bash
@@ -33,43 +29,6 @@ chmod +x install.sh
 
 - `Config-VM`: minimal UI stack for VM environments.
 - `Config-Arch`: modern + blurred UI stack for base systems.
-
-The installer recommends:
-
-- VM -> `Config-VM`
-- Base system -> `Config-Arch`
-
-## App Selection UI
-
-During install, app selection supports:
-
-- `Enter` or `Space`: toggle app
-- `c`: confirm selection
-- `s`: restore defaults
-- `q`: quit installer
-
-## Applications
-
-Common applications selectable in both styles:
-
-- Antigravity
-- VS Code (`code`)
-- OpenCode CLI (`opencode`)
-- Codex CLI (`codex`)
-- Claude Code (`claude`)
-- Yazi (installed via `cargo install`)
-- Thunar
-
-Additional applications selectable in modern style (`Config-Arch`):
-
-- Ghostty
-- Rofi
-- Picom
-- Polybar
-- Fastfetch
-- Btop
-- Bat
-- OBS Studio (default off)
 
 ## Non-Interactive Usage
 

@@ -1,0 +1,207 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": ["opencode-antigravity-auth@beta"],
+
+  "provider": {
+    "google": {
+      "models": {
+        "antigravity-claude-sonnet-4-5": {
+          "name": "Claude Sonnet 4.5 (Antigravity)",
+          "limit": {
+            "context": 200000,
+            "output": 64000
+          },
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "antigravity-claude-sonnet-4-5-thinking": {
+          "name": "Claude Sonnet 4.5 Thinking (Antigravity)",
+          "limit": {
+            "context": 200000,
+            "output": 64000
+          },
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          },
+          "variants": {
+            "low": {
+              "thinkingConfig": {
+                "thinkingBudget": 8192
+              }
+            },
+            "max": {
+              "thinkingConfig": {
+                "thinkingBudget": 32768
+              }
+            }
+          }
+        },
+        "antigravity-claude-opus-4-5-thinking": {
+          "name": "Claude Opus 4.5 Thinking (Antigravity)",
+          "limit": {
+            "context": 200000,
+            "output": 64000
+          },
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          },
+          "variants": {
+            "low": {
+              "thinkingConfig": {
+                "thinkingBudget": 8192
+              }
+            },
+            "max": {
+              "thinkingConfig": {
+                "thinkingBudget": 32768
+              }
+            }
+          }
+        },
+        "antigravity-claude-opus-4-6-thinking": {
+          "name": "Claude Opus 4.6 Thinking (Antigravity)",
+          "limit": {
+            "context": 200000,
+            "output": 64000
+          },
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          },
+          "variants": {
+            "low": {
+              "thinkingConfig": {
+                "thinkingBudget": 8192
+              }
+            },
+            "max": {
+              "thinkingConfig": {
+                "thinkingBudget": 32768
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+
+  "mcp": {
+    "pencil": {
+      "command": ["/home/jain/.local/bin/pencil-mcp-server", "-app", "desktop"],
+      "type": "local",
+      "enabled": true
+    },
+    "stitch": {
+      "type": "local",
+      "command": ["npx", "-y", "@_davideast/stitch-mcp", "proxy"],
+      "environment": {
+        "STITCH_API_KEY": ""
+      },
+      "enabled": true
+    },
+    "snyk": {
+      "type": "local",
+      "command": ["/usr/local/bin/snyk", "mcp", "-t", "stdio"],
+      "enabled": true
+    }
+  },
+
+  "agent": {
+    "builder": {
+      "mode": "primary",
+      "description": "Team Lead / Builder - orchestrates tasks, delegates to specialists when needed",
+      "model": "openai/gpt-5.3-codex",
+      "temperature": 0.25,
+      "prompt": "You are the Builder, the team lead AI developer. Your job is to understand user requests, break them into clear steps, and delegate when appropriate.\n\nDelegation rules:\n- If requirements are unclear/ambiguous/missing edge cases → delegate to Product Manager with: 'Product Manager, clarify requirements for: [task summary]'\n- If architecture, design patterns, or high-level structure decisions needed → delegate to Tech Lead\n- For actual implementation, file edits, code writing → delegate to Backend Dev (or do it yourself if simple)\n- Always run tests and validation → delegate to Tester\n- Before final commit/push → delegate to Reviewer for polish, security, style\n- If any security concern is found or suspected → delegate to Security Researcher\n\nUse the 'task' tool to spawn specialists when delegation is needed. Keep full context and integrate their outputs.\nAlways think step-by-step and explain decisions.",
+      "tools": {
+        "read": true,
+        "write": true,
+        "edit": true,
+        "bash": true,
+        "git": true,
+        "task": true,
+        "search": true
+      }
+    },
+
+    "product-manager": {
+      "mode": "subagent",
+      "description": "Product Manager - clarifies requirements, user stories, edge cases, acceptance criteria",
+      "model": "google/antigravity-claude-sonnet-4-5",
+      "temperature": 0.4,
+      "prompt": "You are the Product Manager. When delegated a task, respond ONLY with clarified requirements, user stories, acceptance criteria, edge cases, priorities, and any questions back to Builder. Do not write code or edit files. Be concise and structured.",
+      "tools": {
+        "read": true,
+        "write": false,
+        "edit": false,
+        "bash": false,
+        "task": false
+      }
+    },
+
+    "tech-lead": {
+      "mode": "subagent",
+      "description": "Tech Lead - proposes architecture, patterns, tech choices, file structure",
+      "model": "openai/gpt-5.3-codex",
+      "temperature": 0.2,
+      "prompt": "You are the Senior Security Tech Lead / Architect. When delegated, output ONLY: high-level design, chosen patterns, directory structure changes, tech decisions, trade-offs. Use diagrams in markdown if helpful. No implementation code unless specifically asked.",
+      "tools": {
+        "read": true,
+        "write": true,
+        "edit": false,
+        "bash": false,
+        "task": false
+      }
+    },
+
+    "backend-dev": {
+      "mode": "subagent",
+      "description": "Backend Developer - implements code, refactors, adds features",
+      "model": "google/antigravity-claude-opus-4-6-thinking",
+      "temperature": 0.15,
+      "prompt": "You are the Senior Security Backend Dev. Implement exactly what is delegated. Write clean, idiomatic code. Add comments. Follow project style. Output diffs or full files as needed. Do not change architecture unless told.",
+      "tools": {
+        "read": true,
+        "write": true,
+        "edit": true,
+        "bash": true,
+        "task": false
+      }
+    },
+
+    "code-reviewer": {
+      "mode": "subagent",
+      "description": "Reviews code for best practices, performance, and potential issues",
+      "model": "google/antigravity-claude-sonnet-4-5",
+      "temperature": 0.2,
+      "prompt": "You are a Senior Security code reviewer. Focus on security, performance, and maintainability. Review for: code smells, anti-patterns, redundant logic, missing error handling, and style inconsistencies. If you find a security issue, delegate to @security-researcher. Output structured feedback with file references and suggested fixes.",
+      "tools": {
+        "read": true,
+        "write": false,
+        "edit": false,
+        "bash": false,
+        "task": true
+      }
+    },
+
+    "security-researcher": {
+      "mode": "subagent",
+      "description": "Security Researcher - performs VAPT analysis, identifies vulnerabilities, suggests remediations",
+      "model": "google/antigravity-claude-sonnet-4-5-thinking",
+      "temperature": 0.1,
+      "prompt": "You are the Senior Security Researcher. When delegated, perform deep security analysis of the given code, config, or architecture.\n\nFocus areas:\n- OWASP Top 10 (injection, broken auth, XSS, IDOR, misconfig, etc.)\n- Secrets and credentials exposure\n- Insecure dependencies and supply chain risks\n- Auth/authz flaws and privilege escalation\n- Business logic vulnerabilities\n- API security issues (rate limiting, input validation, mass assignment)\n- Infrastructure and cloud misconfigurations\n\nOutput a structured report:\n[CRITICAL / HIGH / MEDIUM / LOW / INFO]\n- Vulnerability: <n>\n- Affected: <file>:<line>\n- Description: <what and why it's dangerous>\n- Remediation: <exact fix or patch>\n\nDo NOT write production code or edit files. Adopt a full attacker mindset. Be exhaustive.",
+      "tools": {
+        "read": true,
+        "write": false,
+        "edit": false,
+        "bash": false,
+        "task": false,
+        "search": true
+      }
+    }
+  }
+}

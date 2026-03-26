@@ -1,0 +1,1 @@
+/home/jain/.config/opencode/superpowers/.opencode/plugins/superpowers.js

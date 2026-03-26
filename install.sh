@@ -823,6 +823,30 @@ ensure_runtime_deps() {
   ensure_bun_latest
 }
 
+ensure_shell_tool_dependencies() {
+  info "Ensuring shell tool dependencies (eza, zoxide, fzf, ripgrep, fd)"
+
+  case "$PKG_MANAGER" in
+  apt)
+    pkg_install_best_effort eza zoxide fzf ripgrep fd-find || true
+    ;;
+  dnf)
+    pkg_install_best_effort eza zoxide fzf ripgrep fd-find || true
+    ;;
+  pacman)
+    pkg_install_best_effort eza zoxide fzf ripgrep fd || true
+    ;;
+  esac
+
+  if ! command -v eza >/dev/null 2>&1 && command -v cargo >/dev/null 2>&1; then
+    timeout 900 cargo install --locked eza >/tmp/eza-install.log 2>&1 || warn "eza install failed (see /tmp/eza-install.log)"
+  fi
+
+  if ! command -v zoxide >/dev/null 2>&1 && command -v cargo >/dev/null 2>&1; then
+    timeout 900 cargo install --locked zoxide >/tmp/zoxide-install.log 2>&1 || warn "zoxide install failed (see /tmp/zoxide-install.log)"
+  fi
+}
+
 zshrc_append_if_missing() {
   local marker="$1"
   local block="$2"
@@ -1054,7 +1078,15 @@ map_style_item_to_packages() {
     add_pkg_unique "i3lock"
     ;;
   nvim) add_pkg_unique "neovim" ;;
-  polybar | fastfetch | bat | btop | ghostty | picom | rofi | obs-studio | yazi) ;;
+  polybar) add_pkg_unique "polybar" ;;
+  rofi) add_pkg_unique "rofi" ;;
+  picom) add_pkg_unique "picom" ;;
+  fastfetch) add_pkg_unique "fastfetch" ;;
+  bat) add_pkg_unique "bat" ;;
+  btop) add_pkg_unique "btop" ;;
+  ghostty) add_pkg_unique "ghostty" ;;
+  obs-studio) add_pkg_unique "obs-studio" ;;
+  yazi) ;;
   esac
 }
 
@@ -1137,6 +1169,16 @@ refresh_session_after_config_copy() {
   # Reload i3 config if i3 session is active
   if command -v i3-msg >/dev/null 2>&1 && pgrep -x i3 >/dev/null 2>&1; then
     i3-msg reload >/dev/null 2>&1 && ok "i3 config reloaded" || warn "i3 reload failed"
+
+    if command -v polybar >/dev/null 2>&1 && [[ -d "$HOME/.config/polybar" ]]; then
+      if [[ -x "$HOME/.config/polybar/launch.sh" ]]; then
+        timeout 20 bash "$HOME/.config/polybar/launch.sh" >/dev/null 2>&1 || warn "polybar launch script failed"
+      else
+        pkill -x polybar >/dev/null 2>&1 || true
+        timeout 10 polybar -q main >/dev/null 2>&1 || true
+      fi
+      ok "Polybar reload attempted"
+    fi
   fi
 
   # Source zshrc in a zsh subshell (safe for this bash installer)
@@ -1827,6 +1869,7 @@ main() {
 
   pkg_update_upgrade
   ensure_runtime_deps
+  ensure_shell_tool_dependencies
   ensure_oh_my_zsh_stack
   ensure_zsh_default_shell || true
   deploy_default_zshrc || true

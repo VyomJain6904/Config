@@ -1,43 +1,87 @@
-# Configuration :
+# Unified Config Installer
 
----
+This repository provides a unified installation flow for developer-focused setups with two style profiles:
 
-### Install Oh My Zsh :
+- `Config-VM` (minimal)
+- `Config-Arch` (modern + blurred)
 
-```sh
-sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+The installer auto-detects OS, package manager, DE/session, and hardware, then applies the selected style.
+
+## Supported Systems
+
+- Debian
+- Ubuntu
+- Linux Mint
+- Fedora
+- Arch Linux
+
+## Install From Release
+
+Latest released installer asset URL:
+
+`https://github.com/VyomJain6904/Config/releases/download/v1.0/install.sh`
+
+Download and run:
+
+```bash
+curl -fsSL "https://github.com/VyomJain6904/Config/releases/download/v1.0/install.sh" -o install.sh
+chmod +x install.sh
+./install.sh
 ```
 
----
+## Style Profiles
 
-### Download External Plugins :
+- `Config-VM`: minimal UI stack for VM environments.
+- `Config-Arch`: modern + blurred UI stack for base systems.
 
-```sh
-git clone https://github.com/zsh-users/zsh-autosuggestions ~/.oh-my-zsh/plugins/zsh-autosuggestions
-git clone https://github.com/zsh-users/zsh-syntax-highlighting ~/.oh-my-zsh/plugins/zsh-syntax-highlighting
-git clone https://github.com/zsh-users/zsh-completions ~/.oh-my-zsh/plugins/zsh-completions
-git clone https://github.com/zsh-users/zsh-history-substring-search ~/.oh-my-zsh/plugins/zsh-history-substring-search
-git clone https://github.com/romkatv/zsh-defer.git ~/.oh-my-zsh/plugins/zsh-defer
-curl -sS https://starship.rs/install.sh | sh
+The installer recommends:
 
+- VM -> `Config-VM`
+- Base system -> `Config-Arch`
+
+## App Selection UI
+
+During install, app selection supports:
+
+- `Enter` or `Space`: toggle app
+- `c`: confirm selection
+- `s`: restore defaults
+- `q`: quit installer
+
+## Applications
+
+Common applications selectable in both styles:
+
+- Antigravity
+- VS Code (`code`)
+- OpenCode CLI (`opencode`)
+- Codex CLI (`codex`)
+- Claude Code (`claude`)
+- Yazi (installed via `cargo install`)
+- Thunar
+
+Additional applications selectable in modern style (`Config-Arch`):
+
+- Ghostty
+- Rofi
+- Picom
+- Polybar
+- Fastfetch
+- Btop
+- Bat
+- OBS Studio (default off)
+
+## Non-Interactive Usage
+
+For CI/headless shells, set style explicitly:
+
+```bash
+INSTALL_STYLE=Config-VM ./install.sh
+# or
+INSTALL_STYLE=Config-Arch ./install.sh
 ```
 
-### Install the following Plugins :
+## Notes
 
-```sh
-sudo apt install fzf eza fd-find jq zoxide fastfetch bat ripgrep -y # For Ubuntu / Debain Based
-```
-
-```sh
-sudo pacman -Sy fzf eza fd yazi jq zoxide fastfetch bat tldr ripgrep poppler # For Arch Based
-```
-
-### Font :
-
-```sh
-mkdir -p ~/.local/share/fonts
-cd ~/.local/share/fonts
-wget https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/JetBrainsMono.zip
-unzip JetBrainsMono.zip
-fc-cache -fv
-```
+- Installer copies only the selected style folder, then cleans temporary downloaded files.
+- Re-run is idempotent: it verifies and installs missing pieces.

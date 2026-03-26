@@ -37,6 +37,12 @@ COLOR_CYAN=""
 COLOR_GREEN=""
 COLOR_YELLOW=""
 COLOR_RED=""
+COLOR_GRAY=""
+
+SYMBOL_POINTER=">"
+SYMBOL_BRANCH="|"
+SYMBOL_SELECTED="*"
+SYMBOL_UNSELECTED="o"
 
 STATE_STYLE=""
 STATE_LAST_OK=0
@@ -68,21 +74,61 @@ setup_ui() {
     COLOR_GREEN='\033[38;2;80;250;123m'
     COLOR_YELLOW='\033[38;2;241;250;140m'
     COLOR_RED='\033[38;2;255;85;85m'
+    COLOR_GRAY='\033[38;2;98;114;164m'
+    SYMBOL_POINTER="▸"
+    SYMBOL_BRANCH="│"
+    SYMBOL_SELECTED="●"
+    SYMBOL_UNSELECTED="○"
   fi
+}
+
+ui_clear() {
+  if [[ "$IS_INTERACTIVE" -eq 1 ]]; then
+    command -v clear >/dev/null 2>&1 && clear || printf '\033c'
+  fi
+}
+
+ui_prompt_line() {
+  local cmd="$1"
+  printf '%b[%bConfig%b]%b [%b%s%b] [%bmain%b]%b %b%s%b\n' \
+    "$COLOR_RESET" "$COLOR_PINK" "$COLOR_RESET" "$COLOR_RESET" \
+    "$COLOR_CYAN" "$HOSTNAME_VAL" "$COLOR_RESET" \
+    "$COLOR_PURPLE" "$COLOR_RESET" "$COLOR_RESET" \
+    "$COLOR_GREEN" "$cmd" "$COLOR_RESET"
+}
+
+ui_section_title() {
+  printf '\n%b%s%b\n' "$COLOR_PINK" "$1" "$COLOR_RESET"
+}
+
+ui_tree_line() {
+  printf ' %b%s%b %s\n' "$COLOR_GRAY" "$SYMBOL_BRANCH" "$COLOR_RESET" "$1"
+}
+
+ui_kv() {
+  printf ' %b%s%b %s\n' "$COLOR_GRAY" "$1" "$COLOR_RESET" "$2"
+}
+
+ui_hint() {
+  printf '%b%s%b\n' "$COLOR_GRAY" "$1" "$COLOR_RESET"
 }
 
 show_login_style_header() {
   printf '\n'
-  printf '%b+----------------------------------------------------------+%b\n' "$COLOR_PURPLE" "$COLOR_RESET"
-  printf '%b|%b %bConfig Unified Installer%b                             %b|%b\n' "$COLOR_PURPLE" "$COLOR_RESET" "$COLOR_PINK" "$COLOR_RESET" "$COLOR_PURPLE" "$COLOR_RESET"
-  printf '%b|%b %bDracula Theme UI%b  |  %bv%s%b                                %b|%b\n' "$COLOR_PURPLE" "$COLOR_RESET" "$COLOR_CYAN" "$COLOR_RESET" "$COLOR_CYAN" "$SCRIPT_VERSION" "$COLOR_RESET" "$COLOR_PURPLE" "$COLOR_RESET"
-  printf '%b+----------------------------------------------------------+%b\n\n' "$COLOR_PURPLE" "$COLOR_RESET"
+  ui_prompt_line "install auth list"
+  printf '\n'
+  ui_tree_line "Config Unified Installer"
+  ui_tree_line "Dracula Theme UI · v${SCRIPT_VERSION}"
+  printf '\n'
 }
 
 info() { printf '%b[INFO]%b %s\n' "$COLOR_CYAN" "$COLOR_RESET" "$*"; }
 warn() { printf '%b[WARN]%b %s\n' "$COLOR_YELLOW" "$COLOR_RESET" "$*"; }
 ok() { printf '%b[ OK ]%b %s\n' "$COLOR_GREEN" "$COLOR_RESET" "$*"; }
-die() { printf '%b[ERR ]%b %s\n' "$COLOR_RED" "$COLOR_RESET" "$*"; exit 1; }
+die() {
+  printf '%b[ERR ]%b %s\n' "$COLOR_RED" "$COLOR_RESET" "$*"
+  exit 1
+}
 
 on_error() {
   local line_no="$1"
@@ -114,16 +160,16 @@ ensure_sudo() {
 parse_args() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      --purge-legacy)
-        PURGE_LEGACY=1
-        ;;
-      --help|-h)
-        print_usage
-        exit 0
-        ;;
-      *)
-        die "Unknown argument: $1"
-        ;;
+    --purge-legacy)
+      PURGE_LEGACY=1
+      ;;
+    --help | -h)
+      print_usage
+      exit 0
+      ;;
+    *)
+      die "Unknown argument: $1"
+      ;;
     esac
     shift
   done
@@ -139,17 +185,17 @@ detect_os() {
   OS_VERSION="${VERSION_ID:-unknown}"
 
   case "$OS_ID" in
-    ubuntu|debian|linuxmint) PKG_MANAGER="apt" ;;
-    fedora) PKG_MANAGER="dnf" ;;
-    arch) PKG_MANAGER="pacman" ;;
-    *)
-      case "${ID_LIKE:-}" in
-        *debian*) PKG_MANAGER="apt" ;;
-        *fedora*) PKG_MANAGER="dnf" ;;
-        *arch*) PKG_MANAGER="pacman" ;;
-        *) die "Unsupported OS: ${OS_ID}. Supported: debian, ubuntu, mint, fedora, arch." ;;
-      esac
-      ;;
+  ubuntu | debian | linuxmint) PKG_MANAGER="apt" ;;
+  fedora) PKG_MANAGER="dnf" ;;
+  arch) PKG_MANAGER="pacman" ;;
+  *)
+    case "${ID_LIKE:-}" in
+    *debian*) PKG_MANAGER="apt" ;;
+    *fedora*) PKG_MANAGER="dnf" ;;
+    *arch*) PKG_MANAGER="pacman" ;;
+    *) die "Unsupported OS: ${OS_ID}. Supported: debian, ubuntu, mint, fedora, arch." ;;
+    esac
+    ;;
   esac
 }
 
@@ -184,19 +230,20 @@ detect_session() {
 }
 
 print_detection_report() {
-  printf '\n=== System Detection (v%s) ===\n' "$SCRIPT_VERSION"
-  printf 'Host          : %s\n' "$HOSTNAME_VAL"
-  printf 'OS            : %s (id=%s, version=%s)\n' "$OS_NAME" "$OS_ID" "$OS_VERSION"
-  printf 'Package mgr   : %s\n' "$PKG_MANAGER"
-  printf 'Kernel        : %s\n' "$KERNEL"
-  printf 'Architecture  : %s\n' "$ARCH"
-  printf 'Virtualization: %s\n' "$VIRT"
-  printf 'CPU           : %s\n' "$CPU_MODEL"
-  printf 'Memory        : %s\n' "$MEM_TOTAL"
-  printf 'Desktop/WM    : %s\n' "$DETECTED_DE"
-  printf 'Session type  : %s\n' "$SESSION_TYPE"
-  printf 'TTY           : %s\n' "$TTY_NAME"
-  printf 'Log file      : %s\n\n' "$LOG_FILE"
+  ui_section_title "System Detection"
+  ui_kv "Host:" "$HOSTNAME_VAL"
+  ui_kv "OS:" "$OS_NAME (id=$OS_ID version=$OS_VERSION)"
+  ui_kv "Package mgr:" "$PKG_MANAGER"
+  ui_kv "Kernel:" "$KERNEL"
+  ui_kv "Architecture:" "$ARCH"
+  ui_kv "Virtualization:" "$VIRT"
+  ui_kv "CPU:" "$CPU_MODEL"
+  ui_kv "Memory:" "$MEM_TOTAL"
+  ui_kv "Desktop/WM:" "$DETECTED_DE"
+  ui_kv "Session type:" "$SESSION_TYPE"
+  ui_kv "TTY:" "$TTY_NAME"
+  ui_kv "Log file:" "$LOG_FILE"
+  printf '\n'
 }
 
 is_i3_tty_session() {
@@ -210,27 +257,27 @@ is_i3_tty_session() {
 pkg_update_upgrade() {
   info "Updating system to latest packages via ${PKG_MANAGER}"
   case "$PKG_MANAGER" in
-    apt)
-      sudo apt-get update -y
-      sudo DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
-      ;;
-    dnf)
-      sudo dnf -y upgrade --refresh
-      ;;
-    pacman)
-      sudo pacman -Syu --noconfirm
-      ;;
-    *) die "Unsupported package manager: ${PKG_MANAGER}" ;;
+  apt)
+    sudo apt-get update -y
+    sudo DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
+    ;;
+  dnf)
+    sudo dnf -y upgrade --refresh
+    ;;
+  pacman)
+    sudo pacman -Syu --noconfirm
+    ;;
+  *) die "Unsupported package manager: ${PKG_MANAGER}" ;;
   esac
 }
 
 pkg_install() {
   [[ $# -gt 0 ]] || return 0
   case "$PKG_MANAGER" in
-    apt) sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "$@" ;;
-    dnf) sudo dnf -y install "$@" ;;
-    pacman) sudo pacman -S --needed --noconfirm "$@" ;;
-    *) die "Unsupported package manager: ${PKG_MANAGER}" ;;
+  apt) sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "$@" ;;
+  dnf) sudo dnf -y install "$@" ;;
+  pacman) sudo pacman -S --needed --noconfirm "$@" ;;
+  *) die "Unsupported package manager: ${PKG_MANAGER}" ;;
   esac
 }
 
@@ -267,10 +314,10 @@ pkg_install_best_effort() {
 pkg_is_installed() {
   local pkg="$1"
   case "$PKG_MANAGER" in
-    apt) dpkg -s "$pkg" >/dev/null 2>&1 ;;
-    dnf) rpm -q "$pkg" >/dev/null 2>&1 ;;
-    pacman) pacman -Q "$pkg" >/dev/null 2>&1 ;;
-    *) return 1 ;;
+  apt) dpkg -s "$pkg" >/dev/null 2>&1 ;;
+  dnf) rpm -q "$pkg" >/dev/null 2>&1 ;;
+  pacman) pacman -Q "$pkg" >/dev/null 2>&1 ;;
+  *) return 1 ;;
   esac
 }
 
@@ -300,9 +347,9 @@ choose_style() {
 
   if [[ -n "${INSTALL_STYLE:-}" ]]; then
     case "${INSTALL_STYLE}" in
-      Config-VM|config-vm|minimal) STYLE="Config-VM" ;;
-      Config-Arch|config-arch|modern) STYLE="Config-Arch" ;;
-      *) die "Invalid INSTALL_STYLE='${INSTALL_STYLE}'. Use Config-VM or Config-Arch." ;;
+    Config-VM | config-vm | minimal) STYLE="Config-VM" ;;
+    Config-Arch | config-arch | modern) STYLE="Config-Arch" ;;
+    *) die "Invalid INSTALL_STYLE='${INSTALL_STYLE}'. Use Config-VM or Config-Arch." ;;
     esac
     ok "Selected style from INSTALL_STYLE: ${STYLE}"
     return 0
@@ -318,21 +365,22 @@ choose_style() {
     return 0
   fi
 
-  printf '%bStyle recommendation:%b\n' "$COLOR_PINK" "$COLOR_RESET"
-  printf '  - VM environment: choose Minimal style (Config-VM)\n'
-  printf '  - Base system: choose Modern + Blurred style (Config-Arch)\n\n'
-  printf '%bSelect style:%b\n' "$COLOR_PINK" "$COLOR_RESET"
-  printf '  1) Minimal style (Config-VM)\n'
-  printf '  2) Modern + Blurred style (Config-Arch)\n'
+  ui_section_title "Style recommendation"
+  ui_tree_line "VM environment: choose Minimal style (Config-VM)"
+  ui_tree_line "Base system: choose Modern + Blurred style (Config-Arch)"
+  printf '\n'
+  ui_section_title "Select style"
+  ui_tree_line "1) Minimal style (Config-VM)"
+  ui_tree_line "2) Modern + Blurred style (Config-Arch)"
   printf 'Enter choice [default %s]: ' "$default_choice"
 
   local answer
   IFS= read -r answer
   answer="${answer:-$default_choice}"
   case "$answer" in
-    1) STYLE="Config-VM" ;;
-    2) STYLE="Config-Arch" ;;
-    *) die "Invalid style choice: $answer" ;;
+  1) STYLE="Config-VM" ;;
+  2) STYLE="Config-Arch" ;;
+  *) die "Invalid style choice: $answer" ;;
   esac
 
   ok "Selected style: ${STYLE}"
@@ -410,65 +458,70 @@ select_apps_interactive() {
   fi
 
   while true; do
-    clear
+    ui_clear
     show_login_style_header
-    printf '%bSelect applications for %s%b\n\n' "$COLOR_PINK" "$STYLE" "$COLOR_RESET"
+    ui_prompt_line "install auth login"
+    ui_section_title "Add credential"
+    ui_tree_line "Select applications for ${STYLE}"
+    printf '\n'
     for i in "${!APP_KEYS[@]}"; do
-      mark="○"
-      [[ "${APP_SELECTED[$i]}" == "1" ]] && mark="●"
+      mark="$SYMBOL_UNSELECTED"
+      [[ "${APP_SELECTED[$i]}" == "1" ]] && mark="$SYMBOL_SELECTED"
       if [[ "$i" -eq "$idx" ]]; then
-        line="${COLOR_CYAN}▸${COLOR_RESET} ${mark} ${APP_LABELS[$i]}"
+        line="${COLOR_CYAN}${SYMBOL_POINTER}${COLOR_RESET} ${mark} ${APP_LABELS[$i]}"
       else
         line="  ${mark} ${APP_LABELS[$i]}"
       fi
       printf '%b\n' "$line"
     done
+
     printf '\n'
-    printf '%bControls:%b ↑/↓ move  Enter/Space toggle  c confirm  s defaults  q quit\n' "$COLOR_PURPLE" "$COLOR_RESET"
+    ui_hint "↑/↓ to select • Enter/Space: toggle"
+    ui_hint "c: confirm • s: defaults • q: quit"
 
     key="$(read_keypress)"
     case "$key" in
-      $'\x1b[A') idx=$(( (idx - 1 + count) % count )) ;;
-      $'\x1b[B') idx=$(( (idx + 1) % count )) ;;
-      " "|$'\n'|$'\r')
-        if [[ "${APP_SELECTED[$idx]}" == "1" ]]; then
-          APP_SELECTED[$idx]=0
-        else
-          APP_SELECTED[$idx]=1
-        fi
-        ;;
-      c|C)
-        clear
-        return 0
-        ;;
-      s|S)
-        reset_app_defaults
-        ;;
-      q|Q)
-        die "Selection cancelled by user"
-        ;;
+    $'\x1b[A') idx=$(((idx - 1 + count) % count)) ;;
+    $'\x1b[B') idx=$(((idx + 1) % count)) ;;
+    " " | $'\n' | $'\r')
+      if [[ "${APP_SELECTED[$idx]}" == "1" ]]; then
+        APP_SELECTED[$idx]=0
+      else
+        APP_SELECTED[$idx]=1
+      fi
+      ;;
+    c | C)
+      ui_clear
+      return 0
+      ;;
+    s | S)
+      reset_app_defaults
+      ;;
+    q | Q)
+      die "Selection cancelled by user"
+      ;;
     esac
   done
 }
 
 print_selected_apps() {
   local i
-  printf '\nSelected applications:\n'
+  ui_section_title "Selected applications"
   for i in "${!APP_KEYS[@]}"; do
     if [[ "${APP_SELECTED[$i]}" == "1" ]]; then
-      printf ' - %s\n' "${APP_LABELS[$i]}"
-    fi
+      ui_tree_line "${APP_LABELS[$i]}"
+      fi
   done
   printf '\n'
 }
 
 go_arch() {
   case "$ARCH" in
-    x86_64) echo "amd64" ;;
-    aarch64|arm64) echo "arm64" ;;
-    i386|i686) echo "386" ;;
-    armv6l) echo "armv6l" ;;
-    *) echo "amd64" ;;
+  x86_64) echo "amd64" ;;
+  aarch64 | arm64) echo "arm64" ;;
+  i386 | i686) echo "386" ;;
+  armv6l) echo "armv6l" ;;
+  *) echo "amd64" ;;
   esac
 }
 
@@ -555,9 +608,9 @@ EOF
 
 ensure_runtime_deps() {
   case "$PKG_MANAGER" in
-    apt) pkg_install curl wget ca-certificates unzip tar xz-utils git build-essential ;;
-    dnf) pkg_install curl wget ca-certificates unzip tar xz git gcc gcc-c++ make ;;
-    pacman) pkg_install curl wget ca-certificates unzip tar xz git base-devel ;;
+  apt) pkg_install curl wget ca-certificates unzip tar xz-utils git build-essential ;;
+  dnf) pkg_install curl wget ca-certificates unzip tar xz git gcc gcc-c++ make ;;
+  pacman) pkg_install curl wget ca-certificates unzip tar xz git base-devel ;;
   esac
 
   ensure_rust_latest
@@ -653,30 +706,30 @@ resolve_package_sets() {
   STYLE_UI_PACKAGES=()
 
   case "$PKG_MANAGER" in
-    apt)
-      CORE_PACKAGES=(git neovim tmux zsh ripgrep fd-find fzf jq)
-      if [[ "$STYLE" == "Config-VM" ]]; then
-        STYLE_UI_PACKAGES=(xorg xinit i3 i3status i3lock feh alacritty)
-      else
-        STYLE_UI_PACKAGES=(xorg xinit i3 i3status i3lock feh alacritty)
-      fi
-      ;;
-    dnf)
-      CORE_PACKAGES=(git neovim tmux zsh ripgrep fd-find fzf jq)
-      if [[ "$STYLE" == "Config-VM" ]]; then
-        STYLE_UI_PACKAGES=(xorg-x11-server-Xorg xorg-x11-xinit i3 i3status i3lock xterm feh alacritty)
-      else
-        STYLE_UI_PACKAGES=(xorg-x11-server-Xorg xorg-x11-xinit i3 i3status i3lock xterm feh alacritty)
-      fi
-      ;;
-    pacman)
-      CORE_PACKAGES=(git neovim tmux zsh ripgrep fd fzf jq)
-      if [[ "$STYLE" == "Config-VM" ]]; then
-        STYLE_UI_PACKAGES=(xorg-server xorg-xinit i3-wm i3status i3lock feh alacritty)
-      else
-        STYLE_UI_PACKAGES=(xorg-server xorg-xinit i3-wm i3status i3lock feh alacritty)
-      fi
-      ;;
+  apt)
+    CORE_PACKAGES=(git neovim tmux zsh ripgrep fd-find fzf jq)
+    if [[ "$STYLE" == "Config-VM" ]]; then
+      STYLE_UI_PACKAGES=(xorg xinit i3 i3status i3lock feh alacritty)
+    else
+      STYLE_UI_PACKAGES=(xorg xinit i3 i3status i3lock feh alacritty)
+    fi
+    ;;
+  dnf)
+    CORE_PACKAGES=(git neovim tmux zsh ripgrep fd-find fzf jq)
+    if [[ "$STYLE" == "Config-VM" ]]; then
+      STYLE_UI_PACKAGES=(xorg-x11-server-Xorg xorg-x11-xinit i3 i3status i3lock xterm feh alacritty)
+    else
+      STYLE_UI_PACKAGES=(xorg-x11-server-Xorg xorg-x11-xinit i3 i3status i3lock xterm feh alacritty)
+    fi
+    ;;
+  pacman)
+    CORE_PACKAGES=(git neovim tmux zsh ripgrep fd fzf jq)
+    if [[ "$STYLE" == "Config-VM" ]]; then
+      STYLE_UI_PACKAGES=(xorg-server xorg-xinit i3-wm i3status i3lock feh alacritty)
+    else
+      STYLE_UI_PACKAGES=(xorg-server xorg-xinit i3-wm i3status i3lock feh alacritty)
+    fi
+    ;;
   esac
 }
 
@@ -692,17 +745,17 @@ add_pkg_unique() {
 map_style_item_to_packages() {
   local item="$1"
   case "$item" in
-    alacritty) add_pkg_unique "alacritty" ;;
-    i3)
-      case "$PKG_MANAGER" in
-        apt|dnf) add_pkg_unique "i3" ;;
-        pacman) add_pkg_unique "i3-wm" ;;
-      esac
-      add_pkg_unique "i3status"
-      add_pkg_unique "i3lock"
-      ;;
-    nvim) add_pkg_unique "neovim" ;;
-    polybar|fastfetch|bat|btop|ghostty|picom|rofi|obs-studio|yazi) ;;
+  alacritty) add_pkg_unique "alacritty" ;;
+  i3)
+    case "$PKG_MANAGER" in
+    apt | dnf) add_pkg_unique "i3" ;;
+    pacman) add_pkg_unique "i3-wm" ;;
+    esac
+    add_pkg_unique "i3status"
+    add_pkg_unique "i3lock"
+    ;;
+  nvim) add_pkg_unique "neovim" ;;
+  polybar | fastfetch | bat | btop | ghostty | picom | rofi | obs-studio | yazi) ;;
   esac
 }
 
@@ -721,24 +774,24 @@ resolve_style_packages_from_repo() {
   STYLE_UI_PACKAGES=()
 
   case "$PKG_MANAGER" in
-    apt)
-      add_pkg_unique "xorg"
-      add_pkg_unique "xinit"
-      add_pkg_unique "xterm"
-      add_pkg_unique "feh"
-      ;;
-    dnf)
-      add_pkg_unique "xorg-x11-server-Xorg"
-      add_pkg_unique "xorg-x11-xinit"
-      add_pkg_unique "xterm"
-      add_pkg_unique "feh"
-      ;;
-    pacman)
-      add_pkg_unique "xorg-server"
-      add_pkg_unique "xorg-xinit"
-      add_pkg_unique "xterm"
-      add_pkg_unique "feh"
-      ;;
+  apt)
+    add_pkg_unique "xorg"
+    add_pkg_unique "xinit"
+    add_pkg_unique "xterm"
+    add_pkg_unique "feh"
+    ;;
+  dnf)
+    add_pkg_unique "xorg-x11-server-Xorg"
+    add_pkg_unique "xorg-x11-xinit"
+    add_pkg_unique "xterm"
+    add_pkg_unique "feh"
+    ;;
+  pacman)
+    add_pkg_unique "xorg-server"
+    add_pkg_unique "xorg-xinit"
+    add_pkg_unique "xterm"
+    add_pkg_unique "feh"
+    ;;
   esac
 
   local entry item
@@ -803,58 +856,76 @@ is_app_selected() {
 }
 
 install_vscode() {
-  command -v code >/dev/null 2>&1 && { ok "VS Code already installed"; return 0; }
+  command -v code >/dev/null 2>&1 && {
+    ok "VS Code already installed"
+    return 0
+  }
   case "$PKG_MANAGER" in
-    apt)
-      local apt_arch
-      apt_arch="$(dpkg --print-architecture 2>/dev/null || echo amd64)"
-      sudo mkdir -p /etc/apt/keyrings
-      wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /etc/apt/keyrings/microsoft.gpg >/dev/null
-      printf 'deb [arch=%s signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/code stable main\n' "$apt_arch" | sudo tee /etc/apt/sources.list.d/vscode.list >/dev/null
-      sudo apt-get update -y
-      pkg_install code
-      ;;
-    *)
-      warn "VS Code auto-install currently implemented for apt family only"
-      return 1
-      ;;
+  apt)
+    local apt_arch
+    apt_arch="$(dpkg --print-architecture 2>/dev/null || echo amd64)"
+    sudo mkdir -p /etc/apt/keyrings
+    wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /etc/apt/keyrings/microsoft.gpg >/dev/null
+    printf 'deb [arch=%s signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/code stable main\n' "$apt_arch" | sudo tee /etc/apt/sources.list.d/vscode.list >/dev/null
+    sudo apt-get update -y
+    pkg_install code
+    ;;
+  *)
+    warn "VS Code auto-install currently implemented for apt family only"
+    return 1
+    ;;
   esac
 }
 
 install_antigravity() {
   case "$PKG_MANAGER" in
-    apt)
-      pkg_is_installed antigravity && { ok "Antigravity already installed"; return 0; }
-      sudo mkdir -p /etc/apt/keyrings
-      curl -fsSL https://us-central1-apt.pkg.dev/doc/repo-signing-key.gpg | sudo gpg --dearmor --yes -o /etc/apt/keyrings/antigravity-repo-key.gpg
-      printf 'deb [signed-by=/etc/apt/keyrings/antigravity-repo-key.gpg] https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev/ antigravity-debian main\n' | sudo tee /etc/apt/sources.list.d/antigravity.list >/dev/null
-      sudo apt-get update -y
-      pkg_install antigravity
-      ;;
-    *)
-      warn "Antigravity auto-install currently implemented for apt family only"
-      return 1
-      ;;
+  apt)
+    pkg_is_installed antigravity && {
+      ok "Antigravity already installed"
+      return 0
+    }
+    sudo mkdir -p /etc/apt/keyrings
+    curl -fsSL https://us-central1-apt.pkg.dev/doc/repo-signing-key.gpg | sudo gpg --dearmor --yes -o /etc/apt/keyrings/antigravity-repo-key.gpg
+    printf 'deb [signed-by=/etc/apt/keyrings/antigravity-repo-key.gpg] https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev/ antigravity-debian main\n' | sudo tee /etc/apt/sources.list.d/antigravity.list >/dev/null
+    sudo apt-get update -y
+    pkg_install antigravity
+    ;;
+  *)
+    warn "Antigravity auto-install currently implemented for apt family only"
+    return 1
+    ;;
   esac
 }
 
 install_opencode() {
-  command -v opencode >/dev/null 2>&1 && { ok "OpenCode CLI already installed"; return 0; }
+  command -v opencode >/dev/null 2>&1 && {
+    ok "OpenCode CLI already installed"
+    return 0
+  }
   timeout 240 bun install -g opencode-ai
 }
 
 install_codex() {
-  command -v codex >/dev/null 2>&1 && { ok "Codex CLI already installed"; return 0; }
+  command -v codex >/dev/null 2>&1 && {
+    ok "Codex CLI already installed"
+    return 0
+  }
   timeout 240 npm install -g @openai/codex
 }
 
 install_claude() {
-  command -v claude >/dev/null 2>&1 && { ok "Claude Code already installed"; return 0; }
+  command -v claude >/dev/null 2>&1 && {
+    ok "Claude Code already installed"
+    return 0
+  }
   timeout 240 bash -lc 'curl -fsSL https://claude.ai/install.sh | bash'
 }
 
 install_yazi_from_cargo() {
-  command -v yazi >/dev/null 2>&1 && { ok "Yazi already installed"; return 0; }
+  command -v yazi >/dev/null 2>&1 && {
+    ok "Yazi already installed"
+    return 0
+  }
   if ! command -v cargo >/dev/null 2>&1; then
     warn "cargo not available; cannot install yazi"
     return 1
@@ -863,11 +934,14 @@ install_yazi_from_cargo() {
 }
 
 install_thunar() {
-  command -v thunar >/dev/null 2>&1 && { ok "Thunar already installed"; return 0; }
+  command -v thunar >/dev/null 2>&1 && {
+    ok "Thunar already installed"
+    return 0
+  }
   case "$PKG_MANAGER" in
-    apt) pkg_install thunar thunar-volman gvfs gvfs-backends ;;
-    dnf) pkg_install thunar thunar-volman gvfs gvfs-archive ;;
-    pacman) pkg_install thunar thunar-volman gvfs ;;
+  apt) pkg_install thunar thunar-volman gvfs gvfs-backends ;;
+  dnf) pkg_install thunar thunar-volman gvfs gvfs-archive ;;
+  pacman) pkg_install thunar thunar-volman gvfs ;;
   esac
 }
 
@@ -877,14 +951,14 @@ install_selected_optional_apps() {
   for key in "${APP_KEYS[@]}"; do
     is_app_selected "$key" || continue
     case "$key" in
-      antigravity) install_antigravity || true ;;
-      code) install_vscode || true ;;
-      opencode) install_opencode || true ;;
-      codex) install_codex || true ;;
-      claude) install_claude || true ;;
-      yazi) install_yazi_from_cargo || true ;;
-      thunar) install_thunar || true ;;
-      ghostty|rofi|picom|polybar|fastfetch|btop|bat|obs-studio) extra_pkgs+=("$key") ;;
+    antigravity) install_antigravity || true ;;
+    code) install_vscode || true ;;
+    opencode) install_opencode || true ;;
+    codex) install_codex || true ;;
+    claude) install_claude || true ;;
+    yazi) install_yazi_from_cargo || true ;;
+    thunar) install_thunar || true ;;
+    ghostty | rofi | picom | polybar | fastfetch | btop | bat | obs-studio) extra_pkgs+=("$key") ;;
     esac
   done
 
@@ -897,18 +971,18 @@ install_selected_optional_apps() {
 cmd_version_line() {
   local cmd="$1"
   case "$cmd" in
-    go) go version 2>/dev/null | head -n1 ;;
-    rustc) rustc --version 2>/dev/null | head -n1 ;;
-    node) node --version 2>/dev/null | head -n1 ;;
-    bun) bun --version 2>/dev/null | head -n1 ;;
-    nvim) nvim --version 2>/dev/null | head -n1 ;;
-    git) git --version 2>/dev/null | head -n1 ;;
-    i3) i3 --version 2>/dev/null | head -n1 ;;
-    i3status) i3status --version 2>/dev/null | head -n1 ;;
-    polybar) polybar --version 2>/dev/null | head -n1 ;;
-    rofi) rofi -version 2>/dev/null | head -n1 ;;
-    picom) picom --version 2>/dev/null | head -n1 ;;
-    *) "$cmd" --version 2>/dev/null | head -n1 ;;
+  go) go version 2>/dev/null | head -n1 ;;
+  rustc) rustc --version 2>/dev/null | head -n1 ;;
+  node) node --version 2>/dev/null | head -n1 ;;
+  bun) bun --version 2>/dev/null | head -n1 ;;
+  nvim) nvim --version 2>/dev/null | head -n1 ;;
+  git) git --version 2>/dev/null | head -n1 ;;
+  i3) i3 --version 2>/dev/null | head -n1 ;;
+  i3status) i3status --version 2>/dev/null | head -n1 ;;
+  polybar) polybar --version 2>/dev/null | head -n1 ;;
+  rofi) rofi -version 2>/dev/null | head -n1 ;;
+  picom) picom --version 2>/dev/null | head -n1 ;;
+  *) "$cmd" --version 2>/dev/null | head -n1 ;;
   esac
 }
 
@@ -976,17 +1050,17 @@ purge_legacy_desktop_stacks() {
   fi
 
   case "$PKG_MANAGER" in
-    apt)
-      sudo apt-get purge -y gnome-shell gdm3 plasma-desktop sddm xfce4 lxde lxqt cinnamon || true
-      sudo apt-get autoremove -y --purge || true
-      ;;
-    dnf)
-      sudo dnf -y remove @gnome-desktop @kde-desktop @xfce-desktop @lxde-desktop @cinnamon-desktop || true
-      sudo dnf -y autoremove || true
-      ;;
-    pacman)
-      sudo pacman -Rns --noconfirm gnome gdm plasma sddm xfce4 lxde lxqt cinnamon || true
-      ;;
+  apt)
+    sudo apt-get purge -y gnome-shell gdm3 plasma-desktop sddm xfce4 lxde lxqt cinnamon || true
+    sudo apt-get autoremove -y --purge || true
+    ;;
+  dnf)
+    sudo dnf -y remove @gnome-desktop @kde-desktop @xfce-desktop @lxde-desktop @cinnamon-desktop || true
+    sudo dnf -y autoremove || true
+    ;;
+  pacman)
+    sudo pacman -Rns --noconfirm gnome gdm plasma sddm xfce4 lxde lxqt cinnamon || true
+    ;;
   esac
 
   rm -rf "$HOME/.config/gnome" "$HOME/.config/kde" "$HOME/.config/xfce4" || true

@@ -24,7 +24,7 @@ Latest released installer asset URL:
 Download and run:
 
 ```bash
-curl -fsSL "https://github.com/VyomJain6904/Config/releases/download/v1.0/install.sh" -o install.sh
+curl -fsSL "https://github.com/VyomJain6904/Config/releases/download/v1.2/install.sh" -o install.sh
 chmod +x install.sh
 ./install.sh
 ```

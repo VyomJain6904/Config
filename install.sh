@@ -468,27 +468,43 @@ choose_style() {
     return 0
   fi
 
-  ui_section_title "Style recommendation"
-  ui_tree_line "VM environment: choose Minimal style (Config-VM)"
-  ui_tree_line "Base system: choose Modern + Blurred style (Config-Arch)"
-  printf '\n'
-  ui_section_title "Select style"
-  ui_tree_line "1) Minimal style (Config-VM)"
-  ui_tree_line "2) Modern + Blurred style (Config-Arch)"
-  printf 'Enter choice [default %s]: ' "$default_choice"
+  local idx
+  idx=$((default_choice - 1))
+  local key options=("Minimal style (Config-VM)" "Modern + Blurred style (Config-Arch)")
 
-  local answer
-  if [[ -n "$USER_INPUT_TTY" ]]; then
-    IFS= read -r answer < "$USER_INPUT_TTY"
-  else
-    IFS= read -r answer
-  fi
-  answer="${answer:-$default_choice}"
-  case "$answer" in
-  1) STYLE="Config-VM" ;;
-  2) STYLE="Config-Arch" ;;
-  *) die "Invalid style choice: $answer" ;;
-  esac
+  while true; do
+    ui_clear
+    show_login_style_header
+    ui_section_title "Style recommendation"
+    ui_tree_line "VM environment: choose Minimal style (Config-VM)"
+    ui_tree_line "Base system: choose Modern + Blurred style (Config-Arch)"
+    printf '\n'
+    ui_section_title "Select style"
+
+    local i marker
+    for i in "${!options[@]}"; do
+      marker="$SYMBOL_UNSELECTED"
+      [[ "$i" -eq "$idx" ]] && marker="$SYMBOL_SELECTED"
+      if [[ "$i" -eq "$idx" ]]; then
+        printf '%b%s%b %s\n' "$COLOR_CYAN" "$SYMBOL_POINTER" "$COLOR_RESET" "$marker ${options[$i]}"
+      else
+        printf '  %s %s\n' "$marker" "${options[$i]}"
+      fi
+    done
+    printf '\n'
+    ui_hint "↑/↓ to select • Enter/c confirm • q quit"
+
+    key="$(read_keypress)"
+    case "$key" in
+      $'\x1b[A') idx=$(((idx - 1 + 2) % 2)) ;;
+      $'\x1b[B') idx=$(((idx + 1) % 2)) ;;
+      ""|$'\n'|$'\r'|c|C)
+        [[ "$idx" -eq 0 ]] && STYLE="Config-VM" || STYLE="Config-Arch"
+        break
+        ;;
+      q|Q) die "Cancelled by user" ;;
+    esac
+  done
 
   ok "Selected style: ${STYLE}"
 }
@@ -498,9 +514,9 @@ confirm_install_prompt() {
   local answer
   printf 'Install applications for %s now? [Y/n]: ' "$STYLE"
   if [[ -n "$USER_INPUT_TTY" ]]; then
-    IFS= read -r answer < "$USER_INPUT_TTY"
+    IFS= read -r answer < "$USER_INPUT_TTY" || answer=""
   else
-    IFS= read -r answer
+    IFS= read -r answer || answer=""
   fi
   [[ "${answer,,}" == "n" ]] && die "Cancelled by user"
 }

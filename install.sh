@@ -190,16 +190,27 @@ print_phase_banner() {
   ui_tree_line "$phase_desc"
 }
 
-show_style_header() {
+latest_commit_message() {
   local latest_msg
   latest_msg="$(git -C "$SCRIPT_DIR" log -1 --pretty=%s 2>/dev/null || true)"
-  [[ -n "$latest_msg" ]] || latest_msg="(no git commit message available)"
+
+  if [[ -z "$latest_msg" ]] && command -v curl >/dev/null 2>&1; then
+    latest_msg="$(timeout 8 curl -fsSL "https://api.github.com/repos/VyomJain6904/Config/commits/main" 2>/dev/null | sed -n 's/.*"message": "\([^"]*\)".*/\1/p' | head -n1 || true)"
+  fi
+
+  [[ -n "$latest_msg" ]] || latest_msg="(latest commit unavailable)"
+  printf '%s' "$latest_msg"
+}
+
+show_style_header() {
+  local latest_msg
+  latest_msg="$(latest_commit_message)"
 
   printf '\n'
   ui_tree_line "#  install.sh  v2.0"
   ui_tree_line "#  Supports: Ubuntu · Debian · Kali · Linux Mint · Pop!_OS · Fedora · Arch Linux "
   ui_tree_line "#  Author : Vyom Jain"
-  ui_tree_line "#  Updated: ${latest_msg}"
+  ui_tree_line "#  Latest Commit: ${latest_msg}"
   printf '\n'
 }
 

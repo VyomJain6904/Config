@@ -920,7 +920,14 @@ ensure_node_latest() {
     export NVM_DIR="$HOME/.config/nvm"
   else
     export NVM_DIR="$HOME/.nvm"
-    NVM_DIR="$NVM_DIR" curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+    if ! timeout 120 bash -lc 'NVM_DIR="$0" curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash' "$NVM_DIR"; then
+      if [[ -n "$current_node" ]]; then
+        warn "nvm install failed; keeping existing Node ${current_node}"
+        return 0
+      fi
+      warn "nvm install failed from network script"
+      return 1
+    fi
     if [[ ! -f "$HOME/.nvm/nvm.sh" && -f "$HOME/.config/nvm/nvm.sh" ]]; then
       export NVM_DIR="$HOME/.config/nvm"
     fi

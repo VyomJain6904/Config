@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
+# ══════════════════════════════════════════════════════════════════════════════
+#  install-VM.sh  v2.0
+#  Supports: Ubuntu · Debian · Kali · Linux Mint · Pop!_OS · Zorin · Elementary
+#  Author : Vyom Jain
+# ══════════════════════════════════════════════════════════════════════════════
+# Strict mode for safer execution.
 set -Eeuo pipefail
 
 SCRIPT_VERSION="1.0.0"
@@ -15,6 +21,10 @@ ORIG_STDOUT_IS_TTY=0
 [[ -t 1 ]] && ORIG_STDOUT_IS_TTY=1
 
 exec > >(tee -a "$LOG_FILE") 2>&1
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  GLOBAL RUNTIME STATE
+# ─────────────────────────────────────────────────────────────────────────────
 
 STYLE=""
 OS_ID=""
@@ -54,6 +64,7 @@ STATE_LAST_OK=0
 STATE_PHASE="none"
 STATE_DETECTED_DE_PKGS=""
 CURRENT_DETECTED_DE_PKGS=""
+STATE_DEFERRED_KEYS=""
 
 declare -a APP_KEYS=()
 declare -a APP_LABELS=()
@@ -64,6 +75,10 @@ APT_CACHE_REFRESHED=0
 
 declare -a DEFERRED_APP_KEYS=()
 declare -a DEFERRED_APP_REASONS=()
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  UI / OUTPUT HELPERS
+# ─────────────────────────────────────────────────────────────────────────────
 
 print_usage() {
   cat <<'EOF'
@@ -112,6 +127,15 @@ current_phase_badge() {
   phase1_done) printf 'phase 2/2' ;;
   phase2_done) printf 'phase 2/2 done' ;;
   *) printf 'phase 1/2' ;;
+  esac
+}
+
+style_display_name() {
+  local style_val="${1:-$STYLE}"
+  case "$style_val" in
+  Config-VM) printf 'Minimal' ;;
+  Config-Arch) printf 'Modern' ;;
+  *) printf '%s' "$style_val" ;;
   esac
 }
 
@@ -165,12 +189,16 @@ print_phase_banner() {
   ui_tree_line "$phase_desc"
 }
 
-show_login_style_header() {
+show_style_header() {
+  local latest_msg
+  latest_msg="$(git -C "$SCRIPT_DIR" log -1 --pretty=%s 2>/dev/null || true)"
+  [[ -n "$latest_msg" ]] || latest_msg="(no git commit message available)"
+
   printf '\n'
-  ui_prompt_line "install auth list"
-  printf '\n'
-  ui_tree_line "Unified Installer"
-  ui_tree_line "Dracula Theme UI · v${SCRIPT_VERSION}"
+  ui_tree_line "#  install.sh  v2.0"
+  ui_tree_line "#  Supports: Ubuntu · Debian · Kali · Linux Mint · Pop!_OS · Fedora · Arch Linux "
+  ui_tree_line "#  Author : Vyom Jain"
+  ui_tree_line "#  Updated: ${latest_msg}"
   printf '\n'
 }
 
@@ -181,6 +209,10 @@ die() {
   printf '%b[ERR ]%b %s\n' "$COLOR_RED" "$COLOR_RESET" "$*"
   exit 1
 }
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  CORE UTILITIES (PKG + STATE)
+# ─────────────────────────────────────────────────────────────────────────────
 
 on_error() {
   local line_no="$1"
@@ -333,6 +365,7 @@ pkg_install() {
 }
 
 pkg_install_best_effort() {
+  [[ $# -eq 0 ]] && return 0
   local missing=()
   local p
   for p in "$@"; do
@@ -425,6 +458,12 @@ load_state() {
     STATE_LAST_OK="${LAST_OK:-0}"
     STATE_PHASE="${PHASE:-none}"
     STATE_DETECTED_DE_PKGS="${DETECTED_DE_PKGS:-}"
+    STATE_DEFERRED_KEYS="${DEFERRED_KEYS:-}"
+
+    DEFERRED_APP_KEYS=()
+    if [[ -n "$STATE_DEFERRED_KEYS" ]]; then
+      IFS=',' read -r -a DEFERRED_APP_KEYS <<<"$STATE_DEFERRED_KEYS"
+    fi
   fi
 }
 
@@ -432,12 +471,20 @@ save_state() {
   local ok_state="${1:-0}"
   local phase_state="${2:-none}"
   local de_pkgs_state="${3:-}"
+  local deferred_keys_state=""
+  if [[ ${#DEFERRED_APP_KEYS[@]} -gt 0 ]]; then
+    deferred_keys_state="$(
+      IFS=,
+      printf '%s' "${DEFERRED_APP_KEYS[*]}"
+    )"
+  fi
   mkdir -p "$STATE_DIR"
   cat >"$STATE_FILE" <<EOF
 STYLE=${STYLE}
 LAST_OK=${ok_state}
 PHASE=${phase_state}
 DETECTED_DE_PKGS=${de_pkgs_state}
+DEFERRED_KEYS=${deferred_keys_state}
 LAST_RUN_AT=$(date +%s)
 EOF
 }
@@ -452,9 +499,9 @@ choose_style() {
     case "${INSTALL_STYLE}" in
     Config-VM | config-vm | minimal) STYLE="Config-VM" ;;
     Config-Arch | config-arch | modern) STYLE="Config-Arch" ;;
-    *) die "Invalid INSTALL_STYLE='${INSTALL_STYLE}'. Use Config-VM or Config-Arch." ;;
+    *) die "Invalid INSTALL_STYLE='${INSTALL_STYLE}'. Use minimal or modern." ;;
     esac
-    ok "Selected style from INSTALL_STYLE: ${STYLE}"
+    ok "Selected style from INSTALL_STYLE: $(style_display_name "$STYLE")"
     return 0
   fi
 
@@ -464,20 +511,20 @@ choose_style() {
     else
       STYLE="Config-Arch"
     fi
-    warn "Non-interactive shell detected. Auto-selected style: ${STYLE}"
+    warn "Non-interactive shell detected. Auto-selected style: $(style_display_name "$STYLE")"
     return 0
   fi
 
   local idx
   idx=$((default_choice - 1))
-  local key options=("Minimal style (Config-VM)" "Modern + Blurred style (Config-Arch)")
+  local key options=("Minimal style" "Modern style")
 
   while true; do
     ui_clear
-    show_login_style_header
+    show_style_header
     ui_section_title "Style recommendation"
-    ui_tree_line "VM environment: choose Minimal style (Config-VM)"
-    ui_tree_line "Base system: choose Modern + Blurred style (Config-Arch)"
+    ui_tree_line "VM environment: choose Minimal style"
+    ui_tree_line "Base system: choose Modern style"
     printf '\n'
     ui_section_title "Select style"
 
@@ -496,29 +543,42 @@ choose_style() {
 
     key="$(read_keypress)"
     case "$key" in
-      $'\x1b[A') idx=$(((idx - 1 + 2) % 2)) ;;
-      $'\x1b[B') idx=$(((idx + 1) % 2)) ;;
-      ""|$'\n'|$'\r'|c|C)
-        [[ "$idx" -eq 0 ]] && STYLE="Config-VM" || STYLE="Config-Arch"
-        break
-        ;;
-      q|Q) die "Cancelled by user" ;;
+    $'\x1b[A') idx=$(((idx - 1 + 2) % 2)) ;;
+    $'\x1b[B') idx=$(((idx + 1) % 2)) ;;
+    "" | $'\n' | $'\r' | c | C)
+      if [[ "$idx" -eq 0 ]]; then
+        STYLE="Config-VM"
+      else
+        STYLE="Config-Arch"
+      fi
+      break
+      ;;
+    q | Q) die "Cancelled by user" ;;
     esac
   done
 
-  ok "Selected style: ${STYLE}"
+  ok "Selected style: $(style_display_name "$STYLE")"
 }
 
+# ─────────────────────────────────────────────────────────────────────────────
+#  INTERACTIVE MENUS
+# ─────────────────────────────────────────────────────────────────────────────
+
 confirm_install_prompt() {
-  [[ "$IS_INTERACTIVE" -eq 0 ]] && return 0
+  if [[ "$IS_INTERACTIVE" -eq 0 ]]; then
+    return 0
+  fi
   local answer
-  printf 'Install applications for %s now? [Y/n]: ' "$STYLE"
+  printf 'Install applications for %s style now? [Y/n]: ' "$(style_display_name "$STYLE")"
   if [[ -n "$USER_INPUT_TTY" ]]; then
-    IFS= read -r answer < "$USER_INPUT_TTY" || answer=""
+    IFS= read -r answer <"$USER_INPUT_TTY" || answer=""
   else
     IFS= read -r answer || answer=""
   fi
-  [[ "${answer,,}" == "n" ]] && die "Cancelled by user"
+  if [[ "${answer,,}" == "n" ]]; then
+    die "Cancelled by user"
+  fi
+  return 0
 }
 
 add_app_option() {
@@ -548,7 +608,7 @@ build_app_selection_for_style() {
   APP_SELECTED=()
 
   add_app_option "antigravity" "Antigravity" "$default_apt_only"
-  add_app_option "code" "VS Code" "$default_apt_only"
+  add_app_option "code" "VS Code" 0
   add_app_option "opencode" "OpenCode CLI" 1
   add_app_option "codex" "Codex CLI" 1
   add_app_option "claude" "Claude Code" 1
@@ -574,13 +634,13 @@ build_app_selection_for_style() {
 read_keypress() {
   local key seq
   if [[ -n "$USER_INPUT_TTY" ]]; then
-    IFS= read -rsn1 key < "$USER_INPUT_TTY" || key=""
+    IFS= read -rsn1 key <"$USER_INPUT_TTY" || key=""
   else
     IFS= read -rsn1 key || key=""
   fi
   if [[ "$key" == $'\x1b' ]]; then
     if [[ -n "$USER_INPUT_TTY" ]]; then
-      IFS= read -rsn2 seq < "$USER_INPUT_TTY" || seq=""
+      IFS= read -rsn2 seq <"$USER_INPUT_TTY" || seq=""
     else
       IFS= read -rsn2 seq || seq=""
     fi
@@ -601,9 +661,9 @@ select_apps_interactive() {
 
   while true; do
     ui_clear
-    show_login_style_header
-    ui_prompt_line "install auth login"
-    ui_section_title "Add credential"
+    show_style_header
+    ui_prompt_line ""
+    ui_section_title ""
     ui_tree_line "Select applications for ${STYLE}"
     printf '\n'
     for i in "${!APP_KEYS[@]}"; do
@@ -696,6 +756,10 @@ ensure_rust_latest() {
   rustup update stable
 }
 
+# ─────────────────────────────────────────────────────────────────────────────
+#  TOOLCHAIN INSTALLERS
+# ─────────────────────────────────────────────────────────────────────────────
+
 ensure_go_latest() {
   info "Ensuring Go is latest"
   if [[ -x "/usr/bin/go" ]]; then
@@ -714,7 +778,7 @@ ensure_go_latest() {
       return 0
     fi
     ;;
-  dnf|pacman)
+  dnf | pacman)
     if pkg_is_installed go && [[ "${FORCE_GO_UPDATE:-0}" != "1" ]]; then
       ok "Go package already installed; skipping reinstall"
       return 0
@@ -854,6 +918,13 @@ export NVM_DIR="$NVM_DIR"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
 EOF
   fi
+
+  if [[ -f "$HOME/.zprofile" ]] && ! grep -q 'NVM_DIR' "$HOME/.zprofile" 2>/dev/null; then
+    cat >>"$HOME/.zprofile" <<EOF
+export NVM_DIR="$NVM_DIR"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+EOF
+  fi
 }
 
 ensure_bun_latest() {
@@ -980,6 +1051,10 @@ ensure_oh_my_zsh_stack() {
   zshrc_append_if_missing 'eval "$(starship init zsh)"' 'eval "$(starship init zsh)"'
 }
 
+# ─────────────────────────────────────────────────────────────────────────────
+#  SHELL / THEME / DESKTOP CONFIG
+# ─────────────────────────────────────────────────────────────────────────────
+
 ensure_zsh_default_shell() {
   info "Ensuring zsh is default shell"
   pkg_install_best_effort zsh
@@ -1005,7 +1080,7 @@ ensure_zsh_default_shell() {
   if [[ "$IS_INTERACTIVE" -eq 1 ]]; then
     printf 'Set zsh as default login shell now? [Y/n]: '
     if [[ -n "$USER_INPUT_TTY" ]]; then
-      IFS= read -r answer < "$USER_INPUT_TTY"
+      IFS= read -r answer <"$USER_INPUT_TTY"
     else
       IFS= read -r answer
     fi
@@ -1172,11 +1247,11 @@ fetch_style_from_github() {
   TMP_REPO_DIR="$(mktemp -d)"
   info "Fetching ${STYLE} from GitHub"
 
-  timeout 120 git clone --depth 1 --filter=blob:none --sparse --branch "$REPO_BRANCH" "$REPO_URL" "$TMP_REPO_DIR/repo" || \
-    timeout 120 git clone --depth 1 --filter=blob:none --sparse --branch "$REPO_BRANCH" "$REPO_URL" "$TMP_REPO_DIR/repo" || \
+  timeout 120 git clone --depth 1 --filter=blob:none --sparse --branch "$REPO_BRANCH" "$REPO_URL" "$TMP_REPO_DIR/repo" ||
+    timeout 120 git clone --depth 1 --filter=blob:none --sparse --branch "$REPO_BRANCH" "$REPO_URL" "$TMP_REPO_DIR/repo" ||
     die "Failed to clone config repo"
-  timeout 60 git -C "$TMP_REPO_DIR/repo" sparse-checkout set "$STYLE" || \
-    timeout 60 git -C "$TMP_REPO_DIR/repo" sparse-checkout set "$STYLE" || \
+  timeout 60 git -C "$TMP_REPO_DIR/repo" sparse-checkout set "$STYLE" ||
+    timeout 60 git -C "$TMP_REPO_DIR/repo" sparse-checkout set "$STYLE" ||
     die "Failed sparse checkout for $STYLE"
 
   [[ -d "$TMP_REPO_DIR/repo/$STYLE" ]] || die "Style folder ${STYLE} not found in repo"
@@ -1323,7 +1398,7 @@ install_selected_apps() {
   info "Installing core dev packages"
   pkg_install_best_effort "${CORE_PACKAGES[@]}"
 
-  info "Installing style UI packages (${STYLE})"
+  info "Installing style UI packages ($(style_display_name "$STYLE"))"
   pkg_install_best_effort "${STYLE_UI_PACKAGES[@]}"
 
   install_selected_optional_apps
@@ -1369,7 +1444,7 @@ mark_app_deferred() {
 is_app_supported_on_distro() {
   local key="$1"
   case "$key" in
-  code|antigravity)
+  code | antigravity)
     [[ "$PKG_MANAGER" == "apt" ]]
     ;;
   *)
@@ -1406,6 +1481,10 @@ install_vscode() {
     ;;
   esac
 }
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  OPTIONAL APP INSTALLERS
+# ─────────────────────────────────────────────────────────────────────────────
 
 install_antigravity() {
   local installed candidate
@@ -1546,7 +1625,7 @@ install_yazi_from_cargo() {
 
   # Fedora/Arch: install only via package manager
   case "$PKG_MANAGER" in
-  dnf|pacman)
+  dnf | pacman)
     pkg_install_best_effort yazi || true
     if command -v yazi >/dev/null 2>&1; then
       ok "Yazi installed from package manager"
@@ -1718,10 +1797,15 @@ verify_required() {
   return 0
 }
 
+# ─────────────────────────────────────────────────────────────────────────────
+#  VERIFICATION / REPORTING
+# ─────────────────────────────────────────────────────────────────────────────
+
 post_reboot_health_check() {
   local missing=()
   local c
-  local required=(i3 xinit zsh rustc go node bun)
+  local required=(i3 zsh rustc go node bun)
+  [[ -f "$HOME/.xinitrc" ]] && required+=(xinit)
   for c in "${required[@]}"; do
     command -v "$c" >/dev/null 2>&1 || missing+=("$c")
   done
@@ -1824,6 +1908,10 @@ EOF
   ok "TTY + i3 default prepared"
 }
 
+# ─────────────────────────────────────────────────────────────────────────────
+#  PHASE-2 CLEANUP HELPERS
+# ─────────────────────────────────────────────────────────────────────────────
+
 purge_saved_desktops_and_bloat() {
   local csv="$1"
   [[ -z "$csv" ]] && {
@@ -1860,7 +1948,7 @@ confirm_purge() {
   printf 'Type PURGE to remove legacy desktop stacks and bloat: '
   local token
   if [[ -n "$USER_INPUT_TTY" ]]; then
-    IFS= read -r token < "$USER_INPUT_TTY"
+    IFS= read -r token <"$USER_INPUT_TTY"
   else
     IFS= read -r token
   fi
@@ -1899,7 +1987,7 @@ main() {
   parse_args "$@"
   load_state
   setup_ui
-  show_login_style_header
+  show_style_header
   ensure_not_root
   detect_os
   detect_hardware
@@ -1984,7 +2072,7 @@ main() {
         local rb
         printf 'Reboot now? [Y/n]: '
         if [[ -n "$USER_INPUT_TTY" ]]; then
-          IFS= read -r rb < "$USER_INPUT_TTY"
+          IFS= read -r rb <"$USER_INPUT_TTY"
         else
           IFS= read -r rb
         fi
@@ -2007,5 +2095,9 @@ main() {
   info "State file: ${STATE_FILE}"
   info "Log file  : ${LOG_FILE}"
 }
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  ENTRYPOINT
+# ─────────────────────────────────────────────────────────────────────────────
 
 main "$@"

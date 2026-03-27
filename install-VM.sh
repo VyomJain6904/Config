@@ -61,19 +61,22 @@ detect_distro() {
   fi
 
   case "$DISTRO_ID" in
-    ubuntu|debian|kali) DISTRO_FAMILY="$DISTRO_ID" ;;
-    linuxmint|mint)     DISTRO_FAMILY="ubuntu" ;;
-    pop)                DISTRO_FAMILY="ubuntu" ;;
-    elementary)         DISTRO_FAMILY="ubuntu" ;;
-    zorin)              DISTRO_FAMILY="ubuntu" ;;
-    raspbian)           DISTRO_FAMILY="debian" ;;
-    *)
-      local id_like="${ID_LIKE:-}"
-      if echo "$id_like" | grep -q "ubuntu"; then DISTRO_FAMILY="ubuntu"
-      elif echo "$id_like" | grep -q "debian"; then DISTRO_FAMILY="debian"
-      else DISTRO_FAMILY="debian"
-      fi
-      ;;
+  ubuntu | debian | kali) DISTRO_FAMILY="$DISTRO_ID" ;;
+  linuxmint | mint) DISTRO_FAMILY="ubuntu" ;;
+  pop) DISTRO_FAMILY="ubuntu" ;;
+  elementary) DISTRO_FAMILY="ubuntu" ;;
+  zorin) DISTRO_FAMILY="ubuntu" ;;
+  raspbian) DISTRO_FAMILY="debian" ;;
+  *)
+    local id_like="${ID_LIKE:-}"
+    if echo "$id_like" | grep -q "ubuntu"; then
+      DISTRO_FAMILY="ubuntu"
+    elif echo "$id_like" | grep -q "debian"; then
+      DISTRO_FAMILY="debian"
+    else
+      DISTRO_FAMILY="debian"
+    fi
+    ;;
   esac
 }
 detect_distro
@@ -84,11 +87,11 @@ detect_distro
 SYS_ARCH="$(dpkg --print-architecture 2>/dev/null || echo "amd64")"
 GO_ARCH=""
 case "$(uname -m)" in
-  x86_64)        GO_ARCH="amd64"  ;;
-  aarch64|arm64) GO_ARCH="arm64"  ;;
-  armv6l)        GO_ARCH="armv6l" ;;
-  i686|i386)     GO_ARCH="386"    ;;
-  *)             GO_ARCH="amd64"  ;;
+x86_64) GO_ARCH="amd64" ;;
+aarch64 | arm64) GO_ARCH="arm64" ;;
+armv6l) GO_ARCH="armv6l" ;;
+i686 | i386) GO_ARCH="386" ;;
+*) GO_ARCH="amd64" ;;
 esac
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -135,9 +138,15 @@ SETUP_START_TIME="$(date +%s)"
 # ─────────────────────────────────────────────────────────────────────────────
 #  UI HELPERS
 # ─────────────────────────────────────────────────────────────────────────────
-panel_open()  { echo ""; echo -e "${GRAY}┌${BOX_RULE}${RESET}"; }
-panel_line()  { echo -e "${BAR}  $1"; }
-panel_close() { echo -e "${GRAY}└${BOX_RULE}${RESET}"; echo ""; }
+panel_open() {
+  echo ""
+  echo -e "${GRAY}┌${BOX_RULE}${RESET}"
+}
+panel_line() { echo -e "${BAR}  $1"; }
+panel_close() {
+  echo -e "${GRAY}└${BOX_RULE}${RESET}"
+  echo ""
+}
 
 panel_header() {
   panel_open
@@ -147,19 +156,26 @@ panel_header() {
   panel_close
 }
 
-step() { panel_open; panel_line "${DIAMOND} ${BOLD}${PURPLE}$1${RESET}"; panel_close; }
+step() {
+  panel_open
+  panel_line "${DIAMOND} ${BOLD}${PURPLE}$1${RESET}"
+  panel_close
+}
 
-ok()   { echo -e "  ${TICK}  ${GREEN}$1${RESET}"; }
+ok() { echo -e "  ${TICK}  ${GREEN}$1${RESET}"; }
 warn() { echo -e "  ${WARN_SYM}  ${YELLOW}$1${RESET}"; }
 info() { echo -e "  ${GRAY}·  $1${RESET}"; }
-die()  { echo -e "  ${RED}✗  $1${RESET}"; exit 1; }
+die() {
+  echo -e "  ${RED}✗  $1${RESET}"
+  exit 1
+}
 
 # FIX: elapsed time helper — shown in completion banner
 elapsed_time() {
   local now end_time diff
   now="$(date +%s)"
-  diff=$(( now - SETUP_START_TIME ))
-  printf '%dm%02ds' $(( diff / 60 )) $(( diff % 60 ))
+  diff=$((now - SETUP_START_TIME))
+  printf '%dm%02ds' $((diff / 60)) $((diff % 60))
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -200,7 +216,10 @@ interactive_select_menu() {
   fi
 
   for i in "${!selected_ref[@]}"; do
-    if [ "${selected_ref[i]}" -eq 1 ]; then idx="$i"; break; fi
+    if [ "${selected_ref[i]}" -eq 1 ]; then
+      idx="$i"
+      break
+    fi
   done
 
   while true; do
@@ -227,19 +246,29 @@ interactive_select_menu() {
 
     key="$(read_keypress)"
     case "$key" in
-    $'\x1b[A') idx=$(( (idx - 1 + count) % count )) ;;
-    $'\x1b[B') idx=$(( (idx + 1) % count )) ;;
+    $'\x1b[A') idx=$(((idx - 1 + count) % count)) ;;
+    $'\x1b[B') idx=$(((idx + 1) % count)) ;;
     " " | $'\n' | $'\r')
       if [ "$mode" = "radio" ]; then
         for i in "${!selected_ref[@]}"; do selected_ref[i]=0; done
         selected_ref[idx]=1
       else
-        selected_ref[idx]=$(( 1 - selected_ref[idx] ))
+        selected_ref[idx]=$((1 - selected_ref[idx]))
       fi
       ;;
-    c|C) clear; return 0 ;;
-    s|S) clear; warn "Using default selections"; return 0 ;;
-    q|Q) clear; die "Selection cancelled by user" ;;
+    c | C)
+      clear
+      return 0
+      ;;
+    s | S)
+      clear
+      warn "Using default selections"
+      return 0
+      ;;
+    q | Q)
+      clear
+      die "Selection cancelled by user"
+      ;;
     esac
   done
 }
@@ -261,9 +290,18 @@ select_file_manager_mode_interactive() {
   ! flag_enabled "$INSTALL_YAZI" && flag_enabled "$INSTALL_THUNAR" && selected=(0 1 0)
   interactive_select_menu "radio" "File Manager" "Choose which file manager(s) to install" options selected || return 1
   case "${selected[*]}" in
-    "1 0 0") INSTALL_YAZI=1; INSTALL_THUNAR=0 ;;
-    "0 1 0") INSTALL_YAZI=0; INSTALL_THUNAR=1 ;;
-    *)       INSTALL_YAZI=1; INSTALL_THUNAR=1 ;;
+  "1 0 0")
+    INSTALL_YAZI=1
+    INSTALL_THUNAR=0
+    ;;
+  "0 1 0")
+    INSTALL_YAZI=0
+    INSTALL_THUNAR=1
+    ;;
+  *)
+    INSTALL_YAZI=1
+    INSTALL_THUNAR=1
+    ;;
   esac
 }
 
@@ -273,8 +311,8 @@ select_file_manager_mode_interactive() {
 flag_enabled() {
   local value="${1:-0}"
   case "${value,,}" in
-    1|true|yes|y|on) return 0 ;;
-    *) return 1 ;;
+  1 | true | yes | y | on) return 0 ;;
+  *) return 1 ;;
   esac
 }
 
@@ -282,29 +320,32 @@ flag_enabled() {
 #  APT WRAPPERS
 # ─────────────────────────────────────────────────────────────────────────────
 apt_q() {
-  local sub="${1:-}"; shift || true
+  local sub="${1:-}"
+  shift || true
   export DEBIAN_FRONTEND=noninteractive
   local opts=(-y -qq
     -o Dpkg::Options::="--force-confdef"
     -o Dpkg::Options::="--force-confold")
   # FIX: dry-run mode skips all apt operations
   if flag_enabled "$DRY_RUN"; then
-    info "[DRY-RUN] apt $sub $*"; return 0
+    info "[DRY-RUN] apt $sub $*"
+    return 0
   fi
   case "$sub" in
-    update)     sudo apt-get update -qq 2>&1 | grep -v "^Hit\|^Get\|^Ign\|^Reading" || true ;;
-    upgrade)    sudo apt-get upgrade "${opts[@]}" &>/dev/null || true ;;
-    install)    sudo apt-get install "${opts[@]}" "$@" &>/dev/null || true ;;
-    purge)      sudo apt-get purge "${opts[@]}" "$@" &>/dev/null || true ;;
-    autoremove) sudo apt-get autoremove "${opts[@]}" --purge &>/dev/null || true ;;
-    autoclean)  sudo apt-get autoclean -qq &>/dev/null || true ;;
+  update) sudo apt-get update -qq 2>&1 | grep -v "^Hit\|^Get\|^Ign\|^Reading" || true ;;
+  upgrade) sudo apt-get upgrade "${opts[@]}" &>/dev/null || true ;;
+  install) sudo apt-get install "${opts[@]}" "$@" &>/dev/null || true ;;
+  purge) sudo apt-get purge "${opts[@]}" "$@" &>/dev/null || true ;;
+  autoremove) sudo apt-get autoremove "${opts[@]}" --purge &>/dev/null || true ;;
+  autoclean) sudo apt-get autoclean -qq &>/dev/null || true ;;
   esac
 }
 
 apt_install_strict() {
   # FIX: strict mode shows errors to user (not silenced) — critical path only
   if flag_enabled "$DRY_RUN"; then
-    info "[DRY-RUN] apt-get install $*"; return 0
+    info "[DRY-RUN] apt-get install $*"
+    return 0
   fi
   export DEBIAN_FRONTEND=noninteractive
   sudo apt-get install -y \
@@ -317,8 +358,14 @@ apt_install_strict() {
 #  PACKAGE / COMMAND GUARDS
 # ─────────────────────────────────────────────────────────────────────────────
 resolve_i3_package() {
-  if apt-cache show i3 &>/dev/null;    then echo "i3";    return 0; fi
-  if apt-cache show i3-wm &>/dev/null; then echo "i3-wm"; return 0; fi
+  if apt-cache show i3 &>/dev/null; then
+    echo "i3"
+    return 0
+  fi
+  if apt-cache show i3-wm &>/dev/null; then
+    echo "i3-wm"
+    return 0
+  fi
   return 1
 }
 
@@ -358,7 +405,10 @@ install_polkit() {
 install_polkit_agent() {
   # FIX: check if a polkit agent is already running/installed
   for existing in mate-polkit lxpolkit xfce-polkit policykit-1-gnome; do
-    dpkg -s "$existing" &>/dev/null && { ok "polkit agent already installed: $existing"; return 0; }
+    dpkg -s "$existing" &>/dev/null && {
+      ok "polkit agent already installed: $existing"
+      return 0
+    }
   done
   local agents=("mate-polkit" "lxpolkit" "xfce-polkit" "policykit-1-gnome")
   for agent in "${agents[@]}"; do
@@ -375,7 +425,10 @@ install_polkit_agent() {
 #  SUDO KEEPALIVE
 # ─────────────────────────────────────────────────────────────────────────────
 start_sudo_keepalive() {
-  (while true; do sudo -v; sleep 50; done) &
+  (while true; do
+    sudo -v
+    sleep 50
+  done) &
   SUDO_PID=$!
 }
 stop_sudo_keepalive() {
@@ -389,7 +442,7 @@ cleanup() {
   local exit_code=$?
   stop_sudo_keepalive
   [ -n "$PREFETCH_DIR" ] && [ -d "$PREFETCH_DIR" ] && rm -rf "$PREFETCH_DIR" || true
-  [ -n "$TEMP_DIR" ]     && [ -d "$TEMP_DIR" ]     && rm -rf "$TEMP_DIR"     || true
+  [ -n "$TEMP_DIR" ] && [ -d "$TEMP_DIR" ] && rm -rf "$TEMP_DIR" || true
   # FIX: on non-zero exit, print log path so user knows where to look
   if [ "$exit_code" -ne 0 ]; then
     echo -e "\n  ${RED}✗  Script exited with error (code ${exit_code})${RESET}"
@@ -408,9 +461,9 @@ ensure_repo_cloned() {
   # FIX: retry once on clone failure before dying (transient network issues)
   git clone --depth 1 --filter=blob:none --sparse \
     --branch "${REPO_BRANCH}" "${REPO_URL}" "${TEMP_DIR}/repo" &>/dev/null ||
-  git clone --depth 1 --filter=blob:none --sparse \
-    --branch "${REPO_BRANCH}" "${REPO_URL}" "${TEMP_DIR}/repo" &>/dev/null ||
-  die "Failed to clone config repo (tried twice)"
+    git clone --depth 1 --filter=blob:none --sparse \
+      --branch "${REPO_BRANCH}" "${REPO_URL}" "${TEMP_DIR}/repo" &>/dev/null ||
+    die "Failed to clone config repo (tried twice)"
   git -C "${TEMP_DIR}/repo" sparse-checkout set Config-VM zsh &>/dev/null ||
     die "Failed to fetch required config folders"
   REPO_CLONED=true
@@ -434,12 +487,21 @@ prefetch_assets_parallel() {
   local font_pid=$!
 
   local failed=0
-  wait "$repo_pid"      || { warn "Config repo prefetch failed";  failed=1; }
-  wait "$wallpaper_pid" || { warn "Wallpaper prefetch failed";     failed=1; }
-  wait "$font_pid"      || { warn "Font prefetch failed";          failed=1; }
+  wait "$repo_pid" || {
+    warn "Config repo prefetch failed"
+    failed=1
+  }
+  wait "$wallpaper_pid" || {
+    warn "Wallpaper prefetch failed"
+    failed=1
+  }
+  wait "$font_pid" || {
+    warn "Font prefetch failed"
+    failed=1
+  }
 
-  [ -f "$PREFETCH_WALLPAPER" ] && ok "Wallpaper ready"   || warn "Wallpaper missing — will retry later"
-  [ -f "$PREFETCH_FONT_ZIP"  ] && ok "Font zip ready"    || warn "Font zip missing — will retry later"
+  [ -f "$PREFETCH_WALLPAPER" ] && ok "Wallpaper ready" || warn "Wallpaper missing — will retry later"
+  [ -f "$PREFETCH_FONT_ZIP" ] && ok "Font zip ready" || warn "Font zip missing — will retry later"
   [ "$failed" -eq 0 ] && ok "Prefetch complete" || warn "Prefetch had warnings (non-fatal)"
 }
 
@@ -462,8 +524,8 @@ read_setup_state() {
   local state="none"
   [ -f "$STATE_FILE" ] && state="$(cat "$STATE_FILE" 2>/dev/null || echo "none")"
   case "$state" in
-    phase1_done|phase2_done) echo "$state" ;;
-    *) echo "none" ;;
+  phase1_done | phase2_done) echo "$state" ;;
+  *) echo "none" ;;
   esac
 }
 
@@ -494,8 +556,8 @@ available_kb() {
 check_disk_space() {
   local avail_kb
   avail_kb="$(available_kb "$HOME")"
-  local avail_gb=$(( avail_kb / 1048576 ))
-  if [ "$avail_kb" -lt 5242880 ]; then   # < 5 GB
+  local avail_gb=$((avail_kb / 1048576))
+  if [ "$avail_kb" -lt 5242880 ]; then # < 5 GB
     warn "Low disk space: ~${avail_gb}GB free. Recommend at least 5GB for full install."
     echo -ne "  ${DIAMOND_E} ${FG}Continue anyway?${RESET}  ${DIM}[${RESET}${GREEN}Y${RESET}${DIM}/n]${RESET}  "
     IFS= read -r disk_ans
@@ -523,16 +585,16 @@ check_network() {
 cmd_version_line() {
   local cmd="$1"
   case "$cmd" in
-    code)     code --version 2>/dev/null | head -n 1 ;;
-    opencode) opencode --version 2>/dev/null | head -n 1 ;;
-    codex)    codex --version 2>/dev/null | head -n 1 ;;
-    claude)   claude --version 2>/dev/null | head -n 1 ;;
-    yazi)     yazi --version 2>/dev/null | head -n 1 ;;
-    thunar)   thunar --version 2>/dev/null | head -n 1 ;;
-    node)     node --version 2>/dev/null | head -n 1 ;;
-    npm)      npm --version 2>/dev/null | head -n 1 ;;
-    bun)      bun --version 2>/dev/null | head -n 1 ;;
-    *)        "$cmd" --version 2>/dev/null | head -n 1 ;;
+  code) code --version 2>/dev/null | head -n 1 ;;
+  opencode) opencode --version 2>/dev/null | head -n 1 ;;
+  codex) codex --version 2>/dev/null | head -n 1 ;;
+  claude) claude --version 2>/dev/null | head -n 1 ;;
+  yazi) yazi --version 2>/dev/null | head -n 1 ;;
+  thunar) thunar --version 2>/dev/null | head -n 1 ;;
+  node) node --version 2>/dev/null | head -n 1 ;;
+  npm) npm --version 2>/dev/null | head -n 1 ;;
+  bun) bun --version 2>/dev/null | head -n 1 ;;
+  *) "$cmd" --version 2>/dev/null | head -n 1 ;;
   esac
 }
 
@@ -677,7 +739,10 @@ any_display_manager_active() {
 #  OPTIONAL APP INSTALLERS
 # ─────────────────────────────────────────────────────────────────────────────
 _install_vscode() {
-  command -v code &>/dev/null && { ok "VS Code already installed"; return 0; }
+  command -v code &>/dev/null && {
+    ok "VS Code already installed"
+    return 0
+  }
   info "Installing VS Code (arch: ${SYS_ARCH})..."
   sudo mkdir -p /etc/apt/keyrings
   wget -qO- https://packages.microsoft.com/keys/microsoft.asc |
@@ -693,7 +758,10 @@ https://packages.microsoft.com/repos/code stable main" |
 }
 
 _install_antigravity() {
-  dpkg -s antigravity &>/dev/null && { ok "Antigravity already installed"; return 0; }
+  dpkg -s antigravity &>/dev/null && {
+    ok "Antigravity already installed"
+    return 0
+  }
   info "Installing Antigravity..."
   sudo mkdir -p /etc/apt/keyrings
   curl -fsSL https://us-central1-apt.pkg.dev/doc/repo-signing-key.gpg |
@@ -708,7 +776,10 @@ https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev/ antigravi
 }
 
 _install_opencode() {
-  command -v opencode &>/dev/null && { ok "OpenCode CLI already installed"; return 0; }
+  command -v opencode &>/dev/null && {
+    ok "OpenCode CLI already installed"
+    return 0
+  }
   info "Installing OpenCode CLI..."
   timeout 240 bun install -g opencode-ai &>/tmp/opencode-install.log ||
     die "OpenCode CLI install failed (see /tmp/opencode-install.log)"
@@ -717,7 +788,10 @@ _install_opencode() {
 }
 
 _install_codex() {
-  command -v codex &>/dev/null && { ok "Codex CLI already installed"; return 0; }
+  command -v codex &>/dev/null && {
+    ok "Codex CLI already installed"
+    return 0
+  }
   info "Installing Codex CLI..."
   timeout 240 npm install -g @openai/codex &>/tmp/codex-install.log ||
     die "Codex CLI install failed (see /tmp/codex-install.log)"
@@ -726,7 +800,10 @@ _install_codex() {
 }
 
 _install_claude() {
-  command -v claude &>/dev/null && { ok "Claude Code already installed"; return 0; }
+  command -v claude &>/dev/null && {
+    ok "Claude Code already installed"
+    return 0
+  }
   info "Installing Claude Code..."
   timeout 240 bash -lc 'curl -fsSL https://claude.ai/install.sh | bash' &>/tmp/claude-install.log ||
     die "Claude Code install failed (see /tmp/claude-install.log)"
@@ -735,7 +812,10 @@ _install_claude() {
 }
 
 _install_thunar() {
-  command -v thunar &>/dev/null && { ok "Thunar already installed"; return 0; }
+  command -v thunar &>/dev/null && {
+    ok "Thunar already installed"
+    return 0
+  }
   info "Installing Thunar..."
   apt_q install thunar thunar-volman gvfs gvfs-backends
   require_command_installed thunar "Thunar"
@@ -743,7 +823,10 @@ _install_thunar() {
 }
 
 _install_yazi() {
-  command -v yazi &>/dev/null && { ok "Yazi already installed"; return 0; }
+  command -v yazi &>/dev/null && {
+    ok "Yazi already installed"
+    return 0
+  }
   info "Installing Yazi (builds from source via cargo)..."
   local CARGO_TMP_DIR="${HOME}/.cache/cargo-tmp"
   local CARGO_TARGET_DIR_PATH="${HOME}/.cache/cargo-target"
@@ -766,10 +849,14 @@ _install_yazi() {
   . "$HOME/.cargo/env" 2>/dev/null || true
   info "Building yazi-fm + yazi-cli (this takes a few minutes)..."
   if TMPDIR="$CARGO_TMP_DIR" CARGO_TARGET_DIR="$CARGO_TARGET_DIR_PATH" \
-     cargo install --locked yazi-fm yazi-cli &>/tmp/yazi-build.log; then
+    cargo install --locked yazi-fm yazi-cli &>/tmp/yazi-build.log; then
     zshrc_append '.cargo/bin' 'export PATH="$HOME/.cargo/bin:$PATH"'
     export PATH="$HOME/.cargo/bin:$PATH"
-    command -v yazi &>/dev/null || { warn "Yazi binary missing after build"; INSTALL_YAZI=0; return 1; }
+    command -v yazi &>/dev/null || {
+      warn "Yazi binary missing after build"
+      INSTALL_YAZI=0
+      return 1
+    }
     ok "Yazi installed ($(cmd_version_line yazi))"
   else
     warn "Yazi build failed — see /tmp/yazi-build.log"
@@ -782,13 +869,13 @@ _install_yazi() {
 install_selected_optional_apps() {
   ensure_runtime_dependencies
 
-  flag_enabled "$INSTALL_THUNAR"     && _install_thunar     || warn "Thunar disabled"
-  flag_enabled "$INSTALL_YAZI"       && _install_yazi        || warn "Yazi disabled"
-  flag_enabled "$INSTALL_VSCODE"     && _install_vscode      || warn "VS Code disabled"
+  flag_enabled "$INSTALL_THUNAR" && _install_thunar || warn "Thunar disabled"
+  flag_enabled "$INSTALL_YAZI" && _install_yazi || warn "Yazi disabled"
+  flag_enabled "$INSTALL_VSCODE" && _install_vscode || warn "VS Code disabled"
   flag_enabled "$INSTALL_ANTIGRAVITY" && _install_antigravity || warn "Antigravity disabled"
-  flag_enabled "$INSTALL_OPENCODE"   && _install_opencode    || warn "OpenCode disabled"
-  flag_enabled "$INSTALL_CODEX"      && _install_codex       || warn "Codex disabled"
-  flag_enabled "$INSTALL_CLAUDE"     && _install_claude      || warn "Claude Code disabled"
+  flag_enabled "$INSTALL_OPENCODE" && _install_opencode || warn "OpenCode disabled"
+  flag_enabled "$INSTALL_CODEX" && _install_codex || warn "Codex disabled"
+  flag_enabled "$INSTALL_CLAUDE" && _install_claude || warn "Claude Code disabled"
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -802,19 +889,19 @@ run_post_install_health_check() {
 
   _app_version() {
     case "$1" in
-      code)     code --version 2>/dev/null | head -n 1 ;;
-      opencode) opencode --version 2>/dev/null | head -n 1 ;;
-      codex)    codex --version 2>/dev/null | head -n 1 ;;
-      claude)   claude --version 2>/dev/null | head -n 1 ;;
-      yazi)     yazi --version 2>/dev/null | head -n 1 ;;
-      thunar)   thunar --version 2>/dev/null | head -n 1 ;;
-      i3)       i3 --version 2>/dev/null | head -n 1 ;;
-      nvim)     nvim --version 2>/dev/null | head -n 1 ;;
-      go)       go version 2>/dev/null | head -n 1 ;;
-      rustc)    rustc --version 2>/dev/null | head -n 1 ;;
-      node)     node --version 2>/dev/null | head -n 1 ;;
-      bun)      bun --version 2>/dev/null | head -n 1 ;;
-      *)        "$1" --version 2>/dev/null | head -n 1 ;;
+    code) code --version 2>/dev/null | head -n 1 ;;
+    opencode) opencode --version 2>/dev/null | head -n 1 ;;
+    codex) codex --version 2>/dev/null | head -n 1 ;;
+    claude) claude --version 2>/dev/null | head -n 1 ;;
+    yazi) yazi --version 2>/dev/null | head -n 1 ;;
+    thunar) thunar --version 2>/dev/null | head -n 1 ;;
+    i3) i3 --version 2>/dev/null | head -n 1 ;;
+    nvim) nvim --version 2>/dev/null | head -n 1 ;;
+    go) go version 2>/dev/null | head -n 1 ;;
+    rustc) rustc --version 2>/dev/null | head -n 1 ;;
+    node) node --version 2>/dev/null | head -n 1 ;;
+    bun) bun --version 2>/dev/null | head -n 1 ;;
+    *) "$1" --version 2>/dev/null | head -n 1 ;;
     esac
   }
 
@@ -822,17 +909,21 @@ run_post_install_health_check() {
     local cmd="$1"
     if command -v "$cmd" &>/dev/null; then
       ok "$cmd"
-      local ver; ver="$(_app_version "$cmd")"
+      local ver
+      ver="$(_app_version "$cmd")"
       [ -n "$ver" ] && info "  └─ $ver"
     else
       warn "$cmd — MISSING"
-      failed=$(( failed + 1 ))
+      failed=$((failed + 1))
     fi
   }
 
   _check_file() {
     local fp="$1" label="$2"
-    if [ -f "$fp" ]; then ok "$label"; else warn "$label — MISSING"; failed=$(( failed + 1 )); fi
+    if [ -f "$fp" ]; then ok "$label"; else
+      warn "$label — MISSING"
+      failed=$((failed + 1))
+    fi
   }
 
   _add_row() {
@@ -888,51 +979,93 @@ run_post_install_health_check() {
 
   # VS Code
   sel="$(flag_enabled "$INSTALL_VSCODE" && echo yes || echo no)"
-  command -v code &>/dev/null && inst="yes" && ver="$(_app_version code)" || { inst="no"; ver="-"; }
-  [ "$sel" = "yes" ] && [ "$inst" = "no" ] && { warn "VS Code: selected but missing"; failed=$(( failed+1 )); }
+  command -v code &>/dev/null && inst="yes" && ver="$(_app_version code)" || {
+    inst="no"
+    ver="-"
+  }
+  [ "$sel" = "yes" ] && [ "$inst" = "no" ] && {
+    warn "VS Code: selected but missing"
+    failed=$((failed + 1))
+  }
   _add_row "VS Code" "$sel" "$inst" "$ver"
 
   # Antigravity
   sel="$(flag_enabled "$INSTALL_ANTIGRAVITY" && echo yes || echo no)"
-  dpkg -s antigravity &>/dev/null && inst="yes" && \
-    ver="$(dpkg-query -W -f='${Version}' antigravity 2>/dev/null || echo unknown)" || { inst="no"; ver="-"; }
-  [ "$sel" = "yes" ] && [ "$inst" = "no" ] && { warn "Antigravity: selected but missing"; failed=$(( failed+1 )); }
+  dpkg -s antigravity &>/dev/null && inst="yes" &&
+    ver="$(dpkg-query -W -f='${Version}' antigravity 2>/dev/null || echo unknown)" || {
+    inst="no"
+    ver="-"
+  }
+  [ "$sel" = "yes" ] && [ "$inst" = "no" ] && {
+    warn "Antigravity: selected but missing"
+    failed=$((failed + 1))
+  }
   _add_row "Antigravity" "$sel" "$inst" "$ver"
 
   # OpenCode
   sel="$(flag_enabled "$INSTALL_OPENCODE" && echo yes || echo no)"
-  command -v opencode &>/dev/null && inst="yes" && ver="$(_app_version opencode)" || { inst="no"; ver="-"; }
-  [ "$sel" = "yes" ] && [ "$inst" = "no" ] && { warn "OpenCode: selected but missing"; failed=$(( failed+1 )); }
+  command -v opencode &>/dev/null && inst="yes" && ver="$(_app_version opencode)" || {
+    inst="no"
+    ver="-"
+  }
+  [ "$sel" = "yes" ] && [ "$inst" = "no" ] && {
+    warn "OpenCode: selected but missing"
+    failed=$((failed + 1))
+  }
   _add_row "OpenCode CLI" "$sel" "$inst" "$ver"
 
   # Codex
   sel="$(flag_enabled "$INSTALL_CODEX" && echo yes || echo no)"
-  command -v codex &>/dev/null && inst="yes" && ver="$(_app_version codex)" || { inst="no"; ver="-"; }
-  [ "$sel" = "yes" ] && [ "$inst" = "no" ] && { warn "Codex: selected but missing"; failed=$(( failed+1 )); }
+  command -v codex &>/dev/null && inst="yes" && ver="$(_app_version codex)" || {
+    inst="no"
+    ver="-"
+  }
+  [ "$sel" = "yes" ] && [ "$inst" = "no" ] && {
+    warn "Codex: selected but missing"
+    failed=$((failed + 1))
+  }
   _add_row "Codex CLI" "$sel" "$inst" "$ver"
 
   # Claude Code
   sel="$(flag_enabled "$INSTALL_CLAUDE" && echo yes || echo no)"
-  command -v claude &>/dev/null && inst="yes" && ver="$(_app_version claude)" || { inst="no"; ver="-"; }
-  [ "$sel" = "yes" ] && [ "$inst" = "no" ] && { warn "Claude Code: selected but missing"; failed=$(( failed+1 )); }
+  command -v claude &>/dev/null && inst="yes" && ver="$(_app_version claude)" || {
+    inst="no"
+    ver="-"
+  }
+  [ "$sel" = "yes" ] && [ "$inst" = "no" ] && {
+    warn "Claude Code: selected but missing"
+    failed=$((failed + 1))
+  }
   _add_row "Claude Code" "$sel" "$inst" "$ver"
 
   # Yazi
   sel="$(flag_enabled "$INSTALL_YAZI" && echo yes || echo no)"
-  command -v yazi &>/dev/null && inst="yes" && ver="$(_app_version yazi)" || { inst="no"; ver="-"; }
-  [ "$sel" = "yes" ] && [ "$inst" = "no" ] && { warn "Yazi: selected but missing"; failed=$(( failed+1 )); }
+  command -v yazi &>/dev/null && inst="yes" && ver="$(_app_version yazi)" || {
+    inst="no"
+    ver="-"
+  }
+  [ "$sel" = "yes" ] && [ "$inst" = "no" ] && {
+    warn "Yazi: selected but missing"
+    failed=$((failed + 1))
+  }
   _add_row "Yazi" "$sel" "$inst" "$ver"
 
   # Thunar
   sel="$(flag_enabled "$INSTALL_THUNAR" && echo yes || echo no)"
-  command -v thunar &>/dev/null && inst="yes" && ver="$(_app_version thunar)" || { inst="no"; ver="-"; }
-  [ "$sel" = "yes" ] && [ "$inst" = "no" ] && { warn "Thunar: selected but missing"; failed=$(( failed+1 )); }
+  command -v thunar &>/dev/null && inst="yes" && ver="$(_app_version thunar)" || {
+    inst="no"
+    ver="-"
+  }
+  [ "$sel" = "yes" ] && [ "$inst" = "no" ] && {
+    warn "Thunar: selected but missing"
+    failed=$((failed + 1))
+  }
   _add_row "Thunar" "$sel" "$inst" "$ver"
 
   echo ""
   info "— Config files —"
-  _check_file "${HOME}/.xinitrc"           "~/.xinitrc"
-  _check_file "${HOME}/.config/i3/config"  "~/.config/i3/config"
+  _check_file "${HOME}/.xinitrc" "~/.xinitrc"
+  _check_file "${HOME}/.config/i3/config" "~/.config/i3/config"
   _check_file "${HOME}/Pictures/${WALLPAPER_NAME}" "~/Pictures/${WALLPAPER_NAME}"
 
   echo ""
@@ -943,24 +1076,24 @@ run_post_install_health_check() {
     ok "systemd target: multi-user.target"
   else
     warn "systemd target is '${target}' (expected multi-user.target)"
-    failed=$(( failed + 1 ))
+    failed=$((failed + 1))
   fi
 
   # FIX: check wallpaper path uses $HOME not ~ (tilde not expanded in grep)
   if grep -qF "${HOME}/Pictures/${WALLPAPER_NAME}" "${HOME}/.config/i3/config" 2>/dev/null ||
-     grep -qF "~/Pictures/${WALLPAPER_NAME}"       "${HOME}/.config/i3/config" 2>/dev/null; then
+    grep -qF "~/Pictures/${WALLPAPER_NAME}" "${HOME}/.config/i3/config" 2>/dev/null; then
     ok "i3 wallpaper configured correctly"
   else
     warn "i3 wallpaper path not found in i3 config"
-    failed=$(( failed + 1 ))
+    failed=$((failed + 1))
   fi
 
   if grep -qF 'if ! i3; then' "${HOME}/.xinitrc" 2>/dev/null &&
-     grep -qF 'xterm'         "${HOME}/.xinitrc" 2>/dev/null; then
+    grep -qF 'xterm' "${HOME}/.xinitrc" 2>/dev/null; then
     ok "xinitrc: i3 + xterm fallback present"
   else
     warn "xinitrc fallback not configured"
-    failed=$(( failed + 1 ))
+    failed=$((failed + 1))
   fi
 
   echo ""
@@ -1047,15 +1180,18 @@ XINITRC
   _clone_plugin() {
     local repo="$1" dest="$2" name
     name="$(basename "$dest")"
-    [ -d "$dest" ] && { info "$name already exists — skipped"; return 0; }
+    [ -d "$dest" ] && {
+      info "$name already exists — skipped"
+      return 0
+    }
     git clone --depth 1 -q "$repo" "$dest" &>/dev/null && ok "$name" || warn "$name clone failed"
   }
 
-  _clone_plugin "https://github.com/zsh-users/zsh-autosuggestions"         "${ZSH_PLUGINS}/zsh-autosuggestions"
-  _clone_plugin "https://github.com/zsh-users/zsh-syntax-highlighting"      "${ZSH_PLUGINS}/zsh-syntax-highlighting"
-  _clone_plugin "https://github.com/zsh-users/zsh-completions"              "${ZSH_PLUGINS}/zsh-completions"
+  _clone_plugin "https://github.com/zsh-users/zsh-autosuggestions" "${ZSH_PLUGINS}/zsh-autosuggestions"
+  _clone_plugin "https://github.com/zsh-users/zsh-syntax-highlighting" "${ZSH_PLUGINS}/zsh-syntax-highlighting"
+  _clone_plugin "https://github.com/zsh-users/zsh-completions" "${ZSH_PLUGINS}/zsh-completions"
   _clone_plugin "https://github.com/zsh-users/zsh-history-substring-search" "${ZSH_PLUGINS}/zsh-history-substring-search"
-  _clone_plugin "https://github.com/romkatv/zsh-defer"                      "${ZSH_PLUGINS}/zsh-defer"
+  _clone_plugin "https://github.com/romkatv/zsh-defer" "${ZSH_PLUGINS}/zsh-defer"
 
   info "Installing Starship prompt..."
   curl -sS https://starship.rs/install.sh | sh -s -- --yes &>/dev/null || warn "Starship install failed"
@@ -1143,15 +1279,15 @@ detect_des() {
   # FIX: use dpkg-query -W (returns exit 0 only if installed) instead of dpkg -l
   # dpkg -l returns 0 even for rc (removed-config) state packages
   _pkg_installed() { dpkg-query -W -f='${Status}' "$1" 2>/dev/null | grep -q "^install ok installed"; }
-  _pkg_installed gnome-shell      && found+=("gnome")
-  _pkg_installed plasma-desktop   && found+=("kde")
-  _pkg_installed xfce4            && found+=("xfce")
-  _pkg_installed lxde-core        && found+=("lxde")
-  _pkg_installed lxqt             && found+=("lxqt")
+  _pkg_installed gnome-shell && found+=("gnome")
+  _pkg_installed plasma-desktop && found+=("kde")
+  _pkg_installed xfce4 && found+=("xfce")
+  _pkg_installed lxde-core && found+=("lxde")
+  _pkg_installed lxqt && found+=("lxqt")
   _pkg_installed mate-desktop-environment && found+=("mate")
-  _pkg_installed cinnamon         && found+=("cinnamon")
-  _pkg_installed budgie-desktop   && found+=("budgie")
-  _pkg_installed dde              && found+=("deepin")
+  _pkg_installed cinnamon && found+=("cinnamon")
+  _pkg_installed budgie-desktop && found+=("budgie")
+  _pkg_installed dde && found+=("deepin")
   _pkg_installed elementary-desktop && found+=("pantheon")
   echo "${found[*]:-}"
 }
@@ -1289,7 +1425,7 @@ XINITRC
   # ── Disable ALL display managers ──
   step "Disabling display managers"
   for dm in gdm3 gdm lightdm sddm kdm lxdm mdm display-manager; do
-    systemctl is-active  "$dm" &>/dev/null && dry_run sudo systemctl stop    "$dm" &>/dev/null || true
+    systemctl is-active "$dm" &>/dev/null && dry_run sudo systemctl stop "$dm" &>/dev/null || true
     systemctl is-enabled "$dm" &>/dev/null && dry_run sudo systemctl disable "$dm" &>/dev/null || true
     dry_run sudo systemctl mask "$dm" &>/dev/null || true
   done
@@ -1473,13 +1609,13 @@ command -v apt &>/dev/null || die "apt not found — this script requires Ubuntu
 
 # Distro family gate
 case "$DISTRO_FAMILY" in
-  ubuntu|debian|kali) true ;;
-  *)
-    warn "Unrecognized distro family '${DISTRO_FAMILY}' (ID='${DISTRO_ID}')"
-    echo -ne "  ${DIAMOND_E} ${FG}Proceed anyway?${RESET}  ${DIM}[${RESET}${GREEN}Y${RESET}${DIM}/n]${RESET}  "
-    IFS= read -r proceed_ans
-    [[ "${proceed_ans,,}" == "n" ]] && die "Aborted." || true
-    ;;
+ubuntu | debian | kali) true ;;
+*)
+  warn "Unrecognized distro family '${DISTRO_FAMILY}' (ID='${DISTRO_ID}')"
+  echo -ne "  ${DIAMOND_E} ${FG}Proceed anyway?${RESET}  ${DIM}[${RESET}${GREEN}Y${RESET}${DIM}/n]${RESET}  "
+  IFS= read -r proceed_ans
+  [[ "${proceed_ans,,}" == "n" ]] && die "Aborted." || true
+  ;;
 esac
 
 # FIX: must run as regular user, not root
@@ -1490,20 +1626,23 @@ fi
 
 STATE="$(read_setup_state)"
 
-flag_enabled "$FORCE_PHASE1" && { warn "FORCE_PHASE1=1 — resetting to phase1"; STATE="none"; }
-flag_enabled "$DRY_RUN"      && warn "DRY_RUN=1 — no changes will be made"
+flag_enabled "$FORCE_PHASE1" && {
+  warn "FORCE_PHASE1=1 — resetting to phase1"
+  STATE="none"
+}
+flag_enabled "$DRY_RUN" && warn "DRY_RUN=1 — no changes will be made"
 
 case "$STATE" in
-  none)
-    echo -e "  ${DIAMOND} ${BOLD}${CYAN}Phase 1${RESET}  ${GRAY}— first run${RESET}"
-    run_phase1
-    ;;
-  phase1_done)
-    echo -e "  ${DIAMOND} ${BOLD}${CYAN}Phase 2${RESET}  ${GRAY}— post-reboot cleanup${RESET}"
-    run_phase2
-    ;;
-  phase2_done)
-    echo -e "  ${DIAMOND} ${BOLD}${CYAN}Repair/Update Mode${RESET}  ${GRAY}— setup already complete${RESET}"
-    run_repair_mode
-    ;;
+none)
+  echo -e "  ${DIAMOND} ${BOLD}${CYAN}Phase 1${RESET}  ${GRAY}— first run${RESET}"
+  run_phase1
+  ;;
+phase1_done)
+  echo -e "  ${DIAMOND} ${BOLD}${CYAN}Phase 2${RESET}  ${GRAY}— post-reboot cleanup${RESET}"
+  run_phase2
+  ;;
+phase2_done)
+  echo -e "  ${DIAMOND} ${BOLD}${CYAN}Repair/Update Mode${RESET}  ${GRAY}— setup already complete${RESET}"
+  run_repair_mode
+  ;;
 esac

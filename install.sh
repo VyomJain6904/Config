@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ══════════════════════════════════════════════════════════════════════════════
 #  install-VM.sh  v2.0
-#  Supports: Ubuntu · Debian · Kali · Linux Mint · Pop!_OS · Zorin · Elementary
+#  Supports: Ubuntu · Debian · Kali · Linux Mint · Pop!_OS · Fedora · Arch Linux
 #  Author : Vyom Jain
 # ══════════════════════════════════════════════════════════════════════════════
 # Strict mode for safer execution.
@@ -72,6 +72,7 @@ declare -a APP_SELECTED=()
 declare -a APP_DEFAULTS=()
 
 APT_CACHE_REFRESHED=0
+VSCODE_SELECTED=0
 
 declare -a DEFERRED_APP_KEYS=()
 declare -a DEFERRED_APP_REASONS=()
@@ -341,7 +342,15 @@ pkg_update_upgrade() {
   info "Updating system to latest packages via ${PKG_MANAGER}"
   case "$PKG_MANAGER" in
   apt)
-    sudo apt-get update -y
+    if ! sudo apt-get update -y; then
+      if [[ "$VSCODE_SELECTED" -eq 1 ]]; then
+        warn "apt update failed; attempting VS Code repo conflict repair"
+        repair_apt_vscode_repo_conflict
+        sudo apt-get update -y
+      else
+        die "apt update failed. VS Code repo repair skipped (VS Code not selected)."
+      fi
+    fi
     sudo DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
     ;;
   dnf)
@@ -438,6 +447,30 @@ apt_pkg_needs_install_or_update() {
   fi
 
   [[ "$installed" != "$candidate" ]]
+}
+
+repair_apt_vscode_repo_conflict() {
+  [[ "$PKG_MANAGER" == "apt" ]] || return 0
+
+  local apt_arch keyring tmp_file f
+  apt_arch="$(dpkg --print-architecture 2>/dev/null || echo amd64)"
+  keyring="/etc/apt/keyrings/microsoft.gpg"
+
+  sudo mkdir -p /etc/apt/keyrings
+  wget -qO- https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor --yes -o "$keyring" >/dev/null 2>&1 || true
+
+  for f in /etc/apt/sources.list /etc/apt/sources.list.d/*.list; do
+    [[ -f "$f" ]] || continue
+    if grep -q "packages.microsoft.com/repos/code" "$f" 2>/dev/null; then
+      tmp_file="$(mktemp)"
+      awk '!/packages.microsoft.com\/repos\/code/' "$f" >"$tmp_file"
+      sudo cp "$tmp_file" "$f"
+      rm -f "$tmp_file"
+    fi
+  done
+
+  printf 'deb [arch=%s signed-by=%s] https://packages.microsoft.com/repos/code stable main\n' "$apt_arch" "$keyring" | sudo tee /etc/apt/sources.list.d/vscode.list >/dev/null
+  ok "Repaired VS Code apt source configuration"
 }
 
 pkg_is_installed() {
@@ -1454,13 +1487,15 @@ is_app_supported_on_distro() {
 }
 
 install_vscode() {
-  local installed candidate apt_arch
+  local installed candidate
   case "$PKG_MANAGER" in
   apt)
-    apt_arch="$(dpkg --print-architecture 2>/dev/null || echo amd64)"
-    sudo mkdir -p /etc/apt/keyrings
-    wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /etc/apt/keyrings/microsoft.gpg >/dev/null
-    printf 'deb [arch=%s signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/code stable main\n' "$apt_arch" | sudo tee /etc/apt/sources.list.d/vscode.list >/dev/null
+    VSCODE_SELECTED=1
+
+    if [[ ! -f /etc/apt/keyrings/microsoft.gpg ]] || ! grep -Rqs "packages.microsoft.com/repos/code" /etc/apt/sources.list /etc/apt/sources.list.d/*.list 2>/dev/null; then
+      repair_apt_vscode_repo_conflict
+    fi
+
     apt_refresh_once
 
     installed="$(apt_installed_version code)"
@@ -2039,6 +2074,11 @@ main() {
   select_apps_interactive
   print_selected_apps
   print_deferred_apps
+  if is_app_selected code; then
+    VSCODE_SELECTED=1
+  else
+    VSCODE_SELECTED=0
+  fi
 
   if [[ "$STATE_LAST_OK" == "1" && "$STATE_STYLE" == "$STYLE" ]]; then
     if verify_required; then

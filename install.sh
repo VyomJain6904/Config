@@ -912,12 +912,7 @@ ensure_go_latest() {
 ensure_node_latest() {
   info "Ensuring Node.js is latest via nvm"
   local current_node latest_node
-
   current_node="$(node -v 2>/dev/null || true)"
-  if [[ -n "$current_node" && "${FORCE_NODE_UPDATE:-0}" != "1" ]]; then
-    ok "Node already installed (${current_node}); skipping reinstall"
-    return 0
-  fi
 
   if [[ -f "$HOME/.nvm/nvm.sh" ]]; then
     export NVM_DIR="$HOME/.nvm"
@@ -945,12 +940,23 @@ ensure_node_latest() {
   # shellcheck disable=SC1091
   . "$NVM_DIR/nvm.sh"
 
-  current_node="$(node -v 2>/dev/null || true)"
   latest_node="$(nvm version node 2>/dev/null || true)"
 
-  if [[ -n "$current_node" && -n "$latest_node" && "$latest_node" != "N/A" && "$current_node" == "$latest_node" ]]; then
+  if [[ -z "$latest_node" || "$latest_node" == "N/A" ]]; then
+    if [[ -n "$current_node" ]]; then
+      warn "Unable to resolve latest Node version; keeping installed ${current_node}"
+      return 0
+    fi
+    nvm install node
+    nvm alias default node
+    nvm use default >/dev/null
+    return 0
+  fi
+
+  if [[ -n "$current_node" && "$current_node" == "$latest_node" && "${FORCE_NODE_UPDATE:-0}" != "1" ]]; then
     ok "Node already latest: ${current_node}"
   else
+    [[ -n "$current_node" ]] && info "Updating Node.js (${current_node} -> ${latest_node})"
     nvm install node
     nvm alias default node
     nvm use default >/dev/null

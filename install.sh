@@ -1011,6 +1011,21 @@ ensure_runtime_deps() {
   ensure_bun_latest
 }
 
+ensure_npm_available() {
+  if command -v npm >/dev/null 2>&1; then
+    return 0
+  fi
+
+  info "npm missing; installing via package manager"
+  case "$PKG_MANAGER" in
+    apt) pkg_install_best_effort npm ;;
+    dnf) pkg_install_best_effort npm ;;
+    pacman) pkg_install_best_effort npm ;;
+  esac
+
+  command -v npm >/dev/null 2>&1
+}
+
 ensure_shell_tool_dependencies() {
   info "Ensuring shell tool dependencies (eza, zoxide, fzf, ripgrep, fd)"
 
@@ -1346,7 +1361,7 @@ deploy_style_configs() {
   local style_dir="$TMP_REPO_DIR/repo/$STYLE"
   [[ -d "$style_dir" ]] || die "Style directory not found: $style_dir"
 
-  info "Deploying configs from ${STYLE}"
+  info "Deploying configs from $(style_display_name "$STYLE")"
   local entry target
   for entry in "$style_dir"/*; do
     [[ -d "$entry" ]] || continue
@@ -1588,7 +1603,7 @@ install_opencode() {
 
 install_codex() {
   local current latest
-  command -v npm >/dev/null 2>&1 || {
+  ensure_npm_available || {
     warn "npm not available; cannot install/update Codex CLI"
     return 1
   }
@@ -1614,7 +1629,7 @@ install_codex() {
 
 install_claude() {
   local current latest
-  command -v npm >/dev/null 2>&1 || {
+  ensure_npm_available || {
     warn "npm not available; cannot install/update Claude Code"
     return 1
   }

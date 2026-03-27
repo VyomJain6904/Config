@@ -9,6 +9,11 @@ LOG_FILE="/tmp/config-installer-$(date +%Y%m%d_%H%M%S).log"
 REPO_URL="https://github.com/VyomJain6904/Config.git"
 REPO_BRANCH="main"
 
+ORIG_STDIN_IS_TTY=0
+ORIG_STDOUT_IS_TTY=0
+[[ -t 0 ]] && ORIG_STDIN_IS_TTY=1
+[[ -t 1 ]] && ORIG_STDOUT_IS_TTY=1
+
 exec > >(tee -a "$LOG_FILE") 2>&1
 
 STYLE=""
@@ -71,10 +76,12 @@ EOF
 }
 
 setup_ui() {
-  if [[ -t 1 && -r /dev/tty ]]; then
+  # NOTE: stdout is redirected through tee for logging, so runtime `-t 1`
+  # may be false even in an interactive terminal. Use original tty snapshot.
+  if [[ "$ORIG_STDOUT_IS_TTY" -eq 1 && -r /dev/tty ]]; then
     IS_INTERACTIVE=1
     USER_INPUT_TTY="/dev/tty"
-  elif [[ -t 0 && -t 1 ]]; then
+  elif [[ "$ORIG_STDIN_IS_TTY" -eq 1 && "$ORIG_STDOUT_IS_TTY" -eq 1 ]]; then
     IS_INTERACTIVE=1
   fi
   if [[ "$IS_INTERACTIVE" -eq 1 ]]; then

@@ -1,20 +1,5 @@
 # Config-Arch
 
-This folder contains configuration files for:
-
-- bat
-- btop
-- fastfetch
-- ghostty
-- i3
-- neovim
-- obs-studio
-- obsidian
-- picom
-- polybar
-- rofi
-- yazi
-
 ## What `install.sh` does
 
 - Installs latest available packages from Arch repositories (`pacman`)
@@ -35,10 +20,6 @@ This folder contains configuration files for:
 - `Config-Arch/polybar` -> `~/.config/polybar`
 - `Config-Arch/rofi` -> `~/.config/rofi`
 - `Config-Arch/yazi` -> `~/.config/yazi`
-
-## Run
-
-```bash
-chmod +x ./install-Arch.sh
-./install-Arch.sh
-```
+- `Configi-Arch/Code` -> `~/.config/Code/`
+- `Configi-Arch/obsidian` -> `~/.config/obsidian/`
+- `Configi-Arch/Antigravity` -> `~/.config/Antigravity/`

@@ -1,0 +1,34 @@
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+
+# Logs and dumps
+*.log
+*.dmp
+
+# Generic app/runtime cache and state
+**/Cache/
+**/Code Cache/
+**/GPUCache/
+**/DawnGraphiteCache/
+**/DawnWebGPUCache/
+**/CachedData/
+**/CachedConfigurations/
+**/CachedProfilesData/
+**/CachedExtensionVSIXs/
+**/Crashpad/
+**/blob_storage/
+**/Service Worker/
+**/Session Storage/
+**/Local Storage/
+**/WebStorage/
+**/IndexedDB/
+**/shared_proto_db/
+
+# Chromium/Electron sqlite and journaling artifacts
+**/Cookies
+**/Cookies-journal
+**/Network Persistent State
+**/Trust Tokens
+**/Trust Tokens-journal

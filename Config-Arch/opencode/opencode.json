@@ -95,14 +95,6 @@
       "type": "local",
       "enabled": true
     },
-    "stitch": {
-      "type": "local",
-      "command": ["npx", "-y", "@_davideast/stitch-mcp", "proxy"],
-      "environment": {
-        "STITCH_API_KEY": ""
-      },
-      "enabled": true
-    },
     "snyk": {
       "type": "local",
       "command": ["/usr/local/bin/snyk", "mcp", "-t", "stdio"],

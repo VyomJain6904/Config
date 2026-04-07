@@ -1,0 +1,13 @@
+{
+  "environment": {
+    "executable": "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+    "prefix": "/home/linuxbrew/.linuxbrew/opt/python@3.14",
+    "version": "3.14.2.final.0",
+    "is64Bit": true,
+    "symlinks": [
+      "/home/linuxbrew/.linuxbrew/bin/python3",
+      "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14"
+    ]
+  },
+  "symlinks": []
+}

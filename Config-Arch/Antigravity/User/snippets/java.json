@@ -1,9 +1,0 @@
-{
-	"boilerplate": {
-		"prefix": "pri",
-		"body": [
-			"System.out.println($1);",
-		],
-		"description": "Log output to console"
-	}
-}

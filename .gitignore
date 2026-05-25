@@ -7,6 +7,20 @@ __pycache__/
 *.log
 *.dmp
 
+# Node
+node_modules/
+
+# OpenCode sensitive/generated files
+opencode/antigravity-accounts.json
+opencode/antigravity-accounts.json.*.tmp
+opencode/antigravity-signature-cache.json
+opencode/antigravity-logs/
+opencode/package.json
+opencode/package-lock.json
+opencode/bun.lock
+opencode/superpowers/
+opencode/opencode.json.*.bak
+
 # Generic app/runtime cache and state
 **/Cache/
 **/Code Cache/
@@ -32,3 +46,6 @@ __pycache__/
 **/Network Persistent State
 **/Trust Tokens
 **/Trust Tokens-journal
+
+# Polybar ruff cache
+polybar/.ruff_cache/

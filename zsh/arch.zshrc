@@ -26,24 +26,12 @@ zsh-defer source /usr/share/zsh-history-substring-search/zsh-history-substring-s
 
 
 # -----------------------------
-# Function for IP Address
-# -----------------------------
-_ip_cache=""
-get_ip_address() {
-    [[ -n "$_ip_cache" ]] && { echo "%{$fg[green]%}$_ip_cache%{$reset_color%}"; return; }
-    _ip_cache=$(ip route get 1.1.1.1 2>/dev/null | awk '/src/ {print $7}' | head -1)
-    [[ -z "$_ip_cache" ]] && _ip_cache="No IP"
-    echo "%{$fg[green]%}$_ip_cache%{$reset_color%}"
-}
-
-
-# -----------------------------
 # Function for Git Branch
 # -----------------------------
 git_branch() {
     local branch
     branch=$(git symbolic-ref --quiet --short HEAD 2>/dev/null || git describe --tags --always 2>/dev/null)
-    [[ -n $branch ]] && echo "[%{$fg[blue]%}  $branch%{$reset_color%}]"
+    [[ -n $branch ]] && echo "[%F{#9a9a9a}  $branch%f]"
 }
 
 
@@ -52,12 +40,12 @@ git_branch() {
 # -----------------------------
 function gt() {
     # Colors
-    local RED=$'\033[1;31m'
-    local GREEN=$'\033[1;32m'
-    local YELLOW=$'\033[1;33m'
-    local BLUE=$'\033[1;34m'
-    local CYAN=$'\033[1;36m'
-    local MAGENTA=$'\033[1;35m'
+    local RED=$'\033[0;90m'
+    local GREEN=$'\033[1;97m'
+    local YELLOW=$'\033[0;37m'
+    local BLUE=$'\033[1;37m'
+    local CYAN=$'\033[0;37m'
+    local MAGENTA=$'\033[1;90m'
     local RESET=$'\033[0m'
 
     if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
@@ -153,7 +141,7 @@ function gt() {
 # -----------------------------
 # Prompt
 # -----------------------------
-PROMPT='[%F{red}󰣇 %c%f] [%F{green}  $(get_ip_address)%f] $(git_branch)➤ '
+PROMPT='[%F{#FF79C6}󰣇%f] [%F{#d0d0d0}%~%f] $(git_branch)%F{#8a8a8a}➤%f '
 
 
 # -----------------------------
@@ -180,10 +168,11 @@ alias z="zoxide"
 alias cdc="cd -"
 
 # Files
-alias l="eza -l --icons --git --color=always --level=1 --no-time --no-user --tree"
-alias ll="eza -la --icons --git --color=always --level=2 --no-time --no-user --tree"
-alias lll="eza -la --icons --git --color=always --level=3 --no-time --no-user --tree"
-alias llll="eza -la --icons --git --color=always --level=4 --no-time --no-user --tree"
+alias l="eza -l --group-directories-first --icons --git --color=always --level=1 --no-time --no-user --tree"
+alias ll="eza -la --group-directories-first --icons --git --color=always --level=2 --no-time --no-user --tree"
+alias lll="eza -la --group-directories-first --icons --git --color=always --level=3 --no-time --no-user --tree"
+alias llll="eza -la --icons --group-directories-first --git --color=always --level=4 --no-time --no-user --tree"
+alias lllll="eza -la --icons --group-directories-first --git --color=always --level=5 --no-time --no-user --tree"
 alias cat="bat -pp"
 alias s="yazi"
 alias cargoi="cargo-seek"
@@ -191,14 +180,6 @@ alias cargoi="cargo-seek"
 # Dev
 alias start="npm run dev"
 alias bstart="bun run dev"
-alias cn="cargo new"
-alias cr="cargo run"
-alias ca="cargo add"
-alias gc="git clone"
-alias gs="git status"
-alias gr="git remote set-url origin "
-alias ga="git add ."
-alias gp="git push -u origin main"
 alias pserver="python3 -m http.server 80"
 alias doc="sudo docker"
 
@@ -207,7 +188,7 @@ alias doc="sudo docker"
 # -----------------------------
 if [ -f /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
     . /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-    ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#6272a4'
+    ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#5f5f5f'
 fi
 
 
@@ -286,10 +267,10 @@ export FZF_DEFAULT_COMMAND="fd --type=f $FD_EXCLUDES"
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_ALT_C_COMMAND="fd --type=d $FD_EXCLUDES"
 
-# Dracula fzf theme
+# Grayscale fzf theme
 export FZF_DEFAULT_OPTS="
 --ansi
---height=50%
+--height=75%
 --layout=reverse
 --cycle
 --border=rounded
@@ -297,11 +278,11 @@ export FZF_DEFAULT_OPTS="
 --pointer='➤ '
 --marker='✓ '
 --preview-window=right,70%,border-left
---color=fg+:#50fa7b,bg+:-1,hl+:#50fa7b
---color=fg:#f8f8f2,bg:-1,hl:#bd93f9
---color=border:#6272a4,header:#8be9fd
---color=info:#ffb86c,prompt:#50fa7b
---color=pointer:#bd93f9,marker:#ff5555,spinner:#ffb86c
+--color=fg:#cfcfcf,bg:-1,hl:#f2f2f2
+--color=fg+:#f2f2f2,bg+:#242424,hl+:#ffffff
+--color=border:#4d4d4d,header:#8a8a8a
+--color=info:#777777,prompt:#d0d0d0
+--color=pointer:#f2f2f2,marker:#9a9a9a,spinner:#b0b0b0
 "
 
 fzf() {
@@ -343,31 +324,8 @@ _fzf_comprun() {
 # -----------------------------
 # Bat Theme
 # -----------------------------
-export BAT_THEME=Dracula
+export BAT_THEME=Charcoal
 
 
 export LANG=en_IN.UTF-8
 export LC_ALL=en_IN.UTF-8
-
-export PATH=$PATH:/home/jain/.spicetify
-export PATH="$PATH:$HOME/.spicetify"
-export PATH="$HOME/.cargo/bin:$PATH"
-
-# pipx
-export PATH="$PATH:/home/jain/.local/bin"
-autoload and run autoload:
-autoload -U compinit && compinit
-eval "$(register-python-argcomplete pipx)"
-autoload -U bashcompinit
-bashcompinit
-
-export PATH="$HOME/.npm-global/bin:$PATH"
-
-# bun completions
-[ -s "/home/jain/.bun/_bun" ] && source "/home/jain/.bun/_bun"
-
-# bun
-export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-export PATH="/usr/bin:$PATH"

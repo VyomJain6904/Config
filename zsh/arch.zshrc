@@ -94,7 +94,9 @@ function gt() {
                 if git diff --cached --quiet 2>/dev/null; then
                     echo -e "  ${YELLOW}  No staged changes.${RESET}"
                 else
-                    read -e -p "${CYAN}  Commit message:${RESET} " msg
+                    echo -e "${CYAN}  Commit message:${RESET}"
+                    msg=""
+                    vared -p "  > " msg
                     if [[ -n "$msg" ]]; then
                         git commit -m "$msg"
                         echo -e "  ${GREEN}  Commit created.${RESET}"

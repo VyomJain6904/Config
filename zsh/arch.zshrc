@@ -71,7 +71,7 @@ function gt() {
             --prompt=" ${CYAN}Git › ${RESET}" \
             --header="${MAGENTA}Repository: $(basename "$(git rev-parse --show-toplevel 2>/dev/null)")${RESET}" \
             --border=rounded \
-            --height=40% \
+            --height=50% \
             --reverse \
             --cycle \
         --bind='ctrl-c:abort,esc:abort')
@@ -92,15 +92,14 @@ function gt() {
             ;;
             *"Git Commit"*)
                 if git diff --cached --quiet 2>/dev/null; then
-                    echo -e "  ${YELLOW}  No staged changes.${RESET}"
+                    echo -e "  ${YELLOW}  No staged changes.${RESET}"
                 else
-                    echo -ne "${CYAN}  Commit message:${RESET} "
-                    read msg
+                    read -e -p "${CYAN}  Commit message:${RESET} " msg
                     if [[ -n "$msg" ]]; then
                         git commit -m "$msg"
-                        echo -e "  ${GREEN}  Commit created.${RESET}"
+                        echo -e "  ${GREEN}  Commit created.${RESET}"
                     else
-                        echo -e "  ${RED}  Commit message cannot be empty.${RESET}"
+                        echo -e "  ${RED}  Commit message cannot be empty.${RESET}"
                     fi
                 fi
             ;;
@@ -180,6 +179,14 @@ alias cargoi="cargo-seek"
 # Dev
 alias start="npm run dev"
 alias bstart="bun run dev"
+alias cn="cargo new"
+alias cr="cargo run"
+alias ca="cargo add"
+alias gc="git clone"
+alias gs="git status"
+alias gr="git remote set-url origin "
+alias ga="git add ."
+alias gp="git push -u origin main"
 alias pserver="python3 -m http.server 80"
 alias doc="sudo docker"
 
@@ -329,3 +336,26 @@ export BAT_THEME=Charcoal
 
 export LANG=en_IN.UTF-8
 export LC_ALL=en_IN.UTF-8
+
+export PATH=$PATH:/home/jain/.spicetify
+export PATH="$PATH:$HOME/.spicetify"
+export PATH="$HOME/.cargo/bin:$PATH"
+
+# pipx
+export PATH="$PATH:/home/jain/.local/bin"
+autoload and run autoload:
+autoload -U compinit && compinit
+eval "$(register-python-argcomplete pipx)"
+autoload -U bashcompinit
+bashcompinit
+
+export PATH="$HOME/.npm-global/bin:$PATH"
+
+# bun completions
+[ -s "/home/jain/.bun/_bun" ] && source "/home/jain/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+export PATH="/usr/bin:$PATH"

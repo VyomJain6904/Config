@@ -13,6 +13,9 @@ Theme source: [VyomJain6904/charcoal-theme](https://github.com/VyomJain6904/char
 
 ---
 
+## Wallpapers :
+Wallaper Source : [VyomJain6904/Wallpapers](https://github.com/VyomJain6904/Config/tree/main/Wallapers/README.md)
+
 ## What's Inside
 
 | Tool | Description | Config Path |

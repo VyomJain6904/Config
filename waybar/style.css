@@ -1,0 +1,141 @@
+* {
+	border: none;
+	border-radius: 0;
+	font-family: "JetBrainsMono Nerd Font Propo";
+	font-size: 13px;
+	min-height: 0;
+}
+
+window#waybar {
+	background: rgba(34, 34, 34, 0.85);
+	color: #ffffff;
+	border-top: 1px solid rgba(100, 100, 100, 0.3);
+}
+
+/* ---------- WORKSPACES ---------- */
+#workspaces {
+	background: #222222;
+	padding: 0;
+	margin: 0;
+}
+
+#workspaces button {
+	padding: 0;
+	min-width: 26px;
+	background: #222222;
+	color: #888888;
+	border: 1px solid #333333;
+	border-radius: 0;
+	margin: 2px 1px;
+}
+
+#workspaces button.active {
+	background: #285577;
+	color: #ffffff;
+	border-color: #4c7899;
+}
+
+#workspaces button.focused {
+	background: #285577;
+	color: #ffffff;
+	border-color: #4c7899;
+}
+
+#workspaces button.urgent {
+	background-color: #900000;
+	color: #ffffff;
+	border-color: #900000;
+}
+
+#workspaces button:hover {
+	background: #333333;
+	color: #ffffff;
+	box-shadow: inherit;
+	text-shadow: inherit;
+}
+
+/* ---------- MODULES ---------- */
+#network,
+#bluetooth,
+#pulseaudio,
+#pulseaudio.microphone,
+#battery,
+#clock,
+#custom-powermenu {
+	padding: 0 12px;
+	margin: 3px 0;
+	color: #f8f8f2;
+	background: transparent;
+	border-left: 1px solid rgba(98, 114, 164, 0.5);
+}
+
+#backlight {
+	color: #f1fa8c;
+	border-left: 1px solid rgba(98, 114, 164, 0.5);
+	padding: 0 12px;
+}
+
+#battery.warning {
+	color: #ffb86c;
+}
+
+#battery.critical {
+	color: #f8f8f2;
+	background: #ff5555;
+	border-radius: 2px;
+	border-left: none;
+	margin-left: 5px;
+}
+
+#custom-powermenu {
+	padding-right: 15px;
+}
+
+#custom-powermenu:hover {
+	color: #ff5555;
+}
+
+#pulseaudio.muted,
+#pulseaudio.source-muted,
+#pulseaudio.microphone.muted,
+#pulseaudio.microphone.source-muted {
+	color: #ff5555;
+}
+
+#bluetooth.on {
+	color: #50fa7b;
+}
+#bluetooth.connected {
+	color: #8be9fd;
+}
+#bluetooth.off,
+#bluetooth.disabled {
+	color: #ff5555;
+}
+
+#network.wifi,
+#network.ethernet,
+#network.linked {
+	color: #8be9fd;
+}
+#network.disconnected {
+	color: #ff5555;
+}
+
+#battery.charging {
+	color: #50fa7b;
+}
+#battery.full {
+	color: #8be9fd;
+}
+
+/* ---------- TOOLTIP ---------- */
+tooltip {
+	background: rgba(40, 42, 54, 0.95);
+	border: 1px solid #6272a4;
+	border-radius: 0;
+}
+
+tooltip label {
+	color: #f8f8f2;
+}

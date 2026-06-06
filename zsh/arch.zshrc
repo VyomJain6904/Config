@@ -31,7 +31,7 @@ zsh-defer source /usr/share/zsh-history-substring-search/zsh-history-substring-s
 git_branch() {
     local branch
     branch=$(git symbolic-ref --quiet --short HEAD 2>/dev/null || git describe --tags --always 2>/dev/null)
-    [[ -n $branch ]] && echo "[%F{#9a9a9a}  $branch%f]"
+    [[ -n $branch ]] && echo "[%F{#9ece6a}  $branch%f]"
 }
 
 
@@ -39,13 +39,13 @@ git_branch() {
 # Github Workflow with fzf
 # -----------------------------
 function gt() {
-    # Colors
-    local RED=$'\033[0;90m'
-    local GREEN=$'\033[1;97m'
-    local YELLOW=$'\033[0;37m'
-    local BLUE=$'\033[1;37m'
-    local CYAN=$'\033[0;37m'
-    local MAGENTA=$'\033[1;90m'
+    # Colors (Tokyo Night dark)
+    local RED=$'\033[38;5;211m'
+    local GREEN=$'\033[38;5;114m'
+    local YELLOW=$'\033[38;5;179m'
+    local BLUE=$'\033[38;5;111m'
+    local CYAN=$'\033[38;5;117m'
+    local MAGENTA=$'\033[38;5;141m'
     local RESET=$'\033[0m'
 
     if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
@@ -142,7 +142,7 @@ function gt() {
 # -----------------------------
 # Prompt
 # -----------------------------
-PROMPT='[%F{#FF79C6}󰣇%f] [%F{#d0d0d0}%~%f] $(git_branch)%F{#8a8a8a}➤%f '
+PROMPT='[%F{#FF79C6}󰣇%f  %F{#7aaaf7}%~%f] $(git_branch)%F{#565f89}➤%f '
 
 
 # -----------------------------
@@ -197,7 +197,7 @@ alias doc="sudo docker"
 # -----------------------------
 if [ -f /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
     . /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-    ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#5f5f5f'
+    ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#a6adc8'
 fi
 
 
@@ -276,7 +276,7 @@ export FZF_DEFAULT_COMMAND="fd --type=f $FD_EXCLUDES"
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_ALT_C_COMMAND="fd --type=d $FD_EXCLUDES"
 
-# Grayscale fzf theme
+# Tokyo Night fzf theme
 export FZF_DEFAULT_OPTS="
 --ansi
 --height=75%
@@ -287,11 +287,11 @@ export FZF_DEFAULT_OPTS="
 --pointer='➤ '
 --marker='✓ '
 --preview-window=right,70%,border-left
---color=fg:#cfcfcf,bg:-1,hl:#f2f2f2
---color=fg+:#f2f2f2,bg+:#242424,hl+:#ffffff
---color=border:#4d4d4d,header:#8a8a8a
---color=info:#777777,prompt:#d0d0d0
---color=pointer:#f2f2f2,marker:#9a9a9a,spinner:#b0b0b0
+--color=fg:#c0caf5,bg:-1,hl:#7aa2f7
+--color=fg+:#c0caf5,bg+:#1a1b26,hl+:#bb9af7
+--color=border:#414868,header:#7aa2f7
+--color=info:#565f89,prompt:#7aa2f7
+--color=pointer:#bb9af7,marker:#9ece6a,spinner:#e0af68
 "
 
 fzf() {
@@ -333,7 +333,7 @@ _fzf_comprun() {
 # -----------------------------
 # Bat Theme
 # -----------------------------
-export BAT_THEME=Charcoal
+export BAT_THEME="Nvim Dark"
 
 
 export LANG=en_IN.UTF-8

@@ -22,20 +22,25 @@ Wallaper Source : [VyomJain6904/Wallpapers](https://github.com/VyomJain6904/Conf
 
 | Tool                                                    | Description                         | Config Path   |
 | ------------------------------------------------------- | ----------------------------------- | ------------- |
-| [Ghostty](https://ghostty.org)                          | GPU-accelerated terminal emulator   | `ghostty/`    |
-| [Neovim](https://neovim.io)                             | Hyperextensible text editor         | `nvim/`       |
-| [Yazi](https://yazi-rs.github.io)                       | Blazing fast terminal file manager  | `yazi/`       |
-| [Bat](https://github.com/sharkdp/bat)                   | Cat clone with syntax highlighting  | `bat/`        |
-| [OpenCode](https://opencode.ai)                         | AI coding agent (multi-agent setup) | `opencode/`   |
-| [Zsh](https://www.zsh.org)                              | Shell config (oh-my-zsh + starship) | `zsh/`        |
-| [i3](https://i3wm.org)                                  | Tiling window manager               | `i3/`         |
-| [Polybar](https://polybar.github.io)                    | Status bar                          | `polybar/`    |
-| [Rofi](https://github.com/davatorium/rofi)              | Application launcher                | `rofi/`       |
-| [Picom](https://github.com/yshui/picom)                 | Compositor                          | `picom/`      |
 | [Alacritty](https://alacritty.org)                      | Terminal emulator (secondary)       | `alacritty/`  |
+| [Bat](https://github.com/sharkdp/bat)                   | Cat clone with syntax highlighting  | `bat/`        |
 | [Btop](https://github.com/aristocratos/btop)            | System monitor                      | `btop/`       |
+| [Eza](https://eza.rocks)                                | Modern `ls` replacement             | `eza/`        |
 | [Fastfetch](https://github.com/fastfetch-cli/fastfetch) | System info                         | `fastfetch/`  |
+| [Ghostty](https://ghostty.org)                          | GPU-accelerated terminal emulator   | `ghostty/`    |
+| [Hyprland](https://hyprland.org)                        | Wayland compositor                  | `hypr/`       |
+| [i3](https://i3wm.org)                                  | Tiling window manager (X11)         | `i3/`         |
+| [Kvantum](https://github.com/tsujan/Kvantum)            | Qt theme engine                     | `Kvantum/`    |
+| [Neovim](https://neovim.io)                             | Hyperextensible text editor         | `nvim/`       |
+| [OpenCode](https://opencode.ai)                         | AI coding agent (multi-agent setup) | `opencode/`   |
+| [Picom](https://github.com/yshui/picom)                 | Compositor                          | `picom/`      |
+| [Polybar](https://polybar.github.io)                    | Status bar                          | `polybar/`    |
+| [Qt6ct](https://github.com/trialuser02/qt6ct)           | Qt6 appearance config               | `qt6ct/`      |
+| [Rofi](https://github.com/davatorium/rofi)              | Application launcher                | `rofi/`       |
 | [Terminator](https://gnome-terminator.org)              | Terminal emulator (legacy)          | `terminator/` |
+| [Waybar](https://github.com/Alexays/Waybar)             | Wayland status bar                  | `waybar/`     |
+| [Yazi](https://yazi-rs.github.io)                       | Blazing fast terminal file manager  | `yazi/`       |
+| [Zsh](https://www.zsh.org)                              | Shell config (oh-my-zsh + starship) | `zsh/`        |
 
 ---
 
@@ -43,23 +48,47 @@ Wallaper Source : [VyomJain6904/Wallpapers](https://github.com/VyomJain6904/Conf
 
 ```
 Config/
-├── alacritty/          # Alacritty terminal config
+├── alacritty/
+│   └── alacritty.toml              # Secondary terminal (Dracula theme)
 ├── bat/
-│   ├── config
+│   ├── config                      # Bat config (Charcoal theme)
 │   └── themes/
 │       ├── Charcoal.tmTheme
 │       └── Dracula.tmTheme
-├── btop/               # Btop system monitor
-├── fastfetch/          # System info display
+├── btop/
+│   └── btop.conf                   # System monitor (Tokyo Night)
+├── eza/
+│   └── theme.yml                   # Modern ls theme (Tokyo Night)
+├── fastfetch/
+│   ├── config.jsonc                # System info display
+│   └── asci.txt                    # Custom ASCII logo
 ├── ghostty/
-│   ├── config          # Font, keybinds, theme
+│   ├── config                      # Primary terminal (font, keybinds, theme)
 │   └── themes/
-│       └── Charcoal
-├── i3/                 # i3wm config
+│       ├── Charcoal
+│       └── tokyonight.toml
+├── hypr/
+│   ├── hyprland.lua                # Wayland compositor entry point
+│   ├── modules/
+│   │   ├── monitors.lua
+│   │   ├── keybinds.lua
+│   │   ├── autostart.lua
+│   │   ├── design.lua
+│   │   ├── env.lua
+│   │   ├── layout.lua
+│   │   ├── input.lua
+│   │   ├── misc.lua
+│   │   └── windowrules.lua
+│   └── walls/                      # Desktop wallpapers
+├── i3/
+│   └── config                      # X11 tiling WM config
+├── Kvantum/
+│   ├── kvantum.kvconfig            # Qt theme engine
+│   └── Kvantum-Tokyo-Night/        # Tokyo Night SVG theme
 ├── nvim/
-│   ├── init.lua        # Entry point
-│   ├── stylua.toml     # Lua formatter config
-│   ├── lazy-lock.json  # Plugin lockfile
+│   ├── init.lua                    # Entry point
+│   ├── stylua.toml                 # Lua formatter config
+│   ├── lazy-lock.json              # Plugin lockfile
 │   └── lua/
 │       ├── globals.lua
 │       ├── options.lua
@@ -68,30 +97,54 @@ Config/
 │       ├── lazy-init.lua
 │       ├── util/
 │       └── plugins/
-│           ├── coding/     # LSP, cmp, trouble
-│           ├── dap/        # Debug adapter
-│           ├── editor/     # Telescope, lualine, file-tree, yazi
-│           ├── formatting/ # Conform, prettier
-│           ├── languages/  # Go, Rust, Python, TS, Zig, etc.
-│           ├── linting/    # Linting core
-│           ├── test/       # Neotest
-│           └── ui/         # Colorscheme, dashboard, indent
+│           ├── coding/             # LSP, cmp, trouble
+│           ├── dap/                # Debug adapter
+│           ├── editor/             # Telescope, lualine, file-tree, yazi
+│           ├── formatting/         # Conform, prettier
+│           ├── languages/          # Go, Rust, Python, TS, Zig, etc.
+│           ├── linting/            # Linting core
+│           ├── test/               # Neotest
+│           └── ui/                 # Colorscheme, dashboard, indent
 ├── opencode/
-│   ├── opencode.json   # Multi-agent config (6 agents + MCP)
-│   ├── tui.json        # TUI theme selection
+│   ├── opencode.json               # Multi-agent AI config (6 agents + MCP)
+│   ├── tui.json                    # TUI theme selection
 │   ├── themes/
 │   │   └── charcoal.json
 │   ├── skills/
-│   │   └── graphify/   # Graph visualization skill
+│   │   └── graphify/               # Graph visualization skill
 │   └── plugins/
 │       └── superpowers.js
-├── picom/              # Compositor config
-├── polybar/            # Status bar (main + VM variant)
-├── rofi/               # Launcher themes (spotlight, dmenu, powermenu)
-├── terminator/         # Legacy terminal config
-├── Wallpapers/         # Desktop wallpapers collection
+├── picom/
+│   └── picom.conf                  # X11 compositor
+├── polybar/
+│   ├── polybar/                    # Main i3 status bar + control center
+│   └── polybar-vm/                 # VM variant (VPN/IP monitoring)
+├── qt6ct/
+│   ├── qt6ct.conf                  # Qt6 appearance (Fusion + WhiteSur)
+│   └── style-colors.conf
+├── rofi/
+│   ├── main.rasi                   # Spotlight-style launcher
+│   ├── dmenu.rasi                  # Top-panel dmenu mode
+│   ├── powermenu.rasi              # Power menu
+│   └── spotlight.rasi              # macOS-style launcher
+├── terminator/
+│   └── config                      # Legacy terminal (Dracula)
+├── Wallpapers/                     # Desktop wallpapers collection
+├── waybar/
+│   ├── config.jsonc                # Wayland status bar
+│   ├── style.css
+│   ├── colors/
+│   └── scripts/
+├── yazi/
+│   ├── yazi.toml                   # Terminal file manager
+│   ├── keymap.toml
+│   ├── theme.toml
+│   ├── init.lua
+│   └── flavors/
+│       └── charcoal.yazi/
 └── zsh/
-    └── arch.zshrc      # Zsh config (oh-my-zsh + starship + zoxide)
+    ├── .zshrc                      # Shell config (starship + zoxide)
+    └── arch.zshrc                  # Arch Linux variant
 ```
 
 ---
@@ -136,19 +189,36 @@ Config/
 | Package   | Arch Linux                 | Debian/Ubuntu                |
 | --------- | -------------------------- | ---------------------------- |
 | Bat       | `sudo pacman -S bat`       | `sudo apt install bat`       |
-| Fastfetch | `sudo pacman -S fastfetch` | `sudo apt install fastfetch` |
 | Btop      | `sudo pacman -S btop`      | `sudo apt install btop`      |
+| Eza       | `sudo pacman -S eza`       | `sudo apt install eza`       |
+| Fastfetch | `sudo pacman -S fastfetch` | `sudo apt install fastfetch` |
 
-### Desktop (i3 setup)
+### Desktop (X11 / i3)
 
-| Package | Arch Linux               | Debian/Ubuntu              |
-| ------- | ------------------------ | -------------------------- |
-| i3      | `sudo pacman -S i3-wm`   | `sudo apt install i3`      |
-| Polybar | `sudo pacman -S polybar` | `sudo apt install polybar` |
-| Rofi    | `sudo pacman -S rofi`    | `sudo apt install rofi`    |
-| Picom   | `sudo pacman -S picom`   | `sudo apt install picom`   |
-| Feh     | `sudo pacman -S feh`     | `sudo apt install feh`     |
-| Dunst   | `sudo pacman -S dunst`   | `sudo apt install dunst`   |
+| Package  | Arch Linux                | Debian/Ubuntu             |
+| -------- | ------------------------- | ------------------------- |
+| i3       | `sudo pacman -S i3-wm`    | `sudo apt install i3`     |
+| Polybar  | `sudo pacman -S polybar`  | `sudo apt install polybar`|
+| Rofi     | `sudo pacman -S rofi`     | `sudo apt install rofi`   |
+| Picom    | `sudo pacman -S picom`    | `sudo apt install picom`  |
+| Feh      | `sudo pacman -S feh`      | `sudo apt install feh`    |
+| Dunst    | `sudo pacman -S dunst`    | `sudo apt install dunst`  |
+
+### Desktop (Wayland / Hyprland)
+
+| Package   | Arch Linux                    | Debian/Ubuntu                         |
+| --------- | ----------------------------- | ------------------------------------- |
+| Hyprland  | `sudo pacman -S hyprland`     | Build from source: [hyprland.org](https://hyprland.org) |
+| Waybar    | `sudo pacman -S waybar`       | `sudo apt install waybar`             |
+| Rofi      | `sudo pacman -S rofi-wayland` | `sudo apt install rofi`               |
+| Dunst     | `sudo pacman -S dunst`        | `sudo apt install dunst`              |
+
+### Qt Theme
+
+| Package | Arch Linux                 | Debian/Ubuntu                |
+| ------- | -------------------------- | ---------------------------- |
+| Kvantum | `sudo pacman -S kvantum`   | `sudo apt install kvantum`   |
+| Qt6ct   | `sudo pacman -S qt6ct`     | `sudo apt install qt6ct`     |
 
 ### AI Coding
 
@@ -193,17 +263,37 @@ git clone https://github.com/VyomJain6904/Config.git ~/Study/Config
 ### 2. Symlink Configs
 
 ```bash
-# Ghostty
-ln -sf ~/Study/Config/ghostty ~/.config/ghostty
-
-# Neovim
-ln -sf ~/Study/Config/nvim ~/.config/nvim
-
-# Yazi
-ln -sf ~/Study/Config/yazi ~/.config/yazi
+# Alacritty
+ln -sf ~/Study/Config/alacritty ~/.config/alacritty
 
 # Bat
 ln -sf ~/Study/Config/bat ~/.config/bat
+
+# Btop
+ln -sf ~/Study/Config/btop ~/.config/btop
+
+# Eza
+ln -sf ~/Study/Config/eza ~/.config/eza
+
+# Fastfetch
+ln -sf ~/Study/Config/fastfetch ~/.config/fastfetch
+
+# Ghostty
+ln -sf ~/Study/Config/ghostty ~/.config/ghostty
+
+# Hyprland
+ln -sf ~/Study/Config/hypr ~/.config/hypr
+
+# i3
+ln -sf ~/Study/Config/i3 ~/.config/i3
+
+# Kvantum
+mkdir -p ~/.config/Kvantum
+ln -sf ~/Study/Config/Kvantum/kvantum.kvconfig ~/.config/Kvantum/kvantum.kvconfig
+ln -sf ~/Study/Config/Kvantum/Kvantum-Tokyo-Night ~/.config/Kvantum/Kvantum-Tokyo-Night
+
+# Neovim
+ln -sf ~/Study/Config/nvim ~/.config/nvim
 
 # OpenCode
 mkdir -p ~/.config/opencode/skills
@@ -213,26 +303,30 @@ ln -sf ~/Study/Config/opencode/themes ~/.config/opencode/themes
 ln -sf ~/Study/Config/opencode/plugins ~/.config/opencode/plugins
 ln -sf ~/Study/Config/opencode/skills/graphify ~/.config/opencode/skills/graphify
 
-# Zsh
-ln -sf ~/Study/Config/zsh/arch.zshrc ~/.zshrc
-
-# i3
-ln -sf ~/Study/Config/i3 ~/.config/i3
+# Picom
+ln -sf ~/Study/Config/picom ~/.config/picom
 
 # Polybar
 ln -sf ~/Study/Config/polybar/polybar ~/.config/polybar
 
+# Qt6ct
+ln -sf ~/Study/Config/qt6ct ~/.config/qt6ct
+
 # Rofi
 ln -sf ~/Study/Config/rofi ~/.config/rofi
 
-# Picom
-ln -sf ~/Study/Config/picom ~/.config/picom
+# Terminator
+mkdir -p ~/.config/terminator
+ln -sf ~/Study/Config/terminator/config ~/.config/terminator/config
 
-# Btop
-ln -sf ~/Study/Config/btop ~/.config/btop
+# Waybar
+ln -sf ~/Study/Config/waybar ~/.config/waybar
 
-# Fastfetch
-ln -sf ~/Study/Config/fastfetch ~/.config/fastfetch
+# Yazi
+ln -sf ~/Study/Config/yazi ~/.config/yazi
+
+# Zsh
+ln -sf ~/Study/Config/zsh/arch.zshrc ~/.zshrc
 ```
 
 ### 3. Post-Install
@@ -252,10 +346,13 @@ nvim --headless "+Lazy! sync" +qa
 
 ## Highlights
 
-- Multi-agent AI — OpenCode configured with 6 specialized agents (builder, PM, tech-lead, backend-dev, reviewer, security researcher)
-- Neovim IDE — full LSP, DAP, formatting, linting, telescope, and language support for Go, Rust, Python, TypeScript, Zig
-- Yazi power user — custom keybinds, git integration, piper previews (glow for markdown, jq for JSON)
-- Zsh productivity — starship prompt, zoxide smart cd, fzf fuzzy finding, autosuggestions
+- **Dual WM support** — i3 (X11) and Hyprland (Wayland) both fully configured with matching status bars (Polybar / Waybar)
+- **Multi-agent AI** — OpenCode configured with 6 specialized agents (builder, PM, tech-lead, backend-dev, reviewer, security researcher)
+- **Neovim IDE** — full LSP, DAP, formatting, linting, telescope, and language support for Go, Rust, Python, TypeScript, Zig
+- **Yazi power user** — custom keybinds, git integration, piper previews (glow for markdown, jq for JSON)
+- **Zsh productivity** — starship prompt, zoxide smart cd, fzf fuzzy finding, autosuggestions
+- **Modern ls** — eza with custom Tokyo Night color theme
+- **Qt theming** — Kvantum + Qt6ct for consistent dark look across Qt apps
 
 ---
 

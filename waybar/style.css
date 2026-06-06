@@ -7,49 +7,65 @@
 }
 
 window#waybar {
-	background: rgba(34, 34, 34, 0.85);
-	color: #ffffff;
-	border-top: 1px solid rgba(100, 100, 100, 0.3);
+	background: #1a1b26;
+	color: #c0caf5;
+}
+
+/* ----------- ARCH LOGO ----------- */
+#custom-arch {
+	color: #ff79c6;
+	font-size: 16px;
+	padding: 0 12px;
+	margin: 0;
+}
+
+#custom-separator {
+	color: #545c7e;
+	padding: 0 4px;
+	margin: 0;
 }
 
 /* ---------- WORKSPACES ---------- */
 #workspaces {
-	background: #222222;
-	padding: 0;
-	margin: 0;
+	background: #1f2335;
+	border-radius: 20px;
+	padding: 0px 4px;
+	margin: 2px 0;
 }
 
 #workspaces button {
+	color: transparent;
+	background: #3b4261;
+	border-radius: 70%;
+	min-width: 12px;
+	min-height: 12px;
+	margin: 5px 4px;
+	border: none;
 	padding: 0;
-	min-width: 26px;
-	background: #222222;
-	color: #888888;
-	border: 1px solid #333333;
-	border-radius: 0;
-	margin: 2px 1px;
+	font-size: 0px;
+	transition: all 0.2s ease-in-out;
 }
 
-#workspaces button.active {
-	background: #285577;
-	color: #ffffff;
-	border-color: #4c7899;
-}
-
+#workspaces button.active,
 #workspaces button.focused {
-	background: #285577;
-	color: #ffffff;
-	border-color: #4c7899;
+	color: #1a1b26;
+	background: #7aa2f7;
+	border-radius: 12px;
+	min-width: 32px;
+	min-height: 20px;
+	margin: 1px 4px;
+	padding: 0 6px;
+	font-size: 13px;
+	transition: all 0.2s ease-in-out;
 }
 
 #workspaces button.urgent {
-	background-color: #900000;
-	color: #ffffff;
-	border-color: #900000;
+	background-color: #f7768e;
+	color: #1a1b26;
 }
 
 #workspaces button:hover {
-	background: #333333;
-	color: #ffffff;
+	background: #545c7e;
 	box-shadow: inherit;
 	text-shadow: inherit;
 }
@@ -58,20 +74,17 @@ window#waybar {
 #network,
 #bluetooth,
 #pulseaudio,
-#pulseaudio.microphone,
 #battery,
 #clock,
 #custom-powermenu {
 	padding: 0 12px;
-	margin: 3px 0;
+	margin: 0;
 	color: #f8f8f2;
 	background: transparent;
-	border-left: 1px solid rgba(98, 114, 164, 0.5);
 }
 
 #backlight {
 	color: #f1fa8c;
-	border-left: 1px solid rgba(98, 114, 164, 0.5);
 	padding: 0 12px;
 }
 
@@ -82,8 +95,7 @@ window#waybar {
 #battery.critical {
 	color: #f8f8f2;
 	background: #ff5555;
-	border-radius: 2px;
-	border-left: none;
+	border-radius: 4px;
 	margin-left: 5px;
 }
 
@@ -95,11 +107,24 @@ window#waybar {
 	color: #ff5555;
 }
 
-#pulseaudio.muted,
-#pulseaudio.source-muted,
-#pulseaudio.microphone.muted,
+#pulseaudio:not(.microphone).zero,
+#pulseaudio.microphone.zero {
+	color: #ff5555; /* 0 volume (red) */
+}
+
+#pulseaudio:not(.microphone).normal,
+#pulseaudio.microphone.normal {
+	color: #50fa7b; /* 1-99% volume (green) */
+}
+
+#pulseaudio:not(.microphone).full,
+#pulseaudio.microphone.full {
+	color: #8be9fd; /* 100% volume (blue) */
+}
+
+#pulseaudio:not(.microphone).muted,
 #pulseaudio.microphone.source-muted {
-	color: #ff5555;
+	color: #ff5555; /* Muted (red) */
 }
 
 #bluetooth.on {
@@ -131,11 +156,11 @@ window#waybar {
 
 /* ---------- TOOLTIP ---------- */
 tooltip {
-	background: rgba(40, 42, 54, 0.95);
-	border: 1px solid #6272a4;
-	border-radius: 0;
+	background: rgba(26, 27, 38, 0.95);
+	border: 1px solid #7aa2f7;
+	border-radius: 4px;
 }
 
 tooltip label {
-	color: #f8f8f2;
+	color: #c0caf5;
 }

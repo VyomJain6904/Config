@@ -57,15 +57,32 @@ local function set_transparent()
   vim.api.nvim_set_hl(0, 'IblScope', { fg = '#888888', bold = true })
 end
 
-vim.o.background = 'dark'
-vim.o.winblend = 10
-vim.o.pumblend = 10
-vim.cmd.colorscheme('default')
-set_transparent()
+return {
+  {
+    "folke/tokyonight.nvim",
+    lazy = false,
+    priority = 1000,
+    config = function()
+      vim.o.background = 'dark'
+      vim.o.winblend = 10
+      vim.o.pumblend = 10
 
-vim.api.nvim_create_autocmd('ColorScheme', {
-  pattern = '*',
-  callback = set_transparent,
-})
+      require("tokyonight").setup({
+        style = "night",
+        transparent = true,
+        styles = {
+          sidebars = "transparent",
+          floats = "transparent",
+        },
+      })
 
-return {}
+      vim.cmd.colorscheme('tokyonight-night')
+      set_transparent()
+
+      vim.api.nvim_create_autocmd('ColorScheme', {
+        pattern = '*',
+        callback = set_transparent,
+      })
+    end,
+  }
+}

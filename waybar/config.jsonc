@@ -4,26 +4,31 @@
     "height": 26,
     "spacing": 0,
     "modules-left": [
+        "custom/arch",
+        "network"
+    ],
+    "modules-center": [
         "hyprland/workspaces"
     ],
-    "modules-center": [],
     "modules-right": [
-        "network",
         "bluetooth",
+        "custom/separator",
         "backlight",
+        "custom/separator",
         "pulseaudio",
+        "custom/separator",
         "pulseaudio#microphone",
+        "custom/separator",
         "battery",
+        "custom/separator",
         "clock",
+        "custom/separator",
         "custom/powermenu"
     ],
     "hyprland/workspaces": {
         "disable-scroll": true,
         "all-outputs": true,
-        "format": "{name}",
-        "format-icons": {
-            "default": ""
-        }
+        "format": "{name}"
     },
     "battery": {
         "interval": 60,
@@ -56,13 +61,14 @@
         "tooltip-format": "\n<tt><small>{calendar}</small></tt>"
     },
     "network": {
-        "format-wifi": "",
+        "format-wifi": "   {signalStrength}%   ↑ {bandwidthUpBytes}   ↓ {bandwidthDownBytes}",
         "format-ethernet": "󰈀  {ipaddr}/{cidr}",
         "tooltip-format": "{ifname} via {gwaddr} 󰈀",
         "format-linked": "󰈀  {ifname} (No IP)",
         "format-disconnected": "⚠  Disconnected",
         "format-alt": "{ifname}: {ipaddr}/{cidr}",
-        "on-click": "nm-connection-editor"
+        "on-click": "nm-connection-editor",
+        "interval": 2
     },
     "bluetooth": {
         "format": "  On",
@@ -73,11 +79,20 @@
     },
     "backlight": {
         "format": "{icon}  {percent}%",
-        "format-icons": ["󰃞", "󰃟", "󰃠"],
-        "on-scroll-up": "brightnessctl set 1%+",
-        "on-scroll-down": "brightnessctl set 1%-"
+        "format-icons": [
+            "󰃞",
+            "󰃟",
+            "󰃠"
+        ],
+        "on-scroll-up": "brightnessctl set 2%+",
+        "on-scroll-down": "brightnessctl set 2%-"
     },
     "pulseaudio": {
+        "states": {
+            "full": 100,
+            "normal": 1,
+            "zero": 0
+        },
         "max-volume": 100,
         "scroll-step": 2,
         "format": "{icon}  {volume}%",
@@ -95,17 +110,32 @@
         "on-click": "pavucontrol"
     },
     "pulseaudio#microphone": {
+        "states": {
+            "full": 100,
+            "normal": 1,
+            "zero": 0
+        },
         "max-volume": 100,
         "scroll-step": 2,
+        "on-scroll-up": "wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SOURCE@ 2%+",
+        "on-scroll-down": "wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SOURCE@ 2%-",
         "format": "{format_source}",
         "format-source": "  {volume}%",
         "format-source-muted": "  Muted",
         "on-click": "pavucontrol"
     },
     "custom/powermenu": {
-        "format": "⏻ ",
+        "format": "⏻",
         "on-click": "/home/jain/.config/waybar/scripts/powermenu.sh",
         "interval": "once",
+        "tooltip": false
+    },
+    "custom/arch": {
+        "format": "󰣇",
+        "tooltip": false
+    },
+    "custom/separator": {
+        "format": "│",
         "tooltip": false
     }
 }

@@ -2,7 +2,6 @@
 font-family = JetBrainsMono Nerd Font
 font-size = 14
 bold-is-bright = true
-background-blur = true
 cursor-style = bar
 scrollback-limit = 1000000000
 keybind = performable:ctrl+c=copy_to_clipboard
@@ -15,7 +14,7 @@ keybind = performable:ctrl+w=close_surface
 window-padding-x = 12
 window-padding-y = 12
 
-theme = TokyoNight
+theme = TokyoNight Night
 
 keybind = alt+1=esc:1
 keybind = alt+2=esc:2

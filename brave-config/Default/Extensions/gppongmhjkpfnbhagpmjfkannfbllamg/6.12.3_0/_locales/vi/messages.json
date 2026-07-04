@@ -1,0 +1,690 @@
+{
+   "apiKeyPendingActivation": {
+      "message": "API key mới có thể mất vài phút để kích hoạt. Vui lòng chờ một chút rồi thử lại."
+   },
+   "attributeAbout": {
+      "message": "Về chúng tôi"
+   },
+   "attributeCertInfo_issuer": {
+      "message": "Cơ quan cấp chứng chỉ"
+   },
+   "attributeCertInfo_protocol": {
+      "message": "Giao thức chứng chỉ"
+   },
+   "attributeCertInfo_subjectCountry": {
+      "message": "Quốc gia chứng chỉ"
+   },
+   "attributeCertInfo_subjectLocality": {
+      "message": "Địa phương chứng chỉ"
+   },
+   "attributeCertInfo_subjectOrg": {
+      "message": "Tổ chức chứng chỉ"
+   },
+   "attributeCertInfo_subjectState": {
+      "message": "Tiểu bang chứng chỉ"
+   },
+   "attributeCertInfo_validTo": {
+      "message": "Ngày hết hạn chứng chỉ"
+   },
+   "attributeCompanyFounded": {
+      "message": "Ngày thành lập công ty"
+   },
+   "attributeCompanyName": {
+      "message": "Tên công ty"
+   },
+   "attributeCompanySize": {
+      "message": "Quy mô công ty"
+   },
+   "attributeCompanyType": {
+      "message": "Loại công ty"
+   },
+   "attributeCopyright": {
+      "message": "Bản quyền"
+   },
+   "attributeCopyrightYear": {
+      "message": "Năm bản quyền"
+   },
+   "attributeDescription": {
+      "message": "Mô tả"
+   },
+   "attributeDns_dmarc": {
+      "message": "Bản ghi DMARC"
+   },
+   "attributeDns_spf": {
+      "message": "Bản ghi SPF"
+   },
+   "attributeEmail": {
+      "message": "Địa chỉ email"
+   },
+   "attributeEmployees": {
+      "message": "Nhân viên"
+   },
+   "attributeFacebook": {
+      "message": "Facebook"
+   },
+   "attributeFundingRounds": {
+      "message": "Số vòng gọi vốn"
+   },
+   "attributeFundingTotalUsd": {
+      "message": "Tổng vốn huy động"
+   },
+   "attributeGithub": {
+      "message": "GitHub"
+   },
+   "attributeIndustry": {
+      "message": "Ngành"
+   },
+   "attributeInferredCompanyName": {
+      "message": "Tên công ty suy đoán"
+   },
+   "attributeInstagram": {
+      "message": "Instagram"
+   },
+   "attributeIpCountry": {
+      "message": "Quốc gia IP"
+   },
+   "attributeIpRegion": {
+      "message": "Khu vực IP"
+   },
+   "attributeKeywords": {
+      "message": "Từ khóa"
+   },
+   "attributeLanguage": {
+      "message": "Ngôn ngữ"
+   },
+   "attributeLinkedin": {
+      "message": "LinkedIn"
+   },
+   "attributeLocations": {
+      "message": "Địa điểm"
+   },
+   "attributeOwler": {
+      "message": "Owler"
+   },
+   "attributePhone": {
+      "message": "Số điện thoại"
+   },
+   "attributePinterest": {
+      "message": "Pinterest"
+   },
+   "attributeResponsive": {
+      "message": "Đáp ứng"
+   },
+   "attributeSafeEmail": {
+      "message": "Địa chỉ email (an toàn)"
+   },
+   "attributeSchemaOrgTypes": {
+      "message": "Loại schema.org"
+   },
+   "attributeSemrushGlobalRank": {
+      "message": "Xếp hạng toàn cầu Semrush"
+   },
+   "attributeSemrushVisits": {
+      "message": "Lượt truy cập hàng tháng trên Semrush"
+   },
+   "attributeSkype": {
+      "message": "Skype"
+   },
+   "attributeStockSymbol": {
+      "message": "Mã cổ phiếu"
+   },
+   "attributeTechnologySpend": {
+      "message": "Chi phí công nghệ"
+   },
+   "attributeTiktok": {
+      "message": "TikTok"
+   },
+   "attributeTitle": {
+      "message": "Tiêu đề"
+   },
+   "attributeTrackerFacebook": {
+      "message": "Facebook"
+   },
+   "attributeTrackerGoogleAdSense": {
+      "message": "Google AdSense"
+   },
+   "attributeTrackerGoogleAnalytics": {
+      "message": "Google Analytics"
+   },
+   "attributeTrackerMedianet": {
+      "message": "Medianet"
+   },
+   "attributeTrackerOptimizely": {
+      "message": "Optimizely"
+   },
+   "attributeTwitter": {
+      "message": "Twitter"
+   },
+   "attributeVerifiedEmail": {
+      "message": "Địa chỉ email (đã xác minh)"
+   },
+   "attributeWhatsapp": {
+      "message": "WhatsApp"
+   },
+   "attributeYoutube": {
+      "message": "YouTube"
+   },
+   "categoryName1": {
+      "message": "CMS"
+   },
+   "categoryName10": {
+      "message": "Phân tích số liệu"
+   },
+   "categoryName100": {
+      "message": "Ứng dụng Shopify"
+   },
+   "categoryName101": {
+      "message": "Tuyển dụng và nhân sự"
+   },
+   "categoryName102": {
+      "message": "Trả hàng"
+   },
+   "categoryName103": {
+      "message": "Phát trực tiếp"
+   },
+   "categoryName104": {
+      "message": "Đặt vé"
+   },
+   "categoryName105": {
+      "message": "Thực tế tăng cường"
+   },
+   "categoryName106": {
+      "message": "Thương mại điện tử xuyên biên giới"
+   },
+   "categoryName107": {
+      "message": "Hoàn tất đơn hàng"
+   },
+   "categoryName108": {
+      "message": "Giao diện người dùng thương mại điện tử"
+   },
+   "categoryName109": {
+      "message": "Đỗ tên miền"
+   },
+   "categoryName11": {
+      "message": "Blog"
+   },
+   "categoryName110": {
+      "message": "Công cụ xây dựng biểu mẫu"
+   },
+   "categoryName111": {
+      "message": "Gây quỹ & quyên góp"
+   },
+   "categoryName12": {
+      "message": "Các khung công cụ JavaScript"
+   },
+   "categoryName13": {
+      "message": "Công cụ theo dõi vấn đề"
+   },
+   "categoryName14": {
+      "message": "Trình phát video"
+   },
+   "categoryName15": {
+      "message": "Hệ thống bình luận"
+   },
+   "categoryName16": {
+      "message": "Bảo mật"
+   },
+   "categoryName17": {
+      "message": "Script phông chữ"
+   },
+   "categoryName18": {
+      "message": "Khung công cụ Web"
+   },
+   "categoryName19": {
+      "message": "Đa dạng"
+   },
+   "categoryName2": {
+      "message": "Diễn đàn tin nhắn"
+   },
+   "categoryName20": {
+      "message": "Trình soạn thảo"
+   },
+   "categoryName21": {
+      "message": "LMS"
+   },
+   "categoryName22": {
+      "message": "Các máy chủ Web"
+   },
+   "categoryName23": {
+      "message": "Bộ nhớ cache"
+   },
+   "categoryName24": {
+      "message": "Trình soạn thảo văn bản phong phú"
+   },
+   "categoryName25": {
+      "message": "Đồ họa JavaScript"
+   },
+   "categoryName26": {
+      "message": "Khung công cụ di động"
+   },
+   "categoryName27": {
+      "message": "Các ngôn ngữ lập trình"
+   },
+   "categoryName28": {
+      "message": "Hệ điều hành"
+   },
+   "categoryName29": {
+      "message": "Công cụ tìm kiếm"
+   },
+   "categoryName3": {
+      "message": "Trình quản lý cơ sở dữ liệu"
+   },
+   "categoryName30": {
+      "message": "Hộp thư Web"
+   },
+   "categoryName31": {
+      "message": "CDN"
+   },
+   "categoryName32": {
+      "message": "Tự động hóa tiếp thị"
+   },
+   "categoryName33": {
+      "message": "Các phần mở rộng máy chủ Web"
+   },
+   "categoryName34": {
+      "message": "Cơ sở dữ liệu"
+   },
+   "categoryName35": {
+      "message": "Bản đồ"
+   },
+   "categoryName36": {
+      "message": "Quảng cáo"
+   },
+   "categoryName37": {
+      "message": "Dịch vụ mạng"
+   },
+   "categoryName38": {
+      "message": "Máy chủ phương tiện"
+   },
+   "categoryName39": {
+      "message": "Webcam"
+   },
+   "categoryName4": {
+      "message": "Công cụ tài liệu"
+   },
+   "categoryName41": {
+      "message": "Các trình xử lý thanh toán"
+   },
+   "categoryName42": {
+      "message": "Trình quản lý thẻ"
+   },
+   "categoryName44": {
+      "message": "CI"
+   },
+   "categoryName46": {
+      "message": "Truy cập từ xa"
+   },
+   "categoryName47": {
+      "message": "Phát triển"
+   },
+   "categoryName48": {
+      "message": "Lưu trữ mạng"
+   },
+   "categoryName49": {
+      "message": "Công cụ đọc feed"
+   },
+   "categoryName5": {
+      "message": "Các tiện ích"
+   },
+   "categoryName50": {
+      "message": "Hệ thống quản lý tài liệu"
+   },
+   "categoryName51": {
+      "message": "Trình xây dựng trang"
+   },
+   "categoryName52": {
+      "message": "Trò chuyện trực tuyến"
+   },
+   "categoryName53": {
+      "message": "CRM"
+   },
+   "categoryName54": {
+      "message": "Tối ưu hóa công cụ tìm kiếm"
+   },
+   "categoryName55": {
+      "message": "Kế toán"
+   },
+   "categoryName56": {
+      "message": "Công cụ đào tiền điện tử"
+   },
+   "categoryName57": {
+      "message": "Công cụ tạo trang tĩnh"
+   },
+   "categoryName58": {
+      "message": "Tiếp cận người dùng"
+   },
+   "categoryName59": {
+      "message": "Thư viện JavaScript"
+   },
+   "categoryName6": {
+      "message": "Thương mại điện tử"
+   },
+   "categoryName60": {
+      "message": "Các công cụ chứa"
+   },
+   "categoryName62": {
+      "message": "PaaS"
+   },
+   "categoryName63": {
+      "message": "IaaS"
+   },
+   "categoryName64": {
+      "message": "Các proxy đảo ngược"
+   },
+   "categoryName65": {
+      "message": "Cân bằng tải"
+   },
+   "categoryName66": {
+      "message": "Khung giao diện người dùng"
+   },
+   "categoryName67": {
+      "message": "Tuân thủ cookie"
+   },
+   "categoryName68": {
+      "message": "Khả năng truy cập"
+   },
+   "categoryName69": {
+      "message": "Xác thực"
+   },
+   "categoryName7": {
+      "message": "Bộ sưu tập ảnh"
+   },
+   "categoryName70": {
+      "message": "Các cơ quan chứng nhận SSL/TLS"
+   },
+   "categoryName71": {
+      "message": "Các chương trình liên kết"
+   },
+   "categoryName72": {
+      "message": "Lập lịch hẹn"
+   },
+   "categoryName73": {
+      "message": "Các cuộc khảo sát"
+   },
+   "categoryName74": {
+      "message": "Thử nghiệm A/B"
+   },
+   "categoryName75": {
+      "message": "Thư điện tử"
+   },
+   "categoryName76": {
+      "message": "Cá nhân hóa"
+   },
+   "categoryName77": {
+      "message": "Tiếp thị lại"
+   },
+   "categoryName78": {
+      "message": "RUM"
+   },
+   "categoryName79": {
+      "message": "Vị trí địa lý"
+   },
+   "categoryName8": {
+      "message": "Trang wiki"
+   },
+   "categoryName80": {
+      "message": "Giao diện WordPress"
+   },
+   "categoryName81": {
+      "message": "Giao diện Shopify"
+   },
+   "categoryName82": {
+      "message": "Giao diện Drupal"
+   },
+   "categoryName83": {
+      "message": "Dấu vân tay trình duyệt"
+   },
+   "categoryName84": {
+      "message": "Chương trình khách hàng thân thiết và phần thưởng"
+   },
+   "categoryName85": {
+      "message": "Quản lý tính năng"
+   },
+   "categoryName86": {
+      "message": "Phân đoạn"
+   },
+   "categoryName87": {
+      "message": "Các plugin WordPress"
+   },
+   "categoryName88": {
+      "message": "Dịch vụ lưu trữ"
+   },
+   "categoryName89": {
+      "message": "Dịch"
+   },
+   "categoryName9": {
+      "message": "Các bảng điều khiển lưu trữ"
+   },
+   "categoryName90": {
+      "message": "Nhận xét"
+   },
+   "categoryName91": {
+      "message": "Mua ngay trả sau"
+   },
+   "categoryName92": {
+      "message": "Hiệu suất"
+   },
+   "categoryName93": {
+      "message": "Đặt chỗ và giao hàng"
+   },
+   "categoryName94": {
+      "message": "Tiếp thị giới thiệu"
+   },
+   "categoryName95": {
+      "message": "Quản lý tài sản số"
+   },
+   "categoryName96": {
+      "message": "Tổ chức nội dung"
+   },
+   "categoryName97": {
+      "message": "Nền tảng dữ liệu khách hàng"
+   },
+   "categoryName98": {
+      "message": "Bỏ giỏ hàng"
+   },
+   "categoryName99": {
+      "message": "Nhà vận chuyển gửi hàng"
+   },
+   "categoryPin": {
+      "message": "Luôn hiển thị biểu trưng"
+   },
+   "clearCache": {
+      "message": "Xóa các kết quả xác định trong bộ nhớ đệm"
+   },
+   "confidenceSure": {
+      "message": "Độ chắc chắn $CONFIDENCE$%",
+      "placeholders": {
+         "confidence": {
+            "content": "$1"
+         }
+      }
+   },
+   "disableOnDomain": {
+      "message": "Vô hiệu hóa trên trang web này"
+   },
+   "exportCsv": {
+      "message": "Xuất"
+   },
+   "footerCtaCrmBody": {
+      "message": "Add website technology data to HubSpot, Salesforce, or Pipedrive so your team can prioritize accounts and personalize outreach faster."
+   },
+   "footerCtaCrmButton": {
+      "message": "Enrich CRM records"
+   },
+   "footerCtaCrmHeading": {
+      "message": "See website technologies in your CRM"
+   },
+   "footerCtaListsBody": {
+      "message": "Go beyond one-off lookups with prospect lists your team can sort, export, and use to prioritize the right accounts."
+   },
+   "footerCtaListsButton": {
+      "message": "Build prospect lists"
+   },
+   "footerCtaListsHeading": {
+      "message": "Turn quick research into ready-to-use lists"
+   },
+   "footerCtaNeedMoreBody": {
+      "message": "If the extension helps you research a website's technologies, Wappalyzer can help your team find more companies using the same tools and build lead lists at scale."
+   },
+   "footerCtaNeedMoreButton": {
+      "message": "Find similar companies"
+   },
+   "footerCtaNeedMoreHeading": {
+      "message": "See a site's stack. Find more like it."
+   },
+   "footerCtaProspectsBody": {
+      "message": "Search by the tools companies use to build prospect lists with the company details and context your team needs to qualify faster."
+   },
+   "footerCtaProspectsButton": {
+      "message": "Find matching accounts"
+   },
+   "footerCtaProspectsHeading": {
+      "message": "Find companies using the tools you target"
+   },
+   "footerCtaWorkflowBody": {
+      "message": "Keep records updated automatically so sales and marketing can prioritize the right accounts and send more relevant outreach."
+   },
+   "footerCtaWorkflowButton": {
+      "message": "Automate enrichment"
+   },
+   "footerCtaWorkflowHeading": {
+      "message": "Bring website technologies into your workflow"
+   },
+   "formSave": {
+      "message": "Lưu"
+   },
+   "issue": {
+      "message": "Có điều gì đó không đúng hoặc bị thiếu?"
+   },
+   "noAppsDetected": {
+      "message": "Không xác định được công nghệ nào."
+   },
+   "optionApiKey": {
+      "message": "Khóa API"
+   },
+   "optionApiKeyDescription": {
+      "message": "lấy khóa API của bạn"
+   },
+   "optionBadge": {
+      "message": "Hiển thị số công nghệ đã xác định trên biểu trưng"
+   },
+   "optionDynamicIcon": {
+      "message": "Sử dụng biểu tượng công nghệ thay vì biểu trưng Wappalyzer"
+   },
+   "optionShowCached": {
+      "message": "Bao gồm kết quả xác định lưu trong bộ nhớ đệm"
+   },
+   "optionTracking": {
+      "message": "Gửi thông tin về các công nghệ đã xác định một cách ẩn danh đến wappalyzer.com"
+   },
+   "optionUpgradeMessage": {
+      "message": "Thông báo về các bản nâng cấp"
+   },
+   "options": {
+      "message": "Tùy chọn"
+   },
+   "plusButton": {
+      "message": "Đăng ký"
+   },
+   "plusCrawl": {
+      "message": "Không tìm thấy kết quả, vui lòng kiểm tra lại sau."
+   },
+   "plusEmpty": {
+      "message": "Không tìm thấy kết quả nào."
+   },
+   "plusErrorGeneric": {
+      "message": "Xin lỗi, đã xảy ra lỗi. Vui lòng thử lại sau."
+   },
+   "plusErrorNoAccess": {
+      "message": "Không có quyền truy cập. Vui lòng kiểm tra API key của bạn."
+   },
+   "plusErrorStatus": {
+      "message": "Xin lỗi, đã xảy ra lỗi ($STATUS$). Vui lòng thử lại sau.",
+      "placeholders": {
+         "status": {
+            "content": "$1"
+         }
+      }
+   },
+   "plusErrorTooManyRequests": {
+      "message": "Quá nhiều yêu cầu. Vui lòng thử lại sau vài giây."
+   },
+   "plusMessage": {
+      "message": "Với Plus, thông tin về công ty và liên hệ của các trang web bạn truy cập sẽ được hiển thị ở đây."
+   },
+   "plusMessageHeading": {
+      "message": "Nhận Plus với $$10/tháng"
+   },
+   "privacyPolicy": {
+      "message": "Chính sách bảo mật"
+   },
+   "reloadPage": {
+      "message": "Tải lại"
+   },
+   "setAddress": {
+      "message": "Địa chỉ"
+   },
+   "setCompany": {
+      "message": "Thông tin công ty"
+   },
+   "setContact": {
+      "message": "Thông tin liên hệ"
+   },
+   "setEmail": {
+      "message": "Địa chỉ email"
+   },
+   "setKeywords": {
+      "message": "Từ khóa"
+   },
+   "setLocale": {
+      "message": "Ngôn ngữ"
+   },
+   "setMeta": {
+      "message": "Siêu dữ liệu"
+   },
+   "setPhone": {
+      "message": "Số điện thoại"
+   },
+   "setSecurity": {
+      "message": "Bảo mật"
+   },
+   "setSignals": {
+      "message": "Tín hiệu"
+   },
+   "setSocial": {
+      "message": "Tài khoản mạng xã hội"
+   },
+   "setTrackers": {
+      "message": "Các công cụ theo dõi"
+   },
+   "spendHigh": {
+      "message": "Cao"
+   },
+   "spendLow": {
+      "message": "Thấp"
+   },
+   "spendMedium": {
+      "message": "Trung bình"
+   },
+   "spendVeryHigh": {
+      "message": "Rất cao"
+   },
+   "spendVeryLow": {
+      "message": "Rất thấp"
+   },
+   "tabPlus": {
+      "message": "Thông tin thêm"
+   },
+   "tabTechnologies": {
+      "message": "Công nghệ"
+   },
+   "termsAccept": {
+      "message": "Tôi đồng ý"
+   },
+   "termsContent": {
+      "message": "Tiện ích mở rộng này gửi thông tin ẩn danh về các trang web bạn truy cập, bao gồm tên miền và các công nghệ đã xác định, đến \u003Ca href='https://www.wappalyzer.com'>wappalyzer.com\u003C/a>. Điều này có thể được vô hiệu hóa trong cài đặt."
+   },
+   "termsDecline": {
+      "message": "Vô hiệu hóa"
+   }
+}

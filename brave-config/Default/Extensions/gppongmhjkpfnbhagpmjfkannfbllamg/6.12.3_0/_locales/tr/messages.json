@@ -1,0 +1,690 @@
+{
+   "apiKeyPendingActivation": {
+      "message": "Yeni API anahtarlarının etkinleşmesi birkaç dakika sürebilir. Lütfen biraz bekleyip tekrar deneyin."
+   },
+   "attributeAbout": {
+      "message": "Hakkında"
+   },
+   "attributeCertInfo_issuer": {
+      "message": "Cert issuer"
+   },
+   "attributeCertInfo_protocol": {
+      "message": "Cert protocol"
+   },
+   "attributeCertInfo_subjectCountry": {
+      "message": "Cert country"
+   },
+   "attributeCertInfo_subjectLocality": {
+      "message": "Cert locality"
+   },
+   "attributeCertInfo_subjectOrg": {
+      "message": "Cert organisation"
+   },
+   "attributeCertInfo_subjectState": {
+      "message": "Cert state"
+   },
+   "attributeCertInfo_validTo": {
+      "message": "Cert expiry"
+   },
+   "attributeCompanyFounded": {
+      "message": "Şirket kuruluş yılı"
+   },
+   "attributeCompanyName": {
+      "message": "Şirket adı"
+   },
+   "attributeCompanySize": {
+      "message": "Şirket büyüklüğü"
+   },
+   "attributeCompanyType": {
+      "message": "Şirket türü"
+   },
+   "attributeCopyright": {
+      "message": "Telif hakkı"
+   },
+   "attributeCopyrightYear": {
+      "message": "Telif hakkı yılı"
+   },
+   "attributeDescription": {
+      "message": "Açıklama"
+   },
+   "attributeDns_dmarc": {
+      "message": "DMARC kaydı"
+   },
+   "attributeDns_spf": {
+      "message": "SPF kaydı"
+   },
+   "attributeEmail": {
+      "message": "E-posta adresi"
+   },
+   "attributeEmployees": {
+      "message": "Kişiler"
+   },
+   "attributeFacebook": {
+      "message": "Facebook"
+   },
+   "attributeFundingRounds": {
+      "message": "Yatırım turları"
+   },
+   "attributeFundingTotalUsd": {
+      "message": "Toplam yatırım"
+   },
+   "attributeGithub": {
+      "message": "GitHub"
+   },
+   "attributeIndustry": {
+      "message": "Sektör"
+   },
+   "attributeInferredCompanyName": {
+      "message": "Tahmini şirket adı"
+   },
+   "attributeInstagram": {
+      "message": "Instagram"
+   },
+   "attributeIpCountry": {
+      "message": "IP ülkesi"
+   },
+   "attributeIpRegion": {
+      "message": "IP bölgesi"
+   },
+   "attributeKeywords": {
+      "message": "Anahtar kelimeler"
+   },
+   "attributeLanguage": {
+      "message": "Dil"
+   },
+   "attributeLinkedin": {
+      "message": "LinkedIn"
+   },
+   "attributeLocations": {
+      "message": "Konumlar"
+   },
+   "attributeOwler": {
+      "message": "Owler"
+   },
+   "attributePhone": {
+      "message": "Telefon numarası"
+   },
+   "attributePinterest": {
+      "message": "Pinterest"
+   },
+   "attributeResponsive": {
+      "message": "Duyarlı"
+   },
+   "attributeSafeEmail": {
+      "message": "E-posta adresi (güvenli)"
+   },
+   "attributeSchemaOrgTypes": {
+      "message": "schema.org türleri"
+   },
+   "attributeSemrushGlobalRank": {
+      "message": "Semrush küresel sıralaması"
+   },
+   "attributeSemrushVisits": {
+      "message": "Semrush aylık ziyaretleri"
+   },
+   "attributeSkype": {
+      "message": "Skype"
+   },
+   "attributeStockSymbol": {
+      "message": "Hisse senedi sembolü"
+   },
+   "attributeTechnologySpend": {
+      "message": "Teknoloji harcaması"
+   },
+   "attributeTiktok": {
+      "message": "TikTok"
+   },
+   "attributeTitle": {
+      "message": "Başlık"
+   },
+   "attributeTrackerFacebook": {
+      "message": "Facebook"
+   },
+   "attributeTrackerGoogleAdSense": {
+      "message": "Google AdSense"
+   },
+   "attributeTrackerGoogleAnalytics": {
+      "message": "Google Analytics"
+   },
+   "attributeTrackerMedianet": {
+      "message": "Medianet"
+   },
+   "attributeTrackerOptimizely": {
+      "message": "Optimizely"
+   },
+   "attributeTwitter": {
+      "message": "Twitter"
+   },
+   "attributeVerifiedEmail": {
+      "message": "E-posta adresi (doğrulanmış)"
+   },
+   "attributeWhatsapp": {
+      "message": "WhatsApp"
+   },
+   "attributeYoutube": {
+      "message": "YouTube"
+   },
+   "categoryName1": {
+      "message": "İçerik Yönetim Sistemi"
+   },
+   "categoryName10": {
+      "message": "Analitik"
+   },
+   "categoryName100": {
+      "message": "Shopify uygulamaları"
+   },
+   "categoryName101": {
+      "message": "İşe alım ve personel sağlama"
+   },
+   "categoryName102": {
+      "message": "İadeler"
+   },
+   "categoryName103": {
+      "message": "Canlı yayın"
+   },
+   "categoryName104": {
+      "message": "Bilet rezervasyonu"
+   },
+   "categoryName105": {
+      "message": "Artırılmış gerçeklik"
+   },
+   "categoryName106": {
+      "message": "Sınır ötesi e-ticaret"
+   },
+   "categoryName107": {
+      "message": "Sipariş karşılama"
+   },
+   "categoryName108": {
+      "message": "E-ticaret ön yüzleri"
+   },
+   "categoryName109": {
+      "message": "Alan adı park etme"
+   },
+   "categoryName11": {
+      "message": "Blog"
+   },
+   "categoryName110": {
+      "message": "Form oluşturucular"
+   },
+   "categoryName111": {
+      "message": "Bağış toplama ve bağışlar"
+   },
+   "categoryName12": {
+      "message": "JavaScript Framework"
+   },
+   "categoryName13": {
+      "message": "Hata Takibi"
+   },
+   "categoryName14": {
+      "message": "Video Oynatıcı"
+   },
+   "categoryName15": {
+      "message": "Yorum Sistemi"
+   },
+   "categoryName16": {
+      "message": "Güvenlik"
+   },
+   "categoryName17": {
+      "message": "Yazı Tipi"
+   },
+   "categoryName18": {
+      "message": "Web çatısı"
+   },
+   "categoryName19": {
+      "message": "Çeşitli"
+   },
+   "categoryName2": {
+      "message": "Mesaj Tahtası"
+   },
+   "categoryName20": {
+      "message": "Düzenleyici"
+   },
+   "categoryName21": {
+      "message": "LMS"
+   },
+   "categoryName22": {
+      "message": "Web Sunucusu"
+   },
+   "categoryName23": {
+      "message": "Ön Bellek Aracı"
+   },
+   "categoryName24": {
+      "message": "Zengin Metin Düzenleyici"
+   },
+   "categoryName25": {
+      "message": "JavaScript Grafikleri"
+   },
+   "categoryName26": {
+      "message": "Mobil çatı"
+   },
+   "categoryName27": {
+      "message": "Programlama Dilleri"
+   },
+   "categoryName28": {
+      "message": "İşletim sistemi"
+   },
+   "categoryName29": {
+      "message": "Arama Motoru"
+   },
+   "categoryName3": {
+      "message": "Veritabanı Yöneticisi"
+   },
+   "categoryName30": {
+      "message": "Web Posta"
+   },
+   "categoryName31": {
+      "message": "CDN"
+   },
+   "categoryName32": {
+      "message": "Pazarlama Otomasyonu"
+   },
+   "categoryName33": {
+      "message": "Web Sunucu Eklentileri"
+   },
+   "categoryName34": {
+      "message": "Veritabanı"
+   },
+   "categoryName35": {
+      "message": "Harita"
+   },
+   "categoryName36": {
+      "message": "Reklamcılık Ağı"
+   },
+   "categoryName37": {
+      "message": "Ağ Servisi"
+   },
+   "categoryName38": {
+      "message": "Medya Sunucusu"
+   },
+   "categoryName39": {
+      "message": "Bilgisayar Kamerası"
+   },
+   "categoryName4": {
+      "message": "Doküman Aracı"
+   },
+   "categoryName41": {
+      "message": "Ödeme İşlemcisi"
+   },
+   "categoryName42": {
+      "message": "Etiket Yöneticisi"
+   },
+   "categoryName44": {
+      "message": "Derleme/CI sistemi"
+   },
+   "categoryName46": {
+      "message": "Uzaktan Erişim"
+   },
+   "categoryName47": {
+      "message": "Geliştirme Aracı"
+   },
+   "categoryName48": {
+      "message": "Ağ Depolama"
+   },
+   "categoryName49": {
+      "message": "Besleme Okuyucuları"
+   },
+   "categoryName5": {
+      "message": "Widget"
+   },
+   "categoryName50": {
+      "message": "Doküman Yönetim Sistemleri"
+   },
+   "categoryName51": {
+      "message": "Açılış Sayfası Oluşturucu"
+   },
+   "categoryName52": {
+      "message": "Canlı Sohbet"
+   },
+   "categoryName53": {
+      "message": "CRM"
+   },
+   "categoryName54": {
+      "message": "SEO"
+   },
+   "categoryName55": {
+      "message": "Muhasebe"
+   },
+   "categoryName56": {
+      "message": "Kripto madencisi"
+   },
+   "categoryName57": {
+      "message": "Statik site oluşturucu"
+   },
+   "categoryName58": {
+      "message": "Kullanıcıya başlangıç"
+   },
+   "categoryName59": {
+      "message": "JavaScript Kütüphaneleri"
+   },
+   "categoryName6": {
+      "message": "E-Ticaret"
+   },
+   "categoryName60": {
+      "message": "Konteyner"
+   },
+   "categoryName62": {
+      "message": "PaaS"
+   },
+   "categoryName63": {
+      "message": "IaaS"
+   },
+   "categoryName64": {
+      "message": "Ters proxy"
+   },
+   "categoryName65": {
+      "message": "Yük Dengeleyici"
+   },
+   "categoryName66": {
+      "message": "UI Frameworks"
+   },
+   "categoryName67": {
+      "message": "Çerez uyumluluğu"
+   },
+   "categoryName68": {
+      "message": "Erişilebilirlik"
+   },
+   "categoryName69": {
+      "message": "Kimlik doğrulama"
+   },
+   "categoryName7": {
+      "message": "Foto Galerisi"
+   },
+   "categoryName70": {
+      "message": "SSL/TLS sertifika otoriteleri"
+   },
+   "categoryName71": {
+      "message": "Satış ortaklığı programları"
+   },
+   "categoryName72": {
+      "message": "Randevu planlama"
+   },
+   "categoryName73": {
+      "message": "Anketler"
+   },
+   "categoryName74": {
+      "message": "A/B testleri"
+   },
+   "categoryName75": {
+      "message": "E-posta"
+   },
+   "categoryName76": {
+      "message": "Kişiselleştirme"
+   },
+   "categoryName77": {
+      "message": "Yeniden hedefleme"
+   },
+   "categoryName78": {
+      "message": "RUM"
+   },
+   "categoryName79": {
+      "message": "Coğrafi konum"
+   },
+   "categoryName8": {
+      "message": "Wiki'ler"
+   },
+   "categoryName80": {
+      "message": "WordPress temaları"
+   },
+   "categoryName81": {
+      "message": "Shopify temaları"
+   },
+   "categoryName82": {
+      "message": "Drupal temaları"
+   },
+   "categoryName83": {
+      "message": "Tarayıcı parmak izi çıkarma"
+   },
+   "categoryName84": {
+      "message": "Sadakat ve ödüller"
+   },
+   "categoryName85": {
+      "message": "Özellik yönetimi"
+   },
+   "categoryName86": {
+      "message": "Segmentasyon"
+   },
+   "categoryName87": {
+      "message": "WordPress eklentileri"
+   },
+   "categoryName88": {
+      "message": "Barındırma"
+   },
+   "categoryName89": {
+      "message": "Çeviri"
+   },
+   "categoryName9": {
+      "message": "Hosting Panelleri"
+   },
+   "categoryName90": {
+      "message": "İncelemeler"
+   },
+   "categoryName91": {
+      "message": "Şimdi al sonra öde"
+   },
+   "categoryName92": {
+      "message": "Performans"
+   },
+   "categoryName93": {
+      "message": "Rezervasyonlar ve teslimat"
+   },
+   "categoryName94": {
+      "message": "Tavsiye pazarlaması"
+   },
+   "categoryName95": {
+      "message": "Dijital varlık yönetimi"
+   },
+   "categoryName96": {
+      "message": "İçerik kürasyonu"
+   },
+   "categoryName97": {
+      "message": "Müşteri veri platformu"
+   },
+   "categoryName98": {
+      "message": "Sepet terk etme"
+   },
+   "categoryName99": {
+      "message": "Kargo taşıyıcıları"
+   },
+   "categoryPin": {
+      "message": "Her zaman bu kategorinin ikonunu kullan"
+   },
+   "clearCache": {
+      "message": "Önbelleğe alınmış tespitleri temizle"
+   },
+   "confidenceSure": {
+      "message": "$CONFIDENCE$% emin",
+      "placeholders": {
+         "confidence": {
+            "content": "$1"
+         }
+      }
+   },
+   "disableOnDomain": {
+      "message": "Bu web sitesinde devre dışı bırak"
+   },
+   "exportCsv": {
+      "message": "Dışa aktar"
+   },
+   "footerCtaCrmBody": {
+      "message": "Add website technology data to HubSpot, Salesforce, or Pipedrive so your team can prioritize accounts and personalize outreach faster."
+   },
+   "footerCtaCrmButton": {
+      "message": "Enrich CRM records"
+   },
+   "footerCtaCrmHeading": {
+      "message": "See website technologies in your CRM"
+   },
+   "footerCtaListsBody": {
+      "message": "Go beyond one-off lookups with prospect lists your team can sort, export, and use to prioritize the right accounts."
+   },
+   "footerCtaListsButton": {
+      "message": "Build prospect lists"
+   },
+   "footerCtaListsHeading": {
+      "message": "Turn quick research into ready-to-use lists"
+   },
+   "footerCtaNeedMoreBody": {
+      "message": "If the extension helps you research a website's technologies, Wappalyzer can help your team find more companies using the same tools and build lead lists at scale."
+   },
+   "footerCtaNeedMoreButton": {
+      "message": "Find similar companies"
+   },
+   "footerCtaNeedMoreHeading": {
+      "message": "See a site's stack. Find more like it."
+   },
+   "footerCtaProspectsBody": {
+      "message": "Search by the tools companies use to build prospect lists with the company details and context your team needs to qualify faster."
+   },
+   "footerCtaProspectsButton": {
+      "message": "Find matching accounts"
+   },
+   "footerCtaProspectsHeading": {
+      "message": "Find companies using the tools you target"
+   },
+   "footerCtaWorkflowBody": {
+      "message": "Keep records updated automatically so sales and marketing can prioritize the right accounts and send more relevant outreach."
+   },
+   "footerCtaWorkflowButton": {
+      "message": "Automate enrichment"
+   },
+   "footerCtaWorkflowHeading": {
+      "message": "Bring website technologies into your workflow"
+   },
+   "formSave": {
+      "message": "Kaydet"
+   },
+   "issue": {
+      "message": "Bir şey yanlış mı ya da eksik mi?"
+   },
+   "noAppsDetected": {
+      "message": "Uygulamalar tespit edilemedi."
+   },
+   "optionApiKey": {
+      "message": "API anahtarı"
+   },
+   "optionApiKeyDescription": {
+      "message": "API anahtarınızı alın"
+   },
+   "optionBadge": {
+      "message": "Simge üzerinde tanımlanan teknoloji sayısını göster"
+   },
+   "optionDynamicIcon": {
+      "message": "Wappalyzer logosu yerine uygulama simgesi kullan"
+   },
+   "optionShowCached": {
+      "message": "Sonuçlara önbelleğe alınmış tespitleri dahil et"
+   },
+   "optionTracking": {
+      "message": "Anonim olarak tespit edilen uygulamalar hakkında wappalyzer.com'a araştırma raporları gönderin"
+   },
+   "optionUpgradeMessage": {
+      "message": "Güncellemeleri göster"
+   },
+   "options": {
+      "message": "Ayarlar"
+   },
+   "plusButton": {
+      "message": "Kaydol"
+   },
+   "plusCrawl": {
+      "message": "Sonuç bulunamadı, lütfen daha sonra tekrar kontrol edin."
+   },
+   "plusEmpty": {
+      "message": "Sonuç bulunamadı."
+   },
+   "plusErrorGeneric": {
+      "message": "Üzgünüz, bir şeyler yanlış gitti. Lütfen daha sonra tekrar deneyin."
+   },
+   "plusErrorNoAccess": {
+      "message": "Erişim yok. Lütfen API anahtarınızı kontrol edin."
+   },
+   "plusErrorStatus": {
+      "message": "Üzgünüz, bir şeyler yanlış gitti ($STATUS$). Lütfen daha sonra tekrar deneyin.",
+      "placeholders": {
+         "status": {
+            "content": "$1"
+         }
+      }
+   },
+   "plusErrorTooManyRequests": {
+      "message": "Çok fazla istek gönderildi. Lütfen birkaç saniye sonra tekrar deneyin."
+   },
+   "plusMessage": {
+      "message": "Plus ile ziyaret ettiğiniz web sitelerinin şirket ve iletişim bilgileri burada gösterilir."
+   },
+   "plusMessageHeading": {
+      "message": "Plus'ı $$10/ay karşılığında edinin"
+   },
+   "privacyPolicy": {
+      "message": "Gizlilik politikası"
+   },
+   "reloadPage": {
+      "message": "Yeniden yükle"
+   },
+   "setAddress": {
+      "message": "Adresler"
+   },
+   "setCompany": {
+      "message": "Şirket bilgileri"
+   },
+   "setContact": {
+      "message": "İletişim bilgileri"
+   },
+   "setEmail": {
+      "message": "E-posta adresleri"
+   },
+   "setKeywords": {
+      "message": "Anahtar kelimeler"
+   },
+   "setLocale": {
+      "message": "Bölge ayarı"
+   },
+   "setMeta": {
+      "message": "Meta veriler"
+   },
+   "setPhone": {
+      "message": "Telefon numaraları"
+   },
+   "setSecurity": {
+      "message": "Güvenlik"
+   },
+   "setSignals": {
+      "message": "Sinyaller"
+   },
+   "setSocial": {
+      "message": "Sosyal medya hesapları"
+   },
+   "setTrackers": {
+      "message": "İzleyiciler"
+   },
+   "spendHigh": {
+      "message": "Yüksek"
+   },
+   "spendLow": {
+      "message": "Düşük"
+   },
+   "spendMedium": {
+      "message": "Orta"
+   },
+   "spendVeryHigh": {
+      "message": "Çok yüksek"
+   },
+   "spendVeryLow": {
+      "message": "Çok düşük"
+   },
+   "tabPlus": {
+      "message": "Daha fazla bilgi"
+   },
+   "tabTechnologies": {
+      "message": "Teknolojiler"
+   },
+   "termsAccept": {
+      "message": "Benim için uygundur"
+   },
+   "termsContent": {
+      "message": "Bu eklenti, ziyaret ettiğiniz web site bilgilerini, alan adları ve tespit edilen teknolojiler ile beraber anonim olarak \u003Ca href='https://www.wappalyzer.com'>wappalyzer.com\u003C/a>'a gönderir. Bunu, eklenti ayarlarından değiştirebilirsiniz."
+   },
+   "termsDecline": {
+      "message": "Devre dışı bırak"
+   }
+}

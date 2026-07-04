@@ -54,12 +54,12 @@ local function set_transparent()
   for _, group in ipairs(transparent_groups) do
     vim.api.nvim_set_hl(0, group, { bg = 'NONE' })
   end
-  vim.api.nvim_set_hl(0, 'IblScope', { fg = '#888888', bold = true })
+  vim.api.nvim_set_hl(0, 'IblScope', { fg = '#6272a4', bold = true })
 end
 
 return {
   {
-    "folke/tokyonight.nvim",
+    "Mofiqul/dracula.nvim",
     lazy = false,
     priority = 1000,
     config = function()
@@ -67,16 +67,13 @@ return {
       vim.o.winblend = 10
       vim.o.pumblend = 10
 
-      require("tokyonight").setup({
-        style = "night",
+      require("dracula").setup({
         transparent = true,
-        styles = {
-          sidebars = "transparent",
-          floats = "transparent",
-        },
+        italic_comment = true,
+        overrides = {},
       })
 
-      vim.cmd.colorscheme('tokyonight-night')
+      vim.cmd.colorscheme('dracula')
       set_transparent()
 
       vim.api.nvim_create_autocmd('ColorScheme', {

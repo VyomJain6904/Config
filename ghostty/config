@@ -14,7 +14,7 @@ keybind = performable:ctrl+w=close_surface
 window-padding-x = 12
 window-padding-y = 12
 
-theme = TokyoNight Night
+theme = Dracula
 
 keybind = alt+1=esc:1
 keybind = alt+2=esc:2

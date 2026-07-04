@@ -39,13 +39,13 @@ git_branch() {
 # Github Workflow with fzf
 # -----------------------------
 function gt() {
-    # Colors (Tokyo Night dark)
-    local RED=$'\033[38;5;211m'
+    # Colors (Dracula)
+    local RED=$'\033[38;5;203m'
     local GREEN=$'\033[38;5;114m'
-    local YELLOW=$'\033[38;5;179m'
-    local BLUE=$'\033[38;5;111m'
+    local YELLOW=$'\033[38;5;228m'
+    local BLUE=$'\033[38;5;141m'
     local CYAN=$'\033[38;5;117m'
-    local MAGENTA=$'\033[38;5;141m'
+    local MAGENTA=$'\033[38;5;212m'
     local RESET=$'\033[0m'
 
     if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
@@ -275,8 +275,6 @@ FD_EXCLUDES="--strip-cwd-prefix \
 export FZF_DEFAULT_COMMAND="fd --type=f $FD_EXCLUDES"
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_ALT_C_COMMAND="fd --type=d $FD_EXCLUDES"
-
-# Tokyo Night fzf theme
 export FZF_DEFAULT_OPTS="
 --ansi
 --height=75%
@@ -287,11 +285,11 @@ export FZF_DEFAULT_OPTS="
 --pointer='➤ '
 --marker='✓ '
 --preview-window=right,70%,border-left
---color=fg:#c0caf5,bg:-1,hl:#7aa2f7
---color=fg+:#c0caf5,bg+:#1a1b26,hl+:#bb9af7
---color=border:#414868,header:#7aa2f7
---color=info:#565f89,prompt:#7aa2f7
---color=pointer:#bb9af7,marker:#9ece6a,spinner:#e0af68
+--color=fg:#f8f8f2,bg:-1,hl:#bd93f9
+--color=fg+:#f8f8f2,bg+:#44475a,hl+:#ff79c6
+--color=border:#6272a4,header:#bd93f9
+--color=info:#6272a4,prompt:#bd93f9
+--color=pointer:#ff79c6,marker:#50fa7b,spinner:#ffb86c
 "
 
 fzf() {
@@ -333,31 +331,8 @@ _fzf_comprun() {
 # -----------------------------
 # Bat Theme
 # -----------------------------
-export BAT_THEME="Nvim Dark"
+export BAT_THEME="Dracula"
 
 
 export LANG=en_IN.UTF-8
 export LC_ALL=en_IN.UTF-8
-
-export PATH=$PATH:/home/jain/.spicetify
-export PATH="$PATH:$HOME/.spicetify"
-export PATH="$HOME/.cargo/bin:$PATH"
-
-# pipx
-export PATH="$PATH:/home/jain/.local/bin"
-autoload and run autoload:
-autoload -U compinit && compinit
-eval "$(register-python-argcomplete pipx)"
-autoload -U bashcompinit
-bashcompinit
-
-export PATH="$HOME/.npm-global/bin:$PATH"
-
-# bun completions
-[ -s "/home/jain/.bun/_bun" ] && source "/home/jain/.bun/_bun"
-
-# bun
-export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-export PATH="/usr/bin:$PATH"

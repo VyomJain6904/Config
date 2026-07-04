@@ -23,4 +23,4 @@ hl.env("QT_WAYLAND_DISABLE_WINDOWDECORATION", "1")
 hl.env("QT_QPA_PLATFORMTHEME", "qt6ct")
 
 -- GTK
-hl.env("GTK_THEME", "Tokyonight-Dark")
+hl.env("GTK_THEME", "Dracula")

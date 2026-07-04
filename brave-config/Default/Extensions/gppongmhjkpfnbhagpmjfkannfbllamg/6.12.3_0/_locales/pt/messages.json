@@ -1,0 +1,690 @@
+{
+   "apiKeyPendingActivation": {
+      "message": "As novas chaves de API podem demorar alguns minutos a ficar ativas. Aguarde um momento e tente novamente."
+   },
+   "attributeAbout": {
+      "message": "Sobre"
+   },
+   "attributeCertInfo_issuer": {
+      "message": "Cert issuer"
+   },
+   "attributeCertInfo_protocol": {
+      "message": "Cert protocol"
+   },
+   "attributeCertInfo_subjectCountry": {
+      "message": "Cert country"
+   },
+   "attributeCertInfo_subjectLocality": {
+      "message": "Cert locality"
+   },
+   "attributeCertInfo_subjectOrg": {
+      "message": "Cert organisation"
+   },
+   "attributeCertInfo_subjectState": {
+      "message": "Cert state"
+   },
+   "attributeCertInfo_validTo": {
+      "message": "Cert expiry"
+   },
+   "attributeCompanyFounded": {
+      "message": "Empresa fundada em"
+   },
+   "attributeCompanyName": {
+      "message": "Nome da empresa"
+   },
+   "attributeCompanySize": {
+      "message": "Dimensão da empresa"
+   },
+   "attributeCompanyType": {
+      "message": "Tipo de empresa"
+   },
+   "attributeCopyright": {
+      "message": "Direitos de autor"
+   },
+   "attributeCopyrightYear": {
+      "message": "Ano dos direitos de autor"
+   },
+   "attributeDescription": {
+      "message": "Descrição"
+   },
+   "attributeDns_dmarc": {
+      "message": "Registo DMARC"
+   },
+   "attributeDns_spf": {
+      "message": "Registo SPF"
+   },
+   "attributeEmail": {
+      "message": "Endereço de email"
+   },
+   "attributeEmployees": {
+      "message": "Pessoas"
+   },
+   "attributeFacebook": {
+      "message": "Facebook"
+   },
+   "attributeFundingRounds": {
+      "message": "Rondas de financiamento"
+   },
+   "attributeFundingTotalUsd": {
+      "message": "Financiamento total"
+   },
+   "attributeGithub": {
+      "message": "GitHub"
+   },
+   "attributeIndustry": {
+      "message": "Setor"
+   },
+   "attributeInferredCompanyName": {
+      "message": "Nome inferido da empresa"
+   },
+   "attributeInstagram": {
+      "message": "Instagram"
+   },
+   "attributeIpCountry": {
+      "message": "País do IP"
+   },
+   "attributeIpRegion": {
+      "message": "Região do IP"
+   },
+   "attributeKeywords": {
+      "message": "Palavras-chave"
+   },
+   "attributeLanguage": {
+      "message": "Idioma"
+   },
+   "attributeLinkedin": {
+      "message": "LinkedIn"
+   },
+   "attributeLocations": {
+      "message": "Localizações"
+   },
+   "attributeOwler": {
+      "message": "Owler"
+   },
+   "attributePhone": {
+      "message": "Número de telefone"
+   },
+   "attributePinterest": {
+      "message": "Pinterest"
+   },
+   "attributeResponsive": {
+      "message": "Responsivo"
+   },
+   "attributeSafeEmail": {
+      "message": "Endereço de email (seguro)"
+   },
+   "attributeSchemaOrgTypes": {
+      "message": "Tipos de schema.org"
+   },
+   "attributeSemrushGlobalRank": {
+      "message": "Classificação global do Semrush"
+   },
+   "attributeSemrushVisits": {
+      "message": "Visitas mensais do Semrush"
+   },
+   "attributeSkype": {
+      "message": "Skype"
+   },
+   "attributeStockSymbol": {
+      "message": "Símbolo bolsista"
+   },
+   "attributeTechnologySpend": {
+      "message": "Despesa em tecnologia"
+   },
+   "attributeTiktok": {
+      "message": "TikTok"
+   },
+   "attributeTitle": {
+      "message": "Título"
+   },
+   "attributeTrackerFacebook": {
+      "message": "Facebook"
+   },
+   "attributeTrackerGoogleAdSense": {
+      "message": "Google AdSense"
+   },
+   "attributeTrackerGoogleAnalytics": {
+      "message": "Google Analytics"
+   },
+   "attributeTrackerMedianet": {
+      "message": "Medianet"
+   },
+   "attributeTrackerOptimizely": {
+      "message": "Optimizely"
+   },
+   "attributeTwitter": {
+      "message": "Twitter"
+   },
+   "attributeVerifiedEmail": {
+      "message": "Endereço de email (verificado)"
+   },
+   "attributeWhatsapp": {
+      "message": "WhatsApp"
+   },
+   "attributeYoutube": {
+      "message": "YouTube"
+   },
+   "categoryName1": {
+      "message": "CMS"
+   },
+   "categoryName10": {
+      "message": "Analítica"
+   },
+   "categoryName100": {
+      "message": "Aplicações do Shopify"
+   },
+   "categoryName101": {
+      "message": "Recrutamento e alocação de pessoal"
+   },
+   "categoryName102": {
+      "message": "Devoluções"
+   },
+   "categoryName103": {
+      "message": "Transmissão ao vivo"
+   },
+   "categoryName104": {
+      "message": "Reserva de bilhetes"
+   },
+   "categoryName105": {
+      "message": "Realidade aumentada"
+   },
+   "categoryName106": {
+      "message": "Comércio eletrónico transfronteiriço"
+   },
+   "categoryName107": {
+      "message": "Processamento de encomendas"
+   },
+   "categoryName108": {
+      "message": "Frontends de comércio eletrónico"
+   },
+   "categoryName109": {
+      "message": "Estacionamento de domínios"
+   },
+   "categoryName11": {
+      "message": "Blog"
+   },
+   "categoryName110": {
+      "message": "Construtores de formulários"
+   },
+   "categoryName111": {
+      "message": "Angariação de fundos e doações"
+   },
+   "categoryName12": {
+      "message": "Framework JavaScript"
+   },
+   "categoryName13": {
+      "message": "Localizador de Problemas"
+   },
+   "categoryName14": {
+      "message": "Leitor Vídeo"
+   },
+   "categoryName15": {
+      "message": "Sistema de Comentários"
+   },
+   "categoryName16": {
+      "message": "Segurança"
+   },
+   "categoryName17": {
+      "message": "Tipos de Letra"
+   },
+   "categoryName18": {
+      "message": "Framework Web"
+   },
+   "categoryName19": {
+      "message": "Diversos"
+   },
+   "categoryName2": {
+      "message": "Fórum"
+   },
+   "categoryName20": {
+      "message": "Editores"
+   },
+   "categoryName21": {
+      "message": "LMS"
+   },
+   "categoryName22": {
+      "message": "Servidor Web"
+   },
+   "categoryName23": {
+      "message": "Ferramenta de Cache"
+   },
+   "categoryName24": {
+      "message": "Editor WYSIWYG"
+   },
+   "categoryName25": {
+      "message": "Gráficos JavaScript"
+   },
+   "categoryName26": {
+      "message": "Framework Mobile"
+   },
+   "categoryName27": {
+      "message": "Linguagem de Programação"
+   },
+   "categoryName28": {
+      "message": "Sistema Operativo"
+   },
+   "categoryName29": {
+      "message": "Motor de Busca"
+   },
+   "categoryName3": {
+      "message": "Gestor de Base de Dados"
+   },
+   "categoryName30": {
+      "message": "Correio web"
+   },
+   "categoryName31": {
+      "message": "CDN"
+   },
+   "categoryName32": {
+      "message": "Automação de Marketing"
+   },
+   "categoryName33": {
+      "message": "Extensão de Servidor Web"
+   },
+   "categoryName34": {
+      "message": "Base de Dados"
+   },
+   "categoryName35": {
+      "message": "Mapa"
+   },
+   "categoryName36": {
+      "message": "Rede de Publicidade"
+   },
+   "categoryName37": {
+      "message": "Serviço de Rede"
+   },
+   "categoryName38": {
+      "message": "Servidor de Média"
+   },
+   "categoryName39": {
+      "message": "Webcam"
+   },
+   "categoryName4": {
+      "message": "Ferramenta de Documentação"
+   },
+   "categoryName41": {
+      "message": "Processador de Pagamento"
+   },
+   "categoryName42": {
+      "message": "Gestor de Etiquetas"
+   },
+   "categoryName44": {
+      "message": "Sistema de compilação/CI"
+   },
+   "categoryName46": {
+      "message": "Acesso Remoto"
+   },
+   "categoryName47": {
+      "message": "Ferramenta de Desenvolvimento"
+   },
+   "categoryName48": {
+      "message": "Rede de Armazenamento"
+   },
+   "categoryName49": {
+      "message": "Leitores de Feed"
+   },
+   "categoryName5": {
+      "message": "Widget"
+   },
+   "categoryName50": {
+      "message": "Sistema de Gestão de Documentos"
+   },
+   "categoryName51": {
+      "message": "Criador de Páginas de Destino"
+   },
+   "categoryName52": {
+      "message": "Chat ao Vivo"
+   },
+   "categoryName53": {
+      "message": "CRM"
+   },
+   "categoryName54": {
+      "message": "SEO"
+   },
+   "categoryName55": {
+      "message": "Contabilidade"
+   },
+   "categoryName56": {
+      "message": "Minerador de criptomoedas"
+   },
+   "categoryName57": {
+      "message": "Gerador de Site Estático"
+   },
+   "categoryName58": {
+      "message": "Integração de utilizadores"
+   },
+   "categoryName59": {
+      "message": "Bibliotecas de JavaScript"
+   },
+   "categoryName6": {
+      "message": "Comércio eletrónico"
+   },
+   "categoryName60": {
+      "message": "Contentores"
+   },
+   "categoryName62": {
+      "message": "PaaS"
+   },
+   "categoryName63": {
+      "message": "IaaS"
+   },
+   "categoryName64": {
+      "message": "Proxy inverso"
+   },
+   "categoryName65": {
+      "message": "Balanceador de carga"
+   },
+   "categoryName66": {
+      "message": "UI Frameworks"
+   },
+   "categoryName67": {
+      "message": "Conformidade de cookies"
+   },
+   "categoryName68": {
+      "message": "Acessibilidade"
+   },
+   "categoryName69": {
+      "message": "Autenticação"
+   },
+   "categoryName7": {
+      "message": "Galeria de Fotos"
+   },
+   "categoryName70": {
+      "message": "Autoridades de certificação SSL/TLS"
+   },
+   "categoryName71": {
+      "message": "Programas de afiliados"
+   },
+   "categoryName72": {
+      "message": "Agendamento de marcações"
+   },
+   "categoryName73": {
+      "message": "Inquéritos"
+   },
+   "categoryName74": {
+      "message": "Testes A/B"
+   },
+   "categoryName75": {
+      "message": "Correio eletrónico"
+   },
+   "categoryName76": {
+      "message": "Personalização"
+   },
+   "categoryName77": {
+      "message": "Remarketing"
+   },
+   "categoryName78": {
+      "message": "RUM"
+   },
+   "categoryName79": {
+      "message": "Geolocalização"
+   },
+   "categoryName8": {
+      "message": "Plataformas wiki"
+   },
+   "categoryName80": {
+      "message": "Temas do WordPress"
+   },
+   "categoryName81": {
+      "message": "Temas do Shopify"
+   },
+   "categoryName82": {
+      "message": "Temas do Drupal"
+   },
+   "categoryName83": {
+      "message": "Impressão digital do navegador"
+   },
+   "categoryName84": {
+      "message": "Fidelização e recompensas"
+   },
+   "categoryName85": {
+      "message": "Gestão de funcionalidades"
+   },
+   "categoryName86": {
+      "message": "Segmentação"
+   },
+   "categoryName87": {
+      "message": "Plugins do WordPress"
+   },
+   "categoryName88": {
+      "message": "Alojamento"
+   },
+   "categoryName89": {
+      "message": "Tradução"
+   },
+   "categoryName9": {
+      "message": "Painéis de Hospedagem"
+   },
+   "categoryName90": {
+      "message": "Avaliações"
+   },
+   "categoryName91": {
+      "message": "Compre agora, pague depois"
+   },
+   "categoryName92": {
+      "message": "Desempenho"
+   },
+   "categoryName93": {
+      "message": "Reservas e entregas"
+   },
+   "categoryName94": {
+      "message": "Marketing de referência"
+   },
+   "categoryName95": {
+      "message": "Gestão de ativos digitais"
+   },
+   "categoryName96": {
+      "message": "Curadoria de conteúdo"
+   },
+   "categoryName97": {
+      "message": "Plataforma de dados de clientes"
+   },
+   "categoryName98": {
+      "message": "Abandono de carrinho"
+   },
+   "categoryName99": {
+      "message": "Transportadoras"
+   },
+   "categoryPin": {
+      "message": "Mostrar sempre ícone"
+   },
+   "clearCache": {
+      "message": "Limpar deteções em cache"
+   },
+   "confidenceSure": {
+      "message": "$CONFIDENCE$% de certeza",
+      "placeholders": {
+         "confidence": {
+            "content": "$1"
+         }
+      }
+   },
+   "disableOnDomain": {
+      "message": "Desativar neste website"
+   },
+   "exportCsv": {
+      "message": "Exportar"
+   },
+   "footerCtaCrmBody": {
+      "message": "Add website technology data to HubSpot, Salesforce, or Pipedrive so your team can prioritize accounts and personalize outreach faster."
+   },
+   "footerCtaCrmButton": {
+      "message": "Enrich CRM records"
+   },
+   "footerCtaCrmHeading": {
+      "message": "See website technologies in your CRM"
+   },
+   "footerCtaListsBody": {
+      "message": "Go beyond one-off lookups with prospect lists your team can sort, export, and use to prioritize the right accounts."
+   },
+   "footerCtaListsButton": {
+      "message": "Build prospect lists"
+   },
+   "footerCtaListsHeading": {
+      "message": "Turn quick research into ready-to-use lists"
+   },
+   "footerCtaNeedMoreBody": {
+      "message": "If the extension helps you research a website's technologies, Wappalyzer can help your team find more companies using the same tools and build lead lists at scale."
+   },
+   "footerCtaNeedMoreButton": {
+      "message": "Find similar companies"
+   },
+   "footerCtaNeedMoreHeading": {
+      "message": "See a site's stack. Find more like it."
+   },
+   "footerCtaProspectsBody": {
+      "message": "Search by the tools companies use to build prospect lists with the company details and context your team needs to qualify faster."
+   },
+   "footerCtaProspectsButton": {
+      "message": "Find matching accounts"
+   },
+   "footerCtaProspectsHeading": {
+      "message": "Find companies using the tools you target"
+   },
+   "footerCtaWorkflowBody": {
+      "message": "Keep records updated automatically so sales and marketing can prioritize the right accounts and send more relevant outreach."
+   },
+   "footerCtaWorkflowButton": {
+      "message": "Automate enrichment"
+   },
+   "footerCtaWorkflowHeading": {
+      "message": "Bring website technologies into your workflow"
+   },
+   "formSave": {
+      "message": "Guardar"
+   },
+   "issue": {
+      "message": "Falta alguma coisa ou está algo errado?"
+   },
+   "noAppsDetected": {
+      "message": "Não foi detectada nenhuma tecnologia."
+   },
+   "optionApiKey": {
+      "message": "Chave API"
+   },
+   "optionApiKeyDescription": {
+      "message": "obter a tua chave API"
+   },
+   "optionBadge": {
+      "message": "Mostrar o número de tecnologias identificadas no ícone"
+   },
+   "optionDynamicIcon": {
+      "message": "Utilizar o ícone da tecnologia em vez do logótipo do Wappalyzer"
+   },
+   "optionShowCached": {
+      "message": "Incluir deteções em cache nos resultados"
+   },
+   "optionTracking": {
+      "message": "Envie anonimamente tecnologias identificadas para wappalyzer.com"
+   },
+   "optionUpgradeMessage": {
+      "message": "Fale-me sobre actualizações"
+   },
+   "options": {
+      "message": "Opções"
+   },
+   "plusButton": {
+      "message": "Registar"
+   },
+   "plusCrawl": {
+      "message": "Não foram encontrados resultados; volta a verificar mais tarde."
+   },
+   "plusEmpty": {
+      "message": "Não foram encontrados resultados."
+   },
+   "plusErrorGeneric": {
+      "message": "Lamentamos, ocorreu um erro. Tente novamente mais tarde."
+   },
+   "plusErrorNoAccess": {
+      "message": "Sem acesso. Verifique a sua chave de API."
+   },
+   "plusErrorStatus": {
+      "message": "Lamentamos, ocorreu um erro ($STATUS$). Tente novamente mais tarde.",
+      "placeholders": {
+         "status": {
+            "content": "$1"
+         }
+      }
+   },
+   "plusErrorTooManyRequests": {
+      "message": "Demasiados pedidos. Tente novamente dentro de alguns segundos."
+   },
+   "plusMessage": {
+      "message": "Com o Plus, os dados da empresa e os contactos dos websites que visitas são mostrados aqui."
+   },
+   "plusMessageHeading": {
+      "message": "Obtém Plus por $$10/mês"
+   },
+   "privacyPolicy": {
+      "message": "Políticas de Privacidade"
+   },
+   "reloadPage": {
+      "message": "Recarregar"
+   },
+   "setAddress": {
+      "message": "Endereços"
+   },
+   "setCompany": {
+      "message": "Informação da empresa"
+   },
+   "setContact": {
+      "message": "Detalhes de contacto"
+   },
+   "setEmail": {
+      "message": "Endereços de email"
+   },
+   "setKeywords": {
+      "message": "Palavras-chave"
+   },
+   "setLocale": {
+      "message": "Configuração regional"
+   },
+   "setMeta": {
+      "message": "Metadados"
+   },
+   "setPhone": {
+      "message": "Números de telefone"
+   },
+   "setSecurity": {
+      "message": "Segurança"
+   },
+   "setSignals": {
+      "message": "Sinais"
+   },
+   "setSocial": {
+      "message": "Contas de redes sociais"
+   },
+   "setTrackers": {
+      "message": "Rastreadores"
+   },
+   "spendHigh": {
+      "message": "Alto"
+   },
+   "spendLow": {
+      "message": "Baixo"
+   },
+   "spendMedium": {
+      "message": "Médio"
+   },
+   "spendVeryHigh": {
+      "message": "Muito alto"
+   },
+   "spendVeryLow": {
+      "message": "Muito baixo"
+   },
+   "tabPlus": {
+      "message": "Mais informação"
+   },
+   "tabTechnologies": {
+      "message": "Tecnologias"
+   },
+   "termsAccept": {
+      "message": "Concordo"
+   },
+   "termsContent": {
+      "message": "Esta extensão envia informações anónimas sobre os sites que visitas, incluindo o nome de domínio e as tecnologias identificadas, para o \u003Ca href='https://www.wappalyzer.com'>wappalyzer.com\u003C/a>. Isso pode ser desativado nas configurações."
+   },
+   "termsDecline": {
+      "message": "Desativar"
+   }
+}

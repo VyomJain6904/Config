@@ -1,0 +1,690 @@
+{
+   "apiKeyPendingActivation": {
+      "message": "Les claus API noves poden trigar uns minuts a activar-se. Espera un moment i torna-ho a provar."
+   },
+   "attributeAbout": {
+      "message": "Quant a"
+   },
+   "attributeCertInfo_issuer": {
+      "message": "Cert issuer"
+   },
+   "attributeCertInfo_protocol": {
+      "message": "Cert protocol"
+   },
+   "attributeCertInfo_subjectCountry": {
+      "message": "Cert country"
+   },
+   "attributeCertInfo_subjectLocality": {
+      "message": "Cert locality"
+   },
+   "attributeCertInfo_subjectOrg": {
+      "message": "Cert organisation"
+   },
+   "attributeCertInfo_subjectState": {
+      "message": "Cert state"
+   },
+   "attributeCertInfo_validTo": {
+      "message": "Cert expiry"
+   },
+   "attributeCompanyFounded": {
+      "message": "Empresa fundada el"
+   },
+   "attributeCompanyName": {
+      "message": "Nom de l'empresa"
+   },
+   "attributeCompanySize": {
+      "message": "Mida de l'empresa"
+   },
+   "attributeCompanyType": {
+      "message": "Tipus d'empresa"
+   },
+   "attributeCopyright": {
+      "message": "Drets d'autor"
+   },
+   "attributeCopyrightYear": {
+      "message": "Any dels drets d'autor"
+   },
+   "attributeDescription": {
+      "message": "Descripció"
+   },
+   "attributeDns_dmarc": {
+      "message": "Registre DMARC"
+   },
+   "attributeDns_spf": {
+      "message": "Registre SPF"
+   },
+   "attributeEmail": {
+      "message": "Adreça de correu electrònic"
+   },
+   "attributeEmployees": {
+      "message": "Persones"
+   },
+   "attributeFacebook": {
+      "message": "Facebook"
+   },
+   "attributeFundingRounds": {
+      "message": "Rondes de finançament"
+   },
+   "attributeFundingTotalUsd": {
+      "message": "Finançament total"
+   },
+   "attributeGithub": {
+      "message": "GitHub"
+   },
+   "attributeIndustry": {
+      "message": "Sector"
+   },
+   "attributeInferredCompanyName": {
+      "message": "Nom d'empresa inferit"
+   },
+   "attributeInstagram": {
+      "message": "Instagram"
+   },
+   "attributeIpCountry": {
+      "message": "País de la IP"
+   },
+   "attributeIpRegion": {
+      "message": "Regió de la IP"
+   },
+   "attributeKeywords": {
+      "message": "Paraules clau"
+   },
+   "attributeLanguage": {
+      "message": "Llengua"
+   },
+   "attributeLinkedin": {
+      "message": "LinkedIn"
+   },
+   "attributeLocations": {
+      "message": "Ubicacions"
+   },
+   "attributeOwler": {
+      "message": "Owler"
+   },
+   "attributePhone": {
+      "message": "Número de telèfon"
+   },
+   "attributePinterest": {
+      "message": "Pinterest"
+   },
+   "attributeResponsive": {
+      "message": "Adaptatiu"
+   },
+   "attributeSafeEmail": {
+      "message": "Adreça de correu electrònic (segura)"
+   },
+   "attributeSchemaOrgTypes": {
+      "message": "Tipus de schema.org"
+   },
+   "attributeSemrushGlobalRank": {
+      "message": "Rànquing global de Semrush"
+   },
+   "attributeSemrushVisits": {
+      "message": "Visites mensuals de Semrush"
+   },
+   "attributeSkype": {
+      "message": "Skype"
+   },
+   "attributeStockSymbol": {
+      "message": "Símbol borsari"
+   },
+   "attributeTechnologySpend": {
+      "message": "Despesa tecnològica"
+   },
+   "attributeTiktok": {
+      "message": "TikTok"
+   },
+   "attributeTitle": {
+      "message": "Títol"
+   },
+   "attributeTrackerFacebook": {
+      "message": "Facebook"
+   },
+   "attributeTrackerGoogleAdSense": {
+      "message": "Google AdSense"
+   },
+   "attributeTrackerGoogleAnalytics": {
+      "message": "Google Analytics"
+   },
+   "attributeTrackerMedianet": {
+      "message": "Medianet"
+   },
+   "attributeTrackerOptimizely": {
+      "message": "Optimizely"
+   },
+   "attributeTwitter": {
+      "message": "Twitter"
+   },
+   "attributeVerifiedEmail": {
+      "message": "Adreça de correu electrònic (verificada)"
+   },
+   "attributeWhatsapp": {
+      "message": "WhatsApp"
+   },
+   "attributeYoutube": {
+      "message": "YouTube"
+   },
+   "categoryName1": {
+      "message": "CMS"
+   },
+   "categoryName10": {
+      "message": "Analítica"
+   },
+   "categoryName100": {
+      "message": "Aplicacions de Shopify"
+   },
+   "categoryName101": {
+      "message": "Reclutament i dotació de personal"
+   },
+   "categoryName102": {
+      "message": "Devolucions"
+   },
+   "categoryName103": {
+      "message": "Retransmissió en directe"
+   },
+   "categoryName104": {
+      "message": "Reserva d'entrades"
+   },
+   "categoryName105": {
+      "message": "Realitat augmentada"
+   },
+   "categoryName106": {
+      "message": "Comerç electrònic transfronterer"
+   },
+   "categoryName107": {
+      "message": "Gestió logística"
+   },
+   "categoryName108": {
+      "message": "Interfícies de comerç electrònic"
+   },
+   "categoryName109": {
+      "message": "Aparcament de dominis"
+   },
+   "categoryName11": {
+      "message": "Blocs"
+   },
+   "categoryName110": {
+      "message": "Creadors de formularis"
+   },
+   "categoryName111": {
+      "message": "Recaptació de fons i donacions"
+   },
+   "categoryName12": {
+      "message": "Marcs JavaScript"
+   },
+   "categoryName13": {
+      "message": "Rastrejadors d'incidències"
+   },
+   "categoryName14": {
+      "message": "Reproductors de vídeo"
+   },
+   "categoryName15": {
+      "message": "Sistemes de comentaris"
+   },
+   "categoryName16": {
+      "message": "Seguretat"
+   },
+   "categoryName17": {
+      "message": "Tipografies"
+   },
+   "categoryName18": {
+      "message": "Marcs web"
+   },
+   "categoryName19": {
+      "message": "Miscel·lània"
+   },
+   "categoryName2": {
+      "message": "Taulers de missatgeria"
+   },
+   "categoryName20": {
+      "message": "Editors"
+   },
+   "categoryName21": {
+      "message": "LMS"
+   },
+   "categoryName22": {
+      "message": "Servidors web"
+   },
+   "categoryName23": {
+      "message": "Eines de memòria cau"
+   },
+   "categoryName24": {
+      "message": "Editors de text enriquit"
+   },
+   "categoryName25": {
+      "message": "Gràfics JavaScript"
+   },
+   "categoryName26": {
+      "message": "Marcs mòbils"
+   },
+   "categoryName27": {
+      "message": "Llenguatges de programació"
+   },
+   "categoryName28": {
+      "message": "Sistemes operatius"
+   },
+   "categoryName29": {
+      "message": "Motors de cerca"
+   },
+   "categoryName3": {
+      "message": "Gestor de bases de dades"
+   },
+   "categoryName30": {
+      "message": "Correu web"
+   },
+   "categoryName31": {
+      "message": "CDN"
+   },
+   "categoryName32": {
+      "message": "Automatitzacions de màrqueting"
+   },
+   "categoryName33": {
+      "message": "Extensions del servidor web"
+   },
+   "categoryName34": {
+      "message": "Bases de dades"
+   },
+   "categoryName35": {
+      "message": "Mapes"
+   },
+   "categoryName36": {
+      "message": "Xarxes de publicitat"
+   },
+   "categoryName37": {
+      "message": "Serveis de xarxa"
+   },
+   "categoryName38": {
+      "message": "Servidors multimèdia"
+   },
+   "categoryName39": {
+      "message": "Càmeres web"
+   },
+   "categoryName4": {
+      "message": "Eines de documentació"
+   },
+   "categoryName41": {
+      "message": "Processadors de pagament"
+   },
+   "categoryName42": {
+      "message": "Gestors d'etiquetes"
+   },
+   "categoryName44": {
+      "message": "Sistemes de compilació/CI"
+   },
+   "categoryName46": {
+      "message": "Accessos remots"
+   },
+   "categoryName47": {
+      "message": "Eines de desenvolupament"
+   },
+   "categoryName48": {
+      "message": "Emmagatzematge de xarxa"
+   },
+   "categoryName49": {
+      "message": "Lectors de canals"
+   },
+   "categoryName5": {
+      "message": "Ginys"
+   },
+   "categoryName50": {
+      "message": "Sistemes de gestió de documents"
+   },
+   "categoryName51": {
+      "message": "Creadors de pàgines d'inici"
+   },
+   "categoryName52": {
+      "message": "Xats en directe"
+   },
+   "categoryName53": {
+      "message": "CRM"
+   },
+   "categoryName54": {
+      "message": "SEO"
+   },
+   "categoryName55": {
+      "message": "Comptabilitat"
+   },
+   "categoryName56": {
+      "message": "Miners de criptomonedes"
+   },
+   "categoryName57": {
+      "message": "Generadors de llocs estàtics"
+   },
+   "categoryName58": {
+      "message": "Incorporacions d'usuaris"
+   },
+   "categoryName59": {
+      "message": "Llibreries JavaScript"
+   },
+   "categoryName6": {
+      "message": "Comerç electrònic"
+   },
+   "categoryName60": {
+      "message": "Contenidors"
+   },
+   "categoryName62": {
+      "message": "PaaS"
+   },
+   "categoryName63": {
+      "message": "IaaS"
+   },
+   "categoryName64": {
+      "message": "Proxys inversos"
+   },
+   "categoryName65": {
+      "message": "Balancejadors de càrrega"
+   },
+   "categoryName66": {
+      "message": "Marcs UI"
+   },
+   "categoryName67": {
+      "message": "Compliment de galetes"
+   },
+   "categoryName68": {
+      "message": "Accesibilitat"
+   },
+   "categoryName69": {
+      "message": "Autenticació"
+   },
+   "categoryName7": {
+      "message": "Galeries de fotos"
+   },
+   "categoryName70": {
+      "message": "Autoritats de certificació SSL/TLS"
+   },
+   "categoryName71": {
+      "message": "Programes d'afiliació"
+   },
+   "categoryName72": {
+      "message": "Programació de cites"
+   },
+   "categoryName73": {
+      "message": "Enquestes"
+   },
+   "categoryName74": {
+      "message": "Testeigs A/B"
+   },
+   "categoryName75": {
+      "message": "Correus electrònics"
+   },
+   "categoryName76": {
+      "message": "Personalització"
+   },
+   "categoryName77": {
+      "message": "Reorientació publicitària"
+   },
+   "categoryName78": {
+      "message": "RUM"
+   },
+   "categoryName79": {
+      "message": "Geolocalització"
+   },
+   "categoryName8": {
+      "message": "Viquis"
+   },
+   "categoryName80": {
+      "message": "Temes de WordPress"
+   },
+   "categoryName81": {
+      "message": "Temes de Shopify"
+   },
+   "categoryName82": {
+      "message": "Temes de Drupal"
+   },
+   "categoryName83": {
+      "message": "Empremta digital del navegador"
+   },
+   "categoryName84": {
+      "message": "Fidelització i recompenses"
+   },
+   "categoryName85": {
+      "message": "Gestió de funcionalitats"
+   },
+   "categoryName86": {
+      "message": "Segmentació"
+   },
+   "categoryName87": {
+      "message": "Connectors de WordPress"
+   },
+   "categoryName88": {
+      "message": "Allotjament"
+   },
+   "categoryName89": {
+      "message": "Traducció"
+   },
+   "categoryName9": {
+      "message": "Panells d'allotjament"
+   },
+   "categoryName90": {
+      "message": "Ressenyes"
+   },
+   "categoryName91": {
+      "message": "Compra ara, paga després"
+   },
+   "categoryName92": {
+      "message": "Rendiment"
+   },
+   "categoryName93": {
+      "message": "Reserves i lliurament"
+   },
+   "categoryName94": {
+      "message": "Màrqueting de referència"
+   },
+   "categoryName95": {
+      "message": "Gestió d'actius digitals"
+   },
+   "categoryName96": {
+      "message": "Curació de contingut"
+   },
+   "categoryName97": {
+      "message": "Plataforma de dades de clients"
+   },
+   "categoryName98": {
+      "message": "Abandonament del carretó"
+   },
+   "categoryName99": {
+      "message": "Transportistes"
+   },
+   "categoryPin": {
+      "message": "Mostrar sempre la icona"
+   },
+   "clearCache": {
+      "message": "Esborrar la memòria cau de les deteccions"
+   },
+   "confidenceSure": {
+      "message": "$CONFIDENCE$% de confiança",
+      "placeholders": {
+         "confidence": {
+            "content": "$1"
+         }
+      }
+   },
+   "disableOnDomain": {
+      "message": "Desactivar en aquest web"
+   },
+   "exportCsv": {
+      "message": "Exportar"
+   },
+   "footerCtaCrmBody": {
+      "message": "Add website technology data to HubSpot, Salesforce, or Pipedrive so your team can prioritize accounts and personalize outreach faster."
+   },
+   "footerCtaCrmButton": {
+      "message": "Enrich CRM records"
+   },
+   "footerCtaCrmHeading": {
+      "message": "See website technologies in your CRM"
+   },
+   "footerCtaListsBody": {
+      "message": "Go beyond one-off lookups with prospect lists your team can sort, export, and use to prioritize the right accounts."
+   },
+   "footerCtaListsButton": {
+      "message": "Build prospect lists"
+   },
+   "footerCtaListsHeading": {
+      "message": "Turn quick research into ready-to-use lists"
+   },
+   "footerCtaNeedMoreBody": {
+      "message": "If the extension helps you research a website's technologies, Wappalyzer can help your team find more companies using the same tools and build lead lists at scale."
+   },
+   "footerCtaNeedMoreButton": {
+      "message": "Find similar companies"
+   },
+   "footerCtaNeedMoreHeading": {
+      "message": "See a site's stack. Find more like it."
+   },
+   "footerCtaProspectsBody": {
+      "message": "Search by the tools companies use to build prospect lists with the company details and context your team needs to qualify faster."
+   },
+   "footerCtaProspectsButton": {
+      "message": "Find matching accounts"
+   },
+   "footerCtaProspectsHeading": {
+      "message": "Find companies using the tools you target"
+   },
+   "footerCtaWorkflowBody": {
+      "message": "Keep records updated automatically so sales and marketing can prioritize the right accounts and send more relevant outreach."
+   },
+   "footerCtaWorkflowButton": {
+      "message": "Automate enrichment"
+   },
+   "footerCtaWorkflowHeading": {
+      "message": "Bring website technologies into your workflow"
+   },
+   "formSave": {
+      "message": "Desa"
+   },
+   "issue": {
+      "message": "Hi ha res incorrecte o que falta?"
+   },
+   "noAppsDetected": {
+      "message": "No s'ha detectat cap tecnologia."
+   },
+   "optionApiKey": {
+      "message": "Clau API"
+   },
+   "optionApiKeyDescription": {
+      "message": "obtén la teva clau API"
+   },
+   "optionBadge": {
+      "message": "Mostrar el nombre de tecnologies identificades en la icona"
+   },
+   "optionDynamicIcon": {
+      "message": "Utilitzar la icona de la tecnologia enlloc del logotip de Wappalyzer"
+   },
+   "optionShowCached": {
+      "message": "Inclou les deteccions en memòria cau als resultats"
+   },
+   "optionTracking": {
+      "message": "Enviar les tecnologies identificades de forma anònima a wappalyzer.com"
+   },
+   "optionUpgradeMessage": {
+      "message": "Notificar les actualitzacions disponibles"
+   },
+   "options": {
+      "message": "Opcions"
+   },
+   "plusButton": {
+      "message": "Registra't"
+   },
+   "plusCrawl": {
+      "message": "No s'han trobat resultats; torna-ho a provar més tard."
+   },
+   "plusEmpty": {
+      "message": "No s'han trobat resultats."
+   },
+   "plusErrorGeneric": {
+      "message": "Ho sentim, alguna cosa ha anat malament. Torna-ho a provar més tard."
+   },
+   "plusErrorNoAccess": {
+      "message": "Sense accés. Comprova la teva clau API."
+   },
+   "plusErrorStatus": {
+      "message": "Ho sentim, alguna cosa ha anat malament ($STATUS$). Torna-ho a provar més tard.",
+      "placeholders": {
+         "status": {
+            "content": "$1"
+         }
+      }
+   },
+   "plusErrorTooManyRequests": {
+      "message": "Massa sol·licituds. Torna-ho a provar d'aquí a uns segons."
+   },
+   "plusMessage": {
+      "message": "Amb Plus, aquí es mostren les dades de l'empresa i de contacte dels llocs web que visites."
+   },
+   "plusMessageHeading": {
+      "message": "Aconsegueix Plus per $$10/mes"
+   },
+   "privacyPolicy": {
+      "message": "Política de privadesa"
+   },
+   "reloadPage": {
+      "message": "Torna a carregar"
+   },
+   "setAddress": {
+      "message": "Adreces"
+   },
+   "setCompany": {
+      "message": "Informació de l'empresa"
+   },
+   "setContact": {
+      "message": "Dades de contacte"
+   },
+   "setEmail": {
+      "message": "Adreces de correu electrònic"
+   },
+   "setKeywords": {
+      "message": "Paraules clau"
+   },
+   "setLocale": {
+      "message": "Configuració regional"
+   },
+   "setMeta": {
+      "message": "Metadades"
+   },
+   "setPhone": {
+      "message": "Números de telèfon"
+   },
+   "setSecurity": {
+      "message": "Seguretat"
+   },
+   "setSignals": {
+      "message": "Senyals"
+   },
+   "setSocial": {
+      "message": "Comptes de xarxes socials"
+   },
+   "setTrackers": {
+      "message": "Rastrejadors"
+   },
+   "spendHigh": {
+      "message": "Alta"
+   },
+   "spendLow": {
+      "message": "Baixa"
+   },
+   "spendMedium": {
+      "message": "Mitjana"
+   },
+   "spendVeryHigh": {
+      "message": "Molt alta"
+   },
+   "spendVeryLow": {
+      "message": "Molt baixa"
+   },
+   "tabPlus": {
+      "message": "Més informació"
+   },
+   "tabTechnologies": {
+      "message": "Tecnologies"
+   },
+   "termsAccept": {
+      "message": "M'està bé"
+   },
+   "termsContent": {
+      "message": "Aquesta extensió envia informació anònima sobre els llocs web que visiteu, inclosos el nom de domini i les tecnologies identificades a \u003Ca href='https://www.wappalyzer.com'>wappalyzer.com\u003C/a>. Això pot desactivar-se a Opcions."
+   },
+   "termsDecline": {
+      "message": "Desactivar"
+   }
+}

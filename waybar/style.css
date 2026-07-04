@@ -7,8 +7,8 @@
 }
 
 window#waybar {
-	background: #1a1b26;
-	color: #c0caf5;
+	background: #282a36;
+	color: #f8f8f2;
 }
 
 /* ----------- ARCH LOGO ----------- */
@@ -20,14 +20,14 @@ window#waybar {
 }
 
 #custom-separator {
-	color: #545c7e;
+	color: #6272a4;
 	padding: 0 4px;
 	margin: 0;
 }
 
 /* ---------- WORKSPACES ---------- */
 #workspaces {
-	background: #1f2335;
+	background: #44475a;
 	border-radius: 20px;
 	padding: 0px 4px;
 	margin: 2px 0;
@@ -35,7 +35,7 @@ window#waybar {
 
 #workspaces button {
 	color: transparent;
-	background: #3b4261;
+	background: #6272a4;
 	border-radius: 70%;
 	min-width: 12px;
 	min-height: 12px;
@@ -48,8 +48,8 @@ window#waybar {
 
 #workspaces button.active,
 #workspaces button.focused {
-	color: #1a1b26;
-	background: #7aa2f7;
+	color: #282a36;
+	background: #bd93f9;
 	border-radius: 12px;
 	min-width: 32px;
 	min-height: 20px;
@@ -60,12 +60,12 @@ window#waybar {
 }
 
 #workspaces button.urgent {
-	background-color: #f7768e;
-	color: #1a1b26;
+	background-color: #ff5555;
+	color: #282a36;
 }
 
 #workspaces button:hover {
-	background: #545c7e;
+	background: #6272a4;
 	box-shadow: inherit;
 	text-shadow: inherit;
 }
@@ -156,11 +156,11 @@ window#waybar {
 
 /* ---------- TOOLTIP ---------- */
 tooltip {
-	background: rgba(26, 27, 38, 0.95);
-	border: 1px solid #7aa2f7;
+	background: rgba(40, 42, 54, 0.95);
+	border: 1px solid #bd93f9;
 	border-radius: 4px;
 }
 
 tooltip label {
-	color: #c0caf5;
+	color: #f8f8f2;
 }

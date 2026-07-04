@@ -1,0 +1,690 @@
+{
+   "apiKeyPendingActivation": {
+      "message": "Noile chei API pot avea nevoie de câteva minute pentru a se activa. Așteaptă puțin și încearcă din nou."
+   },
+   "attributeAbout": {
+      "message": "Despre"
+   },
+   "attributeCertInfo_issuer": {
+      "message": "Cert issuer"
+   },
+   "attributeCertInfo_protocol": {
+      "message": "Cert protocol"
+   },
+   "attributeCertInfo_subjectCountry": {
+      "message": "Cert country"
+   },
+   "attributeCertInfo_subjectLocality": {
+      "message": "Cert locality"
+   },
+   "attributeCertInfo_subjectOrg": {
+      "message": "Cert organisation"
+   },
+   "attributeCertInfo_subjectState": {
+      "message": "Cert state"
+   },
+   "attributeCertInfo_validTo": {
+      "message": "Cert expiry"
+   },
+   "attributeCompanyFounded": {
+      "message": "Companie fondată în"
+   },
+   "attributeCompanyName": {
+      "message": "Numele companiei"
+   },
+   "attributeCompanySize": {
+      "message": "Dimensiunea companiei"
+   },
+   "attributeCompanyType": {
+      "message": "Tipul companiei"
+   },
+   "attributeCopyright": {
+      "message": "Drepturi de autor"
+   },
+   "attributeCopyrightYear": {
+      "message": "Anul drepturilor de autor"
+   },
+   "attributeDescription": {
+      "message": "Descriere"
+   },
+   "attributeDns_dmarc": {
+      "message": "Înregistrare DMARC"
+   },
+   "attributeDns_spf": {
+      "message": "Înregistrare SPF"
+   },
+   "attributeEmail": {
+      "message": "Adresă de email"
+   },
+   "attributeEmployees": {
+      "message": "Persoane"
+   },
+   "attributeFacebook": {
+      "message": "Facebook"
+   },
+   "attributeFundingRounds": {
+      "message": "Runde de finanțare"
+   },
+   "attributeFundingTotalUsd": {
+      "message": "Finanțare totală"
+   },
+   "attributeGithub": {
+      "message": "GitHub"
+   },
+   "attributeIndustry": {
+      "message": "Industrie"
+   },
+   "attributeInferredCompanyName": {
+      "message": "Nume de companie dedus"
+   },
+   "attributeInstagram": {
+      "message": "Instagram"
+   },
+   "attributeIpCountry": {
+      "message": "Țara IP-ului"
+   },
+   "attributeIpRegion": {
+      "message": "Regiunea IP-ului"
+   },
+   "attributeKeywords": {
+      "message": "Cuvinte-cheie"
+   },
+   "attributeLanguage": {
+      "message": "Limbă"
+   },
+   "attributeLinkedin": {
+      "message": "LinkedIn"
+   },
+   "attributeLocations": {
+      "message": "Locații"
+   },
+   "attributeOwler": {
+      "message": "Owler"
+   },
+   "attributePhone": {
+      "message": "Număr de telefon"
+   },
+   "attributePinterest": {
+      "message": "Pinterest"
+   },
+   "attributeResponsive": {
+      "message": "Adaptiv"
+   },
+   "attributeSafeEmail": {
+      "message": "Adresă de email (sigură)"
+   },
+   "attributeSchemaOrgTypes": {
+      "message": "Tipuri schema.org"
+   },
+   "attributeSemrushGlobalRank": {
+      "message": "Clasament global Semrush"
+   },
+   "attributeSemrushVisits": {
+      "message": "Vizite lunare Semrush"
+   },
+   "attributeSkype": {
+      "message": "Skype"
+   },
+   "attributeStockSymbol": {
+      "message": "Simbol bursier"
+   },
+   "attributeTechnologySpend": {
+      "message": "Cheltuieli pentru tehnologie"
+   },
+   "attributeTiktok": {
+      "message": "TikTok"
+   },
+   "attributeTitle": {
+      "message": "Titlu"
+   },
+   "attributeTrackerFacebook": {
+      "message": "Facebook"
+   },
+   "attributeTrackerGoogleAdSense": {
+      "message": "Google AdSense"
+   },
+   "attributeTrackerGoogleAnalytics": {
+      "message": "Google Analytics"
+   },
+   "attributeTrackerMedianet": {
+      "message": "Medianet"
+   },
+   "attributeTrackerOptimizely": {
+      "message": "Optimizely"
+   },
+   "attributeTwitter": {
+      "message": "Twitter"
+   },
+   "attributeVerifiedEmail": {
+      "message": "Adresă de email (verificată)"
+   },
+   "attributeWhatsapp": {
+      "message": "WhatsApp"
+   },
+   "attributeYoutube": {
+      "message": "YouTube"
+   },
+   "categoryName1": {
+      "message": "CMS"
+   },
+   "categoryName10": {
+      "message": "Analiză trafic web"
+   },
+   "categoryName100": {
+      "message": "Aplicații Shopify"
+   },
+   "categoryName101": {
+      "message": "Recrutare și personal"
+   },
+   "categoryName102": {
+      "message": "Retururi"
+   },
+   "categoryName103": {
+      "message": "Streaming live"
+   },
+   "categoryName104": {
+      "message": "Rezervare bilete"
+   },
+   "categoryName105": {
+      "message": "Realitate augmentată"
+   },
+   "categoryName106": {
+      "message": "Comerț electronic transfrontalier"
+   },
+   "categoryName107": {
+      "message": "Procesarea comenzilor"
+   },
+   "categoryName108": {
+      "message": "Frontenduri de comerț electronic"
+   },
+   "categoryName109": {
+      "message": "Parcarea domeniilor"
+   },
+   "categoryName11": {
+      "message": "Blog"
+   },
+   "categoryName110": {
+      "message": "Constructori de formulare"
+   },
+   "categoryName111": {
+      "message": "Strângere de fonduri și donații"
+   },
+   "categoryName12": {
+      "message": "Framework JavaScript"
+   },
+   "categoryName13": {
+      "message": "Tracker probleme"
+   },
+   "categoryName14": {
+      "message": "Player Video"
+   },
+   "categoryName15": {
+      "message": "Sistem de comentarii"
+   },
+   "categoryName16": {
+      "message": "Securitate"
+   },
+   "categoryName17": {
+      "message": "Script pentru fonturi"
+   },
+   "categoryName18": {
+      "message": "Framework Web"
+   },
+   "categoryName19": {
+      "message": "Divers"
+   },
+   "categoryName2": {
+      "message": "Forum de discuții"
+   },
+   "categoryName20": {
+      "message": "Editoare"
+   },
+   "categoryName21": {
+      "message": "LMS"
+   },
+   "categoryName22": {
+      "message": "Server Web"
+   },
+   "categoryName23": {
+      "message": "Unealtă Cache"
+   },
+   "categoryName24": {
+      "message": "Editor Texte Rich"
+   },
+   "categoryName25": {
+      "message": "Grafică JavaScript"
+   },
+   "categoryName26": {
+      "message": "Framework Mobile"
+   },
+   "categoryName27": {
+      "message": "Limbaj de programare"
+   },
+   "categoryName28": {
+      "message": "Sistem de operare"
+   },
+   "categoryName29": {
+      "message": "Motor de căutare"
+   },
+   "categoryName3": {
+      "message": "Manager baze de date"
+   },
+   "categoryName30": {
+      "message": "Poștă electronică"
+   },
+   "categoryName31": {
+      "message": "CDN"
+   },
+   "categoryName32": {
+      "message": "Automatizare marketing"
+   },
+   "categoryName33": {
+      "message": "Extensie server web"
+   },
+   "categoryName34": {
+      "message": "Bază de date"
+   },
+   "categoryName35": {
+      "message": "Hartă"
+   },
+   "categoryName36": {
+      "message": "Rețea de advertising"
+   },
+   "categoryName37": {
+      "message": "Serviciu rețea"
+   },
+   "categoryName38": {
+      "message": "Server Media"
+   },
+   "categoryName39": {
+      "message": "Webcam"
+   },
+   "categoryName4": {
+      "message": "Unealtă pentru documentare"
+   },
+   "categoryName41": {
+      "message": "Sistem de plată"
+   },
+   "categoryName42": {
+      "message": "Manager de etichete"
+   },
+   "categoryName44": {
+      "message": "Sistem Build/CI"
+   },
+   "categoryName46": {
+      "message": "Acces de la distanță"
+   },
+   "categoryName47": {
+      "message": "Instrument de dezvoltare"
+   },
+   "categoryName48": {
+      "message": "Stocare în rețea"
+   },
+   "categoryName49": {
+      "message": "Cititor de Feed-uri"
+   },
+   "categoryName5": {
+      "message": "Widget"
+   },
+   "categoryName50": {
+      "message": "Sistem de management al documentelor"
+   },
+   "categoryName51": {
+      "message": "Constructor de pagini de destinație"
+   },
+   "categoryName52": {
+      "message": "Chat Live"
+   },
+   "categoryName53": {
+      "message": "CRM"
+   },
+   "categoryName54": {
+      "message": "SEO"
+   },
+   "categoryName55": {
+      "message": "Contabilitate"
+   },
+   "categoryName56": {
+      "message": "Miner de criptomonede"
+   },
+   "categoryName57": {
+      "message": "Generator de site-uri statice"
+   },
+   "categoryName58": {
+      "message": "Integrarea utilizatorilor"
+   },
+   "categoryName59": {
+      "message": "JavaScript Libraries"
+   },
+   "categoryName6": {
+      "message": "Comerț electronic"
+   },
+   "categoryName60": {
+      "message": "Containere"
+   },
+   "categoryName62": {
+      "message": "PaaS"
+   },
+   "categoryName63": {
+      "message": "IaaS"
+   },
+   "categoryName64": {
+      "message": "Proxy invers"
+   },
+   "categoryName65": {
+      "message": "Echilibrator de sarcină"
+   },
+   "categoryName66": {
+      "message": "UI Frameworks"
+   },
+   "categoryName67": {
+      "message": "Conformitate cookie"
+   },
+   "categoryName68": {
+      "message": "Accesibilitate"
+   },
+   "categoryName69": {
+      "message": "Autentificare"
+   },
+   "categoryName7": {
+      "message": "Galerii foto"
+   },
+   "categoryName70": {
+      "message": "Autorități de certificare SSL/TLS"
+   },
+   "categoryName71": {
+      "message": "Programe de afiliere"
+   },
+   "categoryName72": {
+      "message": "Programarea întâlnirilor"
+   },
+   "categoryName73": {
+      "message": "Sondaje"
+   },
+   "categoryName74": {
+      "message": "Testare A/B"
+   },
+   "categoryName75": {
+      "message": "E-mail"
+   },
+   "categoryName76": {
+      "message": "Personalizare"
+   },
+   "categoryName77": {
+      "message": "Retargetare"
+   },
+   "categoryName78": {
+      "message": "RUM"
+   },
+   "categoryName79": {
+      "message": "Geolocalizare"
+   },
+   "categoryName8": {
+      "message": "Wiki-uri"
+   },
+   "categoryName80": {
+      "message": "Teme WordPress"
+   },
+   "categoryName81": {
+      "message": "Teme Shopify"
+   },
+   "categoryName82": {
+      "message": "Teme Drupal"
+   },
+   "categoryName83": {
+      "message": "Amprentare browser"
+   },
+   "categoryName84": {
+      "message": "Loialitate și recompense"
+   },
+   "categoryName85": {
+      "message": "Gestionarea funcționalităților"
+   },
+   "categoryName86": {
+      "message": "Segmentare"
+   },
+   "categoryName87": {
+      "message": "Pluginuri WordPress"
+   },
+   "categoryName88": {
+      "message": "Găzduire"
+   },
+   "categoryName89": {
+      "message": "Traducere"
+   },
+   "categoryName9": {
+      "message": "Panouri de găzduire"
+   },
+   "categoryName90": {
+      "message": "Recenzii"
+   },
+   "categoryName91": {
+      "message": "Cumpără acum, plătește mai târziu"
+   },
+   "categoryName92": {
+      "message": "Performanță"
+   },
+   "categoryName93": {
+      "message": "Rezervări și livrare"
+   },
+   "categoryName94": {
+      "message": "Marketing prin recomandări"
+   },
+   "categoryName95": {
+      "message": "Gestionarea activelor digitale"
+   },
+   "categoryName96": {
+      "message": "Curatoriere de conținut"
+   },
+   "categoryName97": {
+      "message": "Platformă de date pentru clienți"
+   },
+   "categoryName98": {
+      "message": "Abandonarea coșului"
+   },
+   "categoryName99": {
+      "message": "Transportatori"
+   },
+   "categoryPin": {
+      "message": "Afișează icon tot timpul"
+   },
+   "clearCache": {
+      "message": "Șterge detecțiile din cache"
+   },
+   "confidenceSure": {
+      "message": "$CONFIDENCE$% sigur",
+      "placeholders": {
+         "confidence": {
+            "content": "$1"
+         }
+      }
+   },
+   "disableOnDomain": {
+      "message": "Dezactivează pe acest site web"
+   },
+   "exportCsv": {
+      "message": "Exportă"
+   },
+   "footerCtaCrmBody": {
+      "message": "Add website technology data to HubSpot, Salesforce, or Pipedrive so your team can prioritize accounts and personalize outreach faster."
+   },
+   "footerCtaCrmButton": {
+      "message": "Enrich CRM records"
+   },
+   "footerCtaCrmHeading": {
+      "message": "See website technologies in your CRM"
+   },
+   "footerCtaListsBody": {
+      "message": "Go beyond one-off lookups with prospect lists your team can sort, export, and use to prioritize the right accounts."
+   },
+   "footerCtaListsButton": {
+      "message": "Build prospect lists"
+   },
+   "footerCtaListsHeading": {
+      "message": "Turn quick research into ready-to-use lists"
+   },
+   "footerCtaNeedMoreBody": {
+      "message": "If the extension helps you research a website's technologies, Wappalyzer can help your team find more companies using the same tools and build lead lists at scale."
+   },
+   "footerCtaNeedMoreButton": {
+      "message": "Find similar companies"
+   },
+   "footerCtaNeedMoreHeading": {
+      "message": "See a site's stack. Find more like it."
+   },
+   "footerCtaProspectsBody": {
+      "message": "Search by the tools companies use to build prospect lists with the company details and context your team needs to qualify faster."
+   },
+   "footerCtaProspectsButton": {
+      "message": "Find matching accounts"
+   },
+   "footerCtaProspectsHeading": {
+      "message": "Find companies using the tools you target"
+   },
+   "footerCtaWorkflowBody": {
+      "message": "Keep records updated automatically so sales and marketing can prioritize the right accounts and send more relevant outreach."
+   },
+   "footerCtaWorkflowButton": {
+      "message": "Automate enrichment"
+   },
+   "footerCtaWorkflowHeading": {
+      "message": "Bring website technologies into your workflow"
+   },
+   "formSave": {
+      "message": "Salvează"
+   },
+   "issue": {
+      "message": "Ceva nu este în regulă sau lipsește?"
+   },
+   "noAppsDetected": {
+      "message": "Nici o aplicație detectată."
+   },
+   "optionApiKey": {
+      "message": "Cheie API"
+   },
+   "optionApiKeyDescription": {
+      "message": "obține cheia API"
+   },
+   "optionBadge": {
+      "message": "Afișează numărul tehnologiilor identificate pe iconiță"
+   },
+   "optionDynamicIcon": {
+      "message": "Foloseşte icon-ul aplicaţiei în locul logo-ului Wappalyzer"
+   },
+   "optionShowCached": {
+      "message": "Include detecțiile din cache în rezultate"
+   },
+   "optionTracking": {
+      "message": "Trimite rapoarte anonime despre aplicațiile detectate către wappalyzer.com pentru cercetare"
+   },
+   "optionUpgradeMessage": {
+      "message": "Anunță-mă dacă sunt actualizări"
+   },
+   "options": {
+      "message": "Opțiuni"
+   },
+   "plusButton": {
+      "message": "Înregistrează-te"
+   },
+   "plusCrawl": {
+      "message": "Nu au fost găsite rezultate, revino mai târziu."
+   },
+   "plusEmpty": {
+      "message": "Nu au fost găsite rezultate."
+   },
+   "plusErrorGeneric": {
+      "message": "Ne pare rău, ceva nu a mers bine. Încearcă din nou mai târziu."
+   },
+   "plusErrorNoAccess": {
+      "message": "Nu ai acces. Verifică cheia ta API."
+   },
+   "plusErrorStatus": {
+      "message": "Ne pare rău, ceva nu a mers bine ($STATUS$). Încearcă din nou mai târziu.",
+      "placeholders": {
+         "status": {
+            "content": "$1"
+         }
+      }
+   },
+   "plusErrorTooManyRequests": {
+      "message": "Prea multe cereri. Încearcă din nou în câteva secunde."
+   },
+   "plusMessage": {
+      "message": "Cu Plus, aici sunt afișate informațiile despre companie și datele de contact ale site-urilor web pe care le vizitezi."
+   },
+   "plusMessageHeading": {
+      "message": "Obține Plus pentru $$10/lună"
+   },
+   "privacyPolicy": {
+      "message": "Politica de confidențialitate"
+   },
+   "reloadPage": {
+      "message": "Reîncarcă"
+   },
+   "setAddress": {
+      "message": "Adrese"
+   },
+   "setCompany": {
+      "message": "Informații despre companie"
+   },
+   "setContact": {
+      "message": "Date de contact"
+   },
+   "setEmail": {
+      "message": "Adrese de email"
+   },
+   "setKeywords": {
+      "message": "Cuvinte-cheie"
+   },
+   "setLocale": {
+      "message": "Setări regionale"
+   },
+   "setMeta": {
+      "message": "Metadate"
+   },
+   "setPhone": {
+      "message": "Numere de telefon"
+   },
+   "setSecurity": {
+      "message": "Securitate"
+   },
+   "setSignals": {
+      "message": "Semnale"
+   },
+   "setSocial": {
+      "message": "Conturi de social media"
+   },
+   "setTrackers": {
+      "message": "Trackere"
+   },
+   "spendHigh": {
+      "message": "Ridicat"
+   },
+   "spendLow": {
+      "message": "Scăzut"
+   },
+   "spendMedium": {
+      "message": "Mediu"
+   },
+   "spendVeryHigh": {
+      "message": "Foarte ridicat"
+   },
+   "spendVeryLow": {
+      "message": "Foarte scăzut"
+   },
+   "tabPlus": {
+      "message": "Mai multe informații"
+   },
+   "tabTechnologies": {
+      "message": "Tehnologii"
+   },
+   "termsAccept": {
+      "message": "Sunt de acord"
+   },
+   "termsContent": {
+      "message": "Această extensie trimite informații anonime despre site-urile web pe care le vizitezi, inclusiv numele de domeniu și tehnologiile identificate, către \u003Ca href='https://www.wappalyzer.com'>wappalyzer.com\u003C/a>. Acest lucru poate fi dezactivat din setări."
+   },
+   "termsDecline": {
+      "message": "Dezactivează"
+   }
+}

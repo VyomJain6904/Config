@@ -1,0 +1,690 @@
+{
+   "apiKeyPendingActivation": {
+      "message": "מפתחות API חדשים יכולים להימשך מספר דקות להפעלה. אנא המתן רגע ונסה שוב."
+   },
+   "attributeAbout": {
+      "message": "אודות"
+   },
+   "attributeCertInfo_issuer": {
+      "message": "אישור מנפיק"
+   },
+   "attributeCertInfo_protocol": {
+      "message": "פרוטוקול אישור"
+   },
+   "attributeCertInfo_subjectCountry": {
+      "message": "מדינה אישור"
+   },
+   "attributeCertInfo_subjectLocality": {
+      "message": "יישוב אישור"
+   },
+   "attributeCertInfo_subjectOrg": {
+      "message": "Cert ארגון"
+   },
+   "attributeCertInfo_subjectState": {
+      "message": "מצב אישור"
+   },
+   "attributeCertInfo_validTo": {
+      "message": "תוקף אישור"
+   },
+   "attributeCompanyFounded": {
+      "message": "חברת  ייסדה את"
+   },
+   "attributeCompanyName": {
+      "message": "שם החברה"
+   },
+   "attributeCompanySize": {
+      "message": "גודל החברה"
+   },
+   "attributeCompanyType": {
+      "message": "סוג חברה"
+   },
+   "attributeCopyright": {
+      "message": "זכויות יוצרים"
+   },
+   "attributeCopyrightYear": {
+      "message": "שנת זכויות יוצרים"
+   },
+   "attributeDescription": {
+      "message": "תיאור"
+   },
+   "attributeDns_dmarc": {
+      "message": "רשומת  DMARC"
+   },
+   "attributeDns_spf": {
+      "message": "רשומת  SPF"
+   },
+   "attributeEmail": {
+      "message": "כתובת דוא\"ל"
+   },
+   "attributeEmployees": {
+      "message": "אנשים"
+   },
+   "attributeFacebook": {
+      "message": "Facebook"
+   },
+   "attributeFundingRounds": {
+      "message": "סבבי מימון"
+   },
+   "attributeFundingTotalUsd": {
+      "message": "סך המימון"
+   },
+   "attributeGithub": {
+      "message": "GitHub"
+   },
+   "attributeIndustry": {
+      "message": "תעשיית"
+   },
+   "attributeInferredCompanyName": {
+      "message": "שם חברה משוער"
+   },
+   "attributeInstagram": {
+      "message": "אינסטגרם"
+   },
+   "attributeIpCountry": {
+      "message": "ארץ IP"
+   },
+   "attributeIpRegion": {
+      "message": "אזור IP"
+   },
+   "attributeKeywords": {
+      "message": "מילות מפתח"
+   },
+   "attributeLanguage": {
+      "message": "שפה"
+   },
+   "attributeLinkedin": {
+      "message": "LinkedIn"
+   },
+   "attributeLocations": {
+      "message": "מיקומים"
+   },
+   "attributeOwler": {
+      "message": "Owler"
+   },
+   "attributePhone": {
+      "message": "מספר טלפון"
+   },
+   "attributePinterest": {
+      "message": "Pinterest"
+   },
+   "attributeResponsive": {
+      "message": "רספונסיבי"
+   },
+   "attributeSafeEmail": {
+      "message": "כתובת דוא\"ל (בטוחה)"
+   },
+   "attributeSchemaOrgTypes": {
+      "message": "schema.org סוגי"
+   },
+   "attributeSemrushGlobalRank": {
+      "message": "Semrush הדירוג העולמי"
+   },
+   "attributeSemrushVisits": {
+      "message": "Semrush מבקר מדי חודש ב-"
+   },
+   "attributeSkype": {
+      "message": "Skype"
+   },
+   "attributeStockSymbol": {
+      "message": "סמל מניית"
+   },
+   "attributeTechnologySpend": {
+      "message": "טכנולוגיה להוציא"
+   },
+   "attributeTiktok": {
+      "message": "TikTok"
+   },
+   "attributeTitle": {
+      "message": "כותרת"
+   },
+   "attributeTrackerFacebook": {
+      "message": "Facebook"
+   },
+   "attributeTrackerGoogleAdSense": {
+      "message": "Google AdSense"
+   },
+   "attributeTrackerGoogleAnalytics": {
+      "message": "Google Analytics"
+   },
+   "attributeTrackerMedianet": {
+      "message": "Medianet"
+   },
+   "attributeTrackerOptimizely": {
+      "message": "בצורה מיטבית"
+   },
+   "attributeTwitter": {
+      "message": "טוויטר"
+   },
+   "attributeVerifiedEmail": {
+      "message": "כתובת דוא\"ל (מאומת)"
+   },
+   "attributeWhatsapp": {
+      "message": "WhatsApp"
+   },
+   "attributeYoutube": {
+      "message": "YouTube"
+   },
+   "categoryName1": {
+      "message": "CMS"
+   },
+   "categoryName10": {
+      "message": "אנליטיקה"
+   },
+   "categoryName100": {
+      "message": "אפליקציות Shopify"
+   },
+   "categoryName101": {
+      "message": "גיוס ואיוש"
+   },
+   "categoryName102": {
+      "message": "מחזירה"
+   },
+   "categoryName103": {
+      "message": "שידור חי"
+   },
+   "categoryName104": {
+      "message": "הזמנת כרטיסים"
+   },
+   "categoryName105": {
+      "message": "מציאות רבודה"
+   },
+   "categoryName106": {
+      "message": "מסחר אלקטרוני חוצה גבולות"
+   },
+   "categoryName107": {
+      "message": "הגשמה"
+   },
+   "categoryName108": {
+      "message": "ממשקי מסחר אלקטרוני"
+   },
+   "categoryName109": {
+      "message": "חניית תחום"
+   },
+   "categoryName11": {
+      "message": "בלוגים"
+   },
+   "categoryName110": {
+      "message": "בוני טפסים"
+   },
+   "categoryName111": {
+      "message": "גיוס כספים ותרומות"
+   },
+   "categoryName12": {
+      "message": "מסגרות JavaScript"
+   },
+   "categoryName13": {
+      "message": "מעקב אחר נושא"
+   },
+   "categoryName14": {
+      "message": "נגני וידאו"
+   },
+   "categoryName15": {
+      "message": "מערכות הערות"
+   },
+   "categoryName16": {
+      "message": "אבטחה"
+   },
+   "categoryName17": {
+      "message": "סקריפטים של גופנים"
+   },
+   "categoryName18": {
+      "message": "מסגרות אינטרנט"
+   },
+   "categoryName19": {
+      "message": "שונות"
+   },
+   "categoryName2": {
+      "message": "לוחות מודעות"
+   },
+   "categoryName20": {
+      "message": "עורך"
+   },
+   "categoryName21": {
+      "message": "LMS"
+   },
+   "categoryName22": {
+      "message": "שרתי אינטרנט"
+   },
+   "categoryName23": {
+      "message": "מטמון"
+   },
+   "categoryName24": {
+      "message": "עורכי טקסט עשיר"
+   },
+   "categoryName25": {
+      "message": "גרפיקת JavaScript"
+   },
+   "categoryName26": {
+      "message": "מסגרות ניידות"
+   },
+   "categoryName27": {
+      "message": "שפות תכנות"
+   },
+   "categoryName28": {
+      "message": "מערכות הפעלה"
+   },
+   "categoryName29": {
+      "message": "מנועי חיפוש"
+   },
+   "categoryName3": {
+      "message": "מנהלי מסדי נתונים"
+   },
+   "categoryName30": {
+      "message": "דואר אינטרנט"
+   },
+   "categoryName31": {
+      "message": "CDN"
+   },
+   "categoryName32": {
+      "message": "אוטומציה שיווקית"
+   },
+   "categoryName33": {
+      "message": "הרחבות שרת אינטרנט"
+   },
+   "categoryName34": {
+      "message": "מאגרי מידע"
+   },
+   "categoryName35": {
+      "message": "מפות"
+   },
+   "categoryName36": {
+      "message": "פרסום"
+   },
+   "categoryName37": {
+      "message": "שירותי רשת"
+   },
+   "categoryName38": {
+      "message": "שרתי מדיה"
+   },
+   "categoryName39": {
+      "message": "מצלמות אינטרנט"
+   },
+   "categoryName4": {
+      "message": "כלי תיעוד"
+   },
+   "categoryName41": {
+      "message": "מעבדי תשלומים"
+   },
+   "categoryName42": {
+      "message": "מנהלי תגים"
+   },
+   "categoryName44": {
+      "message": "CI"
+   },
+   "categoryName46": {
+      "message": "גישה מרחוק"
+   },
+   "categoryName47": {
+      "message": "פיתוח"
+   },
+   "categoryName48": {
+      "message": "אחסון רשת"
+   },
+   "categoryName49": {
+      "message": "קוראי הזנה"
+   },
+   "categoryName5": {
+      "message": "ווידג'טים"
+   },
+   "categoryName50": {
+      "message": "DMS"
+   },
+   "categoryName51": {
+      "message": "בונה דפים"
+   },
+   "categoryName52": {
+      "message": "צ'אט חי"
+   },
+   "categoryName53": {
+      "message": "CRM"
+   },
+   "categoryName54": {
+      "message": "SEO"
+   },
+   "categoryName55": {
+      "message": "חשבונאות"
+   },
+   "categoryName56": {
+      "message": "כורי קריפטו"
+   },
+   "categoryName57": {
+      "message": "מחוללי אתרים סטטיים"
+   },
+   "categoryName58": {
+      "message": "כניסה למשתמש"
+   },
+   "categoryName59": {
+      "message": "ספריות JavaScript"
+   },
+   "categoryName6": {
+      "message": "מסחר אלקטרוני"
+   },
+   "categoryName60": {
+      "message": "מכולות"
+   },
+   "categoryName62": {
+      "message": "PaaS"
+   },
+   "categoryName63": {
+      "message": "IaaS"
+   },
+   "categoryName64": {
+      "message": "פרוקסי הפוך"
+   },
+   "categoryName65": {
+      "message": "מאזני עומסים"
+   },
+   "categoryName66": {
+      "message": "UI frameworks"
+   },
+   "categoryName67": {
+      "message": "תאימות לקובצי Cookie"
+   },
+   "categoryName68": {
+      "message": "נגישות"
+   },
+   "categoryName69": {
+      "message": "אימות"
+   },
+   "categoryName7": {
+      "message": "גלריות תמונות"
+   },
+   "categoryName70": {
+      "message": "רשויות אישור SSL/TLS"
+   },
+   "categoryName71": {
+      "message": "תוכניות שותפים"
+   },
+   "categoryName72": {
+      "message": "זימון פגישות"
+   },
+   "categoryName73": {
+      "message": "סקרים"
+   },
+   "categoryName74": {
+      "message": "A/B testing"
+   },
+   "categoryName75": {
+      "message": "דוא\"ל"
+   },
+   "categoryName76": {
+      "message": "התאמה אישית"
+   },
+   "categoryName77": {
+      "message": "מיקוד מחדש"
+   },
+   "categoryName78": {
+      "message": "RUM"
+   },
+   "categoryName79": {
+      "message": "מיקום גיאוגרפי"
+   },
+   "categoryName8": {
+      "message": "ויקי"
+   },
+   "categoryName80": {
+      "message": "ערכות נושא וורדפרס"
+   },
+   "categoryName81": {
+      "message": "ערכות נושא של Shopify"
+   },
+   "categoryName82": {
+      "message": "ערכות נושא דרופל"
+   },
+   "categoryName83": {
+      "message": "דפדפן טביעת אצבע"
+   },
+   "categoryName84": {
+      "message": "נאמנות ותגמולים"
+   },
+   "categoryName85": {
+      "message": "ניהול תכונות"
+   },
+   "categoryName86": {
+      "message": "פילוח"
+   },
+   "categoryName87": {
+      "message": "תוספים וורדפרס"
+   },
+   "categoryName88": {
+      "message": "אירוח"
+   },
+   "categoryName89": {
+      "message": "תרגום"
+   },
+   "categoryName9": {
+      "message": "לוחות אירוח"
+   },
+   "categoryName90": {
+      "message": "ביקורות"
+   },
+   "categoryName91": {
+      "message": "קנה עכשיו שלם מאוחר יותר"
+   },
+   "categoryName92": {
+      "message": "ביצועים"
+   },
+   "categoryName93": {
+      "message": "הזמנות ומשלוח"
+   },
+   "categoryName94": {
+      "message": "שיווק הפניה"
+   },
+   "categoryName95": {
+      "message": "ניהול נכסים דיגיטליים"
+   },
+   "categoryName96": {
+      "message": "אצור תוכן"
+   },
+   "categoryName97": {
+      "message": "פלטפורמת נתוני לקוחות"
+   },
+   "categoryName98": {
+      "message": "נטישת עגלה"
+   },
+   "categoryName99": {
+      "message": "מובילי משלוח"
+   },
+   "categoryPin": {
+      "message": "הצג תמיד את הסמל"
+   },
+   "clearCache": {
+      "message": "נקה זיהויים בקובץ שמור"
+   },
+   "confidenceSure": {
+      "message": "$CONFIDENCE$% בטוח",
+      "placeholders": {
+         "confidence": {
+            "content": "$1"
+         }
+      }
+   },
+   "disableOnDomain": {
+      "message": "השבת באתר זה"
+   },
+   "exportCsv": {
+      "message": "ייצוא"
+   },
+   "footerCtaCrmBody": {
+      "message": "Add website technology data to HubSpot, Salesforce, or Pipedrive so your team can prioritize accounts and personalize outreach faster."
+   },
+   "footerCtaCrmButton": {
+      "message": "Enrich CRM records"
+   },
+   "footerCtaCrmHeading": {
+      "message": "See website technologies in your CRM"
+   },
+   "footerCtaListsBody": {
+      "message": "Go beyond one-off lookups with prospect lists your team can sort, export, and use to prioritize the right accounts."
+   },
+   "footerCtaListsButton": {
+      "message": "Build prospect lists"
+   },
+   "footerCtaListsHeading": {
+      "message": "Turn quick research into ready-to-use lists"
+   },
+   "footerCtaNeedMoreBody": {
+      "message": "If the extension helps you research a website's technologies, Wappalyzer can help your team find more companies using the same tools and build lead lists at scale."
+   },
+   "footerCtaNeedMoreButton": {
+      "message": "Find similar companies"
+   },
+   "footerCtaNeedMoreHeading": {
+      "message": "See a site's stack. Find more like it."
+   },
+   "footerCtaProspectsBody": {
+      "message": "Search by the tools companies use to build prospect lists with the company details and context your team needs to qualify faster."
+   },
+   "footerCtaProspectsButton": {
+      "message": "Find matching accounts"
+   },
+   "footerCtaProspectsHeading": {
+      "message": "Find companies using the tools you target"
+   },
+   "footerCtaWorkflowBody": {
+      "message": "Keep records updated automatically so sales and marketing can prioritize the right accounts and send more relevant outreach."
+   },
+   "footerCtaWorkflowButton": {
+      "message": "Automate enrichment"
+   },
+   "footerCtaWorkflowHeading": {
+      "message": "Bring website technologies into your workflow"
+   },
+   "formSave": {
+      "message": "שמור"
+   },
+   "issue": {
+      "message": "משהו לא בסדר או חסר?"
+   },
+   "noAppsDetected": {
+      "message": "לא זוהו טכנולוגיות."
+   },
+   "optionApiKey": {
+      "message": "מפתח API"
+   },
+   "optionApiKeyDescription": {
+      "message": "קבל את מפתח ה-API שלך"
+   },
+   "optionBadge": {
+      "message": "הצג את מספר הטכנולוגיות שזוהו בסמל"
+   },
+   "optionDynamicIcon": {
+      "message": "השתמש בסמל טכנולוגיה במקום הלוגו של Wappalyzer"
+   },
+   "optionShowCached": {
+      "message": "כלול זיהויים בקובץ שמור בתוצאות"
+   },
+   "optionTracking": {
+      "message": "שלח בעילום שם טכנולוגיות מזוהות אל wappalyzer.com"
+   },
+   "optionUpgradeMessage": {
+      "message": "ספר לי על שדרוגים"
+   },
+   "options": {
+      "message": "אפשרויות"
+   },
+   "plusButton": {
+      "message": "הירשם"
+   },
+   "plusCrawl": {
+      "message": "לא נמצאו תוצאות, אנא בדוק שוב מאוחר יותר."
+   },
+   "plusEmpty": {
+      "message": "לא נמצאו תוצאות."
+   },
+   "plusErrorGeneric": {
+      "message": "מצטערים, משהו השתבש. אנא נסה שוב מאוחר יותר."
+   },
+   "plusErrorNoAccess": {
+      "message": "אין גישה. אנא בדוק את מפתח ה-API שלך."
+   },
+   "plusErrorStatus": {
+      "message": "מצטערים, משהו השתבש ($STATUS$). אנא נסה שוב מאוחר יותר.",
+      "placeholders": {
+         "status": {
+            "content": "$1"
+         }
+      }
+   },
+   "plusErrorTooManyRequests": {
+      "message": "יותר מדי בקשות. אנא נסה שוב בעוד מספר שניות."
+   },
+   "plusMessage": {
+      "message": "עם פלוס, פרטי החברה ופרטי ההתקשרות של אתרים שבהם אתה מבקר מוצגים כאן."
+   },
+   "plusMessageHeading": {
+      "message": "קבל פלוס עבור $$10/mo"
+   },
+   "privacyPolicy": {
+      "message": "מדיניות פרטיות"
+   },
+   "reloadPage": {
+      "message": "טען מחדש"
+   },
+   "setAddress": {
+      "message": "כתובות"
+   },
+   "setCompany": {
+      "message": "מידע על החברה"
+   },
+   "setContact": {
+      "message": "פרטי יצירת קשר"
+   },
+   "setEmail": {
+      "message": "כתובות דוא\"ל"
+   },
+   "setKeywords": {
+      "message": "מילות מפתח"
+   },
+   "setLocale": {
+      "message": "מקום"
+   },
+   "setMeta": {
+      "message": "מטא נתונים"
+   },
+   "setPhone": {
+      "message": "מספרי טלפון"
+   },
+   "setSecurity": {
+      "message": "אבטחה"
+   },
+   "setSignals": {
+      "message": "אותות"
+   },
+   "setSocial": {
+      "message": "חשבונות מדיה חברתית"
+   },
+   "setTrackers": {
+      "message": "עוקבים"
+   },
+   "spendHigh": {
+      "message": "גבוה"
+   },
+   "spendLow": {
+      "message": "נמוך"
+   },
+   "spendMedium": {
+      "message": "בינוני"
+   },
+   "spendVeryHigh": {
+      "message": "גבוה מאוד"
+   },
+   "spendVeryLow": {
+      "message": "נמוך מאוד"
+   },
+   "tabPlus": {
+      "message": "מידע נוסף"
+   },
+   "tabTechnologies": {
+      "message": "טכנולוגיות"
+   },
+   "termsAccept": {
+      "message": "אני בסדר עם ה-"
+   },
+   "termsContent": {
+      "message": "תוסף זה שולח מידע אנונימי על אתרים שבהם אתה מבקר, כולל שם דומיין וטכנולוגיות מזוהות, אל \u003Ca href='https://www.wappalyzer.com'>wappalyzer.com\u003C/a>. ניתן לבטל זאת בהגדרות."
+   },
+   "termsDecline": {
+      "message": "השבת את"
+   }
+}

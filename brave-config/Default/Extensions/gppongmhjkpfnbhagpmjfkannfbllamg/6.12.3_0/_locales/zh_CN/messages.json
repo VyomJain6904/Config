@@ -1,0 +1,690 @@
+{
+   "apiKeyPendingActivation": {
+      "message": "新 API 密钥可能需要几分钟才能激活。请稍等片刻后重试。"
+   },
+   "attributeAbout": {
+      "message": "关于"
+   },
+   "attributeCertInfo_issuer": {
+      "message": "Cert issuer"
+   },
+   "attributeCertInfo_protocol": {
+      "message": "Cert protocol"
+   },
+   "attributeCertInfo_subjectCountry": {
+      "message": "Cert country"
+   },
+   "attributeCertInfo_subjectLocality": {
+      "message": "Cert locality"
+   },
+   "attributeCertInfo_subjectOrg": {
+      "message": "Cert organisation"
+   },
+   "attributeCertInfo_subjectState": {
+      "message": "Cert state"
+   },
+   "attributeCertInfo_validTo": {
+      "message": "Cert expiry"
+   },
+   "attributeCompanyFounded": {
+      "message": "公司成立时间"
+   },
+   "attributeCompanyName": {
+      "message": "公司名称"
+   },
+   "attributeCompanySize": {
+      "message": "公司规模"
+   },
+   "attributeCompanyType": {
+      "message": "公司类型"
+   },
+   "attributeCopyright": {
+      "message": "版权"
+   },
+   "attributeCopyrightYear": {
+      "message": "版权年份"
+   },
+   "attributeDescription": {
+      "message": "描述"
+   },
+   "attributeDns_dmarc": {
+      "message": "DMARC 记录"
+   },
+   "attributeDns_spf": {
+      "message": "SPF 记录"
+   },
+   "attributeEmail": {
+      "message": "电子邮件地址"
+   },
+   "attributeEmployees": {
+      "message": "人员"
+   },
+   "attributeFacebook": {
+      "message": "Facebook"
+   },
+   "attributeFundingRounds": {
+      "message": "融资轮次"
+   },
+   "attributeFundingTotalUsd": {
+      "message": "融资总额"
+   },
+   "attributeGithub": {
+      "message": "GitHub"
+   },
+   "attributeIndustry": {
+      "message": "行业"
+   },
+   "attributeInferredCompanyName": {
+      "message": "推断的公司名称"
+   },
+   "attributeInstagram": {
+      "message": "Instagram"
+   },
+   "attributeIpCountry": {
+      "message": "IP 国家"
+   },
+   "attributeIpRegion": {
+      "message": "IP 地区"
+   },
+   "attributeKeywords": {
+      "message": "关键词"
+   },
+   "attributeLanguage": {
+      "message": "语言"
+   },
+   "attributeLinkedin": {
+      "message": "LinkedIn"
+   },
+   "attributeLocations": {
+      "message": "地点"
+   },
+   "attributeOwler": {
+      "message": "Owler"
+   },
+   "attributePhone": {
+      "message": "电话号码"
+   },
+   "attributePinterest": {
+      "message": "Pinterest"
+   },
+   "attributeResponsive": {
+      "message": "响应式"
+   },
+   "attributeSafeEmail": {
+      "message": "电子邮件地址（安全）"
+   },
+   "attributeSchemaOrgTypes": {
+      "message": "schema.org 类型"
+   },
+   "attributeSemrushGlobalRank": {
+      "message": "Semrush 全球排名"
+   },
+   "attributeSemrushVisits": {
+      "message": "Semrush 每月访问量"
+   },
+   "attributeSkype": {
+      "message": "Skype"
+   },
+   "attributeStockSymbol": {
+      "message": "股票代码"
+   },
+   "attributeTechnologySpend": {
+      "message": "技术支出"
+   },
+   "attributeTiktok": {
+      "message": "TikTok"
+   },
+   "attributeTitle": {
+      "message": "标题"
+   },
+   "attributeTrackerFacebook": {
+      "message": "Facebook"
+   },
+   "attributeTrackerGoogleAdSense": {
+      "message": "Google AdSense"
+   },
+   "attributeTrackerGoogleAnalytics": {
+      "message": "Google Analytics"
+   },
+   "attributeTrackerMedianet": {
+      "message": "Medianet"
+   },
+   "attributeTrackerOptimizely": {
+      "message": "Optimizely"
+   },
+   "attributeTwitter": {
+      "message": "Twitter"
+   },
+   "attributeVerifiedEmail": {
+      "message": "电子邮件地址（已验证）"
+   },
+   "attributeWhatsapp": {
+      "message": "WhatsApp"
+   },
+   "attributeYoutube": {
+      "message": "YouTube"
+   },
+   "categoryName1": {
+      "message": "内容管理系统（CMS）"
+   },
+   "categoryName10": {
+      "message": "分析"
+   },
+   "categoryName100": {
+      "message": "Shopify 应用"
+   },
+   "categoryName101": {
+      "message": "招聘与人员配置"
+   },
+   "categoryName102": {
+      "message": "退货"
+   },
+   "categoryName103": {
+      "message": "直播"
+   },
+   "categoryName104": {
+      "message": "票务预订"
+   },
+   "categoryName105": {
+      "message": "增强现实"
+   },
+   "categoryName106": {
+      "message": "跨境电子商务"
+   },
+   "categoryName107": {
+      "message": "履约"
+   },
+   "categoryName108": {
+      "message": "电商前端"
+   },
+   "categoryName109": {
+      "message": "域名停放"
+   },
+   "categoryName11": {
+      "message": "博客"
+   },
+   "categoryName110": {
+      "message": "表单构建器"
+   },
+   "categoryName111": {
+      "message": "募款与捐赠"
+   },
+   "categoryName12": {
+      "message": "JavaScript 框架"
+   },
+   "categoryName13": {
+      "message": "问题跟踪器"
+   },
+   "categoryName14": {
+      "message": "视频播放器"
+   },
+   "categoryName15": {
+      "message": "评论系统"
+   },
+   "categoryName16": {
+      "message": "安全"
+   },
+   "categoryName17": {
+      "message": "字体脚本"
+   },
+   "categoryName18": {
+      "message": "Web 框架"
+   },
+   "categoryName19": {
+      "message": "杂项"
+   },
+   "categoryName2": {
+      "message": "信息板"
+   },
+   "categoryName20": {
+      "message": "编辑器"
+   },
+   "categoryName21": {
+      "message": "学习管理系统（LMS）"
+   },
+   "categoryName22": {
+      "message": "Web 服务器"
+   },
+   "categoryName23": {
+      "message": "缓存"
+   },
+   "categoryName24": {
+      "message": "富文本编辑器"
+   },
+   "categoryName25": {
+      "message": "JavaScript 图形"
+   },
+   "categoryName26": {
+      "message": "移动框架"
+   },
+   "categoryName27": {
+      "message": "编程语言"
+   },
+   "categoryName28": {
+      "message": "操作系统"
+   },
+   "categoryName29": {
+      "message": "搜索引擎"
+   },
+   "categoryName3": {
+      "message": "数据库管理器"
+   },
+   "categoryName30": {
+      "message": "网页邮箱"
+   },
+   "categoryName31": {
+      "message": "内容分发网络（CDN）"
+   },
+   "categoryName32": {
+      "message": "营销自动化"
+   },
+   "categoryName33": {
+      "message": "Web 服务器扩展"
+   },
+   "categoryName34": {
+      "message": "数据库"
+   },
+   "categoryName35": {
+      "message": "地图"
+   },
+   "categoryName36": {
+      "message": "广告"
+   },
+   "categoryName37": {
+      "message": "网络服务"
+   },
+   "categoryName38": {
+      "message": "媒体服务器"
+   },
+   "categoryName39": {
+      "message": "网络摄像头"
+   },
+   "categoryName4": {
+      "message": "文档工具"
+   },
+   "categoryName41": {
+      "message": "支付处理器"
+   },
+   "categoryName42": {
+      "message": "标签管理器"
+   },
+   "categoryName44": {
+      "message": "持续集成（CI）"
+   },
+   "categoryName46": {
+      "message": "远程访问"
+   },
+   "categoryName47": {
+      "message": "开发"
+   },
+   "categoryName48": {
+      "message": "网络存储"
+   },
+   "categoryName49": {
+      "message": "信息流（Feed）阅读器"
+   },
+   "categoryName5": {
+      "message": "微件（Widgets）"
+   },
+   "categoryName50": {
+      "message": "文档管理系统（DMS）"
+   },
+   "categoryName51": {
+      "message": "网页构建器"
+   },
+   "categoryName52": {
+      "message": "实时聊天"
+   },
+   "categoryName53": {
+      "message": "客户关系管理（CRM）"
+   },
+   "categoryName54": {
+      "message": "搜索引擎优化（SEO）"
+   },
+   "categoryName55": {
+      "message": "财务"
+   },
+   "categoryName56": {
+      "message": "加密货币挖矿器"
+   },
+   "categoryName57": {
+      "message": "静态站点生成器"
+   },
+   "categoryName58": {
+      "message": "用户引导"
+   },
+   "categoryName59": {
+      "message": "JavaScript 库"
+   },
+   "categoryName6": {
+      "message": "电子商务"
+   },
+   "categoryName60": {
+      "message": "容器"
+   },
+   "categoryName62": {
+      "message": "平台即服务（PaaS）"
+   },
+   "categoryName63": {
+      "message": "基础设施即服务（IaaS）"
+   },
+   "categoryName64": {
+      "message": "反向代理"
+   },
+   "categoryName65": {
+      "message": "负载均衡"
+   },
+   "categoryName66": {
+      "message": "用户界面（UI）框架"
+   },
+   "categoryName67": {
+      "message": "Cookie 合规"
+   },
+   "categoryName68": {
+      "message": "辅助功能"
+   },
+   "categoryName69": {
+      "message": "身份验证"
+   },
+   "categoryName7": {
+      "message": "图库"
+   },
+   "categoryName70": {
+      "message": "SSL/TLS certificate authority"
+   },
+   "categoryName71": {
+      "message": "联盟计划"
+   },
+   "categoryName72": {
+      "message": "预约安排"
+   },
+   "categoryName73": {
+      "message": "调查问卷"
+   },
+   "categoryName74": {
+      "message": "A/B 测试"
+   },
+   "categoryName75": {
+      "message": "电子邮件"
+   },
+   "categoryName76": {
+      "message": "个性化"
+   },
+   "categoryName77": {
+      "message": "再营销"
+   },
+   "categoryName78": {
+      "message": "RUM"
+   },
+   "categoryName79": {
+      "message": "地理定位"
+   },
+   "categoryName8": {
+      "message": "维基"
+   },
+   "categoryName80": {
+      "message": "WordPress 主题"
+   },
+   "categoryName81": {
+      "message": "Shopify 主题"
+   },
+   "categoryName82": {
+      "message": "Drupal 主题"
+   },
+   "categoryName83": {
+      "message": "浏览器指纹识别"
+   },
+   "categoryName84": {
+      "message": "忠诚度与奖励"
+   },
+   "categoryName85": {
+      "message": "功能管理"
+   },
+   "categoryName86": {
+      "message": "细分"
+   },
+   "categoryName87": {
+      "message": "WordPress 插件"
+   },
+   "categoryName88": {
+      "message": "托管"
+   },
+   "categoryName89": {
+      "message": "翻译"
+   },
+   "categoryName9": {
+      "message": "主机面板"
+   },
+   "categoryName90": {
+      "message": "评价"
+   },
+   "categoryName91": {
+      "message": "先买后付"
+   },
+   "categoryName92": {
+      "message": "性能"
+   },
+   "categoryName93": {
+      "message": "预订与配送"
+   },
+   "categoryName94": {
+      "message": "推荐营销"
+   },
+   "categoryName95": {
+      "message": "数字资产管理"
+   },
+   "categoryName96": {
+      "message": "内容策展"
+   },
+   "categoryName97": {
+      "message": "客户数据平台"
+   },
+   "categoryName98": {
+      "message": "购物车放弃"
+   },
+   "categoryName99": {
+      "message": "承运商"
+   },
+   "categoryPin": {
+      "message": "总是显示图标"
+   },
+   "clearCache": {
+      "message": "清除检测缓存"
+   },
+   "confidenceSure": {
+      "message": "置信度 $CONFIDENCE$%",
+      "placeholders": {
+         "confidence": {
+            "content": "$1"
+         }
+      }
+   },
+   "disableOnDomain": {
+      "message": "在该网站禁用"
+   },
+   "exportCsv": {
+      "message": "导出"
+   },
+   "footerCtaCrmBody": {
+      "message": "Add website technology data to HubSpot, Salesforce, or Pipedrive so your team can prioritize accounts and personalize outreach faster."
+   },
+   "footerCtaCrmButton": {
+      "message": "Enrich CRM records"
+   },
+   "footerCtaCrmHeading": {
+      "message": "See website technologies in your CRM"
+   },
+   "footerCtaListsBody": {
+      "message": "Go beyond one-off lookups with prospect lists your team can sort, export, and use to prioritize the right accounts."
+   },
+   "footerCtaListsButton": {
+      "message": "Build prospect lists"
+   },
+   "footerCtaListsHeading": {
+      "message": "Turn quick research into ready-to-use lists"
+   },
+   "footerCtaNeedMoreBody": {
+      "message": "If the extension helps you research a website's technologies, Wappalyzer can help your team find more companies using the same tools and build lead lists at scale."
+   },
+   "footerCtaNeedMoreButton": {
+      "message": "Find similar companies"
+   },
+   "footerCtaNeedMoreHeading": {
+      "message": "See a site's stack. Find more like it."
+   },
+   "footerCtaProspectsBody": {
+      "message": "Search by the tools companies use to build prospect lists with the company details and context your team needs to qualify faster."
+   },
+   "footerCtaProspectsButton": {
+      "message": "Find matching accounts"
+   },
+   "footerCtaProspectsHeading": {
+      "message": "Find companies using the tools you target"
+   },
+   "footerCtaWorkflowBody": {
+      "message": "Keep records updated automatically so sales and marketing can prioritize the right accounts and send more relevant outreach."
+   },
+   "footerCtaWorkflowButton": {
+      "message": "Automate enrichment"
+   },
+   "footerCtaWorkflowHeading": {
+      "message": "Bring website technologies into your workflow"
+   },
+   "formSave": {
+      "message": "保存"
+   },
+   "issue": {
+      "message": "有错误或缺少内容？"
+   },
+   "noAppsDetected": {
+      "message": "未检测到任何技术。"
+   },
+   "optionApiKey": {
+      "message": "API 密钥"
+   },
+   "optionApiKeyDescription": {
+      "message": "获取你的 API 密钥"
+   },
+   "optionBadge": {
+      "message": "在图标上显示检测到技术的个数"
+   },
+   "optionDynamicIcon": {
+      "message": "使用技术图标代替 Wappalyzer 的标志"
+   },
+   "optionShowCached": {
+      "message": "在结果中包含缓存的检测结果"
+   },
+   "optionTracking": {
+      "message": "匿名发送检测到的技术至 wappalyzer.com"
+   },
+   "optionUpgradeMessage": {
+      "message": "告诉我更新详情"
+   },
+   "options": {
+      "message": "选项"
+   },
+   "plusButton": {
+      "message": "注册"
+   },
+   "plusCrawl": {
+      "message": "未找到结果，请稍后再查看。"
+   },
+   "plusEmpty": {
+      "message": "未找到结果。"
+   },
+   "plusErrorGeneric": {
+      "message": "抱歉，出错了。请稍后重试。"
+   },
+   "plusErrorNoAccess": {
+      "message": "无法访问。请检查您的 API 密钥。"
+   },
+   "plusErrorStatus": {
+      "message": "抱歉，出错了 ($STATUS$)。请稍后重试。",
+      "placeholders": {
+         "status": {
+            "content": "$1"
+         }
+      }
+   },
+   "plusErrorTooManyRequests": {
+      "message": "请求过多。请几秒后重试。"
+   },
+   "plusMessage": {
+      "message": "使用 Plus，这里会显示你访问的网站的公司和联系方式。"
+   },
+   "plusMessageHeading": {
+      "message": "以 $$10/月获取 Plus"
+   },
+   "privacyPolicy": {
+      "message": "隐私政策"
+   },
+   "reloadPage": {
+      "message": "重新加载"
+   },
+   "setAddress": {
+      "message": "地址"
+   },
+   "setCompany": {
+      "message": "公司信息"
+   },
+   "setContact": {
+      "message": "联系方式"
+   },
+   "setEmail": {
+      "message": "电子邮件地址"
+   },
+   "setKeywords": {
+      "message": "关键词"
+   },
+   "setLocale": {
+      "message": "区域设置"
+   },
+   "setMeta": {
+      "message": "元数据"
+   },
+   "setPhone": {
+      "message": "电话号码"
+   },
+   "setSecurity": {
+      "message": "安全"
+   },
+   "setSignals": {
+      "message": "信号"
+   },
+   "setSocial": {
+      "message": "社交媒体账号"
+   },
+   "setTrackers": {
+      "message": "跟踪器"
+   },
+   "spendHigh": {
+      "message": "高"
+   },
+   "spendLow": {
+      "message": "低"
+   },
+   "spendMedium": {
+      "message": "中"
+   },
+   "spendVeryHigh": {
+      "message": "非常高"
+   },
+   "spendVeryLow": {
+      "message": "非常低"
+   },
+   "tabPlus": {
+      "message": "更多信息"
+   },
+   "tabTechnologies": {
+      "message": "技术"
+   },
+   "termsAccept": {
+      "message": "我同意"
+   },
+   "termsContent": {
+      "message": "此扩展程序会匿名发送您访问的网站信息至 \u003Ca href='https://www.wappalyzer.com'>wappalyzer.com\u003C/a>，包含域名和检测到的技术。这可以在设置中禁用。"
+   },
+   "termsDecline": {
+      "message": "禁用"
+   }
+}

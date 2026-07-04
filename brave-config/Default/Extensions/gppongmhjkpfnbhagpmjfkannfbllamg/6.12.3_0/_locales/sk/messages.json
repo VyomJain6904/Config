@@ -1,0 +1,690 @@
+{
+   "apiKeyPendingActivation": {
+      "message": "Aktivácia nových API kľúčov môže trvať niekoľko minút. Počkajte chvíľu a skúste to znova."
+   },
+   "attributeAbout": {
+      "message": "O spoločnosti"
+   },
+   "attributeCertInfo_issuer": {
+      "message": "Cert issuer"
+   },
+   "attributeCertInfo_protocol": {
+      "message": "Cert protocol"
+   },
+   "attributeCertInfo_subjectCountry": {
+      "message": "Cert country"
+   },
+   "attributeCertInfo_subjectLocality": {
+      "message": "Cert locality"
+   },
+   "attributeCertInfo_subjectOrg": {
+      "message": "Cert organisation"
+   },
+   "attributeCertInfo_subjectState": {
+      "message": "Cert state"
+   },
+   "attributeCertInfo_validTo": {
+      "message": "Cert expiry"
+   },
+   "attributeCompanyFounded": {
+      "message": "Rok založenia spoločnosti"
+   },
+   "attributeCompanyName": {
+      "message": "Názov spoločnosti"
+   },
+   "attributeCompanySize": {
+      "message": "Veľkosť spoločnosti"
+   },
+   "attributeCompanyType": {
+      "message": "Typ spoločnosti"
+   },
+   "attributeCopyright": {
+      "message": "Autorské práva"
+   },
+   "attributeCopyrightYear": {
+      "message": "Rok autorských práv"
+   },
+   "attributeDescription": {
+      "message": "Popis"
+   },
+   "attributeDns_dmarc": {
+      "message": "DMARC záznam"
+   },
+   "attributeDns_spf": {
+      "message": "SPF záznam"
+   },
+   "attributeEmail": {
+      "message": "Emailová adresa"
+   },
+   "attributeEmployees": {
+      "message": "Ľudia"
+   },
+   "attributeFacebook": {
+      "message": "Facebook"
+   },
+   "attributeFundingRounds": {
+      "message": "Finančné kolá"
+   },
+   "attributeFundingTotalUsd": {
+      "message": "Celkové financovanie"
+   },
+   "attributeGithub": {
+      "message": "GitHub"
+   },
+   "attributeIndustry": {
+      "message": "Odvetvie"
+   },
+   "attributeInferredCompanyName": {
+      "message": "Odvodený názov spoločnosti"
+   },
+   "attributeInstagram": {
+      "message": "Instagram"
+   },
+   "attributeIpCountry": {
+      "message": "Krajina IP"
+   },
+   "attributeIpRegion": {
+      "message": "Región IP"
+   },
+   "attributeKeywords": {
+      "message": "Kľúčové slová"
+   },
+   "attributeLanguage": {
+      "message": "Jazyk"
+   },
+   "attributeLinkedin": {
+      "message": "LinkedIn"
+   },
+   "attributeLocations": {
+      "message": "Lokality"
+   },
+   "attributeOwler": {
+      "message": "Owler"
+   },
+   "attributePhone": {
+      "message": "Telefónne číslo"
+   },
+   "attributePinterest": {
+      "message": "Pinterest"
+   },
+   "attributeResponsive": {
+      "message": "Responzívny"
+   },
+   "attributeSafeEmail": {
+      "message": "Emailová adresa (bezpečná)"
+   },
+   "attributeSchemaOrgTypes": {
+      "message": "Typy schema.org"
+   },
+   "attributeSemrushGlobalRank": {
+      "message": "Globálne hodnotenie Semrush"
+   },
+   "attributeSemrushVisits": {
+      "message": "Mesačné návštevy Semrush"
+   },
+   "attributeSkype": {
+      "message": "Skype"
+   },
+   "attributeStockSymbol": {
+      "message": "Burzový symbol"
+   },
+   "attributeTechnologySpend": {
+      "message": "Výdavky na technológie"
+   },
+   "attributeTiktok": {
+      "message": "TikTok"
+   },
+   "attributeTitle": {
+      "message": "Názov"
+   },
+   "attributeTrackerFacebook": {
+      "message": "Facebook"
+   },
+   "attributeTrackerGoogleAdSense": {
+      "message": "Google AdSense"
+   },
+   "attributeTrackerGoogleAnalytics": {
+      "message": "Google Analytics"
+   },
+   "attributeTrackerMedianet": {
+      "message": "Medianet"
+   },
+   "attributeTrackerOptimizely": {
+      "message": "Optimizely"
+   },
+   "attributeTwitter": {
+      "message": "Twitter"
+   },
+   "attributeVerifiedEmail": {
+      "message": "Emailová adresa (overená)"
+   },
+   "attributeWhatsapp": {
+      "message": "WhatsApp"
+   },
+   "attributeYoutube": {
+      "message": "YouTube"
+   },
+   "categoryName1": {
+      "message": "CMS"
+   },
+   "categoryName10": {
+      "message": "Analytika"
+   },
+   "categoryName100": {
+      "message": "Aplikácie Shopify"
+   },
+   "categoryName101": {
+      "message": "Nábor a personálne zabezpečenie"
+   },
+   "categoryName102": {
+      "message": "Vrátenia"
+   },
+   "categoryName103": {
+      "message": "Živé vysielanie"
+   },
+   "categoryName104": {
+      "message": "Rezervácia lístkov"
+   },
+   "categoryName105": {
+      "message": "Rozšírená realita"
+   },
+   "categoryName106": {
+      "message": "Cezhraničný elektronický obchod"
+   },
+   "categoryName107": {
+      "message": "Plnenie objednávok"
+   },
+   "categoryName108": {
+      "message": "Frontendy elektronického obchodu"
+   },
+   "categoryName109": {
+      "message": "Parkovanie domén"
+   },
+   "categoryName11": {
+      "message": "Blog"
+   },
+   "categoryName110": {
+      "message": "Tvorcovia formulárov"
+   },
+   "categoryName111": {
+      "message": "Získavanie financií a dary"
+   },
+   "categoryName12": {
+      "message": "JavaScript Framework"
+   },
+   "categoryName13": {
+      "message": "Sledovanie problémov"
+   },
+   "categoryName14": {
+      "message": "Video prehrávač"
+   },
+   "categoryName15": {
+      "message": "Systém komentárov"
+   },
+   "categoryName16": {
+      "message": "Bezpečnosť"
+   },
+   "categoryName17": {
+      "message": "Font Script"
+   },
+   "categoryName18": {
+      "message": "Web Framework"
+   },
+   "categoryName19": {
+      "message": "Rôzne"
+   },
+   "categoryName2": {
+      "message": "Diskusné fóra"
+   },
+   "categoryName20": {
+      "message": "Editory"
+   },
+   "categoryName21": {
+      "message": "LMS"
+   },
+   "categoryName22": {
+      "message": "Webový server"
+   },
+   "categoryName23": {
+      "message": "Cache nástroj"
+   },
+   "categoryName24": {
+      "message": "Editor formátovaného textu"
+   },
+   "categoryName25": {
+      "message": "JavaScript Grafika"
+   },
+   "categoryName26": {
+      "message": "Mobile Framework"
+   },
+   "categoryName27": {
+      "message": "Programovací jazyk"
+   },
+   "categoryName28": {
+      "message": "Operačný systém"
+   },
+   "categoryName29": {
+      "message": "Vyhľadávač"
+   },
+   "categoryName3": {
+      "message": "Správca databáz"
+   },
+   "categoryName30": {
+      "message": "Webová pošta"
+   },
+   "categoryName31": {
+      "message": "CDN"
+   },
+   "categoryName32": {
+      "message": "Marketingová automatizácia"
+   },
+   "categoryName33": {
+      "message": "Rozšírenie webového servera"
+   },
+   "categoryName34": {
+      "message": "Databáza"
+   },
+   "categoryName35": {
+      "message": "Mapa"
+   },
+   "categoryName36": {
+      "message": "Reklamná sieť"
+   },
+   "categoryName37": {
+      "message": "Sieťová služba"
+   },
+   "categoryName38": {
+      "message": "Mediálny server"
+   },
+   "categoryName39": {
+      "message": "Webkamera"
+   },
+   "categoryName4": {
+      "message": "Dokumentačný nástroj"
+   },
+   "categoryName41": {
+      "message": "Platobný procesor"
+   },
+   "categoryName42": {
+      "message": "Správca tagov"
+   },
+   "categoryName44": {
+      "message": "Build/CI systém"
+   },
+   "categoryName46": {
+      "message": "Vzdialený prístup"
+   },
+   "categoryName47": {
+      "message": "Vývojový nástroj"
+   },
+   "categoryName48": {
+      "message": "Sieťové úložisko"
+   },
+   "categoryName49": {
+      "message": "Čítačky feedu"
+   },
+   "categoryName5": {
+      "message": "Widget"
+   },
+   "categoryName50": {
+      "message": "Systémy správy dokumentov"
+   },
+   "categoryName51": {
+      "message": "Nástroj na tvorbu vstupnej stránky"
+   },
+   "categoryName52": {
+      "message": "Živý chat"
+   },
+   "categoryName53": {
+      "message": "CRM"
+   },
+   "categoryName54": {
+      "message": "SEO"
+   },
+   "categoryName55": {
+      "message": "Účtovníctvo"
+   },
+   "categoryName56": {
+      "message": "Kryptoťažiar"
+   },
+   "categoryName57": {
+      "message": "Generátor statických stránok"
+   },
+   "categoryName58": {
+      "message": "Zaškolenie používateľa"
+   },
+   "categoryName59": {
+      "message": "JavaScript Libraries"
+   },
+   "categoryName6": {
+      "message": "E-commerce"
+   },
+   "categoryName60": {
+      "message": "Kontajnery"
+   },
+   "categoryName62": {
+      "message": "PaaS"
+   },
+   "categoryName63": {
+      "message": "IaaS"
+   },
+   "categoryName64": {
+      "message": "Reverzný proxy server"
+   },
+   "categoryName65": {
+      "message": "Balancér záťaže"
+   },
+   "categoryName66": {
+      "message": "UI Frameworks"
+   },
+   "categoryName67": {
+      "message": "Súlad s cookies"
+   },
+   "categoryName68": {
+      "message": "Prístupnosť"
+   },
+   "categoryName69": {
+      "message": "Overovanie"
+   },
+   "categoryName7": {
+      "message": "Fotogalérie"
+   },
+   "categoryName70": {
+      "message": "Certifikačné autority SSL/TLS"
+   },
+   "categoryName71": {
+      "message": "Partnerské programy"
+   },
+   "categoryName72": {
+      "message": "Plánovanie stretnutí"
+   },
+   "categoryName73": {
+      "message": "Prieskumy"
+   },
+   "categoryName74": {
+      "message": "A/B testovanie"
+   },
+   "categoryName75": {
+      "message": "E-mail"
+   },
+   "categoryName76": {
+      "message": "Personalizácia"
+   },
+   "categoryName77": {
+      "message": "Opätovné zacielenie"
+   },
+   "categoryName78": {
+      "message": "RUM"
+   },
+   "categoryName79": {
+      "message": "Geolokácia"
+   },
+   "categoryName8": {
+      "message": "Wiki"
+   },
+   "categoryName80": {
+      "message": "Témy WordPress"
+   },
+   "categoryName81": {
+      "message": "Témy Shopify"
+   },
+   "categoryName82": {
+      "message": "Témy Drupal"
+   },
+   "categoryName83": {
+      "message": "Odtlačok prehliadača"
+   },
+   "categoryName84": {
+      "message": "Vernosť a odmeny"
+   },
+   "categoryName85": {
+      "message": "Správa funkcií"
+   },
+   "categoryName86": {
+      "message": "Segmentácia"
+   },
+   "categoryName87": {
+      "message": "Pluginy WordPress"
+   },
+   "categoryName88": {
+      "message": "Webhosting"
+   },
+   "categoryName89": {
+      "message": "Preklad"
+   },
+   "categoryName9": {
+      "message": "Hosting panely"
+   },
+   "categoryName90": {
+      "message": "Recenzie"
+   },
+   "categoryName91": {
+      "message": "Kúp teraz, zaplať neskôr"
+   },
+   "categoryName92": {
+      "message": "Výkon"
+   },
+   "categoryName93": {
+      "message": "Rezervácie a doručenie"
+   },
+   "categoryName94": {
+      "message": "Odporúčací marketing"
+   },
+   "categoryName95": {
+      "message": "Správa digitálnych aktív"
+   },
+   "categoryName96": {
+      "message": "Kurátorstvo obsahu"
+   },
+   "categoryName97": {
+      "message": "Platforma zákazníckych dát"
+   },
+   "categoryName98": {
+      "message": "Opustenie košíka"
+   },
+   "categoryName99": {
+      "message": "Dopravcovia"
+   },
+   "categoryPin": {
+      "message": "Vždy zobrazovať ikonu"
+   },
+   "clearCache": {
+      "message": "Vymazať zistenia z vyrovnávacej pamäte"
+   },
+   "confidenceSure": {
+      "message": "$CONFIDENCE$% istota",
+      "placeholders": {
+         "confidence": {
+            "content": "$1"
+         }
+      }
+   },
+   "disableOnDomain": {
+      "message": "Zakázať na tejto webovej stránke"
+   },
+   "exportCsv": {
+      "message": "Exportovať"
+   },
+   "footerCtaCrmBody": {
+      "message": "Add website technology data to HubSpot, Salesforce, or Pipedrive so your team can prioritize accounts and personalize outreach faster."
+   },
+   "footerCtaCrmButton": {
+      "message": "Enrich CRM records"
+   },
+   "footerCtaCrmHeading": {
+      "message": "See website technologies in your CRM"
+   },
+   "footerCtaListsBody": {
+      "message": "Go beyond one-off lookups with prospect lists your team can sort, export, and use to prioritize the right accounts."
+   },
+   "footerCtaListsButton": {
+      "message": "Build prospect lists"
+   },
+   "footerCtaListsHeading": {
+      "message": "Turn quick research into ready-to-use lists"
+   },
+   "footerCtaNeedMoreBody": {
+      "message": "If the extension helps you research a website's technologies, Wappalyzer can help your team find more companies using the same tools and build lead lists at scale."
+   },
+   "footerCtaNeedMoreButton": {
+      "message": "Find similar companies"
+   },
+   "footerCtaNeedMoreHeading": {
+      "message": "See a site's stack. Find more like it."
+   },
+   "footerCtaProspectsBody": {
+      "message": "Search by the tools companies use to build prospect lists with the company details and context your team needs to qualify faster."
+   },
+   "footerCtaProspectsButton": {
+      "message": "Find matching accounts"
+   },
+   "footerCtaProspectsHeading": {
+      "message": "Find companies using the tools you target"
+   },
+   "footerCtaWorkflowBody": {
+      "message": "Keep records updated automatically so sales and marketing can prioritize the right accounts and send more relevant outreach."
+   },
+   "footerCtaWorkflowButton": {
+      "message": "Automate enrichment"
+   },
+   "footerCtaWorkflowHeading": {
+      "message": "Bring website technologies into your workflow"
+   },
+   "formSave": {
+      "message": "Uložiť"
+   },
+   "issue": {
+      "message": "Niečo chýba alebo nie je v poriadku?"
+   },
+   "noAppsDetected": {
+      "message": "Žiadne aplikácie neboli zistené."
+   },
+   "optionApiKey": {
+      "message": "API kľúč"
+   },
+   "optionApiKeyDescription": {
+      "message": "získajte svoj API kľúč"
+   },
+   "optionBadge": {
+      "message": "Zobraziť počet identifikovaných technológií na ikone"
+   },
+   "optionDynamicIcon": {
+      "message": "Použiť ikonu aplikácie namiesto loga Wappalyzer"
+   },
+   "optionShowCached": {
+      "message": "Zahrnúť zistenia z vyrovnávacej pamäte do výsledkov"
+   },
+   "optionTracking": {
+      "message": "Anonymne posielať správy o zistených aplikáciách na wappalyzer.com pre výskum"
+   },
+   "optionUpgradeMessage": {
+      "message": "Povedzte mi o upgradoch"
+   },
+   "options": {
+      "message": "Možnosti"
+   },
+   "plusButton": {
+      "message": "Registrovať sa"
+   },
+   "plusCrawl": {
+      "message": "Nenašli sa žiadne výsledky, skontrolujte znova neskôr."
+   },
+   "plusEmpty": {
+      "message": "Nenašli sa žiadne výsledky."
+   },
+   "plusErrorGeneric": {
+      "message": "Prepáčte, niečo sa pokazilo. Skúste to znova neskôr."
+   },
+   "plusErrorNoAccess": {
+      "message": "Prístup nie je povolený. Skontrolujte svoj API kľúč."
+   },
+   "plusErrorStatus": {
+      "message": "Prepáčte, niečo sa pokazilo ($STATUS$). Skúste to znova neskôr.",
+      "placeholders": {
+         "status": {
+            "content": "$1"
+         }
+      }
+   },
+   "plusErrorTooManyRequests": {
+      "message": "Príliš veľa požiadaviek. Skúste to znova o pár sekúnd."
+   },
+   "plusMessage": {
+      "message": "S Plus sa tu zobrazujú údaje o spoločnosti a kontaktné údaje webových stránok, ktoré navštevujete."
+   },
+   "plusMessageHeading": {
+      "message": "Získajte Plus za $$10/mesiac"
+   },
+   "privacyPolicy": {
+      "message": "Zásady ochrany osobných údajov"
+   },
+   "reloadPage": {
+      "message": "Znova načítať"
+   },
+   "setAddress": {
+      "message": "Adresy"
+   },
+   "setCompany": {
+      "message": "Informácie o spoločnosti"
+   },
+   "setContact": {
+      "message": "Kontaktné údaje"
+   },
+   "setEmail": {
+      "message": "Emailové adresy"
+   },
+   "setKeywords": {
+      "message": "Kľúčové slová"
+   },
+   "setLocale": {
+      "message": "Miestne nastavenia"
+   },
+   "setMeta": {
+      "message": "Metadáta"
+   },
+   "setPhone": {
+      "message": "Telefónne čísla"
+   },
+   "setSecurity": {
+      "message": "Bezpečnosť"
+   },
+   "setSignals": {
+      "message": "Signály"
+   },
+   "setSocial": {
+      "message": "Účty na sociálnych sieťach"
+   },
+   "setTrackers": {
+      "message": "Sledovače"
+   },
+   "spendHigh": {
+      "message": "Vysoký"
+   },
+   "spendLow": {
+      "message": "Nízky"
+   },
+   "spendMedium": {
+      "message": "Stredný"
+   },
+   "spendVeryHigh": {
+      "message": "Veľmi vysoký"
+   },
+   "spendVeryLow": {
+      "message": "Veľmi nízky"
+   },
+   "tabPlus": {
+      "message": "Viac informácií"
+   },
+   "tabTechnologies": {
+      "message": "Technológie"
+   },
+   "termsAccept": {
+      "message": "Súhlasím"
+   },
+   "termsContent": {
+      "message": "Toto rozšírenie odosiela anonymné informácie o webových stránkach, ktoré navštevujete, vrátane názvu domény a identifikovaných technológií, na \u003Ca href='https://www.wappalyzer.com'>wappalyzer.com\u003C/a>. Toto je možné vypnúť v nastaveniach."
+   },
+   "termsDecline": {
+      "message": "Zakázať"
+   }
+}

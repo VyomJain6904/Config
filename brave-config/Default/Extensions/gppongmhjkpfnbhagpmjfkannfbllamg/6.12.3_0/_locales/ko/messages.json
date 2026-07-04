@@ -1,0 +1,690 @@
+{
+   "apiKeyPendingActivation": {
+      "message": "새 API 키는 활성화되기까지 몇 분 정도 걸릴 수 있습니다. 잠시 후 다시 시도해 주세요."
+   },
+   "attributeAbout": {
+      "message": "정보"
+   },
+   "attributeCertInfo_issuer": {
+      "message": "인증서 발행자"
+   },
+   "attributeCertInfo_protocol": {
+      "message": "인증서 프로토콜"
+   },
+   "attributeCertInfo_subjectCountry": {
+      "message": "Cert country"
+   },
+   "attributeCertInfo_subjectLocality": {
+      "message": "Cert locality"
+   },
+   "attributeCertInfo_subjectOrg": {
+      "message": "Cert organisation"
+   },
+   "attributeCertInfo_subjectState": {
+      "message": "Cert state"
+   },
+   "attributeCertInfo_validTo": {
+      "message": "인증서 만료"
+   },
+   "attributeCompanyFounded": {
+      "message": "회사 상장"
+   },
+   "attributeCompanyName": {
+      "message": "회사 정보"
+   },
+   "attributeCompanySize": {
+      "message": "회사 크기"
+   },
+   "attributeCompanyType": {
+      "message": "회사 종류"
+   },
+   "attributeCopyright": {
+      "message": "저작권"
+   },
+   "attributeCopyrightYear": {
+      "message": "저작 년도"
+   },
+   "attributeDescription": {
+      "message": "설명"
+   },
+   "attributeDns_dmarc": {
+      "message": "DMARC 레코드"
+   },
+   "attributeDns_spf": {
+      "message": "SPF 레코드"
+   },
+   "attributeEmail": {
+      "message": "이메일 주소"
+   },
+   "attributeEmployees": {
+      "message": "인원"
+   },
+   "attributeFacebook": {
+      "message": "페이스북"
+   },
+   "attributeFundingRounds": {
+      "message": "투자 라운드"
+   },
+   "attributeFundingTotalUsd": {
+      "message": "총 투자 유치액"
+   },
+   "attributeGithub": {
+      "message": "GitHub"
+   },
+   "attributeIndustry": {
+      "message": "산업"
+   },
+   "attributeInferredCompanyName": {
+      "message": "유추 회사 명"
+   },
+   "attributeInstagram": {
+      "message": "인스타그램"
+   },
+   "attributeIpCountry": {
+      "message": "IP 나라"
+   },
+   "attributeIpRegion": {
+      "message": "IP 지역"
+   },
+   "attributeKeywords": {
+      "message": "키워드"
+   },
+   "attributeLanguage": {
+      "message": "언어"
+   },
+   "attributeLinkedin": {
+      "message": "LinkedIn"
+   },
+   "attributeLocations": {
+      "message": "위치"
+   },
+   "attributeOwler": {
+      "message": "Owler"
+   },
+   "attributePhone": {
+      "message": "휴대폰 번호"
+   },
+   "attributePinterest": {
+      "message": "Pinterest"
+   },
+   "attributeResponsive": {
+      "message": "반응형"
+   },
+   "attributeSafeEmail": {
+      "message": "이메일 주소(안전)"
+   },
+   "attributeSchemaOrgTypes": {
+      "message": "schema.org 타입"
+   },
+   "attributeSemrushGlobalRank": {
+      "message": "Semrush 글로벌 순위"
+   },
+   "attributeSemrushVisits": {
+      "message": "Semrush 월간 방문 수"
+   },
+   "attributeSkype": {
+      "message": "Skype"
+   },
+   "attributeStockSymbol": {
+      "message": "주식 기호"
+   },
+   "attributeTechnologySpend": {
+      "message": "기술 지출"
+   },
+   "attributeTiktok": {
+      "message": "TikTok"
+   },
+   "attributeTitle": {
+      "message": "제목"
+   },
+   "attributeTrackerFacebook": {
+      "message": "페이스북"
+   },
+   "attributeTrackerGoogleAdSense": {
+      "message": "Google AdSense"
+   },
+   "attributeTrackerGoogleAnalytics": {
+      "message": "Google Analytics"
+   },
+   "attributeTrackerMedianet": {
+      "message": "Medianet"
+   },
+   "attributeTrackerOptimizely": {
+      "message": "최적화"
+   },
+   "attributeTwitter": {
+      "message": "트위터"
+   },
+   "attributeVerifiedEmail": {
+      "message": "이메일 주소(확인됨)"
+   },
+   "attributeWhatsapp": {
+      "message": "WhatsApp"
+   },
+   "attributeYoutube": {
+      "message": "유튜브"
+   },
+   "categoryName1": {
+      "message": "CMS"
+   },
+   "categoryName10": {
+      "message": "분석"
+   },
+   "categoryName100": {
+      "message": "Shopify 앱"
+   },
+   "categoryName101": {
+      "message": "채용 및 인력 배치"
+   },
+   "categoryName102": {
+      "message": "반품"
+   },
+   "categoryName103": {
+      "message": "라이브 스트리밍"
+   },
+   "categoryName104": {
+      "message": "티켓 예약"
+   },
+   "categoryName105": {
+      "message": "증강 현실"
+   },
+   "categoryName106": {
+      "message": "국경 간 전자상거래"
+   },
+   "categoryName107": {
+      "message": "주문 이행"
+   },
+   "categoryName108": {
+      "message": "전자상거래 프런트엔드"
+   },
+   "categoryName109": {
+      "message": "도메인 파킹"
+   },
+   "categoryName11": {
+      "message": "블로그"
+   },
+   "categoryName110": {
+      "message": "폼 빌더"
+   },
+   "categoryName111": {
+      "message": "모금 및 기부"
+   },
+   "categoryName12": {
+      "message": "JavaScript 프레임워크"
+   },
+   "categoryName13": {
+      "message": "이슈 트래커"
+   },
+   "categoryName14": {
+      "message": "비디오 플레이어"
+   },
+   "categoryName15": {
+      "message": "댓글 시스템"
+   },
+   "categoryName16": {
+      "message": "보안"
+   },
+   "categoryName17": {
+      "message": "폰트 스크립트"
+   },
+   "categoryName18": {
+      "message": "웹 프레임워크"
+   },
+   "categoryName19": {
+      "message": "기타"
+   },
+   "categoryName2": {
+      "message": "포럼 소프트웨어"
+   },
+   "categoryName20": {
+      "message": "에디터"
+   },
+   "categoryName21": {
+      "message": "LMS"
+   },
+   "categoryName22": {
+      "message": "웹 서버"
+   },
+   "categoryName23": {
+      "message": "캐싱"
+   },
+   "categoryName24": {
+      "message": "텍스트 에디터"
+   },
+   "categoryName25": {
+      "message": "JavaScript 그래픽"
+   },
+   "categoryName26": {
+      "message": "모바일 프레임워크"
+   },
+   "categoryName27": {
+      "message": "프로그래밍 언어"
+   },
+   "categoryName28": {
+      "message": "운영체제"
+   },
+   "categoryName29": {
+      "message": "검색 엔진"
+   },
+   "categoryName3": {
+      "message": "데이터베이스 관리 도구"
+   },
+   "categoryName30": {
+      "message": "웹 메일"
+   },
+   "categoryName31": {
+      "message": "CDN"
+   },
+   "categoryName32": {
+      "message": "마케팅 자동화"
+   },
+   "categoryName33": {
+      "message": "웹 서버 확장"
+   },
+   "categoryName34": {
+      "message": "데이터베이스"
+   },
+   "categoryName35": {
+      "message": "지도"
+   },
+   "categoryName36": {
+      "message": "광고"
+   },
+   "categoryName37": {
+      "message": "네트워크 서비스"
+   },
+   "categoryName38": {
+      "message": "미디어 서버"
+   },
+   "categoryName39": {
+      "message": "웹캠"
+   },
+   "categoryName4": {
+      "message": "문서 도구"
+   },
+   "categoryName41": {
+      "message": "결제 처리"
+   },
+   "categoryName42": {
+      "message": "태그 관리자"
+   },
+   "categoryName44": {
+      "message": "CI"
+   },
+   "categoryName46": {
+      "message": "원격 접속"
+   },
+   "categoryName47": {
+      "message": "개발"
+   },
+   "categoryName48": {
+      "message": "네트워크 스토리지"
+   },
+   "categoryName49": {
+      "message": "피드 리더"
+   },
+   "categoryName5": {
+      "message": "위젯"
+   },
+   "categoryName50": {
+      "message": "DMS"
+   },
+   "categoryName51": {
+      "message": "사이트 제작 도구"
+   },
+   "categoryName52": {
+      "message": "실시간 채팅"
+   },
+   "categoryName53": {
+      "message": "CRM"
+   },
+   "categoryName54": {
+      "message": "SEO"
+   },
+   "categoryName55": {
+      "message": "회계"
+   },
+   "categoryName56": {
+      "message": "가상화폐 채굴기"
+   },
+   "categoryName57": {
+      "message": "정적 사이트 생성기"
+   },
+   "categoryName58": {
+      "message": "사용자 유도"
+   },
+   "categoryName59": {
+      "message": "JavaScript 라이브러리"
+   },
+   "categoryName6": {
+      "message": "전자상거래"
+   },
+   "categoryName60": {
+      "message": "컨테이너"
+   },
+   "categoryName62": {
+      "message": "PaaS"
+   },
+   "categoryName63": {
+      "message": "IaaS"
+   },
+   "categoryName64": {
+      "message": "리버스 프록시"
+   },
+   "categoryName65": {
+      "message": "로드 밸런서"
+   },
+   "categoryName66": {
+      "message": "UI 프레임워크"
+   },
+   "categoryName67": {
+      "message": "쿠키 동의"
+   },
+   "categoryName68": {
+      "message": "접근성"
+   },
+   "categoryName69": {
+      "message": "인증"
+   },
+   "categoryName7": {
+      "message": "사진 갤러리"
+   },
+   "categoryName70": {
+      "message": "SSL/TLS 인증 기관"
+   },
+   "categoryName71": {
+      "message": "제휴 프로그램"
+   },
+   "categoryName72": {
+      "message": "약속 스케줄링"
+   },
+   "categoryName73": {
+      "message": "설문"
+   },
+   "categoryName74": {
+      "message": "A/B 테스팅"
+   },
+   "categoryName75": {
+      "message": "이메일"
+   },
+   "categoryName76": {
+      "message": "개인화"
+   },
+   "categoryName77": {
+      "message": "리타겟팅"
+   },
+   "categoryName78": {
+      "message": "RUM"
+   },
+   "categoryName79": {
+      "message": "위치"
+   },
+   "categoryName8": {
+      "message": "위키"
+   },
+   "categoryName80": {
+      "message": "WordPress 테마"
+   },
+   "categoryName81": {
+      "message": "Shopify 테마"
+   },
+   "categoryName82": {
+      "message": "Drupal 테마"
+   },
+   "categoryName83": {
+      "message": "브라우저 지문 추적"
+   },
+   "categoryName84": {
+      "message": "로열티 및 보상"
+   },
+   "categoryName85": {
+      "message": "기능 관리"
+   },
+   "categoryName86": {
+      "message": "세분화"
+   },
+   "categoryName87": {
+      "message": "WordPress 플러그인"
+   },
+   "categoryName88": {
+      "message": "호스팅"
+   },
+   "categoryName89": {
+      "message": "번역"
+   },
+   "categoryName9": {
+      "message": "호스팅 패널"
+   },
+   "categoryName90": {
+      "message": "리뷰"
+   },
+   "categoryName91": {
+      "message": "선구매 후결제"
+   },
+   "categoryName92": {
+      "message": "성능"
+   },
+   "categoryName93": {
+      "message": "예약 및 배달"
+   },
+   "categoryName94": {
+      "message": "추천 마케팅"
+   },
+   "categoryName95": {
+      "message": "디지털 자산 관리"
+   },
+   "categoryName96": {
+      "message": "콘텐츠 큐레이션"
+   },
+   "categoryName97": {
+      "message": "고객 데이터 플랫폼"
+   },
+   "categoryName98": {
+      "message": "장바구니 이탈"
+   },
+   "categoryName99": {
+      "message": "배송업체"
+   },
+   "categoryPin": {
+      "message": "항상 아이콘 보이기"
+   },
+   "clearCache": {
+      "message": "캐시된 식별 정보 지우기"
+   },
+   "confidenceSure": {
+      "message": "$CONFIDENCE$% 확실",
+      "placeholders": {
+         "confidence": {
+            "content": "$1"
+         }
+      }
+   },
+   "disableOnDomain": {
+      "message": "이 웹 사이트에서 끄기"
+   },
+   "exportCsv": {
+      "message": "내보내기"
+   },
+   "footerCtaCrmBody": {
+      "message": "Add website technology data to HubSpot, Salesforce, or Pipedrive so your team can prioritize accounts and personalize outreach faster."
+   },
+   "footerCtaCrmButton": {
+      "message": "Enrich CRM records"
+   },
+   "footerCtaCrmHeading": {
+      "message": "See website technologies in your CRM"
+   },
+   "footerCtaListsBody": {
+      "message": "Go beyond one-off lookups with prospect lists your team can sort, export, and use to prioritize the right accounts."
+   },
+   "footerCtaListsButton": {
+      "message": "Build prospect lists"
+   },
+   "footerCtaListsHeading": {
+      "message": "Turn quick research into ready-to-use lists"
+   },
+   "footerCtaNeedMoreBody": {
+      "message": "If the extension helps you research a website's technologies, Wappalyzer can help your team find more companies using the same tools and build lead lists at scale."
+   },
+   "footerCtaNeedMoreButton": {
+      "message": "Find similar companies"
+   },
+   "footerCtaNeedMoreHeading": {
+      "message": "See a site's stack. Find more like it."
+   },
+   "footerCtaProspectsBody": {
+      "message": "Search by the tools companies use to build prospect lists with the company details and context your team needs to qualify faster."
+   },
+   "footerCtaProspectsButton": {
+      "message": "Find matching accounts"
+   },
+   "footerCtaProspectsHeading": {
+      "message": "Find companies using the tools you target"
+   },
+   "footerCtaWorkflowBody": {
+      "message": "Keep records updated automatically so sales and marketing can prioritize the right accounts and send more relevant outreach."
+   },
+   "footerCtaWorkflowButton": {
+      "message": "Automate enrichment"
+   },
+   "footerCtaWorkflowHeading": {
+      "message": "Bring website technologies into your workflow"
+   },
+   "formSave": {
+      "message": "저장"
+   },
+   "issue": {
+      "message": "잘못되었거나 누락된 내용이 있나요?"
+   },
+   "noAppsDetected": {
+      "message": "식별된 기술이 없습니다."
+   },
+   "optionApiKey": {
+      "message": "API 키"
+   },
+   "optionApiKeyDescription": {
+      "message": "API 키 얻기"
+   },
+   "optionBadge": {
+      "message": "아이콘에 식별된 기술 갯수 표시"
+   },
+   "optionDynamicIcon": {
+      "message": "Wappalyzer 로고 대신 식별된 기술 아이콘을 사용"
+   },
+   "optionShowCached": {
+      "message": "결과에 캐시된 식별 정보 포함"
+   },
+   "optionTracking": {
+      "message": "익명으로 wappalyzer.com에 식별된 기술 정보 전송"
+   },
+   "optionUpgradeMessage": {
+      "message": "업그레이드에 대해 알리기"
+   },
+   "options": {
+      "message": "설정"
+   },
+   "plusButton": {
+      "message": "가입하기"
+   },
+   "plusCrawl": {
+      "message": "결과를 찾을 수 없습니다. 나중에 다시 확인하세요."
+   },
+   "plusEmpty": {
+      "message": "결과를 찾을 수 없습니다."
+   },
+   "plusErrorGeneric": {
+      "message": "죄송합니다. 문제가 발생했습니다. 나중에 다시 시도해 주세요."
+   },
+   "plusErrorNoAccess": {
+      "message": "접근할 수 없습니다. API 키를 확인해 주세요."
+   },
+   "plusErrorStatus": {
+      "message": "죄송합니다. 문제가 발생했습니다 ($STATUS$). 나중에 다시 시도해 주세요.",
+      "placeholders": {
+         "status": {
+            "content": "$1"
+         }
+      }
+   },
+   "plusErrorTooManyRequests": {
+      "message": "요청이 너무 많습니다. 몇 초 후 다시 시도해 주세요."
+   },
+   "plusMessage": {
+      "message": "Plus를 사용하면 방문한 웹사이트의 회사 및 연락처 정보가 여기에 표시됩니다."
+   },
+   "plusMessageHeading": {
+      "message": "월 $$10에 Plus 이용"
+   },
+   "privacyPolicy": {
+      "message": "개인정보처리방침"
+   },
+   "reloadPage": {
+      "message": "새로고침"
+   },
+   "setAddress": {
+      "message": "주소"
+   },
+   "setCompany": {
+      "message": "회사 정보"
+   },
+   "setContact": {
+      "message": "연락처 상세"
+   },
+   "setEmail": {
+      "message": "이메일 주소"
+   },
+   "setKeywords": {
+      "message": "키워드"
+   },
+   "setLocale": {
+      "message": "언어(지역)"
+   },
+   "setMeta": {
+      "message": "메타데이터"
+   },
+   "setPhone": {
+      "message": "휴대폰 번호"
+   },
+   "setSecurity": {
+      "message": "보안"
+   },
+   "setSignals": {
+      "message": "신호"
+   },
+   "setSocial": {
+      "message": "소셜 미디어 계정"
+   },
+   "setTrackers": {
+      "message": "추적기"
+   },
+   "spendHigh": {
+      "message": "높음"
+   },
+   "spendLow": {
+      "message": "낮음"
+   },
+   "spendMedium": {
+      "message": "보통"
+   },
+   "spendVeryHigh": {
+      "message": "매우 높음"
+   },
+   "spendVeryLow": {
+      "message": "매우 낮음"
+   },
+   "tabPlus": {
+      "message": "추가 정보"
+   },
+   "tabTechnologies": {
+      "message": "기술"
+   },
+   "termsAccept": {
+      "message": "동의합니다"
+   },
+   "termsContent": {
+      "message": "이 확장 기능은 사이트의 도메인과 식별된 기술을 포함한 익명 정보를 \u003Ca href='https://www.wappalyzer.com'>wappalyzer.com\u003C/a>에 전송합니다. 이 기능은 설정에서 비활성화 할 수 있습니다."
+   },
+   "termsDecline": {
+      "message": "비활성화"
+   }
+}

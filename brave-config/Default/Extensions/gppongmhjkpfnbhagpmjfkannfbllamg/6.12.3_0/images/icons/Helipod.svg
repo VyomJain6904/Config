@@ -1,0 +1,114 @@
+<svg
+  viewBox="0 0 100 100"
+  width="120"
+  height="120"
+  xmlns="http://www.w3.org/2000/svg"
+  style="color:#10b981; filter: drop-shadow(0 0 12px #10b98140); cursor:pointer;"
+  class="helipod-logo"
+>
+  <style>
+    .helipod-logo {
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* Hover = Takeoff */
+    .helipod-logo:hover {
+      transform: translateY(-10px);
+    }
+
+    /* Rotor spins only on hover */
+    .helipod-logo:hover .rotor-blade {
+      animation: rotor-blade-spin 0.4s linear infinite;
+    }
+
+    /* Core pulse on hover */
+    .helipod-logo:hover .logo-core {
+      animation: core-pulse 1.5s ease-in-out infinite;
+    }
+
+    /* Shadow reaction */
+    .helipod-logo:hover .pod-shadow {
+      transform: scale(0.5);
+      opacity: 0.05;
+      filter: blur(2px);
+    }
+
+    /* Keyframes */
+    @keyframes rotor-blade-spin {
+      0% { transform: scaleX(1); opacity: 1; }
+      50% { transform: scaleX(0.1); opacity: 0.7; }
+      100% { transform: scaleX(1); opacity: 1; }
+    }
+
+    @keyframes core-pulse {
+      0%, 100% { opacity: 1; filter: brightness(1); }
+      50% { opacity: 0.6; filter: brightness(1.8); }
+    }
+
+    .rotor-blade {
+      transform-origin: 50% 20%;
+    }
+
+    .pod-shadow {
+      transition: all 0.3s ease;
+      opacity: 0.2;
+      transform-origin: center;
+    }
+  </style>
+
+  <!-- Ground Shadow -->
+  <ellipse cx="50" cy="95" rx="20" ry="4" fill="black" class="pod-shadow"/>
+
+  <!-- Outer Circular Frame -->
+  <path
+    d="M 20 50 A 30 30 0 1 0 80 50"
+    stroke="currentColor"
+    stroke-width="6"
+    fill="none"
+    stroke-linecap="round"
+  />
+
+  <!-- Top Rotor Assembly -->
+  <g class="rotor-blade">
+    <line x1="15" y1="20" x2="85" y2="20"
+      stroke="currentColor"
+      stroke-width="6"
+      stroke-linecap="round"
+    />
+  </g>
+
+  <line x1="50" y1="20" x2="50" y2="35"
+    stroke="currentColor"
+    stroke-width="4"
+  />
+
+  <!-- Main Body -->
+  <path
+    d="M 30 75 L 50 35 L 70 75"
+    stroke="currentColor"
+    stroke-width="7"
+    fill="none"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+
+  <!-- Signal Core -->
+  <circle
+    cx="50"
+    cy="52"
+    r="6"
+    fill="currentColor"
+    class="logo-core"
+  />
+
+  <!-- Landing Detail Ring -->
+  <circle
+    cx="50"
+    cy="52"
+    r="10"
+    stroke="currentColor"
+    stroke-width="2"
+    opacity="0.2"
+    fill="none"
+  />
+</svg>

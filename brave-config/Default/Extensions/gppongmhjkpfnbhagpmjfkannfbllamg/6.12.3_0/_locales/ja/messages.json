@@ -1,0 +1,690 @@
+{
+   "apiKeyPendingActivation": {
+      "message": "新しい API キーが有効になるまで数分かかる場合があります。少し待ってからもう一度お試しください。"
+   },
+   "attributeAbout": {
+      "message": "概要"
+   },
+   "attributeCertInfo_issuer": {
+      "message": "証明書発行元"
+   },
+   "attributeCertInfo_protocol": {
+      "message": "証明書プロトコル"
+   },
+   "attributeCertInfo_subjectCountry": {
+      "message": "Cert country"
+   },
+   "attributeCertInfo_subjectLocality": {
+      "message": "Cert locality"
+   },
+   "attributeCertInfo_subjectOrg": {
+      "message": "Cert organisation"
+   },
+   "attributeCertInfo_subjectState": {
+      "message": "Cert state"
+   },
+   "attributeCertInfo_validTo": {
+      "message": "証明書有効期限"
+   },
+   "attributeCompanyFounded": {
+      "message": "会社創立日"
+   },
+   "attributeCompanyName": {
+      "message": "会社名"
+   },
+   "attributeCompanySize": {
+      "message": "会社規模"
+   },
+   "attributeCompanyType": {
+      "message": "会社種別"
+   },
+   "attributeCopyright": {
+      "message": "コピーライト"
+   },
+   "attributeCopyrightYear": {
+      "message": "コピーライト年"
+   },
+   "attributeDescription": {
+      "message": "説明"
+   },
+   "attributeDns_dmarc": {
+      "message": "DMARCレコード"
+   },
+   "attributeDns_spf": {
+      "message": "SPFレコード"
+   },
+   "attributeEmail": {
+      "message": "Eメールアドレス"
+   },
+   "attributeEmployees": {
+      "message": "人員"
+   },
+   "attributeFacebook": {
+      "message": "Facebook"
+   },
+   "attributeFundingRounds": {
+      "message": "資金調達ラウンド"
+   },
+   "attributeFundingTotalUsd": {
+      "message": "資金調達総額"
+   },
+   "attributeGithub": {
+      "message": "GitHub"
+   },
+   "attributeIndustry": {
+      "message": "事業"
+   },
+   "attributeInferredCompanyName": {
+      "message": "推測される会社名"
+   },
+   "attributeInstagram": {
+      "message": "Instagram"
+   },
+   "attributeIpCountry": {
+      "message": "IPの国"
+   },
+   "attributeIpRegion": {
+      "message": "IPの地域"
+   },
+   "attributeKeywords": {
+      "message": "キーワード"
+   },
+   "attributeLanguage": {
+      "message": "言語"
+   },
+   "attributeLinkedin": {
+      "message": "LinkedIn"
+   },
+   "attributeLocations": {
+      "message": "位置"
+   },
+   "attributeOwler": {
+      "message": "Owler"
+   },
+   "attributePhone": {
+      "message": "電話番号"
+   },
+   "attributePinterest": {
+      "message": "Pinterest"
+   },
+   "attributeResponsive": {
+      "message": "レスポンシブ"
+   },
+   "attributeSafeEmail": {
+      "message": "Eメールアドレス（安全）"
+   },
+   "attributeSchemaOrgTypes": {
+      "message": "schema.orgタイプ"
+   },
+   "attributeSemrushGlobalRank": {
+      "message": "Semrush世界ランキング"
+   },
+   "attributeSemrushVisits": {
+      "message": "Semrush月間訪問数"
+   },
+   "attributeSkype": {
+      "message": "Skype"
+   },
+   "attributeStockSymbol": {
+      "message": "証券コード"
+   },
+   "attributeTechnologySpend": {
+      "message": "技術支出"
+   },
+   "attributeTiktok": {
+      "message": "TikTok"
+   },
+   "attributeTitle": {
+      "message": "タイトル"
+   },
+   "attributeTrackerFacebook": {
+      "message": "Facebook"
+   },
+   "attributeTrackerGoogleAdSense": {
+      "message": "Google AdSense"
+   },
+   "attributeTrackerGoogleAnalytics": {
+      "message": "Google Analytics"
+   },
+   "attributeTrackerMedianet": {
+      "message": "Medianet"
+   },
+   "attributeTrackerOptimizely": {
+      "message": "Optimizely"
+   },
+   "attributeTwitter": {
+      "message": "Twitter"
+   },
+   "attributeVerifiedEmail": {
+      "message": "Eメールアドレス（検証済み）"
+   },
+   "attributeWhatsapp": {
+      "message": "WhatsApp"
+   },
+   "attributeYoutube": {
+      "message": "YouTube"
+   },
+   "categoryName1": {
+      "message": "CMS"
+   },
+   "categoryName10": {
+      "message": "アナリティクス"
+   },
+   "categoryName100": {
+      "message": "Shopifyアプリ"
+   },
+   "categoryName101": {
+      "message": "採用・人材派遣"
+   },
+   "categoryName102": {
+      "message": "返品"
+   },
+   "categoryName103": {
+      "message": "ライブ配信"
+   },
+   "categoryName104": {
+      "message": "チケット予約"
+   },
+   "categoryName105": {
+      "message": "拡張現実"
+   },
+   "categoryName106": {
+      "message": "越境EC"
+   },
+   "categoryName107": {
+      "message": "フルフィルメント"
+   },
+   "categoryName108": {
+      "message": "ECフロントエンド"
+   },
+   "categoryName109": {
+      "message": "ドメインパーキング"
+   },
+   "categoryName11": {
+      "message": "ブログ"
+   },
+   "categoryName110": {
+      "message": "フォームビルダー"
+   },
+   "categoryName111": {
+      "message": "募金・寄付"
+   },
+   "categoryName12": {
+      "message": "JavaScriptフレームワーク"
+   },
+   "categoryName13": {
+      "message": "課題管理"
+   },
+   "categoryName14": {
+      "message": "ビデオプレーヤー"
+   },
+   "categoryName15": {
+      "message": "コメントシステム"
+   },
+   "categoryName16": {
+      "message": "セキュリティ"
+   },
+   "categoryName17": {
+      "message": "フォント"
+   },
+   "categoryName18": {
+      "message": "Webフレームワーク"
+   },
+   "categoryName19": {
+      "message": "その他"
+   },
+   "categoryName2": {
+      "message": "メッセージボード"
+   },
+   "categoryName20": {
+      "message": "エディター"
+   },
+   "categoryName21": {
+      "message": "LMS"
+   },
+   "categoryName22": {
+      "message": "Webサーバー"
+   },
+   "categoryName23": {
+      "message": "キャッシュツール"
+   },
+   "categoryName24": {
+      "message": "WYSIWYGエディター"
+   },
+   "categoryName25": {
+      "message": "JavaScriptグラフィックス"
+   },
+   "categoryName26": {
+      "message": "モバイルフレームワーク"
+   },
+   "categoryName27": {
+      "message": "プログラミング言語"
+   },
+   "categoryName28": {
+      "message": "オペレーションシステム"
+   },
+   "categoryName29": {
+      "message": "検索エンジン"
+   },
+   "categoryName3": {
+      "message": "データベースマネージャー"
+   },
+   "categoryName30": {
+      "message": "Webメール"
+   },
+   "categoryName31": {
+      "message": "CDN"
+   },
+   "categoryName32": {
+      "message": "マーケティングオートメーション"
+   },
+   "categoryName33": {
+      "message": "Webサーバー拡張"
+   },
+   "categoryName34": {
+      "message": "データベース"
+   },
+   "categoryName35": {
+      "message": "マップ"
+   },
+   "categoryName36": {
+      "message": "アドネットワーク"
+   },
+   "categoryName37": {
+      "message": "ネットワークサービス"
+   },
+   "categoryName38": {
+      "message": "メディアサーバー"
+   },
+   "categoryName39": {
+      "message": "Webカメラ"
+   },
+   "categoryName4": {
+      "message": "ドキュメンテーションツール"
+   },
+   "categoryName41": {
+      "message": "支払い処理"
+   },
+   "categoryName42": {
+      "message": "タグマネージャー"
+   },
+   "categoryName44": {
+      "message": "CI"
+   },
+   "categoryName46": {
+      "message": "リモートアクセス"
+   },
+   "categoryName47": {
+      "message": "開発ツール"
+   },
+   "categoryName48": {
+      "message": "ネットワークストレージ"
+   },
+   "categoryName49": {
+      "message": "フィードリーダー"
+   },
+   "categoryName5": {
+      "message": "ウィジェット"
+   },
+   "categoryName50": {
+      "message": "DMS"
+   },
+   "categoryName51": {
+      "message": "ページビルダー"
+   },
+   "categoryName52": {
+      "message": "ライブチャット"
+   },
+   "categoryName53": {
+      "message": "CRM"
+   },
+   "categoryName54": {
+      "message": "SEO"
+   },
+   "categoryName55": {
+      "message": "会計処理"
+   },
+   "categoryName56": {
+      "message": "暗号通貨マイニング"
+   },
+   "categoryName57": {
+      "message": "静的サイトジェネレーター"
+   },
+   "categoryName58": {
+      "message": "ユーザーオンボーディング"
+   },
+   "categoryName59": {
+      "message": "JavaScriptライブラリ"
+   },
+   "categoryName6": {
+      "message": "Eコマース"
+   },
+   "categoryName60": {
+      "message": "コンテナ"
+   },
+   "categoryName62": {
+      "message": "PaaS"
+   },
+   "categoryName63": {
+      "message": "IaaS"
+   },
+   "categoryName64": {
+      "message": "リバースプロキシ"
+   },
+   "categoryName65": {
+      "message": "ロードバランサー"
+   },
+   "categoryName66": {
+      "message": "UIフレームワーク"
+   },
+   "categoryName67": {
+      "message": "Cookie同意管理"
+   },
+   "categoryName68": {
+      "message": "アクセシビリティ"
+   },
+   "categoryName69": {
+      "message": "認証"
+   },
+   "categoryName7": {
+      "message": "フォトギャラリー"
+   },
+   "categoryName70": {
+      "message": "SSL/TLS認証局"
+   },
+   "categoryName71": {
+      "message": "アフィリエイト"
+   },
+   "categoryName72": {
+      "message": "アポイント調整"
+   },
+   "categoryName73": {
+      "message": "サーベイ"
+   },
+   "categoryName74": {
+      "message": "A/Bテスト"
+   },
+   "categoryName75": {
+      "message": "Eメール"
+   },
+   "categoryName76": {
+      "message": "パーソナライズ"
+   },
+   "categoryName77": {
+      "message": "リターゲッティング"
+   },
+   "categoryName78": {
+      "message": "RUM"
+   },
+   "categoryName79": {
+      "message": "ジオロケーション"
+   },
+   "categoryName8": {
+      "message": "ウィキ"
+   },
+   "categoryName80": {
+      "message": "WordPressテーマ"
+   },
+   "categoryName81": {
+      "message": "Shopifyテーマ"
+   },
+   "categoryName82": {
+      "message": "Drupalテーマ"
+   },
+   "categoryName83": {
+      "message": "ブラウザフィンガープリント"
+   },
+   "categoryName84": {
+      "message": "ロイヤリティ・リワード"
+   },
+   "categoryName85": {
+      "message": "機能管理"
+   },
+   "categoryName86": {
+      "message": "セグメンテーション"
+   },
+   "categoryName87": {
+      "message": "WordPressプラグイン"
+   },
+   "categoryName88": {
+      "message": "ホスティング"
+   },
+   "categoryName89": {
+      "message": "翻訳"
+   },
+   "categoryName9": {
+      "message": "ホスティングコントロールパネル"
+   },
+   "categoryName90": {
+      "message": "レビュー"
+   },
+   "categoryName91": {
+      "message": "後払い販売"
+   },
+   "categoryName92": {
+      "message": "パフォーマンス"
+   },
+   "categoryName93": {
+      "message": "予約・配送"
+   },
+   "categoryName94": {
+      "message": "紹介マーケティング"
+   },
+   "categoryName95": {
+      "message": "デジタル資産管理"
+   },
+   "categoryName96": {
+      "message": "コンテンツキュレーション"
+   },
+   "categoryName97": {
+      "message": "顧客データプラットフォーム"
+   },
+   "categoryName98": {
+      "message": "カート放棄"
+   },
+   "categoryName99": {
+      "message": "配送業者"
+   },
+   "categoryPin": {
+      "message": "常にアイコンを表示"
+   },
+   "clearCache": {
+      "message": "キャッシュされた検出値のクリア"
+   },
+   "confidenceSure": {
+      "message": "確度 $CONFIDENCE$%",
+      "placeholders": {
+         "confidence": {
+            "content": "$1"
+         }
+      }
+   },
+   "disableOnDomain": {
+      "message": "このサイトでは無効にする"
+   },
+   "exportCsv": {
+      "message": "エクスポート"
+   },
+   "footerCtaCrmBody": {
+      "message": "Add website technology data to HubSpot, Salesforce, or Pipedrive so your team can prioritize accounts and personalize outreach faster."
+   },
+   "footerCtaCrmButton": {
+      "message": "Enrich CRM records"
+   },
+   "footerCtaCrmHeading": {
+      "message": "See website technologies in your CRM"
+   },
+   "footerCtaListsBody": {
+      "message": "Go beyond one-off lookups with prospect lists your team can sort, export, and use to prioritize the right accounts."
+   },
+   "footerCtaListsButton": {
+      "message": "Build prospect lists"
+   },
+   "footerCtaListsHeading": {
+      "message": "Turn quick research into ready-to-use lists"
+   },
+   "footerCtaNeedMoreBody": {
+      "message": "If the extension helps you research a website's technologies, Wappalyzer can help your team find more companies using the same tools and build lead lists at scale."
+   },
+   "footerCtaNeedMoreButton": {
+      "message": "Find similar companies"
+   },
+   "footerCtaNeedMoreHeading": {
+      "message": "See a site's stack. Find more like it."
+   },
+   "footerCtaProspectsBody": {
+      "message": "Search by the tools companies use to build prospect lists with the company details and context your team needs to qualify faster."
+   },
+   "footerCtaProspectsButton": {
+      "message": "Find matching accounts"
+   },
+   "footerCtaProspectsHeading": {
+      "message": "Find companies using the tools you target"
+   },
+   "footerCtaWorkflowBody": {
+      "message": "Keep records updated automatically so sales and marketing can prioritize the right accounts and send more relevant outreach."
+   },
+   "footerCtaWorkflowButton": {
+      "message": "Automate enrichment"
+   },
+   "footerCtaWorkflowHeading": {
+      "message": "Bring website technologies into your workflow"
+   },
+   "formSave": {
+      "message": "保存する"
+   },
+   "issue": {
+      "message": "何かおかしい、または不足していますか？"
+   },
+   "noAppsDetected": {
+      "message": "技術は検出されませんでした。"
+   },
+   "optionApiKey": {
+      "message": "APIキー"
+   },
+   "optionApiKeyDescription": {
+      "message": "あなたのAPIキーを取得する"
+   },
+   "optionBadge": {
+      "message": "特定した技術の数をアイコンで表示"
+   },
+   "optionDynamicIcon": {
+      "message": "Wappalyzerロゴの代わりに技術アイコンを使用する"
+   },
+   "optionShowCached": {
+      "message": "キャッシュされた検出結果を結果に含める"
+   },
+   "optionTracking": {
+      "message": "特定した技術を匿名でwappalyzer.comに送信する"
+   },
+   "optionUpgradeMessage": {
+      "message": "アップデート内容を通知する"
+   },
+   "options": {
+      "message": "オプション"
+   },
+   "plusButton": {
+      "message": "登録"
+   },
+   "plusCrawl": {
+      "message": "結果が見つかりません。後でもう一度確認してください。"
+   },
+   "plusEmpty": {
+      "message": "結果が見つかりません。"
+   },
+   "plusErrorGeneric": {
+      "message": "申し訳ありません。問題が発生しました。後でもう一度お試しください。"
+   },
+   "plusErrorNoAccess": {
+      "message": "アクセスできません。API キーを確認してください。"
+   },
+   "plusErrorStatus": {
+      "message": "申し訳ありません。問題が発生しました ($STATUS$)。後でもう一度お試しください。",
+      "placeholders": {
+         "status": {
+            "content": "$1"
+         }
+      }
+   },
+   "plusErrorTooManyRequests": {
+      "message": "リクエストが多すぎます。数秒後にもう一度お試しください。"
+   },
+   "plusMessage": {
+      "message": "Plusでは、訪問したサイトの企業情報と連絡先がここに表示されます。"
+   },
+   "plusMessageHeading": {
+      "message": "Plusを月額$$10で利用"
+   },
+   "privacyPolicy": {
+      "message": "プライバシーポリシー"
+   },
+   "reloadPage": {
+      "message": "再読み込み"
+   },
+   "setAddress": {
+      "message": "住所"
+   },
+   "setCompany": {
+      "message": "企業情報"
+   },
+   "setContact": {
+      "message": "連絡先の詳細"
+   },
+   "setEmail": {
+      "message": "Eメールアドレス"
+   },
+   "setKeywords": {
+      "message": "キーワード"
+   },
+   "setLocale": {
+      "message": "位置"
+   },
+   "setMeta": {
+      "message": "メタデータ"
+   },
+   "setPhone": {
+      "message": "電話番号"
+   },
+   "setSecurity": {
+      "message": "セキュリティ"
+   },
+   "setSignals": {
+      "message": "シグナル"
+   },
+   "setSocial": {
+      "message": "ソーシャルメディアアカウント"
+   },
+   "setTrackers": {
+      "message": "トラッカー"
+   },
+   "spendHigh": {
+      "message": "高い"
+   },
+   "spendLow": {
+      "message": "低い"
+   },
+   "spendMedium": {
+      "message": "中程度"
+   },
+   "spendVeryHigh": {
+      "message": "非常に高い"
+   },
+   "spendVeryLow": {
+      "message": "非常に低い"
+   },
+   "tabPlus": {
+      "message": "詳細情報"
+   },
+   "tabTechnologies": {
+      "message": "テクノロジー"
+   },
+   "termsAccept": {
+      "message": "OK"
+   },
+   "termsContent": {
+      "message": "この拡張機能は、ドメイン名や特定された技術など、アクセスしたWebサイトに関する匿名情報を\u003Ca href='https://www.wappalyzer.com'>wappalyzer.com\u003C/a>に送信します。これは設定で無効にできます。"
+   },
+   "termsDecline": {
+      "message": "無効にする"
+   }
+}

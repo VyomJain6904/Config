@@ -1,0 +1,690 @@
+{
+  "options": {
+    "message": "Ρυθμίσεις"
+  },
+  "optionUpgradeMessage": {
+    "message": "Ενημερώστε με για αναβαθμίσεις"
+  },
+  "optionDynamicIcon": {
+    "message": "Use application icon instead of Wappalyzer logo"
+  },
+  "optionTracking": {
+    "message": "Ανώνυμη αποστολή αναφορών για εντοπισμένες εφαρμογές στο wappalyzer.com για έρευνα"
+  },
+  "optionBadge": {
+    "message": "Εμφάνιση του αριθμού των αναγνωρισμένων τεχνολογιών στο εικονίδιο"
+  },
+  "optionShowCached": {
+    "message": "Συμπερίληψη ανιχνεύσεων από την προσωρινή μνήμη στα αποτελέσματα"
+  },
+  "optionApiKey": {
+    "message": "Κλειδί API"
+  },
+  "optionApiKeyDescription": {
+    "message": "λάβετε το κλειδί API σας"
+  },
+  "disableOnDomain": {
+    "message": "Απενεργοποίηση σε αυτόν τον ιστότοπο"
+  },
+  "clearCache": {
+    "message": "Εκκαθάριση ανιχνεύσεων από την προσωρινή μνήμη"
+  },
+  "noAppsDetected": {
+    "message": "Δεν ανιχνεύθηκαν εφαρμογές."
+  },
+  "reloadPage": {
+    "message": "Επαναφόρτωση"
+  },
+  "confidenceSure": {
+    "message": "$CONFIDENCE$% βεβαιότητα",
+    "placeholders": {
+      "confidence": {
+        "content": "$1"
+      }
+    }
+  },
+  "categoryPin": {
+    "message": "Να εμφανίζεται πάντα το εικονίδιο"
+  },
+  "termsAccept": {
+    "message": "Συμφωνώ"
+  },
+  "termsDecline": {
+    "message": "Απενεργοποίηση"
+  },
+  "termsContent": {
+    "message": "Αυτή η επέκταση στέλνει ανώνυμες πληροφορίες σχετικά με τους ιστότοπους που επισκέπτεστε, συμπεριλαμβανομένου του ονόματος τομέα και των τεχνολογιών που εντοπίστηκαν, στο <a href='https://www.wappalyzer.com'>wappalyzer.com</a>. Αυτό μπορεί να απενεργοποιηθεί από τις ρυθμίσεις."
+  },
+  "privacyPolicy": {
+    "message": "Πολιτική απορρήτου"
+  },
+  "tabTechnologies": {
+    "message": "Τεχνολογίες"
+  },
+  "tabPlus": {
+    "message": "Περισσότερες πληροφορίες"
+  },
+  "exportCsv": {
+    "message": "Εξαγωγή"
+  },
+  "plusMessageHeading": {
+    "message": "Αποκτήστε το Plus με $$10/μήνα"
+  },
+  "plusMessage": {
+    "message": "Με το Plus, εδώ εμφανίζονται τα στοιχεία εταιρείας και επικοινωνίας των ιστοτόπων που επισκέπτεστε."
+  },
+  "plusButton": {
+    "message": "Εγγραφή"
+  },
+  "plusEmpty": {
+    "message": "Δεν βρέθηκαν αποτελέσματα."
+  },
+  "plusCrawl": {
+    "message": "Δεν βρέθηκαν αποτελέσματα, ελέγξτε ξανά αργότερα."
+  },
+  "apiKeyPendingActivation": {
+    "message": "Τα νέα κλειδιά API μπορεί να χρειαστούν λίγα λεπτά για να ενεργοποιηθούν. Περιμένετε λίγο και δοκιμάστε ξανά."
+  },
+  "plusErrorGeneric": {
+    "message": "Λυπούμαστε, κάτι πήγε στραβά. Δοκιμάστε ξανά αργότερα."
+  },
+  "plusErrorStatus": {
+    "message": "Λυπούμαστε, κάτι πήγε στραβά ($STATUS$). Δοκιμάστε ξανά αργότερα.",
+    "placeholders": {
+      "status": {
+        "content": "$1"
+      }
+    }
+  },
+  "plusErrorNoAccess": {
+    "message": "Δεν υπάρχει πρόσβαση. Ελέγξτε το κλειδί API σας."
+  },
+  "plusErrorTooManyRequests": {
+    "message": "Πάρα πολλά αιτήματα. Δοκιμάστε ξανά σε λίγα δευτερόλεπτα."
+  },
+  "footerCtaNeedMoreHeading": {
+    "message": "See a site's stack. Find more like it."
+  },
+  "footerCtaNeedMoreBody": {
+    "message": "If the extension helps you research a website's technologies, Wappalyzer can help your team find more companies using the same tools and build lead lists at scale."
+  },
+  "footerCtaNeedMoreButton": {
+    "message": "Find similar companies"
+  },
+  "footerCtaProspectsHeading": {
+    "message": "Find companies using the tools you target"
+  },
+  "footerCtaProspectsBody": {
+    "message": "Search by the tools companies use to build prospect lists with the company details and context your team needs to qualify faster."
+  },
+  "footerCtaProspectsButton": {
+    "message": "Find matching accounts"
+  },
+  "footerCtaCrmHeading": {
+    "message": "See website technologies in your CRM"
+  },
+  "footerCtaCrmBody": {
+    "message": "Add website technology data to HubSpot, Salesforce, or Pipedrive so your team can prioritize accounts and personalize outreach faster."
+  },
+  "footerCtaCrmButton": {
+    "message": "Enrich CRM records"
+  },
+  "footerCtaListsHeading": {
+    "message": "Turn quick research into ready-to-use lists"
+  },
+  "footerCtaListsBody": {
+    "message": "Go beyond one-off lookups with prospect lists your team can sort, export, and use to prioritize the right accounts."
+  },
+  "footerCtaListsButton": {
+    "message": "Build prospect lists"
+  },
+  "footerCtaWorkflowHeading": {
+    "message": "Bring website technologies into your workflow"
+  },
+  "footerCtaWorkflowBody": {
+    "message": "Keep records updated automatically so sales and marketing can prioritize the right accounts and send more relevant outreach."
+  },
+  "footerCtaWorkflowButton": {
+    "message": "Automate enrichment"
+  },
+  "formSave": {
+    "message": "Αποθήκευση"
+  },
+  "issue": {
+    "message": "Κάτι λείπει ή είναι λάθος;"
+  },
+  "setCompany": {
+    "message": "Πληροφορίες εταιρείας"
+  },
+  "setKeywords": {
+    "message": "Λέξεις-κλειδιά"
+  },
+  "setEmail": {
+    "message": "Διευθύνσεις email"
+  },
+  "setPhone": {
+    "message": "Αριθμοί τηλεφώνου"
+  },
+  "setAddress": {
+    "message": "Διευθύνσεις"
+  },
+  "setContact": {
+    "message": "Στοιχεία επικοινωνίας"
+  },
+  "setSocial": {
+    "message": "Λογαριασμοί κοινωνικών μέσων"
+  },
+  "setMeta": {
+    "message": "Μεταδεδομένα"
+  },
+  "setLocale": {
+    "message": "Τοπικές ρυθμίσεις"
+  },
+  "setTrackers": {
+    "message": "Ιχνηλάτες"
+  },
+  "setSecurity": {
+    "message": "Ασφάλεια"
+  },
+  "setSignals": {
+    "message": "Σήματα"
+  },
+  "attributeTechnologySpend": {
+    "message": "Δαπάνη τεχνολογίας"
+  },
+  "spendVeryHigh": {
+    "message": "Πολύ υψηλό"
+  },
+  "spendHigh": {
+    "message": "Υψηλό"
+  },
+  "spendMedium": {
+    "message": "Μεσαίο"
+  },
+  "spendLow": {
+    "message": "Χαμηλό"
+  },
+  "spendVeryLow": {
+    "message": "Πολύ χαμηλό"
+  },
+  "attributeIpCountry": {
+    "message": "Χώρα IP"
+  },
+  "attributeIpRegion": {
+    "message": "Περιοχή IP"
+  },
+  "attributeLanguage": {
+    "message": "Γλώσσα"
+  },
+  "attributeEmail": {
+    "message": "Διεύθυνση email"
+  },
+  "attributeVerifiedEmail": {
+    "message": "Διεύθυνση email (επιβεβαιωμένη)"
+  },
+  "attributeSafeEmail": {
+    "message": "Διεύθυνση email (ασφαλής)"
+  },
+  "attributePhone": {
+    "message": "Αριθμός τηλεφώνου"
+  },
+  "attributeSkype": {
+    "message": "Skype"
+  },
+  "attributeWhatsapp": {
+    "message": "WhatsApp"
+  },
+  "attributeInferredCompanyName": {
+    "message": "Συμπερασματικό όνομα εταιρείας"
+  },
+  "attributeTwitter": {
+    "message": "Twitter"
+  },
+  "attributeFacebook": {
+    "message": "Facebook"
+  },
+  "attributeInstagram": {
+    "message": "Instagram"
+  },
+  "attributeGithub": {
+    "message": "GitHub"
+  },
+  "attributeTiktok": {
+    "message": "TikTok"
+  },
+  "attributeYoutube": {
+    "message": "YouTube"
+  },
+  "attributePinterest": {
+    "message": "Pinterest"
+  },
+  "attributeLinkedin": {
+    "message": "LinkedIn"
+  },
+  "attributeOwler": {
+    "message": "Owler"
+  },
+  "attributeTitle": {
+    "message": "Τίτλος"
+  },
+  "attributeDescription": {
+    "message": "Περιγραφή"
+  },
+  "attributeCopyright": {
+    "message": "Πνευματικά δικαιώματα"
+  },
+  "attributeCopyrightYear": {
+    "message": "Έτος πνευματικών δικαιωμάτων"
+  },
+  "attributeResponsive": {
+    "message": "Αποκριτικό"
+  },
+  "attributeCertInfo_subjectOrg": {
+    "message": "Cert organisation"
+  },
+  "attributeCertInfo_subjectCountry": {
+    "message": "Cert country"
+  },
+  "attributeCertInfo_subjectState": {
+    "message": "Cert state"
+  },
+  "attributeCertInfo_subjectLocality": {
+    "message": "Cert locality"
+  },
+  "attributeCertInfo_issuer": {
+    "message": "Cert issuer"
+  },
+  "attributeCertInfo_protocol": {
+    "message": "Cert protocol"
+  },
+  "attributeCertInfo_validTo": {
+    "message": "Cert expiry"
+  },
+  "attributeTrackerGoogleAnalytics": {
+    "message": "Google Analytics"
+  },
+  "attributeTrackerGoogleAdSense": {
+    "message": "Google AdSense"
+  },
+  "attributeTrackerMedianet": {
+    "message": "Medianet"
+  },
+  "attributeTrackerFacebook": {
+    "message": "Facebook"
+  },
+  "attributeTrackerOptimizely": {
+    "message": "Optimizely"
+  },
+  "attributeCompanyName": {
+    "message": "Όνομα εταιρείας"
+  },
+  "attributeIndustry": {
+    "message": "Κλάδος"
+  },
+  "attributeAbout": {
+    "message": "Σχετικά"
+  },
+  "attributeLocations": {
+    "message": "Τοποθεσίες"
+  },
+  "attributeCompanySize": {
+    "message": "Μέγεθος εταιρείας"
+  },
+  "attributeCompanyType": {
+    "message": "Τύπος εταιρείας"
+  },
+  "attributeCompanyFounded": {
+    "message": "Έτος ίδρυσης εταιρείας"
+  },
+  "attributeKeywords": {
+    "message": "Λέξεις-κλειδιά"
+  },
+  "attributeEmployees": {
+    "message": "Άτομα"
+  },
+  "attributeDns_spf": {
+    "message": "Εγγραφή SPF"
+  },
+  "attributeDns_dmarc": {
+    "message": "Εγγραφή DMARC"
+  },
+  "attributeSchemaOrgTypes": {
+    "message": "Τύποι schema.org"
+  },
+  "attributeFundingTotalUsd": {
+    "message": "Συνολική χρηματοδότηση"
+  },
+  "attributeFundingRounds": {
+    "message": "Γύροι χρηματοδότησης"
+  },
+  "attributeStockSymbol": {
+    "message": "Σύμβολο μετοχής"
+  },
+  "attributeSemrushGlobalRank": {
+    "message": "Παγκόσμια κατάταξη Semrush"
+  },
+  "attributeSemrushVisits": {
+    "message": "Μηνιαίες επισκέψεις Semrush"
+  },
+  "categoryName1": {
+    "message": "CMS"
+  },
+  "categoryName2": {
+    "message": "Διαδικτυακό Φόρουμ"
+  },
+  "categoryName3": {
+    "message": "Διαχειριστής Βάσης Δεδομένων"
+  },
+  "categoryName4": {
+    "message": "Εργαλείο Τεκμηρίωσης"
+  },
+  "categoryName5": {
+    "message": "Widget"
+  },
+  "categoryName6": {
+    "message": "Ηλεκτρονικό εμπόριο"
+  },
+  "categoryName7": {
+    "message": "Συλλογές φωτογραφιών"
+  },
+  "categoryName8": {
+    "message": "Wiki"
+  },
+  "categoryName9": {
+    "message": "Πίνακες φιλοξενίας"
+  },
+  "categoryName10": {
+    "message": "Αναλύσεις"
+  },
+  "categoryName11": {
+    "message": "Blog"
+  },
+  "categoryName12": {
+    "message": "Framework της JavaScript"
+  },
+  "categoryName13": {
+    "message": "Παρακολούθηση ζητημάτων"
+  },
+  "categoryName14": {
+    "message": "Πρόγραμμα αναπαραγωγής Βίντεο"
+  },
+  "categoryName15": {
+    "message": "Σύστημα Σχολίων"
+  },
+  "categoryName16": {
+    "message": "Ασφάλεια"
+  },
+  "categoryName17": {
+    "message": "Σενάρια γραμματοσειρών"
+  },
+  "categoryName18": {
+    "message": "Πλαίσια διαδικτύου"
+  },
+  "categoryName19": {
+    "message": "Διάφορα"
+  },
+  "categoryName20": {
+    "message": "Επεξεργαστής Κειμένου"
+  },
+  "categoryName21": {
+    "message": "LMS"
+  },
+  "categoryName22": {
+    "message": "Διακομιστής Διαδικτύου"
+  },
+  "categoryName23": {
+    "message": "Εργαλείο Μνήμης Cache"
+  },
+  "categoryName24": {
+    "message": "Επεξεργαστής Εμπλουτισμένου Κειμένου"
+  },
+  "categoryName25": {
+    "message": "Γραφικά JavaScript"
+  },
+  "categoryName26": {
+    "message": "Framework για Κινητά"
+  },
+  "categoryName27": {
+    "message": "Γλώσσα Προγραμματισμού"
+  },
+  "categoryName28": {
+    "message": "Λειτουργικό Σύστημα"
+  },
+  "categoryName29": {
+    "message": "Μηχανή Αναζήτησης"
+  },
+  "categoryName30": {
+    "message": "Διαδικτυακό ταχυδρομείο"
+  },
+  "categoryName31": {
+    "message": "CDN"
+  },
+  "categoryName32": {
+    "message": "Αυτοματοποίηση Marketing"
+  },
+  "categoryName33": {
+    "message": "Επέκταση Διακομιστή Διαδικτύου"
+  },
+  "categoryName34": {
+    "message": "Βάση Δεδομένων"
+  },
+  "categoryName35": {
+    "message": "Χάρτης"
+  },
+  "categoryName36": {
+    "message": "Δίκτυο Διαφημίσεων"
+  },
+  "categoryName37": {
+    "message": "Υπηρεσία Δικτύου"
+  },
+  "categoryName38": {
+    "message": "Διακομιστής Πολυμέσων"
+  },
+  "categoryName39": {
+    "message": "Διαδικτυακή κάμερα"
+  },
+  "categoryName41": {
+    "message": "Σύστημα Επεξεργασίας Πληρωμών"
+  },
+  "categoryName42": {
+    "message": "Διαχείριση ετικετών"
+  },
+  "categoryName44": {
+    "message": "Σύστημα μεταγλώττισης/CI"
+  },
+  "categoryName46": {
+    "message": "Απομακρυσμένη Πρόσβαση"
+  },
+  "categoryName47": {
+    "message": "Εργαλείο Ανάπτυξης"
+  },
+  "categoryName48": {
+    "message": "Δικτυακός Αποθηκευτικός Χώρος"
+  },
+  "categoryName49": {
+    "message": "Αναγνώστες ροών"
+  },
+  "categoryName50": {
+    "message": "Συστήματα Διαχειρίσης Εγγράφων"
+  },
+  "categoryName51": {
+    "message": "Σύστημα Κατασκευής Σελίδων Υποδοχής"
+  },
+  "categoryName52": {
+    "message": "Ζωντανή συνομιλία"
+  },
+  "categoryName53": {
+    "message": "CRM"
+  },
+  "categoryName54": {
+    "message": "SEO"
+  },
+  "categoryName55": {
+    "message": "Λογιστική"
+  },
+  "categoryName56": {
+    "message": "Εξορύκτες κρυπτονομισμάτων"
+  },
+  "categoryName57": {
+    "message": "Γεννήτριες στατικών ιστοτόπων"
+  },
+  "categoryName58": {
+    "message": "Εισαγωγή χρηστών"
+  },
+  "categoryName59": {
+    "message": "JavaScript Libraries"
+  },
+  "categoryName60": {
+    "message": "Κοντέινερ"
+  },
+  "categoryName62": {
+    "message": "PaaS"
+  },
+  "categoryName63": {
+    "message": "IaaS"
+  },
+  "categoryName64": {
+    "message": "Αντίστροφος διακομιστής μεσολάβησης"
+  },
+  "categoryName65": {
+    "message": "Εξισορροπητές φορτίου"
+  },
+  "categoryName66": {
+    "message": "UI Frameworks"
+  },
+  "categoryName67": {
+    "message": "Συμμόρφωση με cookies"
+  },
+  "categoryName68": {
+    "message": "Προσβασιμότητα"
+  },
+  "categoryName69": {
+    "message": "Αυθεντικοποίηση"
+  },
+  "categoryName70": {
+    "message": "Αρχές πιστοποίησης SSL/TLS"
+  },
+  "categoryName71": {
+    "message": "Προγράμματα συνεργατών"
+  },
+  "categoryName72": {
+    "message": "Προγραμματισμός ραντεβού"
+  },
+  "categoryName73": {
+    "message": "Έρευνες"
+  },
+  "categoryName74": {
+    "message": "Δοκιμές A/B"
+  },
+  "categoryName75": {
+    "message": "Ηλεκτρονικό ταχυδρομείο"
+  },
+  "categoryName76": {
+    "message": "Εξατομίκευση"
+  },
+  "categoryName77": {
+    "message": "Επαναστόχευση"
+  },
+  "categoryName78": {
+    "message": "RUM"
+  },
+  "categoryName79": {
+    "message": "Γεωεντοπισμός"
+  },
+  "categoryName80": {
+    "message": "Θέματα WordPress"
+  },
+  "categoryName81": {
+    "message": "Θέματα Shopify"
+  },
+  "categoryName82": {
+    "message": "Θέματα Drupal"
+  },
+  "categoryName83": {
+    "message": "Αποτύπωμα προγράμματος περιήγησης"
+  },
+  "categoryName84": {
+    "message": "Πιστότητα και ανταμοιβές"
+  },
+  "categoryName85": {
+    "message": "Διαχείριση λειτουργιών"
+  },
+  "categoryName86": {
+    "message": "Τμηματοποίηση"
+  },
+  "categoryName87": {
+    "message": "Πρόσθετα WordPress"
+  },
+  "categoryName88": {
+    "message": "Φιλοξενία"
+  },
+  "categoryName89": {
+    "message": "Μετάφραση"
+  },
+  "categoryName90": {
+    "message": "Αξιολογήσεις"
+  },
+  "categoryName91": {
+    "message": "Αγορά τώρα, πληρωμή αργότερα"
+  },
+  "categoryName92": {
+    "message": "Απόδοση"
+  },
+  "categoryName93": {
+    "message": "Κρατήσεις και παράδοση"
+  },
+  "categoryName94": {
+    "message": "Μάρκετινγκ παραπομπών"
+  },
+  "categoryName95": {
+    "message": "Διαχείριση ψηφιακών πόρων"
+  },
+  "categoryName96": {
+    "message": "Επιμέλεια περιεχομένου"
+  },
+  "categoryName97": {
+    "message": "Πλατφόρμα δεδομένων πελατών"
+  },
+  "categoryName98": {
+    "message": "Εγκατάλειψη καλαθιού"
+  },
+  "categoryName99": {
+    "message": "Μεταφορείς αποστολής"
+  },
+  "categoryName100": {
+    "message": "Εφαρμογές Shopify"
+  },
+  "categoryName101": {
+    "message": "Προσλήψεις και στελέχωση"
+  },
+  "categoryName102": {
+    "message": "Επιστροφές"
+  },
+  "categoryName103": {
+    "message": "Ζωντανή μετάδοση"
+  },
+  "categoryName104": {
+    "message": "Κράτηση εισιτηρίων"
+  },
+  "categoryName105": {
+    "message": "Επαυξημένη πραγματικότητα"
+  },
+  "categoryName106": {
+    "message": "Διασυνοριακό ηλεκτρονικό εμπόριο"
+  },
+  "categoryName107": {
+    "message": "Εκτέλεση παραγγελιών"
+  },
+  "categoryName108": {
+    "message": "Περιβάλλοντα ηλεκτρονικού εμπορίου"
+  },
+  "categoryName109": {
+    "message": "Στάθμευση τομέων"
+  },
+  "categoryName110": {
+    "message": "Εργαλεία δημιουργίας φορμών"
+  },
+  "categoryName111": {
+    "message": "Συγκέντρωση χρημάτων και δωρεές"
+  }
+}

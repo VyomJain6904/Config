@@ -1,0 +1,41 @@
+{
+   "action": {
+      "default_icon": {
+         "128": "icon-128.png",
+         "16": "icon-16.png",
+         "32": "icon-32.png",
+         "48": "icon-48.png"
+      },
+      "default_popup": "settings-popup.html",
+      "default_title": "Material Icons Settings"
+   },
+   "content_scripts": [ {
+      "css": [ "./injected-styles.css" ],
+      "js": [ "./main.js" ],
+      "matches": [ "*://github.com/*", "*://bitbucket.org/*", "*://dev.azure.com/*", "*://*.visualstudio.com/*", "*://gitea.com/*", "*://gitlab.com/*", "*://gitee.com/*", "*://sourceforge.net/*", "*://codeberg.org/*", "*://tangled.org/*" ],
+      "run_at": "document_start"
+   } ],
+   "description": "Material icons for the file browser of popular websites like GitHub, Azure, Bitbucket etc.",
+   "homepage_url": "https://github.com/material-extensions/material-icons-browser-extension",
+   "icons": {
+      "128": "icon-128.png",
+      "16": "icon-16.png",
+      "32": "icon-32.png",
+      "48": "icon-48.png"
+   },
+   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnWaaXsGK8YayQvm/us6QcZh5CDReTB0eZ5EmpATr7YdrRyxqpNwX/WjRmadFiN0+tBK9xsQjj/Qf67NUFGdIBYq3/ijrsYjyeds5WU4aQTkLSv1prOJ/cu6fEWutnt40RL/u+uUwNGI8K3JmwWekWcg1wSysOjI11OBz5fs2Ke0tfGh+SpJ77Vb0ZwxYvz1BwkdEdZbtDX+XmFHHNQp/dkU4WEj9ZS92tCCMh6fDZW9r7XRqrG5SQSGyu9+6LpBV4FHRGdLok3A6G7w0KUrsZhoLFE2R9M+DxuIPyQG1XQ9kIpBEAFaqqJvIaul66OlOUPGq3VTyu1EcgtkPz0AdpQIDAQAB",
+   "manifest_version": 3,
+   "name": "Material Icons for GitHub",
+   "optional_host_permissions": [ "*://*/*" ],
+   "options_ui": {
+      "open_in_tab": true,
+      "page": "options.html"
+   },
+   "permissions": [ "storage", "activeTab", "scripting" ],
+   "update_url": "https://clients2.google.com/service/update2/crx",
+   "version": "1.16.2",
+   "web_accessible_resources": [ {
+      "matches": [ "*://github.com/*", "*://bitbucket.org/*", "*://dev.azure.com/*", "*://*.visualstudio.com/*", "*://gitea.com/*", "*://gitlab.com/*", "*://gitee.com/*", "*://sourceforge.net/*", "*://codeberg.org/*", "*://tangled.org/*", "*://*/*" ],
+      "resources": [ "*.svg" ]
+   } ]
+}

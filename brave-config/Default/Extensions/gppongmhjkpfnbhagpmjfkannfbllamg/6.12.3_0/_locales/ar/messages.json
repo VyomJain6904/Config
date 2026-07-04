@@ -1,0 +1,690 @@
+{
+   "apiKeyPendingActivation": {
+      "message": "يمكن أن يستغرق تنشيط مفاتيح API الجديدة بضع دقائق. الرجاء الانتظار لحظة وحاول مرة أخرى."
+   },
+   "attributeAbout": {
+      "message": "حول"
+   },
+   "attributeCertInfo_issuer": {
+      "message": "مصدر الشهادة"
+   },
+   "attributeCertInfo_protocol": {
+      "message": "بروتوكول الشهادة"
+   },
+   "attributeCertInfo_subjectCountry": {
+      "message": "بلد الشهادة"
+   },
+   "attributeCertInfo_subjectLocality": {
+      "message": "منطقة الشهادة"
+   },
+   "attributeCertInfo_subjectOrg": {
+      "message": "منظمة شهادة"
+   },
+   "attributeCertInfo_subjectState": {
+      "message": "حالة الشهادة"
+   },
+   "attributeCertInfo_validTo": {
+      "message": "انتهاء صلاحية شهادة"
+   },
+   "attributeCompanyFounded": {
+      "message": "تأسست شركة"
+   },
+   "attributeCompanyName": {
+      "message": "اسم الشركة"
+   },
+   "attributeCompanySize": {
+      "message": "حجم الشركة"
+   },
+   "attributeCompanyType": {
+      "message": "نوع الشركة"
+   },
+   "attributeCopyright": {
+      "message": "حقوق الطبع والنشر"
+   },
+   "attributeCopyrightYear": {
+      "message": "حقوق الطبع والنشر سنة"
+   },
+   "attributeDescription": {
+      "message": "الوصف"
+   },
+   "attributeDns_dmarc": {
+      "message": "سجل  DMARC"
+   },
+   "attributeDns_spf": {
+      "message": "سجل  SPF"
+   },
+   "attributeEmail": {
+      "message": "عنوان البريد الإلكتروني"
+   },
+   "attributeEmployees": {
+      "message": "الناس"
+   },
+   "attributeFacebook": {
+      "message": "الفيسبوك"
+   },
+   "attributeFundingRounds": {
+      "message": "جولات التمويل"
+   },
+   "attributeFundingTotalUsd": {
+      "message": "إجمالي التمويل"
+   },
+   "attributeGithub": {
+      "message": "جيثب"
+   },
+   "attributeIndustry": {
+      "message": "صناعة"
+   },
+   "attributeInferredCompanyName": {
+      "message": "اسم الشركة المستنتج"
+   },
+   "attributeInstagram": {
+      "message": "انستقرام"
+   },
+   "attributeIpCountry": {
+      "message": "IP بلد"
+   },
+   "attributeIpRegion": {
+      "message": "منطقة IP"
+   },
+   "attributeKeywords": {
+      "message": "الكلمات الرئيسية"
+   },
+   "attributeLanguage": {
+      "message": "اللغة"
+   },
+   "attributeLinkedin": {
+      "message": "ينكدين"
+   },
+   "attributeLocations": {
+      "message": "مواقع"
+   },
+   "attributeOwler": {
+      "message": "أولر"
+   },
+   "attributePhone": {
+      "message": "رقم الهاتف"
+   },
+   "attributePinterest": {
+      "message": "بينتيريست"
+   },
+   "attributeResponsive": {
+      "message": "استجابة"
+   },
+   "attributeSafeEmail": {
+      "message": "عنوان البريد الإلكتروني (الآمن)"
+   },
+   "attributeSchemaOrgTypes": {
+      "message": "أنواع  schema.org"
+   },
+   "attributeSemrushGlobalRank": {
+      "message": "Semrush التصنيف العالمي"
+   },
+   "attributeSemrushVisits": {
+      "message": "الزيارات الشهرية"
+   },
+   "attributeSkype": {
+      "message": "سكايب"
+   },
+   "attributeStockSymbol": {
+      "message": "رمز السهم"
+   },
+   "attributeTechnologySpend": {
+      "message": "تكنولوجيا  تنفق"
+   },
+   "attributeTiktok": {
+      "message": "تيك توك"
+   },
+   "attributeTitle": {
+      "message": "العنوان"
+   },
+   "attributeTrackerFacebook": {
+      "message": "فيسبوك"
+   },
+   "attributeTrackerGoogleAdSense": {
+      "message": "جوجل ادسنس"
+   },
+   "attributeTrackerGoogleAnalytics": {
+      "message": "تحليلات جوجل"
+   },
+   "attributeTrackerMedianet": {
+      "message": "ميديانيت"
+   },
+   "attributeTrackerOptimizely": {
+      "message": "على النحو الأمثل"
+   },
+   "attributeTwitter": {
+      "message": "تويتر"
+   },
+   "attributeVerifiedEmail": {
+      "message": "عنوان البريد الإلكتروني (تم التحقق منه)"
+   },
+   "attributeWhatsapp": {
+      "message": "واتساب"
+   },
+   "attributeYoutube": {
+      "message": "يوتيوب"
+   },
+   "categoryName1": {
+      "message": "CMS"
+   },
+   "categoryName10": {
+      "message": "تحليلات"
+   },
+   "categoryName100": {
+      "message": "Shopify التطبيقات"
+   },
+   "categoryName101": {
+      "message": "التوظيف والتوظيف"
+   },
+   "categoryName102": {
+      "message": "ترجع"
+   },
+   "categoryName103": {
+      "message": "البث المباشر"
+   },
+   "categoryName104": {
+      "message": "حجز التذاكر"
+   },
+   "categoryName105": {
+      "message": "الواقع المعزز"
+   },
+   "categoryName106": {
+      "message": "التجارة الإلكترونية عبر الحدود"
+   },
+   "categoryName107": {
+      "message": "استيفاء"
+   },
+   "categoryName108": {
+      "message": "واجهات التجارة الإلكترونية"
+   },
+   "categoryName109": {
+      "message": "موقف سيارات المجال"
+   },
+   "categoryName11": {
+      "message": "مدونات"
+   },
+   "categoryName110": {
+      "message": "صانعو النماذج"
+   },
+   "categoryName111": {
+      "message": "جمع التبرعات والتبرعات"
+   },
+   "categoryName12": {
+      "message": "أطر جافا سكريبت"
+   },
+   "categoryName13": {
+      "message": "أجهزة تعقب المشكلات"
+   },
+   "categoryName14": {
+      "message": "مشغلات الفيديو"
+   },
+   "categoryName15": {
+      "message": "أنظمة التعليق"
+   },
+   "categoryName16": {
+      "message": "الأمن"
+   },
+   "categoryName17": {
+      "message": "البرامج النصية للخطوط"
+   },
+   "categoryName18": {
+      "message": "أطر الويب"
+   },
+   "categoryName19": {
+      "message": "متنوعة"
+   },
+   "categoryName2": {
+      "message": "لوحات الرسائل"
+   },
+   "categoryName20": {
+      "message": "محرر"
+   },
+   "categoryName21": {
+      "message": "LMS"
+   },
+   "categoryName22": {
+      "message": "خوادم الويب"
+   },
+   "categoryName23": {
+      "message": "التخزين المؤقت"
+   },
+   "categoryName24": {
+      "message": "محرري النصوص الغنية"
+   },
+   "categoryName25": {
+      "message": "رسومات جافا سكريبت"
+   },
+   "categoryName26": {
+      "message": "أطر الهاتف المحمول"
+   },
+   "categoryName27": {
+      "message": "لغات البرمجة"
+   },
+   "categoryName28": {
+      "message": "أنظمة التشغيل"
+   },
+   "categoryName29": {
+      "message": "محركات البحث"
+   },
+   "categoryName3": {
+      "message": "مديرو قواعد البيانات"
+   },
+   "categoryName30": {
+      "message": "بريد الويب"
+   },
+   "categoryName31": {
+      "message": "CDN"
+   },
+   "categoryName32": {
+      "message": "أتمتة التسويق"
+   },
+   "categoryName33": {
+      "message": "ملحقات خادم الويب"
+   },
+   "categoryName34": {
+      "message": "قواعد بيانات"
+   },
+   "categoryName35": {
+      "message": "خرائط"
+   },
+   "categoryName36": {
+      "message": "الإعلان"
+   },
+   "categoryName37": {
+      "message": "خدمات الشبكة"
+   },
+   "categoryName38": {
+      "message": "خوادم الوسائط"
+   },
+   "categoryName39": {
+      "message": "كاميرات الويب"
+   },
+   "categoryName4": {
+      "message": "أدوات التوثيق"
+   },
+   "categoryName41": {
+      "message": "معالجات الدفع"
+   },
+   "categoryName42": {
+      "message": "مديري العلامات"
+   },
+   "categoryName44": {
+      "message": "CI"
+   },
+   "categoryName46": {
+      "message": "الوصول عن بعد"
+   },
+   "categoryName47": {
+      "message": "تطوير"
+   },
+   "categoryName48": {
+      "message": "تخزين الشبكة"
+   },
+   "categoryName49": {
+      "message": "قراء الخلاصات"
+   },
+   "categoryName5": {
+      "message": "أدوات"
+   },
+   "categoryName50": {
+      "message": "DMS"
+   },
+   "categoryName51": {
+      "message": "منشئ الصفحة"
+   },
+   "categoryName52": {
+      "message": "الدردشة المباشرة"
+   },
+   "categoryName53": {
+      "message": "إدارة علاقات العملاء"
+   },
+   "categoryName54": {
+      "message": "سيو"
+   },
+   "categoryName55": {
+      "message": "المحاسبة"
+   },
+   "categoryName56": {
+      "message": "عمال التشفير"
+   },
+   "categoryName57": {
+      "message": "مولدات الموقع الثابتة"
+   },
+   "categoryName58": {
+      "message": "تأهيل المستخدم"
+   },
+   "categoryName59": {
+      "message": "مكتبات جافا سكريبت"
+   },
+   "categoryName6": {
+      "message": "التجارة الإلكترونية"
+   },
+   "categoryName60": {
+      "message": "حاويات"
+   },
+   "categoryName62": {
+      "message": "PaaS"
+   },
+   "categoryName63": {
+      "message": "IaaS"
+   },
+   "categoryName64": {
+      "message": "الوكلاء العكسيون"
+   },
+   "categoryName65": {
+      "message": "موازنات التحميل"
+   },
+   "categoryName66": {
+      "message": "أطر واجهة المستخدم"
+   },
+   "categoryName67": {
+      "message": "الامتثال لملفات تعريف الارتباط"
+   },
+   "categoryName68": {
+      "message": "إمكانية الوصول"
+   },
+   "categoryName69": {
+      "message": "مصادقة"
+   },
+   "categoryName7": {
+      "message": "معارض الصور"
+   },
+   "categoryName70": {
+      "message": "سلطات شهادة SSL/TLS"
+   },
+   "categoryName71": {
+      "message": "البرامج التابعة"
+   },
+   "categoryName72": {
+      "message": "جدولة المواعيد"
+   },
+   "categoryName73": {
+      "message": "استطلاعات"
+   },
+   "categoryName74": {
+      "message": "اختبار أ/ب"
+   },
+   "categoryName75": {
+      "message": "البريد الإلكتروني"
+   },
+   "categoryName76": {
+      "message": "تخصيص"
+   },
+   "categoryName77": {
+      "message": "إعادة الاستهداف"
+   },
+   "categoryName78": {
+      "message": "رم"
+   },
+   "categoryName79": {
+      "message": "تحديد الموقع الجغرافي"
+   },
+   "categoryName8": {
+      "message": "ويكي"
+   },
+   "categoryName80": {
+      "message": "قوالب ووردبريس"
+   },
+   "categoryName81": {
+      "message": "Shopify theme"
+   },
+   "categoryName82": {
+      "message": "موضوعات دروبال"
+   },
+   "categoryName83": {
+      "message": "بصمة المتصفح"
+   },
+   "categoryName84": {
+      "message": "الولاء والمكافآت"
+   },
+   "categoryName85": {
+      "message": "إدارة الميزات"
+   },
+   "categoryName86": {
+      "message": "تجزئة"
+   },
+   "categoryName87": {
+      "message": "ملحقات ووردبريس"
+   },
+   "categoryName88": {
+      "message": "استضافة"
+   },
+   "categoryName89": {
+      "message": "الترجمة"
+   },
+   "categoryName9": {
+      "message": "لوحات الاستضافة"
+   },
+   "categoryName90": {
+      "message": "تقييمات"
+   },
+   "categoryName91": {
+      "message": "اشترِ الآن وادفع لاحقًا"
+   },
+   "categoryName92": {
+      "message": "أداء"
+   },
+   "categoryName93": {
+      "message": "الحجز والتوصيل"
+   },
+   "categoryName94": {
+      "message": "تسويق الإحالة"
+   },
+   "categoryName95": {
+      "message": "إدارة الأصول الرقمية"
+   },
+   "categoryName96": {
+      "message": "تنظيم المحتوى"
+   },
+   "categoryName97": {
+      "message": "منصة بيانات العملاء"
+   },
+   "categoryName98": {
+      "message": "التخلي عن سلة التسوق"
+   },
+   "categoryName99": {
+      "message": "ناقلات الشحن"
+   },
+   "categoryPin": {
+      "message": "قم دائمًا بإظهار الرمز"
+   },
+   "clearCache": {
+      "message": "مسح الاكتشافات المخزنة مؤقتًا"
+   },
+   "confidenceSure": {
+      "message": "$CONFIDENCE$% متأكد",
+      "placeholders": {
+         "confidence": {
+            "content": "$1"
+         }
+      }
+   },
+   "disableOnDomain": {
+      "message": "تعطيل على هذا الموقع الإلكتروني"
+   },
+   "exportCsv": {
+      "message": "تصدير"
+   },
+   "footerCtaCrmBody": {
+      "message": "Add website technology data to HubSpot, Salesforce, or Pipedrive so your team can prioritize accounts and personalize outreach faster."
+   },
+   "footerCtaCrmButton": {
+      "message": "Enrich CRM records"
+   },
+   "footerCtaCrmHeading": {
+      "message": "See website technologies in your CRM"
+   },
+   "footerCtaListsBody": {
+      "message": "Go beyond one-off lookups with prospect lists your team can sort, export, and use to prioritize the right accounts."
+   },
+   "footerCtaListsButton": {
+      "message": "Build prospect lists"
+   },
+   "footerCtaListsHeading": {
+      "message": "Turn quick research into ready-to-use lists"
+   },
+   "footerCtaNeedMoreBody": {
+      "message": "If the extension helps you research a website's technologies, Wappalyzer can help your team find more companies using the same tools and build lead lists at scale."
+   },
+   "footerCtaNeedMoreButton": {
+      "message": "Find similar companies"
+   },
+   "footerCtaNeedMoreHeading": {
+      "message": "See a site's stack. Find more like it."
+   },
+   "footerCtaProspectsBody": {
+      "message": "Search by the tools companies use to build prospect lists with the company details and context your team needs to qualify faster."
+   },
+   "footerCtaProspectsButton": {
+      "message": "Find matching accounts"
+   },
+   "footerCtaProspectsHeading": {
+      "message": "Find companies using the tools you target"
+   },
+   "footerCtaWorkflowBody": {
+      "message": "Keep records updated automatically so sales and marketing can prioritize the right accounts and send more relevant outreach."
+   },
+   "footerCtaWorkflowButton": {
+      "message": "Automate enrichment"
+   },
+   "footerCtaWorkflowHeading": {
+      "message": "Bring website technologies into your workflow"
+   },
+   "formSave": {
+      "message": "احفظ"
+   },
+   "issue": {
+      "message": "شيء خاطئ أو مفقود؟"
+   },
+   "noAppsDetected": {
+      "message": "لم يتم اكتشاف أي تقنيات."
+   },
+   "optionApiKey": {
+      "message": "مفتاح API"
+   },
+   "optionApiKeyDescription": {
+      "message": "احصل على مفتاح API الخاص بك"
+   },
+   "optionBadge": {
+      "message": "إظهار عدد التقنيات المحددة على الأيقونة"
+   },
+   "optionDynamicIcon": {
+      "message": "استخدم رمز التكنولوجيا بدلاً من شعار Wappalyzer"
+   },
+   "optionShowCached": {
+      "message": "قم بتضمين الاكتشافات المخزنة مؤقتًا في النتائج"
+   },
+   "optionTracking": {
+      "message": "إرسال التقنيات المحددة إلى wappalyzer.com بشكل مجهول"
+   },
+   "optionUpgradeMessage": {
+      "message": "أخبرني عن ترقيات"
+   },
+   "options": {
+      "message": "خيارات"
+   },
+   "plusButton": {
+      "message": "قم بالتسجيل"
+   },
+   "plusCrawl": {
+      "message": "لم يتم العثور على نتائج، يرجى التحقق مرة أخرى في وقت لاحق."
+   },
+   "plusEmpty": {
+      "message": "لم يتم العثور على نتائج."
+   },
+   "plusErrorGeneric": {
+      "message": "عذرًا، حدث خطأ ما. يرجى المحاولة مرة أخرى في وقت لاحق."
+   },
+   "plusErrorNoAccess": {
+      "message": "لا يمكن الوصول. يرجى التحقق من مفتاح API الخاص بك."
+   },
+   "plusErrorStatus": {
+      "message": "عذرًا، حدث خطأ ما ($STATUS$). يرجى المحاولة مرة أخرى في وقت لاحق.",
+      "placeholders": {
+         "status": {
+            "content": "$1"
+         }
+      }
+   },
+   "plusErrorTooManyRequests": {
+      "message": "طلبات كثيرة جدًا. يرجى المحاولة مرة أخرى في بضع ثوان."
+   },
+   "plusMessage": {
+      "message": "مع Plus، يتم عرض تفاصيل الشركة والاتصال بالمواقع التي تزورها هنا."
+   },
+   "plusMessageHeading": {
+      "message": "احصل على Plus مقابل $$10/mo"
+   },
+   "privacyPolicy": {
+      "message": "سياسة الخصوصية"
+   },
+   "reloadPage": {
+      "message": "إعادة تحميل"
+   },
+   "setAddress": {
+      "message": "عناوين"
+   },
+   "setCompany": {
+      "message": "معلومات الشركة"
+   },
+   "setContact": {
+      "message": "تفاصيل الاتصال"
+   },
+   "setEmail": {
+      "message": "عناوين البريد الإلكتروني"
+   },
+   "setKeywords": {
+      "message": "الكلمات الرئيسية"
+   },
+   "setLocale": {
+      "message": "الإعدادات المحلية"
+   },
+   "setMeta": {
+      "message": "البيانات التعريفية"
+   },
+   "setPhone": {
+      "message": "أرقام الهاتف"
+   },
+   "setSecurity": {
+      "message": "الأمن"
+   },
+   "setSignals": {
+      "message": "إشارات"
+   },
+   "setSocial": {
+      "message": "حسابات التواصل الاجتماعي"
+   },
+   "setTrackers": {
+      "message": "أجهزة تتبع"
+   },
+   "spendHigh": {
+      "message": "عالية"
+   },
+   "spendLow": {
+      "message": "منخفض"
+   },
+   "spendMedium": {
+      "message": "متوسطة"
+   },
+   "spendVeryHigh": {
+      "message": "عالية جدًا"
+   },
+   "spendVeryLow": {
+      "message": "منخفض جدًا"
+   },
+   "tabPlus": {
+      "message": "مزيد من المعلومات"
+   },
+   "tabTechnologies": {
+      "message": "تقنيات"
+   },
+   "termsAccept": {
+      "message": "أنا موافق على هذا"
+   },
+   "termsContent": {
+      "message": "يرسل هذا الامتداد معلومات مجهولة المصدر حول مواقع الويب التي تزورها، بما في ذلك اسم المجال والتقنيات المحددة، إلى \u003Ca href='https://www.wappalyzer.com'>wappalyzer.com\u003C/a>. يمكن تعطيل هذا في الإعدادات."
+   },
+   "termsDecline": {
+      "message": "تعطيل"
+   }
+}

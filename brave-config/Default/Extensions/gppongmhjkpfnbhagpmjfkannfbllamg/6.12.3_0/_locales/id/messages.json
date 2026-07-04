@@ -1,0 +1,690 @@
+{
+   "apiKeyPendingActivation": {
+      "message": "API key baru mungkin memerlukan beberapa menit untuk aktif. Mohon tunggu sebentar lalu coba lagi."
+   },
+   "attributeAbout": {
+      "message": "Tentang"
+   },
+   "attributeCertInfo_issuer": {
+      "message": "Cert issuer"
+   },
+   "attributeCertInfo_protocol": {
+      "message": "Cert protocol"
+   },
+   "attributeCertInfo_subjectCountry": {
+      "message": "Cert country"
+   },
+   "attributeCertInfo_subjectLocality": {
+      "message": "Cert locality"
+   },
+   "attributeCertInfo_subjectOrg": {
+      "message": "Cert organisation"
+   },
+   "attributeCertInfo_subjectState": {
+      "message": "Cert state"
+   },
+   "attributeCertInfo_validTo": {
+      "message": "Cert expiry"
+   },
+   "attributeCompanyFounded": {
+      "message": "Tahun berdiri perusahaan"
+   },
+   "attributeCompanyName": {
+      "message": "Nama perusahaan"
+   },
+   "attributeCompanySize": {
+      "message": "Ukuran perusahaan"
+   },
+   "attributeCompanyType": {
+      "message": "Jenis perusahaan"
+   },
+   "attributeCopyright": {
+      "message": "Hak cipta"
+   },
+   "attributeCopyrightYear": {
+      "message": "Tahun hak cipta"
+   },
+   "attributeDescription": {
+      "message": "Deskripsi"
+   },
+   "attributeDns_dmarc": {
+      "message": "Rekaman DMARC"
+   },
+   "attributeDns_spf": {
+      "message": "Rekaman SPF"
+   },
+   "attributeEmail": {
+      "message": "Alamat email"
+   },
+   "attributeEmployees": {
+      "message": "Orang"
+   },
+   "attributeFacebook": {
+      "message": "Facebook"
+   },
+   "attributeFundingRounds": {
+      "message": "Putaran pendanaan"
+   },
+   "attributeFundingTotalUsd": {
+      "message": "Total pendanaan"
+   },
+   "attributeGithub": {
+      "message": "GitHub"
+   },
+   "attributeIndustry": {
+      "message": "Industri"
+   },
+   "attributeInferredCompanyName": {
+      "message": "Nama perusahaan yang disimpulkan"
+   },
+   "attributeInstagram": {
+      "message": "Instagram"
+   },
+   "attributeIpCountry": {
+      "message": "Negara IP"
+   },
+   "attributeIpRegion": {
+      "message": "Wilayah IP"
+   },
+   "attributeKeywords": {
+      "message": "Kata kunci"
+   },
+   "attributeLanguage": {
+      "message": "Bahasa"
+   },
+   "attributeLinkedin": {
+      "message": "LinkedIn"
+   },
+   "attributeLocations": {
+      "message": "Lokasi"
+   },
+   "attributeOwler": {
+      "message": "Owler"
+   },
+   "attributePhone": {
+      "message": "Nomor telepon"
+   },
+   "attributePinterest": {
+      "message": "Pinterest"
+   },
+   "attributeResponsive": {
+      "message": "Responsif"
+   },
+   "attributeSafeEmail": {
+      "message": "Alamat email (aman)"
+   },
+   "attributeSchemaOrgTypes": {
+      "message": "Tipe schema.org"
+   },
+   "attributeSemrushGlobalRank": {
+      "message": "Peringkat global Semrush"
+   },
+   "attributeSemrushVisits": {
+      "message": "Kunjungan bulanan Semrush"
+   },
+   "attributeSkype": {
+      "message": "Skype"
+   },
+   "attributeStockSymbol": {
+      "message": "Simbol saham"
+   },
+   "attributeTechnologySpend": {
+      "message": "Pengeluaran teknologi"
+   },
+   "attributeTiktok": {
+      "message": "TikTok"
+   },
+   "attributeTitle": {
+      "message": "Judul"
+   },
+   "attributeTrackerFacebook": {
+      "message": "Facebook"
+   },
+   "attributeTrackerGoogleAdSense": {
+      "message": "Google AdSense"
+   },
+   "attributeTrackerGoogleAnalytics": {
+      "message": "Google Analytics"
+   },
+   "attributeTrackerMedianet": {
+      "message": "Medianet"
+   },
+   "attributeTrackerOptimizely": {
+      "message": "Optimizely"
+   },
+   "attributeTwitter": {
+      "message": "Twitter"
+   },
+   "attributeVerifiedEmail": {
+      "message": "Alamat email (terverifikasi)"
+   },
+   "attributeWhatsapp": {
+      "message": "WhatsApp"
+   },
+   "attributeYoutube": {
+      "message": "YouTube"
+   },
+   "categoryName1": {
+      "message": "Sistem Pengelola Konten"
+   },
+   "categoryName10": {
+      "message": "Analitik"
+   },
+   "categoryName100": {
+      "message": "Aplikasi Shopify"
+   },
+   "categoryName101": {
+      "message": "Rekrutmen dan penempatan tenaga kerja"
+   },
+   "categoryName102": {
+      "message": "Pengembalian"
+   },
+   "categoryName103": {
+      "message": "Siaran langsung"
+   },
+   "categoryName104": {
+      "message": "Pemesanan tiket"
+   },
+   "categoryName105": {
+      "message": "Realitas tertambah"
+   },
+   "categoryName106": {
+      "message": "E-commerce lintas batas"
+   },
+   "categoryName107": {
+      "message": "Pemenuhan pesanan"
+   },
+   "categoryName108": {
+      "message": "Frontend e-commerce"
+   },
+   "categoryName109": {
+      "message": "Parkir domain"
+   },
+   "categoryName11": {
+      "message": "Blog"
+   },
+   "categoryName110": {
+      "message": "Pembuat formulir"
+   },
+   "categoryName111": {
+      "message": "Penggalangan dana dan donasi"
+   },
+   "categoryName12": {
+      "message": "Bingkai Kerja JavaScript"
+   },
+   "categoryName13": {
+      "message": "Pelacak Masalah"
+   },
+   "categoryName14": {
+      "message": "Pemutar Video"
+   },
+   "categoryName15": {
+      "message": "Sistem Komentar"
+   },
+   "categoryName16": {
+      "message": "Keamanan"
+   },
+   "categoryName17": {
+      "message": "Skrip font"
+   },
+   "categoryName18": {
+      "message": "Bingkai Kerja Web"
+   },
+   "categoryName19": {
+      "message": "Serba Serbi"
+   },
+   "categoryName2": {
+      "message": "Papan Pesan"
+   },
+   "categoryName20": {
+      "message": "Penyunting"
+   },
+   "categoryName21": {
+      "message": "LMS"
+   },
+   "categoryName22": {
+      "message": "Server Website"
+   },
+   "categoryName23": {
+      "message": "Alat Cache"
+   },
+   "categoryName24": {
+      "message": "Penyunting teks kaya"
+   },
+   "categoryName25": {
+      "message": "JavaScript Graphics"
+   },
+   "categoryName26": {
+      "message": "Bingkai Kerja Mobile"
+   },
+   "categoryName27": {
+      "message": "Bahasa Pemrograman"
+   },
+   "categoryName28": {
+      "message": "Sistem Operasi"
+   },
+   "categoryName29": {
+      "message": "Mesin Pencari"
+   },
+   "categoryName3": {
+      "message": "Pengelola Basis Data"
+   },
+   "categoryName30": {
+      "message": "Surat web"
+   },
+   "categoryName31": {
+      "message": "CDN"
+   },
+   "categoryName32": {
+      "message": "Otomasi Pemasaran"
+   },
+   "categoryName33": {
+      "message": "Ekstensi Web Server"
+   },
+   "categoryName34": {
+      "message": "Basis Data"
+   },
+   "categoryName35": {
+      "message": "Peta"
+   },
+   "categoryName36": {
+      "message": "Jaringan Periklanan"
+   },
+   "categoryName37": {
+      "message": "Layanan Jaringan"
+   },
+   "categoryName38": {
+      "message": "Server Media"
+   },
+   "categoryName39": {
+      "message": "Webcam"
+   },
+   "categoryName4": {
+      "message": "Alat Dokumentasi"
+   },
+   "categoryName41": {
+      "message": "Pemroses Pembayaran"
+   },
+   "categoryName42": {
+      "message": "Pengelola Tag"
+   },
+   "categoryName44": {
+      "message": "Sistem Pembuatan/CI"
+   },
+   "categoryName46": {
+      "message": "Akses Remote"
+   },
+   "categoryName47": {
+      "message": "Alat Pengembangan"
+   },
+   "categoryName48": {
+      "message": "Penyimpanan Jaringan"
+   },
+   "categoryName49": {
+      "message": "Pembaca feed"
+   },
+   "categoryName5": {
+      "message": "Widget"
+   },
+   "categoryName50": {
+      "message": "Sistem Manajemen Dokumen"
+   },
+   "categoryName51": {
+      "message": "Pembuat Laman Landas"
+   },
+   "categoryName52": {
+      "message": "Chat Langsung"
+   },
+   "categoryName53": {
+      "message": "CRM"
+   },
+   "categoryName54": {
+      "message": "SEO"
+   },
+   "categoryName55": {
+      "message": "Akuntansi"
+   },
+   "categoryName56": {
+      "message": "Penambang kripto"
+   },
+   "categoryName57": {
+      "message": "Generator situs statis"
+   },
+   "categoryName58": {
+      "message": "Orientasi pengguna"
+   },
+   "categoryName59": {
+      "message": "JavaScript Libraries"
+   },
+   "categoryName6": {
+      "message": "Toko Online"
+   },
+   "categoryName60": {
+      "message": "Kontainer"
+   },
+   "categoryName62": {
+      "message": "PaaS"
+   },
+   "categoryName63": {
+      "message": "IaaS"
+   },
+   "categoryName64": {
+      "message": "Proksi balik"
+   },
+   "categoryName65": {
+      "message": "Penyeimbang beban"
+   },
+   "categoryName66": {
+      "message": "UI Frameworks"
+   },
+   "categoryName67": {
+      "message": "Kepatuhan cookie"
+   },
+   "categoryName68": {
+      "message": "Aksesibilitas"
+   },
+   "categoryName69": {
+      "message": "Autentikasi"
+   },
+   "categoryName7": {
+      "message": "Galeri Foto"
+   },
+   "categoryName70": {
+      "message": "Otoritas sertifikat SSL/TLS"
+   },
+   "categoryName71": {
+      "message": "Program afiliasi"
+   },
+   "categoryName72": {
+      "message": "Penjadwalan janji"
+   },
+   "categoryName73": {
+      "message": "Survei"
+   },
+   "categoryName74": {
+      "message": "Pengujian A/B"
+   },
+   "categoryName75": {
+      "message": "Surel"
+   },
+   "categoryName76": {
+      "message": "Personalisasi"
+   },
+   "categoryName77": {
+      "message": "Penargetan ulang"
+   },
+   "categoryName78": {
+      "message": "RUM"
+   },
+   "categoryName79": {
+      "message": "Geolokasi"
+   },
+   "categoryName8": {
+      "message": "Wiki"
+   },
+   "categoryName80": {
+      "message": "Tema WordPress"
+   },
+   "categoryName81": {
+      "message": "Tema Shopify"
+   },
+   "categoryName82": {
+      "message": "Tema Drupal"
+   },
+   "categoryName83": {
+      "message": "Sidik jari browser"
+   },
+   "categoryName84": {
+      "message": "Loyalitas dan hadiah"
+   },
+   "categoryName85": {
+      "message": "Pengelolaan fitur"
+   },
+   "categoryName86": {
+      "message": "Segmentasi"
+   },
+   "categoryName87": {
+      "message": "Plugin WordPress"
+   },
+   "categoryName88": {
+      "message": "Layanan hosting"
+   },
+   "categoryName89": {
+      "message": "Penerjemahan"
+   },
+   "categoryName9": {
+      "message": "Panel Hosting"
+   },
+   "categoryName90": {
+      "message": "Ulasan"
+   },
+   "categoryName91": {
+      "message": "Beli sekarang, bayar nanti"
+   },
+   "categoryName92": {
+      "message": "Performa"
+   },
+   "categoryName93": {
+      "message": "Reservasi dan pengantaran"
+   },
+   "categoryName94": {
+      "message": "Pemasaran rujukan"
+   },
+   "categoryName95": {
+      "message": "Pengelolaan aset digital"
+   },
+   "categoryName96": {
+      "message": "Kurasi konten"
+   },
+   "categoryName97": {
+      "message": "Platform data pelanggan"
+   },
+   "categoryName98": {
+      "message": "Pengabaian keranjang"
+   },
+   "categoryName99": {
+      "message": "Pengangkut pengiriman"
+   },
+   "categoryPin": {
+      "message": "Selalu tampilkan ikon"
+   },
+   "clearCache": {
+      "message": "Hapus deteksi dalam cache"
+   },
+   "confidenceSure": {
+      "message": "$CONFIDENCE$% yakin",
+      "placeholders": {
+         "confidence": {
+            "content": "$1"
+         }
+      }
+   },
+   "disableOnDomain": {
+      "message": "Nonaktifkan di situs web ini"
+   },
+   "exportCsv": {
+      "message": "Ekspor"
+   },
+   "footerCtaCrmBody": {
+      "message": "Add website technology data to HubSpot, Salesforce, or Pipedrive so your team can prioritize accounts and personalize outreach faster."
+   },
+   "footerCtaCrmButton": {
+      "message": "Enrich CRM records"
+   },
+   "footerCtaCrmHeading": {
+      "message": "See website technologies in your CRM"
+   },
+   "footerCtaListsBody": {
+      "message": "Go beyond one-off lookups with prospect lists your team can sort, export, and use to prioritize the right accounts."
+   },
+   "footerCtaListsButton": {
+      "message": "Build prospect lists"
+   },
+   "footerCtaListsHeading": {
+      "message": "Turn quick research into ready-to-use lists"
+   },
+   "footerCtaNeedMoreBody": {
+      "message": "If the extension helps you research a website's technologies, Wappalyzer can help your team find more companies using the same tools and build lead lists at scale."
+   },
+   "footerCtaNeedMoreButton": {
+      "message": "Find similar companies"
+   },
+   "footerCtaNeedMoreHeading": {
+      "message": "See a site's stack. Find more like it."
+   },
+   "footerCtaProspectsBody": {
+      "message": "Search by the tools companies use to build prospect lists with the company details and context your team needs to qualify faster."
+   },
+   "footerCtaProspectsButton": {
+      "message": "Find matching accounts"
+   },
+   "footerCtaProspectsHeading": {
+      "message": "Find companies using the tools you target"
+   },
+   "footerCtaWorkflowBody": {
+      "message": "Keep records updated automatically so sales and marketing can prioritize the right accounts and send more relevant outreach."
+   },
+   "footerCtaWorkflowButton": {
+      "message": "Automate enrichment"
+   },
+   "footerCtaWorkflowHeading": {
+      "message": "Bring website technologies into your workflow"
+   },
+   "formSave": {
+      "message": "Simpan"
+   },
+   "issue": {
+      "message": "Ada yang salah atau kurang?"
+   },
+   "noAppsDetected": {
+      "message": "Tidak ada aplikasi yang terdeteksi."
+   },
+   "optionApiKey": {
+      "message": "Kunci API"
+   },
+   "optionApiKeyDescription": {
+      "message": "dapatkan kunci API Anda"
+   },
+   "optionBadge": {
+      "message": "Tampilkan jumlah teknologi yang teridentifikasi pada ikon"
+   },
+   "optionDynamicIcon": {
+      "message": "Gunakan ikon aplikasi dan bukan logo Wappalyzer"
+   },
+   "optionShowCached": {
+      "message": "Sertakan deteksi dalam cache di hasil"
+   },
+   "optionTracking": {
+      "message": "Secara anonim kirimkan laporan tentang aplikasi yang terdeteksi ke wappalyzer.com untuk penelitian"
+   },
+   "optionUpgradeMessage": {
+      "message": "Beritahu Tentang Peningkatan Versi"
+   },
+   "options": {
+      "message": "Pilihan"
+   },
+   "plusButton": {
+      "message": "Daftar"
+   },
+   "plusCrawl": {
+      "message": "Tidak ada hasil ditemukan, silakan periksa lagi nanti."
+   },
+   "plusEmpty": {
+      "message": "Tidak ada hasil ditemukan."
+   },
+   "plusErrorGeneric": {
+      "message": "Maaf, terjadi kesalahan. Silakan coba lagi nanti."
+   },
+   "plusErrorNoAccess": {
+      "message": "Tidak ada akses. Periksa API key Anda."
+   },
+   "plusErrorStatus": {
+      "message": "Maaf, terjadi kesalahan ($STATUS$). Silakan coba lagi nanti.",
+      "placeholders": {
+         "status": {
+            "content": "$1"
+         }
+      }
+   },
+   "plusErrorTooManyRequests": {
+      "message": "Terlalu banyak permintaan. Coba lagi dalam beberapa detik."
+   },
+   "plusMessage": {
+      "message": "Dengan Plus, detail perusahaan dan kontak dari situs web yang Anda kunjungi akan ditampilkan di sini."
+   },
+   "plusMessageHeading": {
+      "message": "Dapatkan Plus seharga $$10/bulan"
+   },
+   "privacyPolicy": {
+      "message": "Kebijakan privasi"
+   },
+   "reloadPage": {
+      "message": "Muat ulang"
+   },
+   "setAddress": {
+      "message": "Alamat"
+   },
+   "setCompany": {
+      "message": "Informasi perusahaan"
+   },
+   "setContact": {
+      "message": "Detail kontak"
+   },
+   "setEmail": {
+      "message": "Alamat email"
+   },
+   "setKeywords": {
+      "message": "Kata kunci"
+   },
+   "setLocale": {
+      "message": "Lokal"
+   },
+   "setMeta": {
+      "message": "Data meta"
+   },
+   "setPhone": {
+      "message": "Nomor telepon"
+   },
+   "setSecurity": {
+      "message": "Keamanan"
+   },
+   "setSignals": {
+      "message": "Sinyal"
+   },
+   "setSocial": {
+      "message": "Akun media sosial"
+   },
+   "setTrackers": {
+      "message": "Pelacak"
+   },
+   "spendHigh": {
+      "message": "Tinggi"
+   },
+   "spendLow": {
+      "message": "Rendah"
+   },
+   "spendMedium": {
+      "message": "Sedang"
+   },
+   "spendVeryHigh": {
+      "message": "Sangat tinggi"
+   },
+   "spendVeryLow": {
+      "message": "Sangat rendah"
+   },
+   "tabPlus": {
+      "message": "Info selengkapnya"
+   },
+   "tabTechnologies": {
+      "message": "Teknologi"
+   },
+   "termsAccept": {
+      "message": "Saya setuju"
+   },
+   "termsContent": {
+      "message": "Ekstensi ini mengirimkan informasi anonim tentang situs web yang Anda kunjungi, termasuk nama domain dan teknologi yang teridentifikasi, ke \u003Ca href='https://www.wappalyzer.com'>wappalyzer.com\u003C/a>. Ini dapat dinonaktifkan di pengaturan."
+   },
+   "termsDecline": {
+      "message": "Nonaktifkan"
+   }
+}

@@ -1,0 +1,322 @@
+{
+   "checksum": "8d7c75c08e252f4350e42f65bcb5d5d3",
+   "roots": {
+      "bookmark_bar": {
+         "children": [ {
+            "date_added": "13398978248300782",
+            "date_last_used": "0",
+            "guid": "a3aa6be6-c3a7-442f-8d3e-ae8dc6c07502",
+            "id": "5",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "THM",
+            "type": "url",
+            "url": "https://tryhackme.com/dashboard"
+         }, {
+            "date_added": "13399027418985642",
+            "date_last_used": "0",
+            "guid": "9de0a796-a294-4d81-a258-e486640d71b3",
+            "id": "7",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "Github",
+            "type": "url",
+            "url": "https://github.com/VyomJain6904"
+         }, {
+            "date_added": "13399067286753272",
+            "date_last_used": "0",
+            "guid": "d476276b-2105-4a97-8816-872cf97b52ab",
+            "id": "9",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "ChatGPT",
+            "type": "url",
+            "url": "https://chatgpt.com/"
+         }, {
+            "date_added": "13399123061461985",
+            "date_last_used": "0",
+            "guid": "28d04e61-de5b-4bb3-a779-581b145f81d0",
+            "id": "11",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "Notion",
+            "type": "url",
+            "url": "https://www.notion.so/vyomjain/39ba4c92268845d58e334a2edd343a12"
+         }, {
+            "date_added": "13399150290289951",
+            "date_last_used": "0",
+            "guid": "5bafb749-27c2-4e89-9d92-b44e7f9c8453",
+            "id": "13",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "Google",
+            "type": "url",
+            "url": "https://www.google.com/"
+         }, {
+            "date_added": "13399202757866559",
+            "date_last_used": "0",
+            "guid": "22ae8ba9-05ae-4e12-a81f-c2916d243fd5",
+            "id": "15",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "YouTube",
+            "type": "url",
+            "url": "https://www.youtube.com/"
+         }, {
+            "date_added": "13399488305350678",
+            "date_last_used": "0",
+            "guid": "a2393b37-160a-4490-a801-8818eeae5e27",
+            "id": "17",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "Excalidraw",
+            "type": "url",
+            "url": "https://excalidraw.com/"
+         }, {
+            "date_added": "13399714660006825",
+            "date_last_used": "0",
+            "guid": "e8abe667-f158-4636-a865-433b5bf03d67",
+            "id": "19",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "Web Labs",
+            "type": "url",
+            "url": "https://portswigger.net/web-security/all-labs"
+         }, {
+            "date_added": "13402049816443903",
+            "date_last_used": "0",
+            "guid": "011fbe55-3d7d-496a-828e-0d7e6d9dfe91",
+            "id": "21",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "API Course",
+            "type": "url",
+            "url": "https://thexssrat.podia.com/view/courses/capie-lesson-material-no-cert"
+         }, {
+            "date_added": "13402115682639269",
+            "date_last_used": "0",
+            "guid": "3bd30d0c-b78d-4bc8-b754-4ab732b5ec60",
+            "id": "23",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "vyom",
+            "type": "url",
+            "url": "https://vyom-xyz.vercel.app/"
+         }, {
+            "date_added": "13402156019304100",
+            "date_last_used": "0",
+            "guid": "3d8ec87e-f4ff-402c-bfb3-938fd78a08fd",
+            "id": "25",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "LinkedIn",
+            "type": "url",
+            "url": "https://www.linkedin.com/feed/"
+         }, {
+            "date_added": "13402651233406337",
+            "date_last_used": "0",
+            "guid": "d93c68a5-7965-431a-bca1-2b1868b5b886",
+            "id": "27",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "Chaos",
+            "type": "url",
+            "url": "https://chaos.projectdiscovery.io/"
+         }, {
+            "date_added": "13402662089343600",
+            "date_last_used": "0",
+            "guid": "58e80e58-77d7-4744-bab0-8ccbbad93e48",
+            "id": "29",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "Blue team course",
+            "type": "url",
+            "url": "https://elearning.securityblue.team/home/courses/free-courses"
+         }, {
+            "date_added": "13403723171377830",
+            "date_last_used": "0",
+            "guid": "9d947e87-926e-4a3c-8c7d-805c4d05de59",
+            "id": "31",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "Twitch",
+            "type": "url",
+            "url": "https://www.twitch.tv/"
+         }, {
+            "date_added": "13403996332131174",
+            "date_last_used": "0",
+            "guid": "b60e47b4-9553-4a17-8f84-0c54ce126154",
+            "id": "36",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "hs",
+            "type": "url",
+            "url": "https://www.hacksmarter.org/dashboard"
+         }, {
+            "date_added": "13404498848792190",
+            "date_last_used": "0",
+            "guid": "c6d0cb27-95d1-42ab-a933-55433c5e0c20",
+            "id": "38",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "X",
+            "type": "url",
+            "url": "https://x.com/home"
+         }, {
+            "date_added": "13405523005892996",
+            "date_last_used": "13407834812243788",
+            "guid": "88a35da1-c0be-4846-861e-f5a12ff75432",
+            "id": "40",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "Gemini",
+            "type": "url",
+            "url": "https://gemini.google.com/app?is_sa=1&is_sa=1&android-min-version=301356232&ios-min-version=322.0&campaign_id=bkws&utm_source=sem&utm_source=google&utm_medium=paid-media&utm_medium=cpc&utm_campaign=bkws&utm_campaign=2024enIN_gemfeb&pt=9008&mt=8&ct=p-growth-sem-bkws&gclsrc=aw.ds&gad_source=1&gad_campaignid=20357620749&gbraid=0AAAAApk5BhnBwXXCJJFFJzxDaavhhbLn5&gclid=CjwKCAjw3tzHBhBREiwAlMJoUuvbdbYiQSQkv-JOIijfhbSksiqJ_TvEUc_HyYp7CWj_BJB-KdDlQxoC1FgQAvD_BwE"
+         }, {
+            "date_added": "13406205549701784",
+            "date_last_used": "0",
+            "guid": "417d805b-2c6f-4edb-b0a5-28ed45a72069",
+            "id": "42",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "CAPIE",
+            "type": "url",
+            "url": "https://thexssrat.podia.com/view/courses/capie-lesson-material-no-cert/3098177-chapter-1-what-is-an-api/10077240-capie-chapter-1-3-authentication-and-authorization"
+         }, {
+            "date_added": "13408542214187212",
+            "date_last_used": "0",
+            "guid": "5866655d-5079-4fe4-8dd5-5b206e23b68c",
+            "id": "44",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "HTB",
+            "type": "url",
+            "url": "https://app.hackthebox.com/machines"
+         }, {
+            "date_added": "13409143817762330",
+            "date_last_used": "0",
+            "guid": "bccc41c4-b8c2-49c7-9549-64659dc432b6",
+            "id": "46",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "Cybr",
+            "type": "url",
+            "url": "https://cybr.com/dashboard/"
+         }, {
+            "date_added": "13409994805783824",
+            "date_last_used": "0",
+            "guid": "56485b7b-afcc-4be6-a719-115f02d34fe9",
+            "id": "48",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "LMS QHA",
+            "type": "url",
+            "url": "https://lms.quickhealacademy.com/dashboard"
+         }, {
+            "date_added": "13410291686913421",
+            "date_last_used": "0",
+            "guid": "5aa43ecc-c1d2-4b0b-8b81-b2270ca65031",
+            "id": "50",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "Red Team Notes",
+            "type": "url",
+            "url": "https://www.ired.team/"
+         }, {
+            "date_added": "13411808736443865",
+            "date_last_used": "0",
+            "guid": "d3b976d9-7fca-40ab-ac70-44d2d0d59e2a",
+            "id": "52",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "Whatsapp",
+            "type": "url",
+            "url": "https://web.whatsapp.com/"
+         }, {
+            "date_added": "13412924260936080",
+            "date_last_used": "0",
+            "guid": "3d3a7141-c2d7-46b6-b52c-145f79ba5750",
+            "id": "54",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "Pwned Labs",
+            "type": "url",
+            "url": "https://pwnedlabs.io/dashboard"
+         }, {
+            "date_added": "13414788603992680",
+            "date_last_used": "0",
+            "guid": "06aa6c9c-c954-4827-ba33-0568f34f0ef8",
+            "id": "56",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "Netflix",
+            "type": "url",
+            "url": "https://www.netflix.com/browse"
+         }, {
+            "date_added": "13427297861785186",
+            "date_last_used": "0",
+            "guid": "a86643ea-a47e-4f4b-bf94-75eba2eba74c",
+            "id": "58",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "linear",
+            "type": "url",
+            "url": "https://linear.app/vyomjain/team/VYO/all"
+         } ],
+         "date_added": "13398977675252521",
+         "date_last_used": "0",
+         "date_modified": "13427297861785186",
+         "guid": "0bc5d13f-2cba-5d74-951f-3f233fe6c908",
+         "id": "1",
+         "name": "Bookmarks bar",
+         "type": "folder"
+      },
+      "other": {
+         "children": [  ],
+         "date_added": "13398977675252521",
+         "date_last_used": "0",
+         "date_modified": "0",
+         "guid": "82b081ec-3dd3-529c-8475-ab6c344590dd",
+         "id": "2",
+         "name": "Other bookmarks",
+         "type": "folder"
+      },
+      "synced": {
+         "children": [  ],
+         "date_added": "13398977675252521",
+         "date_last_used": "0",
+         "date_modified": "0",
+         "guid": "4cf2e351-0e85-532b-bb37-df045d8f8d0f",
+         "id": "3",
+         "name": "Mobile bookmarks",
+         "type": "folder"
+      }
+   },
+   "version": 1
+}

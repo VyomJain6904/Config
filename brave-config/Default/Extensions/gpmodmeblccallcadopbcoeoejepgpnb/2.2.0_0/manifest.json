@@ -1,0 +1,60 @@
+{
+   "action": {
+      "default_icon": {
+         "1024": "images/icons/icon_round_1024.png",
+         "128": "images/icons/icon_round_128.png",
+         "16": "images/icons/icon_round_16.png",
+         "256": "images/icons/icon_round_256.png",
+         "32": "images/icons/icon_round_32.png",
+         "384": "images/icons/icon_round_384.png",
+         "48": "images/icons/icon_round_48.png",
+         "512": "images/icons/icon_round_512.png",
+         "64": "images/icons/icon_round_64.png",
+         "72": "images/icons/icon_round_72.png"
+      },
+      "default_popup": "options.html",
+      "default_title": "JSON Formatter - Edit Preferences"
+   },
+   "author": "Arnav",
+   "content_scripts": [ {
+      "all_frames": true,
+      "css": [ "css/content.css" ],
+      "js": [ "js/globals.js", "js/utils.js", "js/content.js" ],
+      "match_origin_as_fallback": true,
+      "matches": [ "\u003Call_urls>" ],
+      "run_at": "document_start"
+   } ],
+   "description": "Formats JSON automatically! Open Source, Available with 60+ Themes, Syntax Highlighting, automatically linkifies links and more.",
+   "homepage_url": "https://github.com/arnav-kr/json-formatter",
+   "host_permissions": [ "*://*/*", "\u003Call_urls>" ],
+   "icons": {
+      "1024": "images/icons/icon_round_1024.png",
+      "128": "images/icons/icon_round_128.png",
+      "16": "images/icons/icon_round_16.png",
+      "256": "images/icons/icon_round_256.png",
+      "32": "images/icons/icon_round_32.png",
+      "384": "images/icons/icon_round_384.png",
+      "48": "images/icons/icon_round_48.png",
+      "512": "images/icons/icon_round_512.png",
+      "64": "images/icons/icon_round_64.png",
+      "72": "images/icons/icon_round_72.png"
+   },
+   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAjNbiEMuCN0ISdD9t92oyzXCwubYg5A/UjtfjzvYJczmaNc7nYiLEVw6ebfwxyBbH046weiw5O0VPFWPvE+wItrWFuUE+p2Ips+9myyBZ/ENdw0mm5588K+xdRCI/3gdJE4ScAgKyD93Lt3TSmKAi6+Qcon9LEJh/vkw0M0S7kRURXk/5v7DpJD5mUN+XCWe6sOFZ5IL14WSY2ZzJ8hBCxfRS6PaUFMWqpphiUlVuEjU1CmH6Q9oSqWP+Zq4uPh9Y2Bf5t3C3YzIhpKZjsPtMO3wRlAYCNmfEVnPTOhI+cG4KXaQxU9zphcnEJshm3XBCXd5kVZ6RIg2rMhrVYBOP0QIDAQAB",
+   "manifest_version": 3,
+   "minimum_chrome_version": "88",
+   "name": "JSON Formatter",
+   "offline_enabled": true,
+   "options_ui": {
+      "open_in_tab": false,
+      "page": "options.html"
+   },
+   "permissions": [ "storage", "unlimitedStorage" ],
+   "short_name": "JSON Formatter",
+   "update_url": "https://clients2.google.com/service/update2/crx",
+   "version": "2.2.0",
+   "version_name": "v2.2.0",
+   "web_accessible_resources": [ {
+      "matches": [ "\u003Call_urls>" ],
+      "resources": [ "images/*", "js/*", "css/*", "*.html" ]
+   } ]
+}

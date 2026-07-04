@@ -1,0 +1,690 @@
+{
+   "apiKeyPendingActivation": {
+      "message": "Nye API-nøkler kan ta noen minutter å aktivere. Vent et øyeblikk og prøv igjen."
+   },
+   "attributeAbout": {
+      "message": "Om"
+   },
+   "attributeCertInfo_issuer": {
+      "message": "Sertifiseringsutsteder"
+   },
+   "attributeCertInfo_protocol": {
+      "message": "sertifisert protokoll"
+   },
+   "attributeCertInfo_subjectCountry": {
+      "message": "Sertifiseringsland"
+   },
+   "attributeCertInfo_subjectLocality": {
+      "message": "Sertifiseringslokalitet"
+   },
+   "attributeCertInfo_subjectOrg": {
+      "message": "Sertifisert organisasjon"
+   },
+   "attributeCertInfo_subjectState": {
+      "message": "Sertifisert tilstand"
+   },
+   "attributeCertInfo_validTo": {
+      "message": "Sertifiseringsutløp"
+   },
+   "attributeCompanyFounded": {
+      "message": "Selskapet grunnla"
+   },
+   "attributeCompanyName": {
+      "message": "Firmanavn"
+   },
+   "attributeCompanySize": {
+      "message": "Bedriftsstørrelse"
+   },
+   "attributeCompanyType": {
+      "message": "Firmatype"
+   },
+   "attributeCopyright": {
+      "message": "Opphavsrett"
+   },
+   "attributeCopyrightYear": {
+      "message": "Copyright år"
+   },
+   "attributeDescription": {
+      "message": "Beskrivelse"
+   },
+   "attributeDns_dmarc": {
+      "message": "DMARC-post"
+   },
+   "attributeDns_spf": {
+      "message": "SPF-post"
+   },
+   "attributeEmail": {
+      "message": "E-postadresse"
+   },
+   "attributeEmployees": {
+      "message": "Mennesker"
+   },
+   "attributeFacebook": {
+      "message": "Facebook"
+   },
+   "attributeFundingRounds": {
+      "message": "Finansieringsrunder"
+   },
+   "attributeFundingTotalUsd": {
+      "message": "Finansiering totalt"
+   },
+   "attributeGithub": {
+      "message": "GitHub"
+   },
+   "attributeIndustry": {
+      "message": "Industri"
+   },
+   "attributeInferredCompanyName": {
+      "message": "Utledet firmanavn"
+   },
+   "attributeInstagram": {
+      "message": "Instagram"
+   },
+   "attributeIpCountry": {
+      "message": "IP-land"
+   },
+   "attributeIpRegion": {
+      "message": "IP-region"
+   },
+   "attributeKeywords": {
+      "message": "Nøkkelord"
+   },
+   "attributeLanguage": {
+      "message": "Språk"
+   },
+   "attributeLinkedin": {
+      "message": "LinkedIn"
+   },
+   "attributeLocations": {
+      "message": "Steder"
+   },
+   "attributeOwler": {
+      "message": "Owler"
+   },
+   "attributePhone": {
+      "message": "Telefonnummer"
+   },
+   "attributePinterest": {
+      "message": "Pinterest"
+   },
+   "attributeResponsive": {
+      "message": "Responsiv"
+   },
+   "attributeSafeEmail": {
+      "message": "E-postadresse (sikker)"
+   },
+   "attributeSchemaOrgTypes": {
+      "message": "schema.org-typer"
+   },
+   "attributeSemrushGlobalRank": {
+      "message": "Semrush global rangering"
+   },
+   "attributeSemrushVisits": {
+      "message": "Semrush månedlige besøk"
+   },
+   "attributeSkype": {
+      "message": "Skype"
+   },
+   "attributeStockSymbol": {
+      "message": "Aksjesymbol"
+   },
+   "attributeTechnologySpend": {
+      "message": "Teknologi bruker"
+   },
+   "attributeTiktok": {
+      "message": "TikTok"
+   },
+   "attributeTitle": {
+      "message": "Tittel"
+   },
+   "attributeTrackerFacebook": {
+      "message": "Facebook"
+   },
+   "attributeTrackerGoogleAdSense": {
+      "message": "Google AdSense"
+   },
+   "attributeTrackerGoogleAnalytics": {
+      "message": "Google Analytics"
+   },
+   "attributeTrackerMedianet": {
+      "message": "Medianet"
+   },
+   "attributeTrackerOptimizely": {
+      "message": "Optimaliser"
+   },
+   "attributeTwitter": {
+      "message": "Twitter"
+   },
+   "attributeVerifiedEmail": {
+      "message": "E-postadresse (verifisert)"
+   },
+   "attributeWhatsapp": {
+      "message": "WhatsApp"
+   },
+   "attributeYoutube": {
+      "message": "YouTube"
+   },
+   "categoryName1": {
+      "message": "CMS"
+   },
+   "categoryName10": {
+      "message": "Analyse"
+   },
+   "categoryName100": {
+      "message": "Shopify-apper"
+   },
+   "categoryName101": {
+      "message": "Rekruttering og bemanning"
+   },
+   "categoryName102": {
+      "message": "Returnerer"
+   },
+   "categoryName103": {
+      "message": "Direktestrømming"
+   },
+   "categoryName104": {
+      "message": "Billettbestilling"
+   },
+   "categoryName105": {
+      "message": "Utvidet virkelighet"
+   },
+   "categoryName106": {
+      "message": "Netthandel på tvers av landegrensene"
+   },
+   "categoryName107": {
+      "message": "Oppfyllelse"
+   },
+   "categoryName108": {
+      "message": "Netthandelsgrensesnitt"
+   },
+   "categoryName109": {
+      "message": "Domeneparkering"
+   },
+   "categoryName11": {
+      "message": "Blogger"
+   },
+   "categoryName110": {
+      "message": "Skjemabyggere"
+   },
+   "categoryName111": {
+      "message": "Innsamling og donasjoner"
+   },
+   "categoryName12": {
+      "message": "JavaScript-rammeverk"
+   },
+   "categoryName13": {
+      "message": "Utstedelsessporere"
+   },
+   "categoryName14": {
+      "message": "Videospillere"
+   },
+   "categoryName15": {
+      "message": "Kommentarsystemer"
+   },
+   "categoryName16": {
+      "message": "Sikkerhet"
+   },
+   "categoryName17": {
+      "message": "Font-skript"
+   },
+   "categoryName18": {
+      "message": "Nettrammeverk"
+   },
+   "categoryName19": {
+      "message": "Diverse"
+   },
+   "categoryName2": {
+      "message": "Oppslagstavler"
+   },
+   "categoryName20": {
+      "message": "Redaktør"
+   },
+   "categoryName21": {
+      "message": "LMS"
+   },
+   "categoryName22": {
+      "message": "Webservere"
+   },
+   "categoryName23": {
+      "message": "Bufring"
+   },
+   "categoryName24": {
+      "message": "Rik tekstredigerere"
+   },
+   "categoryName25": {
+      "message": "JavaScript-grafikk"
+   },
+   "categoryName26": {
+      "message": "Mobile rammeverk"
+   },
+   "categoryName27": {
+      "message": "Programmeringsspråk"
+   },
+   "categoryName28": {
+      "message": "Operativsystemer"
+   },
+   "categoryName29": {
+      "message": "Søkemotorer"
+   },
+   "categoryName3": {
+      "message": "Databaseadministratorer"
+   },
+   "categoryName30": {
+      "message": "Nettpost"
+   },
+   "categoryName31": {
+      "message": "CDN"
+   },
+   "categoryName32": {
+      "message": "Markedsføringsautomatisering"
+   },
+   "categoryName33": {
+      "message": "Webserverutvidelser"
+   },
+   "categoryName34": {
+      "message": "Databaser"
+   },
+   "categoryName35": {
+      "message": "Kart"
+   },
+   "categoryName36": {
+      "message": "Reklame"
+   },
+   "categoryName37": {
+      "message": "Nettverkstjenester"
+   },
+   "categoryName38": {
+      "message": "Medieservere"
+   },
+   "categoryName39": {
+      "message": "Webkameraer"
+   },
+   "categoryName4": {
+      "message": "Dokumentasjonsverktøy"
+   },
+   "categoryName41": {
+      "message": "Betalingsprosessorer"
+   },
+   "categoryName42": {
+      "message": "Tag managere"
+   },
+   "categoryName44": {
+      "message": "CI"
+   },
+   "categoryName46": {
+      "message": "Fjerntilgang"
+   },
+   "categoryName47": {
+      "message": "Utvikling"
+   },
+   "categoryName48": {
+      "message": "Nettverkslagring"
+   },
+   "categoryName49": {
+      "message": "Feedlesere"
+   },
+   "categoryName5": {
+      "message": "-widgets"
+   },
+   "categoryName50": {
+      "message": "DMS"
+   },
+   "categoryName51": {
+      "message": "Sidebygger"
+   },
+   "categoryName52": {
+      "message": "Direktechat"
+   },
+   "categoryName53": {
+      "message": "CRM"
+   },
+   "categoryName54": {
+      "message": "SEO"
+   },
+   "categoryName55": {
+      "message": "Regnskap"
+   },
+   "categoryName56": {
+      "message": "Kryptoutvinnere"
+   },
+   "categoryName57": {
+      "message": "Statiske stedsgeneratorer"
+   },
+   "categoryName58": {
+      "message": "Bruker onboarding"
+   },
+   "categoryName59": {
+      "message": "JavaScript-biblioteker"
+   },
+   "categoryName6": {
+      "message": "E-handel"
+   },
+   "categoryName60": {
+      "message": "Containere"
+   },
+   "categoryName62": {
+      "message": "PaaS"
+   },
+   "categoryName63": {
+      "message": "IaaS"
+   },
+   "categoryName64": {
+      "message": "Omvendte proxyer"
+   },
+   "categoryName65": {
+      "message": "Lastbalansere"
+   },
+   "categoryName66": {
+      "message": "UI-rammeverk"
+   },
+   "categoryName67": {
+      "message": "Overholdelse av informasjonskapsler"
+   },
+   "categoryName68": {
+      "message": "Tilgjengelighet"
+   },
+   "categoryName69": {
+      "message": "Autentisering"
+   },
+   "categoryName7": {
+      "message": "Fotogallerier"
+   },
+   "categoryName70": {
+      "message": "SSL/TLS-sertifikatmyndigheter"
+   },
+   "categoryName71": {
+      "message": "Tilknyttede programmer"
+   },
+   "categoryName72": {
+      "message": "Avtaleplanlegging"
+   },
+   "categoryName73": {
+      "message": "Undersøkelser"
+   },
+   "categoryName74": {
+      "message": "A/B-testing"
+   },
+   "categoryName75": {
+      "message": "E-post"
+   },
+   "categoryName76": {
+      "message": "Personlig tilpasning"
+   },
+   "categoryName77": {
+      "message": "Gjenmålretting"
+   },
+   "categoryName78": {
+      "message": "RUM"
+   },
+   "categoryName79": {
+      "message": "Geolokalisering"
+   },
+   "categoryName8": {
+      "message": "Wikier"
+   },
+   "categoryName80": {
+      "message": "WordPress-temaer"
+   },
+   "categoryName81": {
+      "message": "Shopify-temaer"
+   },
+   "categoryName82": {
+      "message": "Drupal-temaer"
+   },
+   "categoryName83": {
+      "message": "Fingeravtrykk i nettleseren"
+   },
+   "categoryName84": {
+      "message": "Lojalitet og belønninger"
+   },
+   "categoryName85": {
+      "message": "Funksjonsbehandling"
+   },
+   "categoryName86": {
+      "message": "Segmentering"
+   },
+   "categoryName87": {
+      "message": "WordPress-plugins"
+   },
+   "categoryName88": {
+      "message": "Hostingtjenester"
+   },
+   "categoryName89": {
+      "message": "Oversettelse"
+   },
+   "categoryName9": {
+      "message": "Hosting paneler"
+   },
+   "categoryName90": {
+      "message": "Anmeldelser"
+   },
+   "categoryName91": {
+      "message": "Kjøp nå betal senere"
+   },
+   "categoryName92": {
+      "message": "Ytelse"
+   },
+   "categoryName93": {
+      "message": "Reservasjoner og levering"
+   },
+   "categoryName94": {
+      "message": "Henvisningsmarkedsføring"
+   },
+   "categoryName95": {
+      "message": "Digital kapitalforvaltning"
+   },
+   "categoryName96": {
+      "message": "Innholdskurering"
+   },
+   "categoryName97": {
+      "message": "Kundedataplattform"
+   },
+   "categoryName98": {
+      "message": "Forlatt vogn"
+   },
+   "categoryName99": {
+      "message": "Frakttransportører"
+   },
+   "categoryPin": {
+      "message": "Vis alltid ikonet"
+   },
+   "clearCache": {
+      "message": "Slett bufrede deteksjoner"
+   },
+   "confidenceSure": {
+      "message": "$CONFIDENCE$% sikker",
+      "placeholders": {
+         "confidence": {
+            "content": "$1"
+         }
+      }
+   },
+   "disableOnDomain": {
+      "message": "Deaktiver på denne nettsiden"
+   },
+   "exportCsv": {
+      "message": "Eksporter"
+   },
+   "footerCtaCrmBody": {
+      "message": "Add website technology data to HubSpot, Salesforce, or Pipedrive so your team can prioritize accounts and personalize outreach faster."
+   },
+   "footerCtaCrmButton": {
+      "message": "Enrich CRM records"
+   },
+   "footerCtaCrmHeading": {
+      "message": "See website technologies in your CRM"
+   },
+   "footerCtaListsBody": {
+      "message": "Go beyond one-off lookups with prospect lists your team can sort, export, and use to prioritize the right accounts."
+   },
+   "footerCtaListsButton": {
+      "message": "Build prospect lists"
+   },
+   "footerCtaListsHeading": {
+      "message": "Turn quick research into ready-to-use lists"
+   },
+   "footerCtaNeedMoreBody": {
+      "message": "If the extension helps you research a website's technologies, Wappalyzer can help your team find more companies using the same tools and build lead lists at scale."
+   },
+   "footerCtaNeedMoreButton": {
+      "message": "Find similar companies"
+   },
+   "footerCtaNeedMoreHeading": {
+      "message": "See a site's stack. Find more like it."
+   },
+   "footerCtaProspectsBody": {
+      "message": "Search by the tools companies use to build prospect lists with the company details and context your team needs to qualify faster."
+   },
+   "footerCtaProspectsButton": {
+      "message": "Find matching accounts"
+   },
+   "footerCtaProspectsHeading": {
+      "message": "Find companies using the tools you target"
+   },
+   "footerCtaWorkflowBody": {
+      "message": "Keep records updated automatically so sales and marketing can prioritize the right accounts and send more relevant outreach."
+   },
+   "footerCtaWorkflowButton": {
+      "message": "Automate enrichment"
+   },
+   "footerCtaWorkflowHeading": {
+      "message": "Bring website technologies into your workflow"
+   },
+   "formSave": {
+      "message": "Lagre"
+   },
+   "issue": {
+      "message": "Noe galt eller mangler?"
+   },
+   "noAppsDetected": {
+      "message": "Ingen teknologier oppdaget."
+   },
+   "optionApiKey": {
+      "message": "API-nøkkel"
+   },
+   "optionApiKeyDescription": {
+      "message": "få API-nøkkelen din"
+   },
+   "optionBadge": {
+      "message": "Vis antall identifiserte teknologier på ikonet"
+   },
+   "optionDynamicIcon": {
+      "message": "Bruk teknologiikon i stedet for Wappalyzer-logoen"
+   },
+   "optionShowCached": {
+      "message": "Inkluder bufrede deteksjoner i resultatene"
+   },
+   "optionTracking": {
+      "message": "Send anonymt identifiserte teknologier til wappalyzer.com"
+   },
+   "optionUpgradeMessage": {
+      "message": "Fortell meg om oppgraderinger"
+   },
+   "options": {
+      "message": "Alternativer"
+   },
+   "plusButton": {
+      "message": "Registrer deg"
+   },
+   "plusCrawl": {
+      "message": "Ingen resultater funnet, vennligst sjekk tilbake senere."
+   },
+   "plusEmpty": {
+      "message": "Ingen resultater funnet."
+   },
+   "plusErrorGeneric": {
+      "message": "Beklager, noe gikk galt. Vennligst prøv igjen senere."
+   },
+   "plusErrorNoAccess": {
+      "message": "Ingen tilgang. Vennligst sjekk API-nøkkelen din."
+   },
+   "plusErrorStatus": {
+      "message": "Beklager, noe gikk galt ($STATUS$). Vennligst prøv igjen senere.",
+      "placeholders": {
+         "status": {
+            "content": "$1"
+         }
+      }
+   },
+   "plusErrorTooManyRequests": {
+      "message": "For mange forespørsler. Prøv igjen om noen sekunder."
+   },
+   "plusMessage": {
+      "message": "Med Plus, firma- og kontaktinformasjon for nettsteder du besøker vises her."
+   },
+   "plusMessageHeading": {
+      "message": "Få Pluss for $$10/mo"
+   },
+   "privacyPolicy": {
+      "message": "Personvernerklæring"
+   },
+   "reloadPage": {
+      "message": "Last inn på nytt"
+   },
+   "setAddress": {
+      "message": "Adresser"
+   },
+   "setCompany": {
+      "message": "Firmainformasjon"
+   },
+   "setContact": {
+      "message": "Kontaktinformasjon"
+   },
+   "setEmail": {
+      "message": "E-postadresser"
+   },
+   "setKeywords": {
+      "message": "Nøkkelord"
+   },
+   "setLocale": {
+      "message": "Språkvalg"
+   },
+   "setMeta": {
+      "message": "Metadataopplysninger"
+   },
+   "setPhone": {
+      "message": "Telefonnumre"
+   },
+   "setSecurity": {
+      "message": "Sikkerhet"
+   },
+   "setSignals": {
+      "message": "Signaler"
+   },
+   "setSocial": {
+      "message": "Kontoer for sosiale medier"
+   },
+   "setTrackers": {
+      "message": "Sporere"
+   },
+   "spendHigh": {
+      "message": "Høy"
+   },
+   "spendLow": {
+      "message": "Lav"
+   },
+   "spendMedium": {
+      "message": "Middels"
+   },
+   "spendVeryHigh": {
+      "message": "Svært høy"
+   },
+   "spendVeryLow": {
+      "message": "Svært lav"
+   },
+   "tabPlus": {
+      "message": "Mer informasjon"
+   },
+   "tabTechnologies": {
+      "message": "-teknologier"
+   },
+   "termsAccept": {
+      "message": "Jeg er ok med den"
+   },
+   "termsContent": {
+      "message": "Denne utvidelsen sender anonym informasjon om nettsteder du besøker, inkludert domenenavn og identifiserte teknologier, til \u003Ca href='https://www.wappalyzer.com'>wappalyzer.com\u003C/a>. Dette kan deaktiveres i innstillingene."
+   },
+   "termsDecline": {
+      "message": "Deaktiver"
+   }
+}

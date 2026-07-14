@@ -1,0 +1,225 @@
+#!/usr/bin/env bash
+
+# wifi-menu — WiFi manager via Rofi (nmcli backend)
+# Displays: Connected, Saved, and Available networks in a unified list.
+# Automatically highlights the connected network.
+
+WIFI_IF="${WIFI_IFACE:-wlo1}"
+CACHE="$HOME/.cache/polybar-wifi"
+
+# ── Ensure cache is fresh ──────────────────────────────────────────────────
+if [[ ! -f "$CACHE/all_info" ]]; then
+    ~/.config/polybar/scripts/wifi-cache
+fi
+
+# ── Read cache ─────────────────────────────────────────────────────────────
+state=$(     grep "^STATE:"      "$CACHE/all_info" | cut -d: -f2)
+ssid=$(      grep "^SSID:"       "$CACHE/all_info" | cut -d: -f2-)
+signal_pct=$(grep "^SIGNAL_PCT:" "$CACHE/all_info" | cut -d: -f2)
+ip=$(        grep "^IP:"         "$CACHE/all_info" | cut -d: -f2-)
+
+MENU=""
+declare -A NET_MAP
+row_idx=0
+active_rows=""
+
+# ── Actions Section ────────────────────────────────────────────────────────
+MENU+="Actions\0icon\x1fpreferences-system-network\n"
+((row_idx++))
+MENU+="  Scan &amp; Refresh\0icon\x1fview-refresh\n"
+((row_idx++))
+if [[ "$state" == "connected" ]]; then
+    MENU+="  Disconnect\0icon\x1fnetwork-wireless-disconnected\n"
+    ((row_idx++))
+fi
+
+# ── Networks Section ───────────────────────────────────────────────────────
+MENU+="Networks\0icon\x1fnetwork-wireless-signal-excellent\n"
+((row_idx++))
+
+scan_section=$(awk '/^# Scan$/,/^# Saved$/' "$CACHE/all_info" | grep -v "^#" | grep -v "^$")
+saved_section=$(awk '/^# Saved$/,0' "$CACHE/all_info" | grep -v "^#" | grep -v "^$")
+
+declare -A seen_ssids
+
+add_network() {
+    local net_bssid="$1"
+    local net_ssid="$2"
+    local net_signal="$3"
+    local security="$4"
+    local is_saved="$5"
+    
+    [[ -z "$net_ssid" || "$net_ssid" == "<hidden>" ]] && return
+    [[ -n "${seen_ssids[$net_ssid]}" ]] && return
+    seen_ssids["$net_ssid"]=1
+    
+    local name_suffix=""
+    local icon_suffix="ok"
+    
+    # Highlighting logic
+    if [[ "$state" == "connected" && "$net_ssid" == "$ssid" ]]; then
+        name_suffix=" (Connected)"
+        active_rows+="$row_idx,"
+        icon_suffix="excellent"
+        is_saved=1
+    elif [[ "$is_saved" == "1" ]]; then
+        name_suffix=" (Saved)"
+    fi
+    
+    if (( net_signal >= 75 )); then icon_suffix="excellent"
+    elif (( net_signal >= 50 )); then icon_suffix="good"
+    elif (( net_signal >= 25 )); then icon_suffix="ok"
+    elif (( net_signal > 0 )); then icon_suffix="low"
+    else icon_suffix="none"
+    fi
+    
+    local prefix="network-wireless-secure-signal"
+    local sec_text="$security"
+    if [[ "$security" == "Open" || "$security" == "" ]]; then
+        prefix="network-wireless-signal"
+        sec_text="Open"
+    fi
+    
+    if [[ "$is_saved" == "1" && "$state" != "connected" || "$state" == "connected" && "$net_ssid" != "$ssid" && "$is_saved" == "1" ]]; then
+        sec_text="Saved"
+    fi
+    
+    local icon_name="${prefix}-${icon_suffix}"
+    
+    local d_ssid="$net_ssid"
+    [[ ${#d_ssid} -gt 26 ]] && d_ssid="${d_ssid:0:26}…"
+    local safe_ssid="${d_ssid//&/&amp;}"
+    
+    local line="  $safe_ssid$name_suffix  $sec_text"
+    MENU+="${line}\0icon\x1f${icon_name}\n"
+    NET_MAP["$line"]="connect|$net_ssid|$net_bssid|$security|$is_saved"
+    ((row_idx++))
+}
+
+# 1. Add connected network first
+if [[ "$state" == "connected" && -n "$ssid" ]]; then
+    net_line=$(echo "$scan_section" | grep -m 1 "|${ssid}|")
+    if [[ -n "$net_line" ]]; then
+        IFS='|' read -r b n s sec <<< "$net_line"
+        add_network "$b" "$n" "$s" "$sec" 1
+    else
+        add_network "" "$ssid" "$signal_pct" "WPA2" 1
+    fi
+fi
+
+# 2. Add saved networks (that are currently in range)
+while IFS= read -r s_ssid; do
+    [[ -z "$s_ssid" ]] && continue
+    net_line=$(echo "$scan_section" | grep -m 1 "|${s_ssid}|")
+    if [[ -n "$net_line" ]]; then
+        IFS='|' read -r b n s sec <<< "$net_line"
+        add_network "$b" "$n" "$s" "$sec" 1
+    fi
+done <<< "$saved_section"
+
+# 3. Add remaining available networks
+while IFS='|' read -r net_bssid net_ssid net_signal security; do
+    add_network "$net_bssid" "$net_ssid" "$net_signal" "$security" 0
+done <<< "$scan_section"
+
+# ── Show Rofi ──────────────────────────────────────────────────────────────
+CHOICE=$(printf "%b" "$MENU" | rofi \
+    -dmenu \
+    -i \
+    -a "${active_rows%,}" \
+    -markup-rows \
+    -p "  WiFi" \
+    -theme ~/.config/rofi/wifi.rasi)
+
+[[ -z "$CHOICE" ]] && exit 0
+
+# ── Handle selection ───────────────────────────────────────────────────────
+case "$CHOICE" in
+    "Actions"|"Networks")
+        exit 0
+        ;;
+    *"Scan &amp; Refresh")
+        nmcli device wifi rescan 2>/dev/null
+        sleep 2
+        ~/.config/polybar/scripts/wifi-cache
+        exec ~/.config/polybar/scripts/wifi
+        ;;
+    *"Disconnect")
+        nmcli device disconnect "$WIFI_IF" 2>/dev/null
+        sleep 0.5
+        ~/.config/polybar/scripts/wifi-cache
+        exec ~/.config/polybar/scripts/wifi
+        ;;
+    *)
+        action_data="${NET_MAP[$CHOICE]}"
+        [[ -z "$action_data" ]] && exit 0
+        IFS='|' read -r action_type t_ssid t_bssid t_sec is_saved <<< "$action_data"
+        
+        if [[ "$action_type" == "connect" ]]; then
+            # Ignore if clicking already connected network
+            if [[ "$state" == "connected" && "$t_ssid" == "$ssid" ]]; then
+                exit 0
+            fi
+
+            if [[ "$is_saved" == "1" ]]; then
+                # Saved profile — activate directly, no auth needed
+                nmcli connection up "$t_ssid" ifname "$WIFI_IF" >/dev/null 2>&1
+            else
+                if [[ "$t_sec" == "Open" || -z "$t_sec" ]]; then
+                    # Open network — no password needed
+                    nmcli device wifi connect "$t_bssid" ifname "$WIFI_IF" >/dev/null 2>&1
+                else
+                    # Secured network — prompt for password via Rofi
+                    password=$(rofi \
+                        -dmenu \
+                        -password \
+                        -markup-rows \
+                        -p "  Password for $t_ssid" \
+                        -theme ~/.config/rofi/wifi.rasi \
+                        <<< "")
+                    [[ -z "$password" ]] && exit 0
+
+                    # ── Two-step connect (bypasses nm-applet auth agent) ──────
+                    # Step 1: Pre-create a saved profile with password baked in.
+                    # Detect WPA3 (SAE) vs WPA/WPA2 (psk) from security field.
+                    if echo "$t_sec" | grep -qi "WPA3"; then
+                        key_mgmt="sae"
+                    else
+                        key_mgmt="wpa-psk"
+                    fi
+
+                    # Delete any stale profile with the same name first
+                    nmcli connection delete "$t_ssid" >/dev/null 2>&1
+
+                    add_out=$(nmcli connection add \
+                        type wifi \
+                        con-name "$t_ssid" \
+                        ssid "$t_ssid" \
+                        wifi-sec.key-mgmt "$key_mgmt" \
+                        wifi-sec.psk "$password" \
+                        ifname "$WIFI_IF" 2>&1)
+
+                    if ! echo "$add_out" | grep -q "successfully added"; then
+                        rofi -e "Failed to create profile. Check the password and try again." \
+                            -theme ~/.config/rofi/wifi.rasi 2>/dev/null
+                        exit 1
+                    fi
+
+                    # Step 2: Activate the saved profile (no auth agent prompt)
+                    up_out=$(nmcli connection up "$t_ssid" ifname "$WIFI_IF" 2>&1)
+
+                    if ! echo "$up_out" | grep -q "successfully activated"; then
+                        # Wrong password or network unreachable — clean up and notify
+                        nmcli connection delete "$t_ssid" >/dev/null 2>&1
+                        rofi -e "Connection failed. Wrong password or network unreachable." \
+                            -theme ~/.config/rofi/wifi.rasi 2>/dev/null
+                        exit 1
+                    fi
+                fi
+            fi
+            sleep 1
+            ~/.config/polybar/scripts/wifi-cache
+            exec ~/.config/polybar/scripts/wifi
+        fi
+        ;;
+esac

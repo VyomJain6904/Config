@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+# wifi-status — Polybar WiFi module output
+# Shows ONLY the WiFi signal strength icon (no text, no SSID)
+# Called every 10 seconds by polybar (interval = 10)
+
+CACHE="$HOME/.cache/polybar-wifi"
+CACHE_MAX_AGE=15   # seconds before triggering background refresh
+
+# ── Trigger background cache refresh if stale ──────────────────────────────
+if [[ -f "$CACHE/last_update" ]]; then
+    last=$(cat "$CACHE/last_update")
+    now=$(date +%s)
+    age=$(( now - last ))
+    if [[ $age -gt $CACHE_MAX_AGE ]]; then
+        ~/.config/polybar/scripts/wifi-cache &
+    fi
+else
+    ~/.config/polybar/scripts/wifi-cache &
+    echo "󰤭"   # disconnected placeholder
+    exit 0
+fi
+
+# ── Read state from cache ──────────────────────────────────────────────────
+if [[ ! -f "$CACHE/all_info" ]]; then
+    echo "󰤭"
+    exit 0
+fi
+
+state=$(      grep "^STATE:"      "$CACHE/all_info" | cut -d: -f2)
+signal_pct=$( grep "^SIGNAL_PCT:" "$CACHE/all_info" | cut -d: -f2)
+
+# ── Output: icon only ──────────────────────────────────────────────────────
+case "$state" in
+    connected)
+        signal_pct=${signal_pct:-0}
+        if   (( signal_pct > 75 )); then echo "󰤨"   # Excellent
+        elif (( signal_pct > 50 )); then echo "󰤥"   # Good
+        elif (( signal_pct > 25 )); then echo "󰤢"   # Fair
+        else                             echo "󰤟"   # Weak
+        fi
+        ;;
+    disconnected) echo "󰤭" ;;
+    disabled)     echo "󰖪" ;;
+    *)            echo "󰤭" ;;
+esac

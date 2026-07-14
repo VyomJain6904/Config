@@ -1,0 +1,91 @@
+#!/usr/bin/env bash
+
+# wifi-cache — WiFi state cache builder (nmcli backend)
+# Called periodically by daemon, or synchronously on action.
+
+export PATH="$PATH:/sbin:/usr/sbin"
+
+WIFI_IF="${WIFI_IFACE:-wlo1}"
+CACHE="$HOME/.cache/polybar-wifi"
+mkdir -p "$CACHE"
+TMP_CACHE="$CACHE/all_info.tmp"
+
+# 1. Get Radio status
+wifi_state=$(nmcli -t -f WIFI radio)
+if [[ "$wifi_state" != "enabled" ]]; then
+    {
+        echo "STATE:disabled"
+        echo "SSID:"
+        echo "BSSID:"
+        echo "SIGNAL_PCT:0"
+        echo "IP:"
+        echo "# Scan"
+        echo "# Saved"
+    } > "$TMP_CACHE"
+    mv "$TMP_CACHE" "$CACHE/all_info"
+    date +%s > "$CACHE/last_update"
+    exit 0
+fi
+
+# 2. Get active connection info
+active_line=$(nmcli -t -e no -f active,bssid,signal,security,ssid device wifi list | awk -F: '$1=="yes"{
+    bssid=$2":"$3":"$4":"$5":"$6":"$7
+    signal=$8
+    security=$9
+    ssid=$10
+    for(i=11; i<=NF; i++) ssid = ssid ":" $i
+    print ssid "|" bssid "|" signal "|" security
+    exit
+}')
+
+if [[ -n "$active_line" ]]; then
+    state="connected"
+    ssid=$(echo "$active_line" | awk -F'|' '{print $1}')
+    bssid=$(echo "$active_line" | awk -F'|' '{print $2}')
+    signal_pct=$(echo "$active_line" | awk -F'|' '{print $3}')
+    ip_addr=$(ip -4 addr show "$WIFI_IF" 2>/dev/null | awk '/inet /{split($2,a,"/"); print a[1]; exit}')
+else
+    state="disconnected"
+    ssid=""
+    bssid=""
+    signal_pct="0"
+    ip_addr=""
+fi
+
+# 3. Get all scanned networks (deduplicated by BSSID implicitly by nmcli output, sort by signal)
+scan_results=$(nmcli -t -e no -f active,bssid,signal,security,ssid device wifi list | awk -F: '{
+    bssid=$2":"$3":"$4":"$5":"$6":"$7
+    signal=$8
+    security=$9
+    if (security == "") security="Open"
+    
+    ssid=$10
+    for(i=11; i<=NF; i++) ssid = ssid ":" $i
+    
+    if (ssid != "") {
+        print bssid "|" ssid "|" signal "|" security
+    }
+}' | sort -t'|' -k3 -n -r)
+
+# 4. Get saved networks
+saved_networks=$(nmcli -t -e no -f NAME,TYPE connection show | awk -F: '$NF=="802-11-wireless" {
+    name=$1
+    for(i=2; i<NF; i++) name = name ":" $i
+    print name
+}')
+
+# 5. Write cache
+{
+    echo "STATE:$state"
+    echo "SSID:$ssid"
+    echo "BSSID:$bssid"
+    echo "SIGNAL_PCT:$signal_pct"
+    echo "IP:$ip_addr"
+    echo "# Scan"
+    echo "$scan_results"
+    echo "# Saved"
+    echo "$saved_networks"
+} > "$TMP_CACHE"
+
+mv "$TMP_CACHE" "$CACHE/all_info"
+date +%s > "$CACHE/last_update"

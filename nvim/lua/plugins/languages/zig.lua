@@ -2,22 +2,6 @@
 
 return {
     {
-        'nvim-treesitter/nvim-treesitter',
-        opts = function(_, opts)
-            opts = opts or {}
-            opts.ensure_installed = opts.ensure_installed or {}
-
-            if type(opts.ensure_installed) == 'table' then
-                if not vim.tbl_contains(opts.ensure_installed, 'zig') then
-                    table.insert(opts.ensure_installed, 'zig')
-                end
-            end
-
-            return opts
-        end,
-    },
-
-    {
         'L3MON4D3/LuaSnip',
         ft = 'zig',
         config = function()

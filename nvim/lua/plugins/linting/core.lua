@@ -30,9 +30,7 @@ return {{
                 end
 
                 -- No linters defined — ESLint LSP will handle JS/TS
-                lint.try_lint(nil, {
-                    ignore_errors = true
-                })
+                lint.try_lint()
             end
         })
     end

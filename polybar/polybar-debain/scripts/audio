@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+exec ~/.config/polybar/scripts/audio-menu

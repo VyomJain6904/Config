@@ -69,7 +69,7 @@ vim.opt.scrolloff = 10
 -- Enable 24-bit colors
 vim.opt.termguicolors = true
 
--- Hide statusline completely
-vim.opt.laststatus = 0
+-- Statusline (lualine will handle this)
+vim.opt.laststatus = 2
 
 vim.opt.listchars:append 'space:⋅'

@@ -12,8 +12,7 @@ vim.keymap.set(
     'i',
     '<A-BS>',
     '<C-w>',
-    { desc = 'Clear Word [ctrl + w]' },
-    { noremap = true }
+    { desc = 'Clear Word [ctrl + w]', noremap = true, silent = true }
 )
 
 -- Split windows
@@ -107,8 +106,7 @@ vim.keymap.set(
     'n',
     '<S-A-Down>',
     'yyp',
-    { desc = 'Copy Line Down [Shift + alt + Down]' },
-    opts
+    { desc = 'Copy Line Down [Shift + alt + Down]', noremap = true, silent = true }
 )
 
 -- Copy Line Up (Shift + Alt + Up)
@@ -116,37 +114,15 @@ vim.keymap.set(
     'n',
     '<S-A-Up>',
     'yyP',
-    { desc = 'Copy Line UP [Shit + alt + Up]' },
-    opts
+    { desc = 'Copy Line UP [Shift + alt + Up]', noremap = true, silent = true }
 )
 
--- Open Folder (Ctrl + O)
--- Equivalent: open file browser in Neovim
+-- Open Folder (Ctrl + O) - using nvim-tree
 vim.keymap.set(
     'n',
     '<C-o>',
-    ':Oil<CR>',
-    { desc = 'Open Folder [ctrl + o]' },
-    opts
-) -- If using oil.nvim
--- OR if using netrw
--- keymap.set("n", "<C-o>", ":Ex<CR>", opts)
-
--- Multiple cursors (Ctrl+Shift+Up / Ctrl+Shift+Down)
--- Using vim-visual-multi plugin
-vim.keymap.set(
-    'n',
-    '<C-S-Up>',
-    '<Plug>(VM-Add-Cursor-Up)',
-    { desc = 'Multiple Cursors [ctrl + shift + up]' },
-    {}
-)
-vim.keymap.set(
-    'n',
-    '<C-S-Down>',
-    '<Plug>(VM-Add-Cursor-Down)',
-    { desc = 'Multiple Cursors [ctrl + shift + down]' },
-    {}
+    '<cmd>NvimTreeToggle<cr>',
+    { desc = 'Open Folder [ctrl + o]', noremap = true, silent = true }
 )
 
 -- Move Line Up/Down (Alt + Up / Alt + Down)
@@ -154,20 +130,18 @@ vim.keymap.set(
     'n',
     '<A-Up>',
     ':m .-2<CR>==',
-    { desc = 'Move line up [alt + up]' },
-    opts
+    { desc = 'Move line up [alt + up]', noremap = true, silent = true }
 )
 vim.keymap.set(
     'n',
     '<A-Down>',
     ':m .+1<CR>==',
-    { desc = 'Move lne down [alt + down]' },
-    opts
+    { desc = 'Move line down [alt + down]', noremap = true, silent = true }
 )
 
 -- For visual mode (VS Code behavior)
-vim.keymap.set('v', '<A-Up>', ":m '<-2<CR>gv=gv", opts)
-vim.keymap.set('v', '<A-Down>', ":m '>+1<CR>gv=gv", opts)
+vim.keymap.set('v', '<A-Up>', ":m '<-2<CR>gv=gv", { noremap = true, silent = true })
+vim.keymap.set('v', '<A-Down>', ":m '>+1<CR>gv=gv", { noremap = true, silent = true })
 
 -- For CheatSheat Preview
 vim.keymap.set('n', '<leader>ch', function()

@@ -56,7 +56,7 @@ return {{
                 keys = {{
                     'gD',
                     function()
-                        local pos = vim.lsp.util.make_position_params()
+                        local pos = vim.lsp.util.make_position_params(0, client.offset_encoding)
                         local params = {
                             command = 'typescript.goToSourceDefinition',
                             arguments = {pos.textDocument.uri, pos.position}

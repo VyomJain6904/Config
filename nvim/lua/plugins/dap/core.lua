@@ -153,12 +153,6 @@ return { -----------------------------------------------------------------------
     }},
 
     config = function()
-        -- Load mason adapters AFTER DAP config
-        local mason_dap = require("lazy.core.config").spec.plugins["mason-nvim-dap.nvim"]
-        local Plugin = require("lazy.core.plugin")
-        local opts = Plugin.values(mason_dap, "opts", false)
-        require("mason-nvim-dap").setup(opts)
-
         -- Highlight current line when stopped
         vim.api.nvim_set_hl(0, "DapStoppedLine", {
             default = true,

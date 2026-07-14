@@ -1,0 +1,205 @@
+workspace_auto_back_and_forth yes
+set $mod Mod4
+font pango:SF Pro Text 10
+
+default_border pixel 2
+default_floating_border pixel 2
+
+focus_follows_mouse yes
+mouse_warping none
+
+# Auto Start
+exec --no-startup-id nm-applet
+exec --no-startup-id dunst
+exec --no-startup-id touchegg
+exec --no-startup-id xinput set-prop 17 "libinput Tapping Enabled" 1
+exec --no-startup-id xinput set-prop 17 "libinput Natural Scrolling Enabled" 1
+exec --no-startup-id ~/.config/i3/power-manager.sh
+
+# Wallpaper
+exec_always --no-startup-id xsetroot -solid "#000000"
+
+# Theme
+exec --no-startup-id xsettingsd &
+exec_always --no-startup-id xprop -root -f _GTK_THEME_VARIANT 8a -set _GTK_THEME_VARIANT "dark"
+
+# Audio
+bindsym XF86AudioRaiseVolume exec --no-startup-id wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ -l 1.5
+bindsym XF86AudioLowerVolume exec --no-startup-id wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%- -l 1.5
+bindsym XF86AudioMute exec --no-startup-id wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+
+# Brightness
+bindsym XF86MonBrightnessUp exec brightnessctl set +10%
+bindsym XF86MonBrightnessDown exec brightnessctl set 10%-
+
+# Focus Window Color
+# class                 border  bground text    indicator child_border
+client.focused          #0d1117 #0d1117 #f5a623 #0d1117   #0d1117
+client.focused_inactive #1a1a2e #1a1a2e #888888 #1a1a2e   #1a1a2e
+client.unfocused        #1a1a2e #1a1a2e #555555 #1a1a2e   #1a1a2e
+client.urgent           #ff4444 #ff4444 #ffffff #ff4444   #ff4444
+
+############################
+
+# TERMINAL / APPS
+
+############################
+
+set $term ghostty
+set $browser helium
+set $editor nvim
+
+bindsym $mod+t exec $term
+bindsym $mod+b exec $browser
+bindsym $mod+w exec vmware
+bindsym $mod+v exec $editor
+bindsym $mod+c exec librewolf
+bindsym $mod+e exec thunar
+bindsym $mod+n exec obsidian
+bindsym $mod+d exec discord
+bindsym $mod+a exec claude
+bindsym $mod+s exec chatgpt
+bindsym $mod+x exec whatsapp
+bindsym $mod+Shift+s exec flameshot gui -c -p ~/Pictures/Screenshots/
+bindsym $mod+m exec alacritty
+############################
+
+# LAUNCHERS
+
+############################
+bindsym $mod+space exec --no-startup-id rofi -show drun -theme ~/.config/rofi/spotlight.rasi
+############################
+
+# WINDOW CONTROL
+
+############################
+
+bindsym $mod+q kill
+
+############################
+
+# FOCUS
+
+############################
+
+bindsym $mod+Left focus left
+bindsym $mod+Down focus down
+bindsym $mod+Up focus up
+bindsym $mod+Right focus right
+
+############################
+
+# MOVE WINDOW
+
+############################
+
+bindsym $mod+Shift+Left move left
+bindsym $mod+Shift+Down move down
+bindsym $mod+Shift+Up move up
+bindsym $mod+Shift+Right move right
+
+############################
+
+# LAYOUT
+
+############################
+
+default_orientation horizontal
+
+bindsym $mod+Return split h
+bindsym $mod+h split v
+bindsym $mod+f fullscreen toggle
+bindsym $mod+Shift+space floating toggle
+
+############################
+
+# WORKSPACES
+
+############################
+
+set $ws1 "1"
+set $ws2 "2"
+set $ws3 "3"
+set $ws4 "4"
+set $ws5 "5"
+set $ws6 "6"
+set $ws7 "7"
+set $ws8 "8"
+set $ws9 "9"
+set $ws10 "10"
+
+bindsym $mod+1 workspace number $ws1
+bindsym $mod+2 workspace number $ws2
+bindsym $mod+3 workspace number $ws3
+bindsym $mod+4 workspace number $ws4
+bindsym $mod+5 workspace number $ws5
+bindsym $mod+6 workspace number $ws6
+bindsym $mod+7 workspace number $ws7
+bindsym $mod+8 workspace number $ws8
+bindsym $mod+9 workspace number $ws9
+bindsym $mod+0 workspace number $ws10
+
+bindsym $mod+Shift+1 move container to workspace number $ws1
+bindsym $mod+Shift+2 move container to workspace number $ws2
+bindsym $mod+Shift+3 move container to workspace number $ws3
+bindsym $mod+Shift+4 move container to workspace number $ws4
+bindsym $mod+Shift+5 move container to workspace number $ws5
+bindsym $mod+Shift+6 move container to workspace number $ws6
+bindsym $mod+Shift+7 move container to workspace number $ws7
+bindsym $mod+Shift+8 move container to workspace number $ws8
+bindsym $mod+Shift+9 move container to workspace number $ws9
+bindsym $mod+Shift+0 move container to workspace number $ws10
+
+############################
+
+# RESIZE MODE
+
+############################
+
+mode "resize" {
+    bindsym h resize shrink width 10 px
+    bindsym l resize grow width 10 px
+    bindsym j resize grow height 10 px
+    bindsym k resize shrink height 10 px
+
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+
+bindsym $mod+r mode "resize"
+############################
+
+# SYSTEM
+
+############################
+
+bindsym $mod+Shift+c reload
+bindsym $mod+Shift+r restart
+bindsym $mod+Shift+e exec "i3-msg exit"
+bindsym $mod+F4 exec ~/.config/polybar/powermenu.sh
+
+############################
+
+# GAPS
+
+############################
+
+gaps inner 8
+gaps outer 0
+smart_gaps off
+
+############################
+
+# WINDOW RULES
+
+############################
+
+for_window [class="Brave-browser" title="Picture-in-Picture"] floating enable, sticky enable
+
+############################
+
+# BAR
+
+###################
+
+exec_always --no-startup-id ~/.config/polybar/launch_polybar.sh

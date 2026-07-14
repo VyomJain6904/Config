@@ -1,0 +1,110 @@
+configuration {
+    font:                "JetBrainsMono Nerd Font Mono 10";
+    show-icons:          true;
+    icon-theme:          "MacTahoe";
+    matching:            "fuzzy";
+    sort:                true;
+    kb-cancel:           "Escape,Super+space";
+}
+
+window {
+    transparency:        "real";
+    background-color:    #1a1a1aEE;
+    border:              1px solid;
+    border-color:        #ffffff18;
+    border-radius:       0px;
+    width:               380px;
+    location:            center;
+    y-offset:            -80px;
+    padding:             0px;
+}
+
+mainbox {
+    background-color:    transparent;
+    spacing:             0px;
+    padding:             0px;
+    children:            [ inputbar, separator, listview ];
+}
+
+inputbar {
+    background-color:    transparent;
+    padding:             10px 14px;
+    spacing:             8px;
+    children:            [ prompt, entry ];
+}
+
+prompt {
+    background-color:    transparent;
+    text-color:          #7aa2f7;
+    font:                "JetBrainsMono Nerd Font Mono 11";
+    vertical-align:      0.5;
+}
+
+entry {
+    background-color:    transparent;
+    text-color:          #c0caf5;
+    font:                "JetBrainsMono Nerd Font Mono 10";
+    placeholder:         "Search devices...";
+    placeholder-color:   #565f89;
+    vertical-align:      0.5;
+    cursor:              text;
+}
+
+separator {
+    background-color:    #ffffff14;
+    expand:              false;
+    height:              1px;
+    margin:              0px;
+}
+
+listview {
+    background-color:    transparent;
+    lines:               10;
+    columns:             1;
+    fixed-height:        false;
+    scrollbar:           false;
+    spacing:             0px;
+    padding:             6px 0px;
+    border:              0px;
+}
+
+element {
+    background-color:    transparent;
+    text-color:          #c0caf5;
+    border-radius:       4px;
+    padding:             7px 14px;
+    spacing:             0px;
+    cursor:              pointer;
+    children:            [ element-icon, element-text ];
+}
+
+element-icon {
+    size:                24px;
+    padding:             0 10px 0 0;
+    background-color:    transparent;
+}
+
+element normal.normal    { background-color: transparent;  text-color: #c0caf5; }
+element alternate.normal { background-color: #ffffff06;    text-color: #c0caf5; }
+
+element selected.normal  {
+    background-color:    #7aa2f744;
+    text-color:          #e0e0e0;
+    border:              1px solid;
+    border-color:        #7aa2f766;
+    border-radius:       4px;
+}
+
+element normal.urgent    { text-color: #f7768e; }
+element selected.urgent  { background-color: #f7768e33; text-color: #f7768e; }
+element normal.active    { text-color: #9ece6a; }
+element alternate.active { text-color: #9ece6a; }
+element selected.active  { background-color: #9ece6a22; text-color: #9ece6a; border: 1px solid; border-color: #9ece6a44; border-radius: 4px; }
+
+element-text {
+    background-color:    transparent;
+    text-color:          inherit;
+    vertical-align:      0.5;
+    expand:              true;
+    highlight:           bold;
+}

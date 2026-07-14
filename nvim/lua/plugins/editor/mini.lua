@@ -19,10 +19,10 @@ return {{
 
         require('mini.move').setup {
             mappings = {
-                left = 'H',
-                right = 'L',
-                down = 'J',
-                up = 'K',
+                left = '<A-h>',
+                right = '<A-l>',
+                down = '<A-j>',
+                up = '<A-k>',
                 line_left = '',
                 line_right = '',
                 line_down = '',

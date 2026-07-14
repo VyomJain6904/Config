@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+# wifi-daemon — Background WiFi cache refresher
+# Auto-started by launch_polybar.sh
+
+WIFI_IF="${WIFI_IFACE:-wlo1}"
+CACHE="$HOME/.cache/polybar-wifi"
+PIDFILE="$CACHE/daemon.pid"
+TTL=15   # seconds between refreshes
+
+mkdir -p "$CACHE"
+
+# Prevent duplicate instances
+if [[ -f "$PIDFILE" ]] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
+    exit 0
+fi
+echo $$ > "$PIDFILE"
+
+cleanup() { rm -f "$PIDFILE"; exit 0; }
+trap cleanup EXIT INT TERM
+
+while true; do
+    ~/.config/polybar/scripts/wifi-cache
+    sleep "$TTL"
+done

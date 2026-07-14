@@ -1,0 +1,120 @@
+
+configuration {
+    font:                "SF Pro 10";
+    show-icons:          true;
+    icon-theme:          "MacTahoe";
+    drun-display-format: "{name}";
+    display-drun:        "";
+    display-run:         "";
+    display-window:      "";
+    matching:            "fuzzy";
+    sort:                true;
+    kb-cancel:           "Escape,Super+space";
+}
+
+window {
+    transparency:        "real";
+    background-color:    #1a1a1a99;
+    border:              1px solid;
+    border-color:        #ffffff22;
+    border-radius:       0px;
+    width:               600px;
+    location:            center;
+    y-offset:            -60px;
+    padding:             0px;
+}
+
+mainbox {
+    background-color:    transparent;
+    spacing:             0px;
+    padding:             0px;
+    children:            [ inputbar, separator, listview ];
+}
+
+inputbar {
+    background-color:    transparent;
+    padding:             12px 20px;
+    spacing:             10px;
+    children:            [ textbox-prompt-colon, entry ];
+}
+
+textbox-prompt-colon {
+    expand:              false;
+    str:                 "󰍉";
+    font:                "SF Pro 16";
+    text-color:          #ebebeb;
+    background-color:    transparent;
+    vertical-align:      0.5;
+    horizontal-align:    0.5;
+}
+
+entry {
+    background-color:    transparent;
+    text-color:          #ebebeb;
+    font:                "SF Pro 14";
+    placeholder:         "Applications";
+    placeholder-color:   #555555;
+    vertical-align:      0.5;
+    cursor:              text;
+}
+
+separator {
+    background-color:    #ffffff15;
+    expand:              false;
+    height:              1px;
+    margin:              0px;
+}
+
+listview {
+    background-color:    transparent;
+    lines:               4;
+    columns:             4;
+    fixed-height:        false;
+    scrollbar:           false;
+    spacing:             8px;
+    padding:             12px;
+    border:              0px;
+    cycle:               true;
+    dynamic:             true;
+}
+
+element {
+    background-color:    transparent;
+    text-color:          #ebebeb;
+    border-radius:       12px;
+    padding:             8px;
+    spacing:             6px;
+    cursor:              pointer;
+    orientation:         vertical;
+    children:            [ element-icon, element-text ];
+}
+
+element normal.normal    { background-color: transparent;  text-color: #ebebeb; }
+element alternate.normal { background-color: transparent;  text-color: #ebebeb; }
+
+element selected.normal  {
+    background-color:    #3b7ddd44;
+    text-color:          #ffffff;
+    border:              1px solid;
+    border-color:        #3b7ddd88;
+}
+
+element normal.urgent    { text-color: #f38ba8; }
+element selected.urgent  { background-color: #f38ba8; text-color: #ffffff; }
+element normal.active    { text-color: #a6e3a1; }
+element selected.active  { background-color: #3b7ddd44; text-color: #ffffff; }
+
+element-icon {
+    background-color:    transparent;
+    size:                45px;
+    vertical-align:      0.5;
+    horizontal-align:    0.5;
+}
+
+element-text {
+    background-color:    transparent;
+    text-color:          inherit;
+    vertical-align:      0.5;
+    horizontal-align:    0.5;
+    highlight:           bold;
+}

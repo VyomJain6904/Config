@@ -1,0 +1,202 @@
+#!/usr/bin/env bash
+
+# audio-menu — Full audio manager (outputs + inputs) via Rofi
+# Opens instantly from cache. After any change rebuilds cache and reopens.
+
+CACHE="$HOME/.cache/polybar-audio"
+BT_CACHE="$HOME/.cache/polybar-bluetooth"
+
+# ── Ensure cache is fresh ──────────────────────────────────────────────────
+~/.config/polybar/scripts/audio-cache
+
+# ── Read current defaults ──────────────────────────────────────────────────
+default_sink=$(  grep "^DEFAULT_SINK:"   "$CACHE/all_info" | cut -d: -f2-)
+default_source=$(grep "^DEFAULT_SOURCE:" "$CACHE/all_info" | cut -d: -f2-)
+sink_muted=$(    grep "^SINK_MUTED:"     "$CACHE/all_info" | cut -d: -f2)
+
+# ── Icon Translation Helpers ────────────────────────────────────────────────
+translate_bt_icon() {
+    case "$1" in
+        "󰋋") echo "audio-headphones" ;;
+        "󰋎") echo "audio-headset" ;;
+        "󰍽") echo "input-mouse" ;;
+        "󰌌") echo "input-keyboard" ;;
+        "󰄜") echo "smartphone" ;;
+        "󰌢") echo "computer" ;;
+        *) echo "bluetooth" ;;
+    esac
+}
+
+# ── Build menu ────────────────────────────────────────────────────────────
+MENU=""
+declare -A ACTION_MAP   # display_line -> action string
+row_idx=0
+active_rows=""
+
+# ── Section: Outputs ───────────────────────────────────────────────────────
+sinks_section=$(awk '/^# Sinks$/,/^# Sources$/' "$CACHE/all_info" | grep -v "^#" | grep -v "^$")
+
+if [[ -n "$sinks_section" ]]; then
+    MENU+="Outputs\0icon\x1faudio-volume-high\n"
+    ((row_idx++))
+    while IFS='|' read -r id name icon vol muted; do
+        [[ -z "$name" ]] && continue
+        if [[ "$id" == "$default_sink" ]]; then
+            name_suffix=" (Active)"
+            active_rows+="$row_idx,"
+        else
+            name_suffix=""
+        fi
+        # Truncate long description
+        [[ ${#name} -gt 30 ]] && name="${name:0:30}…"
+        name_safe="${name//&/&amp;}"
+        
+        if [[ -n "$vol" ]]; then
+            line="  $name_safe$name_suffix  ${vol}%"
+        else
+            line="  $name_safe$name_suffix"
+        fi
+        MENU+="${line}\0icon\x1f${icon}\n"
+        ACTION_MAP["$line"]="sink|$id"
+        ((row_idx++))
+    done <<< "$sinks_section"
+fi
+
+# ── Section: Inputs ────────────────────────────────────────────────────────
+sources_section=$(awk '/^# Sources$/,/^SINK_MUTED:/' "$CACHE/all_info" | grep -v "^#" | grep -v "^$" | grep -v "^SINK_MUTED:")
+
+if [[ -n "$sources_section" ]]; then
+    MENU+="Inputs\0icon\x1faudio-input-microphone\n"
+    ((row_idx++))
+    while IFS='|' read -r id name icon vol muted; do
+        [[ -z "$name" ]] && continue
+        if [[ "$id" == "$default_source" ]]; then
+            name_suffix=" (Active)"
+            active_rows+="$row_idx,"
+        else
+            name_suffix=""
+        fi
+        [[ ${#name} -gt 30 ]] && name="${name:0:30}…"
+        name_safe="${name//&/&amp;}"
+        if [[ -n "$vol" ]]; then
+            line="  $name_safe$name_suffix  ${vol}%"
+        else
+            line="  $name_safe$name_suffix"
+        fi
+        MENU+="${line}\0icon\x1faudio-input-microphone\n"
+        ACTION_MAP["$line"]="source|$id"
+        ((row_idx++))
+    done <<< "$sources_section"
+fi
+
+# ── Section: Bluetooth Devices (from BT cache) ────────────────────────────
+if [[ -f "$BT_CACHE/all_info" ]]; then
+    bt_connected=$(awk '
+        /^# Connected$/ { in_section=1; next }
+        /^# /           { in_section=0 }
+        in_section && /\|/ { print }
+    ' "$BT_CACHE/all_info")
+    bt_paired=$(awk '
+        /^# Paired$/ { in_section=1; next }
+        /^# /        { in_section=0 }
+        in_section && /\|/ { print }
+    ' "$BT_CACHE/all_info")
+
+    bt_all="$bt_connected"$'\n'"$bt_paired"
+    bt_all=$(echo "$bt_all" | grep -v "^$")
+
+    if [[ -n "$bt_all" ]]; then
+        MENU+="Bluetooth\0icon\x1fbluetooth\n"
+        ((row_idx++))
+        while IFS='|' read -r mac name connected paired trusted battery bt_icon; do
+            [[ -z "$mac" ]] && continue
+            if [[ "$connected" == "yes" ]]; then
+                name_suffix=" (Connected)"
+                active_rows+="$row_idx,"
+            else
+                name_suffix=""
+            fi
+            
+            icon_name=$(translate_bt_icon "$bt_icon")
+            
+            [[ ${#name} -gt 28 ]] && name="${name:0:28}…"
+            name_safe="${name//&/&amp;}"
+            if [[ -n "$battery" ]]; then
+                line="  $name_safe$name_suffix  󰁹$battery"
+            else
+                line="  $name_safe$name_suffix"
+            fi
+            MENU+="${line}\0icon\x1f${icon_name}\n"
+            ACTION_MAP["$line"]="bt|$mac|$connected"
+            ((row_idx++))
+        done <<< "$bt_all"
+    fi
+fi
+
+# ── Section: Actions ───────────────────────────────────────────────────────
+MENU+="Actions\0icon\x1fpreferences-system-network\n"
+if [[ "$sink_muted" == "yes" ]]; then
+    MENU+="  Unmute Output\0icon\x1faudio-volume-high\n"
+else
+    MENU+="  Mute Output\0icon\x1faudio-volume-muted\n"
+fi
+MENU+="  Refresh\0icon\x1fview-refresh\n"
+
+# ── Show Rofi ──────────────────────────────────────────────────────────────
+CHOICE=$(printf "%b" "$MENU" | rofi \
+    -dmenu \
+    -i \
+    -a "${active_rows%,}" \
+    -markup-rows \
+    -p "  Audio" \
+    -theme ~/.config/rofi/audio.rasi)
+
+[[ -z "$CHOICE" ]] && exit 0
+
+# ── Handle section headers (ignore) ───────────────────────────────────────
+case "$CHOICE" in
+    "Outputs"|"Inputs"|"Bluetooth"|"Actions")
+        exit 0
+        ;;
+    *"Mute Output"|*"Unmute Output")
+        wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle 2>/dev/null
+        ~/.config/polybar/scripts/audio-cache
+        exec ~/.config/polybar/scripts/audio
+        ;;
+    *"Refresh")
+        ~/.config/polybar/scripts/audio-cache
+        exec ~/.config/polybar/scripts/audio
+        ;;
+    *)
+        action="${ACTION_MAP[$CHOICE]}"
+        [[ -z "$action" ]] && exit 0
+
+        IFS='|' read -r type target id <<< "$action"
+
+        case "$type" in
+            sink)
+                # wpctl handles moving active streams automatically
+                wpctl set-default "$target" 2>/dev/null
+                ;;
+            source)
+                wpctl set-default "$target" 2>/dev/null
+                ;;
+            bt)
+                # Bluetooth device: connect or disconnect
+                mac="$target"
+                connected="$id"
+                if [[ "$connected" == "yes" ]]; then
+                    bluetoothctl disconnect "$mac" >/dev/null 2>&1
+                else
+                    bluetoothctl connect "$mac" >/dev/null 2>&1
+                fi
+                sleep 0.5
+                ~/.config/polybar/scripts/bluetooth-cache
+                ;;
+        esac
+
+        # Rebuild audio cache and reopen
+        ~/.config/polybar/scripts/audio-cache
+        exec ~/.config/polybar/scripts/audio
+        ;;
+esac

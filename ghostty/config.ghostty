@@ -1,0 +1,36 @@
+# Theme
+theme = Dracula
+background = #000000
+
+# Font
+font-family = JetBrainsMono Nerd Font
+font-size = 10
+bold-is-bright = true
+
+# Cursor
+cursor-style = bar
+cursor-style-blink = false
+
+# Window
+scrollback-limit = 1000000000
+window-decoration = false
+window-padding-x = 12
+window-padding-y = 12
+
+# Keybinds
+keybind = performable:ctrl+c=copy_to_clipboard
+keybind = performable:ctrl+v=paste_from_clipboard
+keybind = performable:ctrl+shift+s=new_split:right
+keybind = performable:ctrl+shift+d=new_split:down
+keybind = performable:ctrl+alt+a=prompt_surface_title
+keybind = performable:ctrl+w=close_surface
+keybind = alt+1=esc:1
+keybind = alt+2=esc:2
+keybind = alt+3=esc:3
+keybind = alt+4=esc:4
+keybind = alt+5=esc:5
+keybind = alt+6=esc:6
+keybind = alt+7=esc:7
+keybind = alt+8=esc:8
+keybind = alt+9=esc:9
+keybind = alt+0=esc:0

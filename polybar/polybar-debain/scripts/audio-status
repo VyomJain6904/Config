@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+
+# audio-status — Polybar audio module output
+# Reads from cache built by audio-cache (wpctl)
+
+# ── Read volume directly from PipeWire (0ms latency, no disk I/O) ────────
+vol_out=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null)
+
+if [[ -z "$vol_out" ]]; then
+    echo "%{F#f7768e}󰝟 Error%{F-}"
+    exit 0
+fi
+
+# ── Mute handling ──────────────────────────────────────────────────────────
+if [[ "$vol_out" == *"[MUTED]"* ]]; then
+    # Output matches the old format-muted config
+    echo "%{F#f7768e}󰝟 Muted%{F-}"
+    exit 0
+fi
+
+vol=$(echo "$vol_out" | awk '{print int($2 * 100)}')
+vol=${vol:-0}
+
+# ── Bar builder (Replicates Polybar's internal gradient bar) ───────────────
+# bar-volume-width = 12
+# bar-volume-empty-foreground = #222222
+# Colors: 0-3: #333333, 4-6: #555555, 7-9: #888888, 10-12: #aaaaaa
+
+BAR_WIDTH=12
+filled=$(( vol * BAR_WIDTH / 100 ))
+empty=$(( BAR_WIDTH - filled ))
+
+# Ensure filled isn't > 12
+(( filled > BAR_WIDTH )) && filled=$BAR_WIDTH
+(( empty < 0 )) && empty=0
+
+get_color() {
+    local idx=$1
+    if   (( idx <= 3 )); then echo "#333333"
+    elif (( idx <= 6 )); then echo "#555555"
+    elif (( idx <= 9 )); then echo "#888888"
+    else                      echo "#aaaaaa"
+    fi
+}
+
+# Build the filled portion with gradient colors
+bar=""
+for (( i=1; i<=filled; i++ )); do
+    color=$(get_color $i)
+    bar+="%{F${color}}━%{F-}"
+done
+
+# Add the indicator at the current position (if not fully empty)
+if (( filled > 0 && filled < BAR_WIDTH )); then
+    # replace the last character with the indicator, or just append it
+    # Actually polybar's indicator sits AT the filled spot.
+    # To be precise, we replace the last filled char with the indicator char, 
+    # but the config had indicator = ▏ and fill = ━. 
+    # Usually the indicator is at the leading edge.
+    color=$(get_color $filled)
+    # Remove last char (which is 17 characters: %{F#XXXXXX}━%{F-})
+    bar=${bar:0:-17}
+    bar+="%{F${color}}▏%{F-}"
+elif (( filled == 0 )); then
+    # If 0%, the indicator is the first char
+    bar+="%{F#333333}▏%{F-}"
+    (( empty-- ))
+fi
+
+# Build the empty portion
+if (( empty > 0 )); then
+    bar+="%{F#222222}$(printf '━%.0s' $(seq 1 $empty))%{F-}"
+fi
+
+# ── Output ────────────────────────────────────────────────────────────────
+echo "${bar} ${vol}%"

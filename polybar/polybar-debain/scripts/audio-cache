@@ -1,0 +1,111 @@
+#!/usr/bin/env bash
+
+# audio-cache — Audio state cache builder using wpctl (PipeWire native)
+# Uses wpctl status and python for robust parsing.
+
+CACHE="$HOME/.cache/polybar-audio"
+mkdir -p "$CACHE"
+
+# Use a temporary file to avoid race conditions with audio-status
+TMP_CACHE="$CACHE/all_info.tmp"
+
+python3 -c "
+import subprocess
+import re
+import sys
+
+def get_icon(name):
+    name_low = name.lower()
+    if 'hdmi' in name_low or 'displayport' in name_low:
+        return 'video-display'
+    elif 'usb' in name_low or 'ghw-123p' in name_low:
+        return 'audio-card'
+    elif 'bluez' in name_low or 'echo' in name_low:
+        return 'audio-headset'
+    elif 'camera' in name_low or 'mic' in name_low:
+        return 'audio-input-microphone'
+    return 'audio-speakers'
+
+def main():
+    try:
+        output = subprocess.check_output(['wpctl', 'status']).decode('utf-8')
+    except Exception:
+        sys.exit(1)
+        
+    lines = output.split('\n')
+    
+    sinks = []
+    sources = []
+    
+    current_section = None
+    default_sink_id = ''
+    default_source_id = ''
+    sink_muted = 'no'
+    source_muted = 'no'
+    sink_vol = '0'
+    
+    for line in lines:
+        if line.strip() == 'Video':
+            break
+        if '├─ Sinks:' in line or '└─ Sinks:' in line:
+            current_section = 'sinks'
+            continue
+        elif '├─ Sources:' in line or '└─ Sources:' in line:
+            current_section = 'sources'
+            continue
+        elif '├─ Filters:' in line or '└─ Filters:' in line or '├─ Streams:' in line or '└─ Streams:' in line:
+            current_section = None
+            continue
+            
+        if current_section and re.search(r'\d+\.', line):
+            is_default = '*' in line
+            line_clean = line.replace('*', ' ').strip(' │└├─')
+            match = re.match(r'(\d+)\.\s+(.*?)(?:\s+\[vol:\s+([\d.]+)\])?(?:\s+\[MUTED\])?$', line_clean.strip())
+            
+            if match:
+                dev_id = match.group(1)
+                name = match.group(2).strip()
+                vol = match.group(3) if match.group(3) else '0'
+                muted = 'yes' if '[MUTED]' in line_clean else 'no'
+                
+                vol_pct = int(float(vol) * 100)
+                icon = get_icon(name)
+                
+                dev = f'{dev_id}|{name}|{icon}|{vol_pct}|{muted}'
+                
+                if current_section == 'sinks':
+                    sinks.append(dev)
+                    if is_default:
+                        default_sink_id = dev_id
+                        sink_muted = muted
+                        sink_vol = str(vol_pct)
+                elif current_section == 'sources':
+                    sources.append(dev)
+                    if is_default:
+                        default_source_id = dev_id
+                        source_muted = muted
+
+    with open('$TMP_CACHE', 'w') as f:
+        f.write(f'DEFAULT_SINK:{default_sink_id}\n')
+        f.write(f'DEFAULT_SOURCE:{default_source_id}\n')
+        
+        f.write('# Sinks\n')
+        for s in sinks:
+            f.write(f'{s}\n')
+            
+        f.write('# Sources\n')
+        for s in sources:
+            f.write(f'{s}\n')
+            
+        f.write(f'SINK_MUTED:{sink_muted}\n')
+        f.write(f'SOURCE_MUTED:{source_muted}\n')
+        f.write(f'SINK_VOL:{sink_vol}\n')
+
+if __name__ == '__main__':
+    main()
+"
+
+if [[ -f "$TMP_CACHE" ]]; then
+    mv "$TMP_CACHE" "$CACHE/all_info"
+    date +%s > "$CACHE/last_update"
+fi

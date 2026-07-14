@@ -13,12 +13,7 @@ return {{
         },
         setup = {
             tailwindcss = function(_, opts)
-                local tw = nil
-                local ok, ret = pcall(require, 'lspconfig.configs.tailwindcss')
-                if ok then
-                    tw = ret
-                end
-                tw = require 'lspconfig.server_configurations.tailwindcss'
+                local tw = require 'lspconfig.server_configurations.tailwindcss'
 
                 opts.filetypes = opts.filetypes or {}
 

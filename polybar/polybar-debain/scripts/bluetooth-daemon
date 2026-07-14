@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+# bluetooth-daemon — Background cache refresher
+# Auto-started by launch_polybar.sh
+# Stop:  kill $(cat ~/.cache/polybar-bluetooth/daemon.pid)
+
+CACHE="$HOME/.cache/polybar-bluetooth"
+PIDFILE="$CACHE/daemon.pid"
+TTL=30   # seconds between full refreshes
+
+mkdir -p "$CACHE"
+
+# Prevent duplicate daemon instances
+if [[ -f "$PIDFILE" ]] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
+    exit 0   # already running
+fi
+
+# Write our PID
+echo $$ > "$PIDFILE"
+
+# Cleanup on exit
+cleanup() {
+    rm -f "$PIDFILE"
+    exit 0
+}
+trap cleanup EXIT INT TERM
+
+# ── Main loop ─────────────────────────────────────────────────────────────────
+while true; do
+    ~/.config/polybar/scripts/bluetooth-cache
+    sleep "$TTL"
+done

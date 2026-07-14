@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+
+# bluetooth-status — Polybar bluetooth module output
+# Called every 5 seconds by polybar (interval = 5 in config.ini)
+#
+# States:
+#   󰂲           BT powered off
+#   󰂯           BT on, no connected device
+#   <icon> name  BT on, device connected (with optional battery)
+
+CACHE="$HOME/.cache/polybar-bluetooth"
+CACHE_MAX_AGE=20   # seconds — trigger background refresh if older than this
+
+# ── Trigger background cache refresh if stale ─────────────────────────────────
+# Fix A: check cache AGE, not file existence
+if [[ -f "$CACHE/last_update" ]]; then
+    last=$(cat "$CACHE/last_update")
+    now=$(date +%s)
+    age=$(( now - last ))
+    if [[ $age -gt $CACHE_MAX_AGE ]]; then
+        ~/.config/polybar/scripts/bluetooth-cache &
+    fi
+else
+    # No cache at all — build it now in background, show placeholder
+    ~/.config/polybar/scripts/bluetooth-cache &
+    echo "󰂯"
+    exit 0
+fi
+
+# ── Read POWERED state from cache (Fix B: no live bluetoothctl show call) ─────
+if [[ -f "$CACHE/all_info" ]]; then
+    powered_line=$(head -1 "$CACHE/all_info")
+    if [[ "$powered_line" == "POWERED:no" ]]; then
+        echo "󰂲"   # md-bluetooth_off
+        exit 0
+    fi
+fi
+
+# ── Find first connected device from cache ────────────────────────────────────
+if [[ -f "$CACHE/all_info" ]]; then
+    # Extract the Connected section (between "# Connected" and "# Paired")
+    first_connected=$(awk '
+        /^# Connected$/ { in_section=1; next }
+        /^# Paired$/    { in_section=0 }
+        in_section && /^[0-9A-Fa-f:]+\|/ { print; exit }
+    ' "$CACHE/all_info")
+
+    if [[ -n "$first_connected" ]]; then
+        name=$(    echo "$first_connected" | cut -d'|' -f2)
+        battery=$( echo "$first_connected" | cut -d'|' -f6)
+        icon=$(    echo "$first_connected" | cut -d'|' -f7)
+
+        # Truncate long names
+        if (( ${#name} > 16 )); then
+            name="${name:0:16}…"
+        fi
+
+        if [[ -n "$battery" ]]; then
+            echo "$icon $name 󰁹$battery"
+        else
+            echo "$icon $name"
+        fi
+        exit 0
+    fi
+fi
+
+# BT on, no connected device
+echo "󰂯"   # md-bluetooth

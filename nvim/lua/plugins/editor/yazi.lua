@@ -1,6 +1,6 @@
 return {
     "mikavilpas/yazi.nvim",
-    dependencies = {"akinsho/toggleterm.nvim"},
+    dependencies = {},
     lazy = false,
 
     keys = {{

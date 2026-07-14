@@ -19,14 +19,91 @@ return {
         dependencies = {
             {
                 'williamboman/mason.nvim',
-                opts = {},
+                opts = {
+                    PATH = 'append',
+                },
             },
             'williamboman/mason-lspconfig.nvim',
             'WhoIsSethDaniel/mason-tool-installer.nvim',
             'hrsh7th/cmp-nvim-lsp',
         },
 
-        config = function()
+        opts = {
+            servers = {
+                rust_analyzer = {
+                    settings = {
+                        ['rust-analyzer'] = {
+                            cargo = {
+                                allFeatures = true,
+                            },
+                            checkOnSave = {
+                                command = 'clippy',
+                            },
+                        },
+                    },
+                },
+                gopls = {
+                    settings = {
+                        gopls = {
+                            analyses = {
+                                unusedparams = true,
+                            },
+                            staticcheck = true,
+                        },
+                    },
+                },
+                vtsls = {
+                    settings = {
+                        complete_function_calls = true,
+                        typescript = {
+                            preferences = {
+                                importModuleSpecifier = 'non-relative',
+                            },
+                        },
+                    },
+                },
+                lua_ls = {
+                    settings = {
+                        Lua = {
+                            completion = {
+                                callSnippet = 'Replace',
+                            },
+                            diagnostics = {
+                                globals = { 'vim' },
+                            },
+                        },
+                    },
+                },
+                clangd = {
+                    cmd = {
+                        'clangd',
+                        '--background-index',
+                        '--clang-tidy',
+                        '--completion-style=detailed',
+                    },
+                },
+                bashls = {},
+                astro = {},
+                cssls = {},
+                pyright = {},
+                eslint = {
+                    settings = {
+                        workingDirectory = {
+                            mode = 'auto',
+                        },
+                    },
+                },
+                zls = {
+                    settings = {
+                        zls = {
+                            enable_autofix = true,
+                            warn_style = true,
+                        },
+                    },
+                },
+            },
+        },
+        config = function(_, opts)
             vim.api.nvim_create_autocmd('LspAttach', {
                 group = vim.api.nvim_create_augroup('kickstart-lsp-attach', {
                     clear = true,
@@ -39,6 +116,9 @@ return {
                             desc = desc,
                         })
                     end
+
+                    local client =
+                        vim.lsp.get_client_by_id(event.data.client_id)
 
                     if
                         client
@@ -54,9 +134,6 @@ return {
                         )
                     end
                     map('gD', vim.lsp.buf.declaration, 'Goto Declaration')
-
-                    local client =
-                        vim.lsp.get_client_by_id(event.data.client_id)
 
                     if
                         client
@@ -134,136 +211,39 @@ return {
                 lineFoldingOnly = true,
             }
 
-            --------------------------------------------------------
-            --                  ENABLED LSP SERVERS                --
-            --------------------------------------------------------
-            local servers = {
-                -- Rust
-                rust_analyzer = {
-                    settings = {
-                        ['rust-analyzer'] = {
-                            cargo = {
-                                allFeatures = true,
-                            },
-                            checkOnSave = {
-                                command = 'clippy',
-                            },
-                        },
-                    },
-                },
-
-                -- Go
-                gopls = {
-                    settings = {
-                        gopls = {
-                            analyses = {
-                                unusedparams = true,
-                            },
-                            staticcheck = true,
-                        },
-                    },
-                },
-
-                -- TypeScript / JavaScript / React / Next.js
-                vtsls = {
-                    settings = {
-                        complete_function_calls = true,
-                        typescript = {
-                            preferences = {
-                                importModuleSpecifier = 'non-relative',
-                            },
-                        },
-                    },
-                },
-
-                -- Lua
-                lua_ls = {
-                    settings = {
-                        Lua = {
-                            completion = {
-                                callSnippet = 'Replace',
-                            },
-                            diagnostics = {
-                                globals = { 'vim' },
-                            },
-                        },
-                    },
-                },
-
-                -- C / C++
-                clangd = {
-                    cmd = {
-                        'clangd',
-                        '--background-index',
-                        '--clang-tidy',
-                        '--completion-style=detailed',
-                    },
-                },
-
-                -- Shell
-                bashls = {},
-
-                -- Astro
-                astro = {},
-
-                -- CSS (for React/Next.js)
-                cssls = {},
-
-                -- Python
-                pyright = {},
-
-                -- Docker
-                dockerls = {},
-                docker_compose_language_service = {},
-
-                -- ESLint
-                eslint = {
-                    settings = {
-                        workingDirectory = {
-                            mode = 'auto',
-                        },
-                    },
-                },
-                -- Zig
-                zls = {
-                    settings = {
-                        zls = {
-                            enable_autofix = true,
-                            warn_style = true,
-                        },
-                    },
-                },
-            }
+            -- Merge servers from opts (includes language plugin additions like docker, tailwind, python)
+            local servers = vim.tbl_deep_extend('force', opts.servers or {}, {})
 
             --------------------------------------------------------
             --                MASON INSTALLATION LIST              --
             --------------------------------------------------------
-            local ensure_installed = vim.tbl_keys(servers or {})
-
-            vim.list_extend(ensure_installed, {
-                'rust_analyzer',
-                'gopls',
-                'vtsls',
-                'lua_ls',
-                'bashls',
-                'astro',
-                'clangd',
-                'cssls',
-                'dockerls',
-                'docker_compose_language_service',
-                'pyright',
-                'eslint',
-            })
+            local ensure_installed = {}
+            for server_name, _ in pairs(servers) do
+                table.insert(ensure_installed, server_name)
+            end
 
             require('mason-tool-installer').setup {
                 ensure_installed = ensure_installed,
             }
 
+            local lspconfig = require('lspconfig')
+
+            -- Skip servers that should not start
+            local disabled_servers = { ts_ls = true }
+
             require('mason-lspconfig').setup {
                 ensure_installed = ensure_installed,
-                automatic_installation = false,
+                automatic_installation = true,
                 handlers = {
                     function(server_name)
+                        -- Skip disabled servers
+                        if disabled_servers[server_name] then
+                            return
+                        end
+                        -- Skip non-LSP tools (formatters, linters installed via mason.nvim)
+                        if not servers[server_name] and not lspconfig[server_name] then
+                            return
+                        end
                         local server = servers[server_name] or {}
                         server.capabilities = vim.tbl_deep_extend(
                             'force',
@@ -271,7 +251,14 @@ return {
                             capabilities,
                             server.capabilities or {}
                         )
-                        require('lspconfig')[server_name].setup(server)
+                        -- Call custom setup handler if defined (from language plugins)
+                        if opts.setup and opts.setup[server_name] then
+                            local skip = opts.setup[server_name](lspconfig, server)
+                            if skip then
+                                return
+                            end
+                        end
+                        lspconfig[server_name].setup(server)
                     end,
                 },
             }

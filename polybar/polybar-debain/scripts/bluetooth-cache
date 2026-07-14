@@ -1,0 +1,134 @@
+#!/usr/bin/env bash
+
+# bluetooth-cache — Fast device info cache builder
+# Called by:
+#   - bluetooth-status  (background, when cache is stale)
+#   - bluetooth-menu    (synchronous, before opening menu)
+#   - bluetooth-refresh (on-demand refresh)
+#
+# Usage:
+#   bluetooth-cache          # full refresh (no scan — scan is only for discovery)
+#   bluetooth-cache --noscan # identical (kept for compatibility, scan was removed)
+
+CACHE="$HOME/.cache/polybar-bluetooth"
+mkdir -p "$CACHE"
+
+# ── Icon detection via authoritative bluez 'Icon:' field ─────────────────────
+# Falls back to full-text grep only when bluez doesn't supply an Icon: line.
+get_device_icon() {
+    local info="$1"
+    local bluez_icon
+    bluez_icon=$(echo "$info" | awk '/^\s+Icon:/ {print $2; exit}')
+
+    case "$bluez_icon" in
+        audio-card)        echo "󰓃"  ;; # md-speaker       U+F04C3
+        audio-headset)     echo "󰋎"  ;; # md-headset        U+F02CE
+        audio-headphones)  echo "󰋋"  ;; # md-headphones     U+F02CB
+        input-mouse)       echo "󰍽"  ;; # md-mouse          U+F037D
+        input-keyboard)    echo "󰌌"  ;; # md-keyboard       U+F030C
+        phone)             echo "󰄜"  ;; # md-cellphone      U+F011C
+        computer)          echo "󰌢"  ;; # md-laptop         U+F0322
+        gaming-input)      echo "󰊖"  ;; # md-gamepad        U+F0296
+        *)
+            # Fallback: grep key sections of the info text
+            if   echo "$info" | grep -qi "Headset\|Headphones"; then echo "󰋋"
+            elif echo "$info" | grep -qi "audio-card\|Speaker";  then echo "󰓃"
+            elif echo "$info" | grep -qi "Mouse";                 then echo "󰍽"
+            elif echo "$info" | grep -qi "Keyboard";              then echo "󰌌"
+            elif echo "$info" | grep -qi "Phone";                 then echo "󰄜"
+            elif echo "$info" | grep -qi "Computer\|Laptop";      then echo "󰌢"
+            elif echo "$info" | grep -qi "Gamepad\|Controller";   then echo "󰊖"
+            else echo "󰂯"  # md-bluetooth generic fallback
+            fi
+            ;;
+    esac
+}
+
+# ── Build a pipe-delimited record for one device ─────────────────────────────
+# Output: mac|name|connected|paired|trusted|battery|icon
+build_record() {
+    local line="$1"
+    [[ -z "$line" ]] && return
+
+    local mac name info connected paired trusted battery batt icon
+    mac=$(echo "$line"  | awk '{print $2}')
+    name=$(echo "$line" | cut -d' ' -f3-)
+
+    info=$(bluetoothctl info "$mac" 2>/dev/null)
+    [[ -z "$info" ]] && return   # device vanished between list and info call
+
+    connected="no"; paired="no"; trusted="no"; battery=""
+    echo "$info" | grep -q "Connected: yes" && connected="yes"
+    echo "$info" | grep -q "Paired: yes"    && paired="yes"
+    echo "$info" | grep -q "Trusted: yes"   && trusted="yes"
+
+    batt=$(echo "$info" | awk -F': ' '/Battery Percentage:/ {gsub(/[()]/,"",$2); print $2}')
+    [[ -n "$batt" ]] && battery="$batt"
+
+    icon=$(get_device_icon "$info")
+
+    echo "$mac|$name|$connected|$paired|$trusted|$battery|$icon"
+}
+
+# ── Check BT power state ──────────────────────────────────────────────────────
+powered=$(bluetoothctl show 2>/dev/null | awk '/Powered:/ {print $2}')
+
+if [[ "$powered" != "yes" ]]; then
+    # Write empty cache with power state
+    {
+        echo "POWERED:no"
+        echo "# Connected"
+        echo "# Paired"
+        echo "# Available"
+    } > "$CACHE/all_info"
+    echo ""  > "$CACHE/connected"
+    echo ""  > "$CACHE/paired"
+    echo ""  > "$CACHE/devices"
+    date +%s > "$CACHE/last_update"
+    exit 0
+fi
+
+# ── Fetch device lists (NO scan — scan is for discovery, not status) ──────────
+connected_list=$(bluetoothctl devices Connected 2>/dev/null)
+paired_list=$(bluetoothctl devices Paired    2>/dev/null)
+all_list=$(bluetoothctl devices              2>/dev/null)
+
+# Save raw lists for compatibility
+echo "$connected_list" > "$CACHE/connected"
+echo "$paired_list"    > "$CACHE/paired"
+echo "$all_list"       > "$CACHE/devices"
+
+# ── Build structured all_info with deduplication ──────────────────────────────
+{
+    echo "POWERED:yes"
+    echo "# Connected"
+    declare -A seen_macs
+
+    while IFS= read -r line; do
+        [[ -z "$line" ]] && continue
+        mac=$(echo "$line" | awk '{print $2}')
+        seen_macs["$mac"]=1
+        build_record "$line"
+    done <<< "$connected_list"
+
+    echo "# Paired"
+    while IFS= read -r line; do
+        [[ -z "$line" ]] && continue
+        mac=$(echo "$line" | awk '{print $2}')
+        [[ -n "${seen_macs[$mac]}" ]] && continue   # skip if already in Connected
+        seen_macs["$mac"]=1
+        build_record "$line"
+    done <<< "$paired_list"
+
+    echo "# Available"
+    while IFS= read -r line; do
+        [[ -z "$line" ]] && continue
+        mac=$(echo "$line" | awk '{print $2}')
+        [[ -n "${seen_macs[$mac]}" ]] && continue   # skip if already seen
+        build_record "$line"
+    done <<< "$all_list"
+
+    unset seen_macs
+} > "$CACHE/all_info"
+
+date +%s > "$CACHE/last_update"

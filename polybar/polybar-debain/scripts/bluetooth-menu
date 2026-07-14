@@ -1,0 +1,178 @@
+#!/usr/bin/env bash
+
+# bluetooth-menu — Rofi bluetooth device picker
+# Opens instantly (reads cache only), handles connections live.
+
+CACHE="$HOME/.cache/polybar-bluetooth"
+
+# ── Action Functions ────────────────────────────────────────────────────────────
+toggle_power() {
+    if [[ $(bluetoothctl show | awk '/Powered:/ {print $2}') == "yes" ]]; then
+        bluetoothctl power off >/dev/null 2>&1
+    else
+        bluetoothctl power on  >/dev/null 2>&1
+    fi
+}
+disconnect_device() {
+    bluetoothctl disconnect "$1" >/dev/null 2>&1
+}
+connect_device() {
+    bluetoothctl connect "$1" >/dev/null 2>&1
+}
+
+# ── Ensure cache exists ───────────────────────────────────────────────────────
+if [[ ! -f "$CACHE/all_info" ]]; then
+    ~/.config/polybar/scripts/bluetooth-cache
+fi
+
+# ── Build menu ────────────────────────────────────────────────────────────────
+MENU=""
+declare -A MAC_MAP   # display_line -> MAC (Fix L: unique key = icon+name+battery combo)
+
+# ── Helper: Translate text icon to MacTahoe icon name ──────────────────────────
+translate_icon() {
+    case "$1" in
+        "󰋋") echo "audio-headphones" ;;
+        "󰋎") echo "audio-headset" ;;
+        "󰍽") echo "input-mouse" ;;
+        "󰌌") echo "input-keyboard" ;;
+        "󰄜") echo "smartphone" ;;
+        "󰌢") echo "computer" ;;
+        *) echo "bluetooth" ;;
+    esac
+}
+
+# Action rows
+row_idx=0
+active_rows=""
+
+MENU+="Actions\0icon\x1fpreferences-system-bluetooth\n"
+((row_idx++))
+MENU+="  Toggle Bluetooth\0icon\x1fpreferences-system-bluetooth\n"
+((row_idx++))
+MENU+="  Refresh\0icon\x1fview-refresh\n"
+((row_idx++))
+
+# ── Helper: section to array via awk ─────────────────────────────────────────
+build_section() {
+    local start_marker="$1"
+    local end_marker="$2"
+    if [[ -z "$end_marker" ]]; then
+        awk -v s="$start_marker" '
+            $0 == s      { in_sec=1; next }
+            /^# /        { if (in_sec) exit }
+            in_sec && /\|/ { print }
+        ' "$CACHE/all_info"
+    else
+        awk -v s="$start_marker" -v e="$end_marker" '
+            $0 == s      { in_sec=1; next }
+            $0 == e      { exit }
+            in_sec && /\|/ { print }
+        ' "$CACHE/all_info"
+    fi
+}
+
+# ── Devices Section ───────────────────────────────────────────────────────────
+MENU+="Devices\0icon\x1fnetwork-bluetooth-activated\n"
+((row_idx++))
+
+add_device() {
+    local mac="$1"
+    local name="$2"
+    local battery="$3"
+    local icon="$4"
+    local status_suffix="$5"
+    
+    [[ -z "$mac" ]] && return
+    
+    local icon_name=$(translate_icon "$icon")
+    local name_safe="${name//&/&amp;}"
+    local display_line="  $name_safe"
+    
+    if [[ "$status_suffix" == "Connected" ]]; then
+        display_line+=" (Connected)"
+        active_rows+="$row_idx,"
+    elif [[ "$status_suffix" == "Paired" ]]; then
+        display_line+=" (Paired)"
+    fi
+    
+    if [[ -n "$battery" ]]; then
+        display_line+="  󰁹$battery"
+    fi
+    
+    MENU+="${display_line}\0icon\x1f${icon_name}\n"
+    MAC_MAP["$display_line"]="$mac"
+    ((row_idx++))
+}
+
+connected_section=$(build_section "# Connected" "# Paired")
+if [[ -n "$connected_section" ]]; then
+    while IFS='|' read -r mac name connected paired trusted battery icon; do
+        add_device "$mac" "$name" "$battery" "$icon" "Connected"
+    done <<< "$connected_section"
+fi
+
+paired_section=$(build_section "# Paired" "# Available")
+if [[ -n "$paired_section" ]]; then
+    while IFS='|' read -r mac name connected paired trusted battery icon; do
+        add_device "$mac" "$name" "$battery" "$icon" "Paired"
+    done <<< "$paired_section"
+fi
+
+available_section=$(build_section "# Available" "")
+if [[ -n "$available_section" ]]; then
+    while IFS='|' read -r mac name connected paired trusted battery icon; do
+        add_device "$mac" "$name" "$battery" "$icon" ""
+    done <<< "$available_section"
+fi
+
+# ── Show Rofi ─────────────────────────────────────────────────────────────────
+CHOICE=$(printf "%b" "$MENU" | rofi \
+    -dmenu \
+    -i \
+    -a "${active_rows%,}" \
+    -markup-rows \
+    -p "  Bluetooth" \
+    -theme ~/.config/rofi/bluetooth.rasi)
+
+[[ -z "$CHOICE" ]] && exit 0
+
+# ── Action Handler ────────────────────────────────────────────────────────────
+case "$CHOICE" in
+    "Actions"|"Devices")
+        # Section header selected — ignore
+        exit 0
+        ;;
+
+    *"Toggle Bluetooth")
+        toggle_power
+        sleep 1   # wait for power state to settle
+        ~/.config/polybar/scripts/bluetooth-cache
+        exec ~/.config/polybar/scripts/bluetooth
+        ;;
+
+    *"Refresh")
+        ~/.config/polybar/scripts/bluetooth-cache
+        exec ~/.config/polybar/scripts/bluetooth
+        ;;
+
+    *)
+        mac="${MAC_MAP[$CHOICE]}"
+        [[ -z "$mac" ]] && exit 0
+
+        # Fix D: check LIVE state via bluetoothctl info (not stale cache)
+        live_connected=$(bluetoothctl info "$mac" 2>/dev/null | grep -c "Connected: yes")
+
+        if [[ "$live_connected" -gt 0 ]]; then
+            disconnect_device "$mac"
+            action="Disconnected"
+        else
+            connect_device "$mac"
+            action="Connected"
+        fi
+
+        # Fix E: Fast cache refresh (no scan) then reopen
+        ~/.config/polybar/scripts/bluetooth-cache
+        exec ~/.config/polybar/scripts/bluetooth
+        ;;
+esac

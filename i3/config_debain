@@ -15,7 +15,6 @@ exec --no-startup-id quickshell -c ~/.config/quickshell
 exec --no-startup-id touchegg
 exec --no-startup-id xinput set-prop 17 "libinput Tapping Enabled" 1
 exec --no-startup-id xinput set-prop 17 "libinput Natural Scrolling Enabled" 1
-exec --no-startup-id ~/.config/i3/power-manager.sh
 
 # Wallpaper
 exec_always --no-startup-id xsetroot -solid "#000000"
@@ -57,10 +56,6 @@ bindsym $mod+v exec $editor
 bindsym $mod+c exec librewolf
 bindsym $mod+e exec thunar
 bindsym $mod+n exec obsidian
-bindsym $mod+d exec discord
-bindsym $mod+a exec claude
-bindsym $mod+s exec chatgpt
-bindsym $mod+x exec whatsapp
 bindsym $mod+Shift+s exec flameshot gui -c -p ~/Pictures/Screenshots/
 bindsym $mod+m exec alacritty
 bindsym $mod+F4 exec --no-startup-id ~/.config/polybar/powermenu.sh

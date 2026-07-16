@@ -1,9 +1,8 @@
+pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import qs.core
-
-pragma ComponentBehavior: Bound
 
 FloatingWindow {
     id: root
@@ -27,7 +26,7 @@ FloatingWindow {
         anchors.fill: parent
         focus: true
 
-        Keys.onPressed: function(event) {
+        Keys.onPressed: function (event) {
             if (event.key === Qt.Key_Escape) {
                 if (root.healthModel.confirming) {
                     root.healthModel.cancelRepair();
@@ -108,10 +107,26 @@ FloatingWindow {
 
                 Repeater {
                     model: [
-                        { "label": "Errors", "status": "error", "color": Theme.danger },
-                        { "label": "Warnings", "status": "warn", "color": "#ebcb8b" },
-                        { "label": "Restricted", "status": "restricted", "color": "#b48ead" },
-                        { "label": "Passing", "status": "ok", "color": "#a3be8c" }
+                        {
+                            "label": "Errors",
+                            "status": "error",
+                            "color": Theme.danger
+                        },
+                        {
+                            "label": "Warnings",
+                            "status": "warn",
+                            "color": "#ebcb8b"
+                        },
+                        {
+                            "label": "Restricted",
+                            "status": "restricted",
+                            "color": "#b48ead"
+                        },
+                        {
+                            "label": "Passing",
+                            "status": "ok",
+                            "color": "#a3be8c"
+                        }
                     ]
 
                     Rectangle {
@@ -312,9 +327,7 @@ FloatingWindow {
 
                     Text {
                         Layout.fillWidth: true
-                        text: root.healthModel.pendingRepair && root.healthModel.pendingRepair.privilege === "system"
-                            ? "Administrator authorization is required."
-                            : "This action affects only the current user session."
+                        text: root.healthModel.pendingRepair && root.healthModel.pendingRepair.privilege === "system" ? "Administrator authorization is required." : "This action affects only the current user session."
                         color: root.healthModel.pendingRepair && root.healthModel.pendingRepair.privilege === "system" ? "#ebcb8b" : Theme.textMuted
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.smallFontSize

@@ -236,7 +236,7 @@ Scope {
 
         stdout: StdioCollector {
             onStreamFinished: {
-                root.infoRows = root.parseRows(this.text, ["label", "value"]);
+                root.infoRows = root.parseRows(this.text, ["label", "value", "icon"]);
                 root.message = "";
             }
         }

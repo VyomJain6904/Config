@@ -1,12 +1,11 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
-import Quickshell.I3
+import qs.core
 
 Scope {
     id: root
 
-    // currentWorkspaceNum stores the focused workspace NUMBER (1-based, matches i3 num)
     property int    currentWorkspaceNum: 1
     property var    workspaceNames:      []
     property string activeWindowTitle:   "Desktop"
@@ -14,44 +13,49 @@ Scope {
 
     // ── Switch to workspace by its number ─────────────────────────────
     function switchWorkspace(num) {
-        I3.dispatch("workspace number " + num.toString())
-    }
-
-    // ── Rebuild workspace name list from live I3 workspaces ───────────
-    function rebuildWorkspaces() {
-        var ws   = I3.workspaces.values
-        var nums = []
-        for (var i = 0; i < ws.length; i++) {
-            nums.push(ws[i].num.toString())
-        }
-        // Sort numerically
-        nums.sort(function(a, b) { return parseInt(a) - parseInt(b) })
-        root.workspaceNames = nums
-    }
-
-    // ── Connections: focused workspace changes ─────────────────────────
-    Connections {
-        target: I3
-
-        function onFocusedWorkspaceChanged() {
-            root.currentWorkspaceNum = I3.focusedWorkspace
-                ? I3.focusedWorkspace.num
-                : 1
-            // Re-build list in case new workspace was created on focus
-            root.rebuildWorkspaces()
+        if (!switchProc.running) {
+            switchProc.command = ["i3-msg", "workspace", "number", num.toString()];
+            switchProc.running = true;
         }
     }
 
-    // ── Connections: workspace list additions / removals ──────────────
-    Connections {
-        target: I3.workspaces
+    Process {
+        id: switchProc
+        running: false
+    }
 
-        function onObjectInsertedPost(object, index) {
-            root.rebuildWorkspaces()
+    // ── Fetch workspaces periodically via i3-msg ─────────────────────
+    Process {
+        id: wsFetchProc
+        command: ["i3-msg", "-t", "get_workspaces"]
+        running: false
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try {
+                    let wss = JSON.parse(this.text);
+                    let nums = [];
+                    for(let i=0; i<wss.length; i++) {
+                        nums.push(wss[i].num.toString());
+                        if (wss[i].focused) {
+                            root.currentWorkspaceNum = wss[i].num;
+                        }
+                    }
+                    nums.sort((a,b) => parseInt(a) - parseInt(b));
+                    root.workspaceNames = nums;
+                } catch(e) {}
+            }
         }
+    }
 
-        function onObjectRemovedPost(object, index) {
-            root.rebuildWorkspaces()
+    Timer {
+        id: wsTimer
+        interval: 300
+        running: true
+        repeat: true
+        onTriggered: {
+            if (!wsFetchProc.running) {
+                wsFetchProc.running = true;
+            }
         }
     }
 
@@ -59,8 +63,8 @@ Scope {
     Timer {
         id: titleTimer
         interval: 600
-        running:  true
-        repeat:   true
+        running: true
+        repeat: true
         onTriggered: {
             if (!titleProcess.running) {
                 titleProcess.running = true
@@ -83,8 +87,7 @@ Scope {
 
     // ── Init ──────────────────────────────────────────────────────────
     Component.onCompleted: {
-        root.currentWorkspaceNum = I3.focusedWorkspace ? I3.focusedWorkspace.num : 1
-        root.rebuildWorkspaces()
-        I3.refreshWorkspaces()
+        wsFetchProc.running = true;
+        titleProcess.running = true;
     }
 }

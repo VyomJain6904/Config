@@ -22,35 +22,35 @@ args   = sys.argv[2:]
 
 # ─────────────────────────────────────────────────────────────
 if action == "info":
-    def row(label, value):
-        print(f"{label}\t{value}")
+    def row(label, value, icon):
+        print(f"{label}\t{value}\t{icon}")
 
     # Hostname
-    row("Hostname", run("hostname").strip() or "unknown")
+    row("Hostname", run("hostname").strip() or "unknown", "computer")
 
     # OS
     try:
         with open("/etc/os-release") as f:
             for line in f:
                 if line.startswith("PRETTY_NAME="):
-                    row("OS", line.split("=", 1)[1].strip().strip('"'))
+                    row("OS", line.split("=", 1)[1].strip().strip('"'), "start-here")
                     break
     except Exception:
-        row("OS", "Debian")
+        row("OS", "Debian", "start-here")
 
     # Kernel
-    row("Kernel", run("uname", "-r").strip())
+    row("Kernel", run("uname", "-r").strip(), "preferences-system-linux")
 
     # WM / Display
-    row("WM",      "i3")
-    row("Display", os.environ.get("DISPLAY", ":0") + " (X11)")
+    row("WM",      "i3", "preferences-system-windows")
+    row("Display", os.environ.get("DISPLAY", ":0") + " (X11)", "video-display")
 
     # CPU
     try:
         with open("/proc/cpuinfo") as f:
             for line in f:
                 if line.startswith("model name"):
-                    row("CPU", line.split(":", 1)[1].strip())
+                    row("CPU", line.split(":", 1)[1].strip(), "cpu")
                     break
     except Exception:
         pass
@@ -61,7 +61,7 @@ if action == "info":
             for line in f:
                 if line.startswith("MemTotal:"):
                     kb  = int(line.split()[1])
-                    row("RAM", f"{kb // 1024} MB")
+                    row("RAM", f"{kb // 1024} MB", "memory")
                     break
     except Exception:
         pass
@@ -70,11 +70,11 @@ if action == "info":
     gpu = run("lspci").strip()
     for line in gpu.split("\n"):
         if "VGA" in line or "3D" in line or "Display" in line:
-            row("GPU", line.split(":", 2)[-1].strip())
+            row("GPU", line.split(":", 2)[-1].strip(), "cs-cat-hardware")
             break
 
     # Shell
-    row("Shell", os.path.basename(os.environ.get("SHELL", "bash")))
+    row("Shell", os.path.basename(os.environ.get("SHELL", "bash")), "utilities-terminal")
 
     # Uptime
     try:
@@ -82,13 +82,13 @@ if action == "info":
             secs  = float(f.read().split()[0])
             hours = int(secs // 3600)
             mins  = int((secs % 3600) // 60)
-            row("Uptime", f"{hours}h {mins}m")
+            row("Uptime", f"{hours}h {mins}m", "clock")
     except Exception:
         pass
 
     # Terminal
-    row("Terminal", "ghostty")
-    row("Browser",  "helium")
+    row("Terminal", "ghostty", "com.mitchellh.ghostty-clear")
+    row("Browser",  "helium", "helium-clear")
 
 # ─────────────────────────────────────────────────────────────
 elif action == "themes":

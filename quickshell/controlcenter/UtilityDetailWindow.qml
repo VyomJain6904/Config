@@ -83,7 +83,7 @@ FloatingWindow {
                     title: root.controlCenterModel.utilityPage === "keybinds" ? modelData.keys : (modelData.label || "")
                     detail: root.controlCenterModel.utilityPage === "keybinds" ? modelData.description : (modelData.detail || modelData.value || "")
                     status: modelData.status || ""
-                    iconName: root.controlCenterModel.utilityPage === "keybinds" ? (modelData.icon || "") : ""
+                    iconName: modelData.icon || ""
                 }
             }
         }

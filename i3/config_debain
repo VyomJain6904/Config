@@ -63,6 +63,7 @@ bindsym $mod+s exec chatgpt
 bindsym $mod+x exec whatsapp
 bindsym $mod+Shift+s exec flameshot gui -c -p ~/Pictures/Screenshots/
 bindsym $mod+m exec alacritty
+bindsym $mod+F4 exec --no-startup-id ~/.config/polybar/powermenu.sh
 ############################
 
 # LAUNCHERS
@@ -178,7 +179,6 @@ bindsym $mod+r mode "resize"
 bindsym $mod+Shift+c reload
 bindsym $mod+Shift+r restart
 bindsym $mod+Shift+e exec "i3-msg exit"
-bindsym $mod+F4 exec ~/.config/polybar/powermenu.sh
 
 ############################
 
@@ -196,8 +196,11 @@ smart_gaps off
 
 ############################
 
+for_window [class="Firefox" title="Picture-in-Picture"] floating enable, sticky enable
 for_window [class="Brave-browser" title="Picture-in-Picture"] floating enable, sticky enable
 
-for_window [title="Quickshell Utility"] floating enable, move position center
+for_window [title="^quickshell$"] floating enable, move position center
+for_window [title="^Quickshell Utility$"] floating enable, move position center
+for_window [title="^dwm system health$"] floating enable, move position center
 
 for_window [class="(?i)rofi"] border pixel 0

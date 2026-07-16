@@ -10,7 +10,8 @@ mouse_warping none
 
 # Auto Start
 exec --no-startup-id nm-applet
-exec --no-startup-id dunst
+exec --no-startup-id pkill dunst
+exec --no-startup-id quickshell -c ~/.config/quickshell
 exec --no-startup-id touchegg
 exec --no-startup-id xinput set-prop 17 "libinput Tapping Enabled" 1
 exec --no-startup-id xinput set-prop 17 "libinput Natural Scrolling Enabled" 1
@@ -68,6 +69,7 @@ bindsym $mod+m exec alacritty
 
 ############################
 bindsym $mod+space exec --no-startup-id rofi -show drun -theme ~/.config/rofi/spotlight.rasi
+bindsym $mod+k exec --no-startup-id quickshell ipc call controlcenter openKeybinds
 ############################
 
 # WINDOW CONTROL
@@ -196,10 +198,6 @@ smart_gaps off
 
 for_window [class="Brave-browser" title="Picture-in-Picture"] floating enable, sticky enable
 
-############################
+for_window [title="Quickshell Utility"] floating enable, move position center
 
-# BAR
-
-###################
-
-exec_always --no-startup-id ~/.config/polybar/launch_polybar.sh
+for_window [class="(?i)rofi"] border pixel 0

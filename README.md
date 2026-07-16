@@ -4,19 +4,17 @@ Personal dotfiles for Linux.
 
 > A minimal, distraction-free setup built around terminal-first workflows.
 
-[![Theme](https://img.shields.io/badge/Charcoal-1a1a1a?style=flat-square&labelColor=0d0d0d)](https://github.com/VyomJain6904/charcoal-theme)
-
 ---
 
 ## Theme :
 
-Theme source: [VyomJain6904/charcoal-theme](https://github.com/VyomJain6904/charcoal-theme)
+Theme source: [Charcoal-theme](https://github.com/VyomJain6904/charcoal-theme)
 
 ---
 
 ## Wallpapers :
 
-Wallpaper Source : [VyomJain6904/Wallpapers](https://github.com/VyomJain6904/Wallpapers)
+Wallpaper Source : [Wallpapers](https://github.com/VyomJain6904/Wallpapers)
 
 ---
 
@@ -57,7 +55,7 @@ Wallpaper Source : [VyomJain6904/Wallpapers](https://github.com/VyomJain6904/Wal
 | Zsh        | `sudo pacman -S zsh`        | `sudo apt install zsh`                    |
 | Starship   | `sudo pacman -S starship`   | `curl -sS https://starship.rs/install.sh \| sh` |
 | Zoxide     | `sudo pacman -S zoxide`     | `sudo apt install zoxide`                 |
-| Ghostty    | `yay -S ghostty`            | Build from source: [ghostty.org](https://ghostty.org) |
+| Ghostty    | `yay -S ghostty`            | See [Ghostty Debian Install](#ghostty-debian-install) below |
 | Alacritty  | `sudo pacman -S alacritty`  | `sudo apt install alacritty`              |
 | Kitty      | `sudo pacman -S kitty`      | `sudo apt install kitty`                  |
 | Terminator | `sudo pacman -S terminator` | `sudo apt install terminator`             |
@@ -66,7 +64,7 @@ Wallpaper Source : [VyomJain6904/Wallpapers](https://github.com/VyomJain6904/Wal
 
 | Package          | Arch Linux               | Debian                                                                       |
 | ---------------- | ------------------------ | ---------------------------------------------------------------------------- |
-| Neovim (>= 0.12) | `sudo pacman -S neovim`  | Download from [github.com/neovim/neovim/releases](https://github.com/neovim/neovim/releases) |
+| Neovim (>= 0.12) | `sudo pacman -S neovim`  | See [Neovim Debian Install](#neovim-debian-install) below                             |
 | Lazygit          | `sudo pacman -S lazygit` | `go install github.com/jesseduffield/lazygit@latest`                         |
 | Stylua           | `sudo pacman -S stylua`  | `cargo install stylua`                                                       |
 
@@ -74,7 +72,7 @@ Wallpaper Source : [VyomJain6904/Wallpapers](https://github.com/VyomJain6904/Wal
 
 | Package | Arch Linux               | Debian                                                                       |
 | ------- | ------------------------ | ---------------------------------------------------------------------------- |
-| Yazi    | `sudo pacman -S yazi`    | Download from [github.com/sxyazi/yazi/releases](https://github.com/sxyazi/yazi/releases) |
+| Yazi    | `sudo pacman -S yazi`    | `cargo install yazi-build`                                                           |
 | ffmpeg  | `sudo pacman -S ffmpeg`  | `sudo apt install ffmpeg`                                                    |
 | p7zip   | `sudo pacman -S p7zip`   | `sudo apt install p7zip-full`                                                |
 | jq      | `sudo pacman -S jq`      | `sudo apt install jq`                                                        |
@@ -118,6 +116,25 @@ Wallpaper Source : [VyomJain6904/Wallpapers](https://github.com/VyomJain6904/Wal
 | Package  | Arch Linux                | Debian                   |
 | -------- | ------------------------- | ------------------------ |
 | OpenCode | `bun install -g opencode` | `bun install -g opencode`|
+
+### Ghostty Debian Install
+
+```bash
+sudo install -d -m 0755 /etc/apt/keyrings
+curl -fsSL https://deb.griffo.io/EA0F721D231FDD3A0A17B9AC7808B4DD62C41256.asc | sudo gpg --dearmor --yes -o /etc/apt/keyrings/deb.griffo.io.gpg
+echo "deb [signed-by=/etc/apt/keyrings/deb.griffo.io.gpg] https://deb.griffo.io/apt $(lsb_release -sc 2>/dev/null) main" | sudo tee /etc/apt/sources.list.d/deb.griffo.io.list > /dev/null
+sudo apt update
+sudo apt install ghostty
+```
+
+### Neovim Debian Install
+
+```bash
+curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
+sudo rm -rf /opt/nvim-linux-x86_64
+sudo tar -C /opt -xzf nvim-linux-x86_64.tar.gz
+export PATH="$PATH:/opt/nvim-linux-x86_64/bin"
+```
 
 ---
 

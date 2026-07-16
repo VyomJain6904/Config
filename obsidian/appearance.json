@@ -1,0 +1,14 @@
+{
+  "theme": "obsidian",
+  "cssTheme": "Obsidianotion",
+  "interfaceFontFamily": "JetBrainsMono Nerd Font",
+  "textFontFamily": "JetBrainsMono Nerd Font",
+  "monospaceFontFamily": "JetBrainsMono Nerd Font Mono",
+  "accentColor": "",
+  "baseFontSize": 20,
+  "baseFontSizeAction": true,
+  "showRibbon": true,
+  "enabledCssSnippets": [
+    "grid-background"
+  ]
+}

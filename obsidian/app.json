@@ -1,0 +1,10 @@
+{
+  "promptDelete": false,
+  "showInlineTitle": true,
+  "showLineNumber": true,
+  "alwaysUpdateLinks": true,
+  "deleteUnlinkedAttachments": "ask",
+  "readableLineLength": false,
+  "strictLineBreaks": true,
+  "attachmentFolderPath": "screenshots"
+}

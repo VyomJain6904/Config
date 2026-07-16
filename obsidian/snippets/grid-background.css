@@ -1,0 +1,464 @@
+/* ==========================================================
+   Markdown Editor
+   ========================================================== */
+
+/* Graph paper background */
+.markdown-source-view.mod-cm6 .cm-content,
+.markdown-preview-view .markdown-preview-sizer {
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+
+    background-size: 24px 24px;
+}
+
+/* Left padding */
+.markdown-source-view.mod-cm6 .cm-content {
+    padding-left: 16px !important;
+}
+
+/* Move the content back after adding padding */
+.markdown-source-view.mod-cm6 .cm-sizer {
+    margin-left: -16px !important;
+}
+
+/* Compact line number gutter */
+.markdown-source-view.mod-cm6 .cm-gutters {
+    min-width: 4px !important;
+    width: 4px !important;
+    padding: 0 !important;
+}
+
+.markdown-source-view.mod-cm6 .cm-gutterElement {
+    padding: 0 2px 0 0 !important;
+}
+
+
+/* ==========================================================
+   Canvas
+   ========================================================== */
+
+/* Remove the default dot background */
+svg.canvas-background {
+    display: none !important;
+}
+
+/* Graph paper background */
+.canvas-wrapper {
+    background-color: var(--background-primary) !important;
+
+    background-image:
+        linear-gradient(var(--background-modifier-border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--background-modifier-border) 1px, transparent 1px);
+
+    background-size: 24px 24px;
+}
+
+
+/* ==========================================================
+   KANBAN
+   ========================================================== */
+
+:root {
+
+    --kb-board-bg: #0d0d0d;
+
+    --kb-card-bg: #18181b;
+
+    --kb-border: #242424;
+
+    --kb-border-hover: #3f3f46;
+
+    --kb-column-width: 280px;
+
+    --kb-column-gap: 18px;
+
+    --kb-header-size: 16px;
+
+    --kb-counter-size: 11px;
+
+    --kb-card-font: 15px;
+
+    --kb-card-padding: 12px;
+
+    --kb-card-radius: 12px;
+
+    --kb-card-height: 70px;
+
+}
+   
+/* ==========================================================
+   Remove the markdown background inside Kanban cards
+   ========================================================== */
+
+.kanban-plugin__item,
+.kanban-plugin__item * {
+
+    background-color: transparent !important;
+
+}
+
+.kanban-plugin__item {
+
+    background: #18181b !important;
+
+}
+
+/* ==========================================================
+   Board
+   ========================================================== */
+
+.kanban-plugin {
+    background: var(--kb-board-bg) !important;
+}
+
+/* ==========================================================
+   Lanes
+   ========================================================== */
+
+.kanban-plugin__lane {
+
+    width: var(--kb-column-width) !important;
+
+    margin-right: var(--kb-column-gap) !important;
+
+    background: transparent !important;
+
+    border: none !important;
+
+    box-shadow: none !important;
+
+}
+
+.kanban-plugin__lane-wrapper {
+
+    border: none !important;
+
+}
+
+/* ==========================================================
+   Header
+   ========================================================== */
+
+.kanban-plugin__lane-header-wrapper {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding-bottom: 10px;
+
+    border-bottom: 1px solid #262626;
+
+}
+
+/* Hide drag handle */
+
+.kanban-plugin__lane-grip {
+
+    display: none !important;
+
+}
+
+/* Collapse */
+
+.kanban-plugin__lane-collapse {
+
+    display: flex;
+
+    align-items: center;
+
+}
+
+/* Title */
+
+.kanban-plugin__lane-title {
+
+    flex: 1;
+
+}
+
+.kanban-plugin__lane-title-text {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    font-size: var(--kb-header-size);
+
+    font-weight: 600;
+
+    letter-spacing: -.02em;
+
+}
+
+/* ==========================================================
+   Status Dot
+   ========================================================== */
+
+.kanban-plugin__lane-title-text::before {
+
+    content: "";
+
+    width: 8px;
+
+    height: 8px;
+
+    border-radius: 50%;
+
+    background: #8b5cf6;
+
+    flex-shrink: 0;
+
+}
+
+/* TODO */
+
+.kanban-plugin__lane:nth-child(1)
+.kanban-plugin__lane-title-text::before {
+
+    background: #8b5cf6;
+
+}
+
+/* Planning */
+
+.kanban-plugin__lane:nth-child(2)
+.kanban-plugin__lane-title-text::before {
+
+    background: #a855f7;
+
+}
+
+/* Working */
+
+.kanban-plugin__lane:nth-child(3)
+.kanban-plugin__lane-title-text::before {
+
+    background: #facc15;
+
+}
+
+/* Complete */
+
+.kanban-plugin__lane:nth-child(4)
+.kanban-plugin__lane-title-text::before {
+
+    background: #22c55e;
+
+}
+
+/* Review */
+
+.kanban-plugin__lane:nth-child(5)
+.kanban-plugin__lane-title-text::before {
+
+    background: #3b82f6;
+
+}
+
+/* ==========================================================
+   Counter
+   ========================================================== */
+
+.kanban-plugin__lane-title-count {
+
+    font-size: var(--kb-counter-size);
+
+    opacity: .6;
+
+    font-weight: 500;
+
+    margin-left: auto;
+
+}
+
+/* ==========================================================
+   Settings
+   ========================================================== */
+
+.kanban-plugin__lane-settings-button-wrapper {
+
+    opacity: 0;
+
+    transition: opacity .2s ease;
+
+}
+
+.kanban-plugin__lane:hover
+.kanban-plugin__lane-settings-button-wrapper {
+
+    opacity: 1;
+
+}
+
+/* ==========================================================
+   Cards
+   ========================================================== */
+
+.kanban-plugin__item {
+
+    background: var(--kb-card-bg) !important;
+
+    border: 1px solid var(--kb-border) !important;
+
+    border-radius: var(--kb-card-radius) !important;
+
+    padding: var(--kb-card-padding) !important;
+
+    margin-bottom: 8px !important;
+
+    min-height: var(--kb-card-height) !important;
+
+    transition:
+        transform .18s ease,
+        border-color .18s ease,
+        box-shadow .18s ease;
+
+}
+
+.kanban-plugin__item:hover {
+
+    border-color: var(--kb-border-hover) !important;
+
+    transform: translateY(-2px);
+
+    box-shadow: 0 10px 24px rgba(0,0,0,.35);
+
+}
+
+/* ==========================================================
+   Card Text
+   ========================================================== */
+
+.kanban-plugin__item
+.markdown-preview-view {
+
+    background: transparent !important;
+
+    padding: 0 !important;
+
+}
+
+.kanban-plugin__item
+.markdown-preview-view p {
+
+    margin: 0 !important;
+
+    font-size: var(--kb-card-font) !important;
+
+    line-height: 1.45 !important;
+
+    font-weight: 500;
+
+}
+
+/* Prevent huge spacing */
+
+.kanban-plugin__item
+.markdown-preview-view > * {
+
+    margin-top: 0 !important;
+
+    margin-bottom: 0 !important;
+
+}
+
+/* ==========================================================
+   Buttons
+   ========================================================== */
+
+.kanban-plugin__new-item-button {
+
+    height: 32px !important;
+
+    background: var(--kb-card-bg) !important;
+
+    border: 1px solid #2d2d2d !important;
+
+    border-radius: 10px !important;
+
+    font-size: 13px !important;
+
+    transition: .2s ease;
+
+}
+
+.kanban-plugin__new-item-button:hover {
+
+    background: #202024 !important;
+
+    border-color: var(--kb-border-hover) !important;
+
+}
+
+/* ==========================================================
+   Icons
+   ========================================================== */
+
+.kanban-plugin__icon {
+
+    color: #909090;
+
+}
+
+.kanban-plugin__icon:hover {
+
+    color: white;
+
+}
+
+.kanban-plugin__lane-collapse svg,
+.kanban-plugin__lane-settings-button svg {
+
+    width: 15px;
+
+    height: 15px;
+
+}
+
+/* ==========================================================
+   Scrollbar
+   ========================================================== */
+
+.kanban-plugin ::-webkit-scrollbar {
+
+    width: 6px;
+
+    height: 6px;
+
+}
+
+.kanban-plugin ::-webkit-scrollbar-track {
+
+    background: transparent;
+
+}
+
+.kanban-plugin ::-webkit-scrollbar-thumb {
+
+    background: #2f2f2f;
+
+    border-radius: 20px;
+
+}
+
+.kanban-plugin ::-webkit-scrollbar-thumb:hover {
+
+    background: #505050;
+
+}
+
+/* Kanban only */
+.kanban-plugin {
+    font-family: "Inter", sans-serif !important;
+}
+
+.kanban-plugin__item .markdown-preview-view,
+.kanban-plugin__lane-title-text {
+    font-family: "Inter", sans-serif !important;
+}

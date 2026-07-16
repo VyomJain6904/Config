@@ -14,11 +14,11 @@ configuration {
 
 window {
     transparency:        "real";
-    background-color:    #1a1a1a99;
+    background-color:    #111111ee;
     border:              1px solid;
-    border-color:        #ffffff22;
+    border-color:        #ffffff1a;
     border-radius:       0px;
-    width:               600px;
+    width:               620px;
     location:            center;
     y-offset:            -60px;
     padding:             0px;
@@ -33,7 +33,7 @@ mainbox {
 
 inputbar {
     background-color:    transparent;
-    padding:             12px 20px;
+    padding:             14px 20px;
     spacing:             10px;
     children:            [ textbox-prompt-colon, entry ];
 }
@@ -59,7 +59,7 @@ entry {
 }
 
 separator {
-    background-color:    #ffffff15;
+    background-color:    #ffffff12;
     expand:              false;
     height:              1px;
     margin:              0px;
@@ -72,7 +72,7 @@ listview {
     fixed-height:        false;
     scrollbar:           false;
     spacing:             8px;
-    padding:             12px;
+    padding:             14px;
     border:              0px;
     cycle:               true;
     dynamic:             true;
@@ -81,8 +81,8 @@ listview {
 element {
     background-color:    transparent;
     text-color:          #ebebeb;
-    border-radius:       12px;
-    padding:             8px;
+    border-radius:       0px;
+    padding:             10px 8px;
     spacing:             6px;
     cursor:              pointer;
     orientation:         vertical;

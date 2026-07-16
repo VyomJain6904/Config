@@ -117,6 +117,16 @@ Wallpaper Source : [Wallpapers](https://github.com/VyomJain6904/Wallpapers)
 | -------- | ------------------------- | ------------------------ |
 | OpenCode | `bun install -g opencode` | `bun install -g opencode`|
 
+### Oh-My-Zsh Custom Plugins
+
+```zsh
+git clone https://github.com/zsh-users/zsh-autosuggestions ~/.oh-my-zsh/plugins/zsh-autosuggestions
+git clone https://github.com/zsh-users/zsh-syntax-highlighting ~/.oh-my-zsh/plugins/zsh-syntax-highlighting
+git clone https://github.com/zsh-users/zsh-completions ~/.oh-my-zsh/plugins/zsh-completions
+git clone https://github.com/zsh-users/zsh-history-substring-search ~/.oh-my-zsh/plugins/zsh-history-substring-search
+git clone https://github.com/romkatv/zsh-defer ~/.oh-my-zsh/plugins/zsh-defer
+```
+
 ### Ghostty Debian Install
 
 ```bash

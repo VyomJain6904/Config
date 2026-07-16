@@ -257,6 +257,55 @@ PanelWindow {
                     }
 
                     PanelPill {
+                        visible: true
+                        Layout.preferredWidth: batteryRow.implicitWidth + Theme.pillHorizontalPadding * 2
+                        Layout.preferredHeight: Theme.pillHeight
+                        active: root.controlsModel.visible
+                        hovered: batteryMouse.containsMouse
+
+                        RowLayout {
+                            id: batteryRow
+
+                            anchors.centerIn: parent
+                            spacing: Theme.compactSpacing + 2
+
+                            FallbackIcon {
+                                iconName: root.controlsModel.batteryCharging ? "battery-010-charging" : "battery-100"
+                                Layout.preferredWidth: 16
+                                Layout.preferredHeight: 16
+                            }
+
+                            Rectangle {
+                                Layout.preferredWidth: 50
+                                Layout.preferredHeight: 4
+                                Layout.alignment: Qt.AlignVCenter
+                                color: Theme.border
+                                radius: height / 2
+
+                                Rectangle {
+                                    width: Math.max(height, Math.round((root.controlsModel.batteryPercent / 100) * parent.width))
+                                    height: parent.height
+                                    color: root.controlsModel.batteryPercent <= 20 && !root.controlsModel.batteryCharging ? Theme.error : Theme.accent
+                                    radius: parent.radius
+                                }
+                            }
+
+                            UiText {
+                                text: root.controlsModel.batteryPercent.toString() + "%"
+                                color: Theme.accentSecondary
+                            }
+                        }
+
+                        MouseArea {
+                            id: batteryMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: root.controlsModel.toggle()
+                        }
+                    }
+
+                    PanelPill {
                         visible: root.controlCenterModel.showBluetoothWidget
                         Layout.preferredWidth: bluetoothRow.implicitWidth + Theme.pillHorizontalPadding * 2
                         Layout.preferredHeight: Theme.pillHeight

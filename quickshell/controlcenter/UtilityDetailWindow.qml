@@ -29,6 +29,19 @@ FloatingWindow {
         return controlCenterModel.infoRows;
     }
 
+    property string searchQuery: ""
+
+    function filteredRowsForPage() {
+        const allRows = rowsForPage();
+        if (searchQuery.length === 0) return allRows;
+        const q = searchQuery.toLowerCase();
+        return allRows.filter(row => {
+            const t = root.controlCenterModel.utilityPage === "keybinds" ? row.keys : (row.label || "");
+            const d = root.controlCenterModel.utilityPage === "keybinds" ? row.description : (row.detail || row.value || "");
+            return t.toLowerCase().indexOf(q) !== -1 || d.toLowerCase().indexOf(q) !== -1;
+        });
+    }
+
     ShellSurface {
         anchors.fill: parent
         focus: true
@@ -59,6 +72,34 @@ FloatingWindow {
                 }
             }
 
+            TextField {
+                Layout.fillWidth: true
+                placeholderText: "Search keybinds..."
+                color: Theme.text
+                placeholderTextColor: Theme.placeholder
+                font.family: Theme.fontFamily
+                font.pixelSize: Theme.fontSize
+                background: Rectangle {
+                    color: Theme.surface
+                    border.color: Theme.border
+                    border.width: 1
+                    radius: Theme.radius
+                }
+                padding: 10
+                text: root.searchQuery
+                onTextEdited: root.searchQuery = text
+                
+                // Clear search when window closes
+                Connections {
+                    target: root.controlCenterModel
+                    function onUtilityVisibleChanged() {
+                        if (!root.controlCenterModel.utilityVisible) {
+                            root.searchQuery = "";
+                        }
+                    }
+                }
+            }
+
             UiText {
                 Layout.fillWidth: true
                 visible: root.controlCenterModel.message.length > 0
@@ -71,7 +112,7 @@ FloatingWindow {
                 Layout.fillHeight: true
                 clip: true
                 spacing: Theme.listSpacing
-                model: root.rowsForPage()
+                model: root.filteredRowsForPage()
                 ScrollBar.vertical: ScrollBar {
                     active: true
                     policy: ScrollBar.AsNeeded

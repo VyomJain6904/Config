@@ -124,7 +124,18 @@ elif action == "input-set-default":
                 stream_id = line.split("\t")[0]
                 subprocess.run(["pactl", "move-source-output", stream_id, args[0]])
 
-# ═══════════════════════════════ OUTPUT DEVICES ═══════════════════════
+# ══════════════════════════════ BATTERY ══════════════════════════════
+elif action == "battery-status":
+    try:
+        with open("/sys/class/power_supply/BAT1/capacity") as f:
+            cap = f.read().strip()
+        with open("/sys/class/power_supply/BAT1/status") as f:
+            stat = f.read().strip()
+        print(f"BATTERY {cap}% {stat}")
+    except Exception:
+        print("BATTERY unavailable")
+
+# ══════════════════════════════ AUDIO DEVICES ════════════════════════
 
 elif action == "output-devices":
     # Tab-separated: name  description  isDefault(1/0)

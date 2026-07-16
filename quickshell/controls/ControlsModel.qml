@@ -18,6 +18,9 @@ Scope {
     property int brightnessPercent: 0
     property int targetVolume: -1
     property int targetBrightness: -1
+    property string batteryText: "BATTERY unavailable"
+    property int batteryPercent: 0
+    property bool batteryCharging: false
     property var outputDevices: []
     property string outputDeviceName: ""
     property string outputDeviceDescription: ""
@@ -170,6 +173,18 @@ Scope {
         }
 
         root.mediaText = (labelParts.length > 0 ? labelParts.join(" ") : "MEDIA") + (titleParts.length > 0 ? ": " + titleParts.join(" - ") : "");
+    }
+
+    function parseBattery(text) {
+        root.batteryText = text.trim();
+        const m = root.batteryText.match(/BATTERY\s+([0-9]+)%\s+(.+)/);
+        if (m) {
+            root.batteryPercent = parseInt(m[1], 10);
+            root.batteryCharging = (m[2] === "Charging" || m[2] === "Full");
+        } else {
+            root.batteryPercent = 0;
+            root.batteryCharging = false;
+        }
     }
 
     function parseVolume(text) {
@@ -562,6 +577,28 @@ Scope {
                 root.busy = false;
                 root.refresh();
             }
+        }
+    }
+
+    Process {
+        id: batteryStatusProcess
+
+        command: Commands.controlsHelperCommand("battery-status")
+        running: true
+
+        stdout: StdioCollector {
+            onStreamFinished: {
+                root.parseBattery(this.text);
+            }
+        }
+    }
+
+    Timer {
+        interval: 30000
+        running: true
+        repeat: true
+        onTriggered: {
+            batteryStatusProcess.running = true;
         }
     }
 

@@ -1,0 +1,3 @@
+module qs.calendar
+CalendarModel 1.0 CalendarModel.qml
+CalendarWindow 1.0 CalendarWindow.qml

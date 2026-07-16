@@ -1,0 +1,255 @@
+#!/usr/bin/env python3
+"""
+Quickshell controls helper — wpctl / playerctl / bluetoothctl, i3/X11/Debian.
+Replaces dwm-quickshell-controls.
+"""
+import sys
+import re
+import subprocess
+import os
+
+
+def run(*args, timeout=10):
+    try:
+        result = subprocess.run(
+            list(args), capture_output=True, text=True, timeout=timeout
+        )
+        return result.stdout
+    except Exception:
+        return ""
+
+
+action = sys.argv[1] if len(sys.argv) > 1 else "volume-status"
+args   = sys.argv[2:]
+
+# ═══════════════════════════════ VOLUME ═══════════════════════════════
+
+if action == "volume-status":
+    # "VOL 65%"  or  "VOL muted 65%"
+    out = run("wpctl", "get-volume", "@DEFAULT_AUDIO_SINK@")
+    m = re.search(r"Volume:\s+([0-9.]+)", out)
+    if m:
+        vol   = min(100, round(float(m.group(1)) * 100))
+        muted = "[MUTED]" in out
+        print(f"VOL muted {vol}%" if muted else f"VOL {vol}%")
+    else:
+        print("VOL unavailable")
+
+elif action == "volume-up":
+    amount = args[0] if args else "5%"
+    if not amount.endswith("%+"):
+        amount = amount.rstrip("%") + "%+"
+    subprocess.run(["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", amount])
+
+elif action == "volume-down":
+    amount = args[0] if args else "5%"
+    if not amount.endswith("%-"):
+        amount = amount.rstrip("%") + "%-"
+    subprocess.run(["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", amount])
+
+elif action == "volume-toggle-mute":
+    subprocess.run(["wpctl", "set-mute", "@DEFAULT_AUDIO_SINK@", "toggle"])
+
+elif action == "volume-set":
+    if args:
+        val = args[0].rstrip("%")
+        subprocess.run(["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", f"{val}%"])
+
+# ═══════════════════════════════ BRIGHTNESS ═════════════════════════════
+
+elif action == "brightness-status":
+    # Returns "BRIGHTNESS 65%"
+    out = run("brightnessctl", "get")
+    max_out = run("brightnessctl", "max")
+    if out.strip() and max_out.strip():
+        try:
+            current = float(out.strip())
+            maximum = float(max_out.strip())
+            pct = int((current / maximum) * 100)
+            print(f"BRIGHTNESS {pct}%")
+        except ValueError:
+            print("BRIGHTNESS unavailable")
+    else:
+        print("BRIGHTNESS unavailable")
+
+elif action == "brightness-set":
+    if args:
+        val = args[0].rstrip("%")
+        if val.startswith("+"):
+            subprocess.run(["brightnessctl", "set", f"{val[1:]}%+"])
+        elif val.startswith("-"):
+            subprocess.run(["brightnessctl", "set", f"{val[1:]}%-"])
+        else:
+            subprocess.run(["brightnessctl", "set", f"{val}%"])
+
+# ═══════════════════════════════ MIC ══════════════════════════════════
+
+elif action == "mic-status":
+    out = run("wpctl", "get-volume", "@DEFAULT_AUDIO_SOURCE@")
+    if not out.strip():
+        print("MIC unavailable")
+    elif "[MUTED]" in out:
+        print("MIC muted")
+    else:
+        print("MIC on")
+
+elif action == "input-devices":
+    # Tab-separated: name  description  isDefault(1/0)
+    try:
+        default = run("pactl", "get-default-source").strip()
+        out = run("pactl", "list", "sources")
+        name = ""
+        description = ""
+        for line in out.split("\n"):
+            line = line.strip()
+            if line.startswith("Name:"):
+                name = line.split(":", 1)[1].strip()
+            elif line.startswith("Description:"):
+                description = line.split(":", 1)[1].strip()
+                if name:
+                    if not name.endswith(".monitor"):
+                        is_default = "1" if name == default else "0"
+                        print(f"{name}\t{description}\t{is_default}")
+                    name = ""
+                    description = ""
+    except Exception:
+        print("INPUT unavailable")
+
+elif action == "input-set-default":
+    if args:
+        subprocess.run(["pactl", "set-default-source", args[0]])
+        streams_out = run("pactl", "list", "short", "source-outputs")
+        for line in streams_out.strip().split("\n"):
+            if line:
+                stream_id = line.split("\t")[0]
+                subprocess.run(["pactl", "move-source-output", stream_id, args[0]])
+
+# ═══════════════════════════════ OUTPUT DEVICES ═══════════════════════
+
+elif action == "output-devices":
+    # Tab-separated: name  description  isDefault(1/0)
+    try:
+        default = run("pactl", "get-default-sink").strip()
+        # Use pactl list sinks to get full descriptions
+        out = run("pactl", "list", "sinks")
+        name = ""
+        description = ""
+        for line in out.split("\n"):
+            line = line.strip()
+            if line.startswith("Name:"):
+                name = line.split(":", 1)[1].strip()
+            elif line.startswith("Description:"):
+                description = line.split(":", 1)[1].strip()
+                if name:
+                    is_default = "1" if name == default else "0"
+                    print(f"{name}\t{description}\t{is_default}")
+                    name = ""
+                    description = ""
+    except Exception:
+        print("OUTPUT unavailable")
+
+
+elif action == "output-set-default":
+    if args:
+        subprocess.run(["pactl", "set-default-sink", args[0]])
+        # Also move all current streams to the new sink
+        streams_out = run("pactl", "list", "short", "sink-inputs")
+        for line in streams_out.strip().split("\n"):
+            if line:
+                stream_id = line.split("\t")[0]
+                subprocess.run(["pactl", "move-sink-input", stream_id, args[0]])
+
+# ═══════════════════════════════ MEDIA ════════════════════════════════
+
+elif action == "media-status":
+    # player\tstate\tartist\ttitle  or  "MEDIA none"
+    players_out = run("playerctl", "-l")
+    players = [p.strip() for p in players_out.strip().split("\n") if p.strip()]
+    if not players:
+        print("MEDIA none")
+    else:
+        p = players[0]
+        state  = run("playerctl", "-p", p, "status").strip()
+        artist = run("playerctl", "-p", p, "metadata", "xesam:artist").strip()
+        title  = run("playerctl", "-p", p, "metadata", "xesam:title").strip()
+        print(f"{p}\t{state}\t{artist}\t{title}")
+
+elif action == "media-watch":
+    # Follow mode — emits a line each time media changes
+    # Format matches parseMedia: player\tstate\tartist\ttitle
+    os.execlp(
+        "playerctl", "playerctl",
+        "--follow", "--all-players", "metadata",
+        "--format", "{{playerName}}\t{{status}}\t{{xesam:artist}}\t{{xesam:title}}"
+    )
+
+elif action == "media-play-pause":
+    subprocess.run(["playerctl", "play-pause"])
+
+elif action == "media-next":
+    subprocess.run(["playerctl", "next"])
+
+elif action == "media-previous":
+    subprocess.run(["playerctl", "previous"])
+
+# ═══════════════════════════════ BLUETOOTH ════════════════════════════
+
+elif action == "bluetooth-status":
+    out = run("bluetoothctl", "show")
+    for line in out.split("\n"):
+        if "Powered:" in line:
+            powered = "yes" in line.lower()
+            print("BT on" if powered else "BT off")
+            sys.exit(0)
+    print("BT unavailable")
+
+elif action == "bluetooth-devices":
+    # Tab-separated: address name paired connected
+    out = run("bluetoothctl", "devices", "Paired")
+    for line in out.strip().split("\n"):
+        if not line:
+            continue
+        m = re.match(r"Device\s+([0-9A-Fa-f:]+)\s+(.*)", line)
+        if m:
+            addr, name = m.group(1), m.group(2)
+            info      = run("bluetoothctl", "info", addr)
+            connected = "yes" if "Connected: yes" in info else "no"
+            print(f"{addr}\t{name}\tyes\t{connected}")
+
+elif action == "bluetooth-scan":
+    # Quick scan then list all known devices
+    subprocess.run(
+        ["bluetoothctl", "--timeout", "5", "scan", "on"],
+        capture_output=True, timeout=8
+    )
+    out = run("bluetoothctl", "devices")
+    for line in out.strip().split("\n"):
+        if not line:
+            continue
+        m = re.match(r"Device\s+([0-9A-Fa-f:]+)\s+(.*)", line)
+        if m:
+            addr, name = m.group(1), m.group(2)
+            info      = run("bluetoothctl", "info", addr)
+            paired    = "yes" if "Paired: yes"    in info else "no"
+            connected = "yes" if "Connected: yes" in info else "no"
+            print(f"{addr}\t{name}\t{paired}\t{connected}")
+
+elif action == "bluetooth-power":
+    on_off = args[0] if args else "on"
+    subprocess.run(["bluetoothctl", "power", on_off])
+
+elif action == "bluetooth-connect":
+    if args:
+        subprocess.run(["bluetoothctl", "connect", args[0]])
+
+elif action == "bluetooth-disconnect":
+    if args:
+        subprocess.run(["bluetoothctl", "disconnect", args[0]])
+
+elif action == "bluetooth-pair":
+    if args:
+        subprocess.run(["bluetoothctl", "pair", args[0]])
+
+else:
+    print(f"Unknown action: {action}", file=sys.stderr)
+    sys.exit(1)

@@ -1,0 +1,11 @@
+#!/bin/bash
+# Quickshell lock helper — i3lock with fallbacks
+set -e
+
+if command -v i3lock >/dev/null 2>&1; then
+    i3lock -c 000000 -e -n &
+elif command -v xdg-screensaver >/dev/null 2>&1; then
+    xdg-screensaver lock
+elif command -v xlock >/dev/null 2>&1; then
+    xlock -mode blank
+fi

@@ -1,0 +1,136 @@
+#!/usr/bin/env python3
+"""
+Quickshell launcher helper — XDG .desktop file scanner + gtk-launch.
+Replaces dwm-quickshell-launcher.
+"""
+import sys
+import os
+import re
+import subprocess
+
+
+def desktop_dirs():
+    xdg_home = os.environ.get("XDG_DATA_HOME", os.path.expanduser("~/.local/share"))
+    xdg_dirs = os.environ.get("XDG_DATA_DIRS", "/usr/local/share:/usr/share").split(":")
+    result = []
+    for d in [xdg_home] + xdg_dirs:
+        p = os.path.join(d, "applications")
+        if os.path.isdir(p):
+            result.append(p)
+    return result
+
+
+def parse_desktop(path):
+    app = {
+        "name": "", "generic": "", "comment": "", "exec": "",
+        "icon": "", "keywords": "", "categories": "",
+        "startup_wm_class": "", "no_display": False,
+        "only_show_in": "", "not_show_in": "", "terminal": False,
+        "actions": []
+    }
+    in_entry = False
+    try:
+        with open(path, "r", encoding="utf-8", errors="ignore") as f:
+            for raw in f:
+                line = raw.strip()
+                if line == "[Desktop Entry]":
+                    in_entry = True
+                    continue
+                if line.startswith("[") and line.endswith("]"):
+                    in_entry = False
+                    continue
+                if not in_entry or "=" not in line or line.startswith("#"):
+                    continue
+                key, _, val = line.partition("=")
+                key = key.strip()
+                val = val.strip()
+                if key == "Name"             and not app["name"]:     app["name"]             = val
+                elif key == "GenericName":                             app["generic"]          = val
+                elif key == "Comment":                                 app["comment"]          = val
+                elif key == "Exec":
+                    # Strip field codes like %f %F %u %U etc.
+                    app["exec"] = re.sub(r"%[fFuUdDnNickvm]", "", val).strip()
+                elif key == "Icon":                                    app["icon"]             = val
+                elif key == "Keywords":                                app["keywords"]         = val
+                elif key == "Categories":                              app["categories"]       = val
+                elif key == "StartupWMClass":                         app["startup_wm_class"] = val
+                elif key == "NoDisplay":                               app["no_display"]       = val.lower() == "true"
+                elif key == "OnlyShowIn":                              app["only_show_in"]     = val
+                elif key == "NotShowIn":                               app["not_show_in"]      = val
+                elif key == "Terminal":                                app["terminal"]         = val.lower() == "true"
+    except Exception:
+        return None
+
+    if not app["name"] or not app["exec"]:
+        return None
+    if app["no_display"]:
+        return None
+    # Skip apps that only show in specific non-i3 DEs (but allow those with no restriction)
+    if app["only_show_in"] and "i3" not in app["only_show_in"]:
+        # Still show it if it says KDE/GNOME only but not hidden
+        pass
+
+    return app
+
+
+action = sys.argv[1] if len(sys.argv) > 1 else "list"
+args   = sys.argv[2:]
+
+# ─────────────────────────────────────────────────────────────
+if action == "list":
+    seen  = set()
+    apps  = []
+
+    for d in desktop_dirs():
+        try:
+            entries = sorted(os.listdir(d))
+        except Exception:
+            continue
+        for fname in entries:
+            if not fname.endswith(".desktop"):
+                continue
+            if fname in seen:
+                continue
+            seen.add(fname)
+            app = parse_desktop(os.path.join(d, fname))
+            if app:
+                apps.append((app, fname))
+
+    apps.sort(key=lambda x: x[0]["name"].lower())
+
+    for app, desktop_file in apps:
+        # Fields: name generic comment exec icon desktop_file keywords categories startup_wm_class actions
+        print("\t".join([
+            app["name"],
+            app["generic"],
+            app["comment"],
+            app["exec"],
+            app["icon"],
+            desktop_file,
+            app["keywords"].rstrip(";"),
+            app["categories"].rstrip(";"),
+            app["startup_wm_class"],
+            "",   # actions placeholder
+        ]))
+
+# ─────────────────────────────────────────────────────────────
+elif action == "launch":
+    if not args:
+        sys.exit(0)
+    desktop_file = args[0]
+    # Try gtk-launch first (handles .desktop files natively)
+    if subprocess.run(["which", "gtk-launch"], capture_output=True).returncode == 0:
+        subprocess.Popen(["gtk-launch", desktop_file])
+        sys.exit(0)
+    # Fallback: find and exec manually
+    for d in desktop_dirs():
+        path = os.path.join(d, desktop_file)
+        if os.path.exists(path):
+            app = parse_desktop(path)
+            if app and app["exec"]:
+                subprocess.Popen(["sh", "-c", app["exec"]])
+            break
+
+else:
+    print(f"Unknown action: {action}", file=sys.stderr)
+    sys.exit(1)

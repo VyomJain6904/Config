@@ -1,0 +1,304 @@
+#!/usr/bin/env python3
+"""
+Quickshell control-center helper — system info, keybinds, actions for i3/Debian.
+Replaces dwm-quickshell-controlcenter.
+"""
+import sys
+import os
+import re
+import subprocess
+
+
+def run(*cmd, timeout=10):
+    try:
+        r = subprocess.run(list(cmd), capture_output=True, text=True, timeout=timeout)
+        return r.stdout
+    except Exception:
+        return ""
+
+
+action = sys.argv[1] if len(sys.argv) > 1 else "info"
+args   = sys.argv[2:]
+
+# ─────────────────────────────────────────────────────────────
+if action == "info":
+    def row(label, value):
+        print(f"{label}\t{value}")
+
+    # Hostname
+    row("Hostname", run("hostname").strip() or "unknown")
+
+    # OS
+    try:
+        with open("/etc/os-release") as f:
+            for line in f:
+                if line.startswith("PRETTY_NAME="):
+                    row("OS", line.split("=", 1)[1].strip().strip('"'))
+                    break
+    except Exception:
+        row("OS", "Debian")
+
+    # Kernel
+    row("Kernel", run("uname", "-r").strip())
+
+    # WM / Display
+    row("WM",      "i3")
+    row("Display", os.environ.get("DISPLAY", ":0") + " (X11)")
+
+    # CPU
+    try:
+        with open("/proc/cpuinfo") as f:
+            for line in f:
+                if line.startswith("model name"):
+                    row("CPU", line.split(":", 1)[1].strip())
+                    break
+    except Exception:
+        pass
+
+    # RAM
+    try:
+        with open("/proc/meminfo") as f:
+            for line in f:
+                if line.startswith("MemTotal:"):
+                    kb  = int(line.split()[1])
+                    row("RAM", f"{kb // 1024} MB")
+                    break
+    except Exception:
+        pass
+
+    # GPU
+    gpu = run("lspci").strip()
+    for line in gpu.split("\n"):
+        if "VGA" in line or "3D" in line or "Display" in line:
+            row("GPU", line.split(":", 2)[-1].strip())
+            break
+
+    # Shell
+    row("Shell", os.path.basename(os.environ.get("SHELL", "bash")))
+
+    # Uptime
+    try:
+        with open("/proc/uptime") as f:
+            secs  = float(f.read().split()[0])
+            hours = int(secs // 3600)
+            mins  = int((secs % 3600) // 60)
+            row("Uptime", f"{hours}h {mins}m")
+    except Exception:
+        pass
+
+    # Terminal
+    row("Terminal", "ghostty")
+    row("Browser",  "helium")
+
+# ─────────────────────────────────────────────────────────────
+elif action == "themes":
+    # status\tname
+    theme_dirs = [
+        os.path.expanduser("~/.themes"),
+        os.path.expanduser("~/.local/share/themes"),
+        "/usr/share/themes",
+    ]
+    current = run("gsettings", "get", "org.gnome.desktop.interface", "gtk-theme").strip().strip("'\"")
+    seen = set()
+    for d in theme_dirs:
+        if not os.path.isdir(d):
+            continue
+        try:
+            for t in sorted(os.listdir(d)):
+                if t not in seen and not t.startswith("."):
+                    seen.add(t)
+                    status = "active" if t == current else ""
+                    print(f"{status}\t{t}")
+        except Exception:
+            pass
+
+# ─────────────────────────────────────────────────────────────
+elif action == "keybinds":
+    # keys\tdescription
+    config = os.path.expanduser("~/.config/i3/config")
+    try:
+        with open(config) as f:
+            for line in f:
+                line = line.strip()
+                if line.startswith("bindsym") or line.startswith("bindcode"):
+                    parts = line.split(None, 2)
+                    if len(parts) >= 3:
+                        keys_str = parts[1]
+                        if keys_str == "XF86AudioRaiseVolume": keys_str = "Fn+F3"
+                        elif keys_str == "XF86AudioLowerVolume": keys_str = "Fn+F2"
+                        elif keys_str == "XF86AudioMute": keys_str = "Fn+F1"
+                        elif keys_str == "XF86MonBrightnessUp": keys_str = "Fn+F6"
+                        elif keys_str == "XF86MonBrightnessDown": keys_str = "Fn+F5"
+
+                        mapped_keys = []
+                        for k in keys_str.split("+"):
+                            k_lower = k.lower()
+                            if k in ["$mod", "Mod4"]: k = "⌘"
+                            elif k_lower == "shift": k = "⇧"
+                            elif k_lower in ["mod1", "alt"]: k = "⌥"
+                            elif k_lower in ["control", "ctrl"]: k = "⌃"
+                            elif k_lower in ["caps_lock", "capslock"]: k = "⇪"
+                            elif k_lower in ["escape", "esc"]: k = "⎋"
+                            elif k_lower in ["return", "enter"]: k = "⏎"
+                            elif k_lower == "right": k = "⇥"
+                            elif k_lower == "left": k = "⇤"
+                            elif k_lower == "down": k = "↓"
+                            elif k_lower == "up": k = "↑"
+                            elif k_lower == "space": k = "Space"
+                            else: k = k.capitalize() if len(k) > 1 else k.upper()
+                            mapped_keys.append(k)
+                        keys = " + ".join(mapped_keys)
+                        
+                        raw_desc = parts[2]
+                        icon = ""
+                        desc = raw_desc
+
+                        if "exec $term" in raw_desc:
+                            desc, icon = "Ghostty", "com.mitchellh.ghostty-clear"
+                        elif "exec $browser" in raw_desc:
+                            desc, icon = "Helium", "helium-clear"
+                        elif "exec $editor" in raw_desc:
+                            desc, icon = "Neovim", "nvim"
+                        elif "exec vmware" in raw_desc:
+                            desc, icon = "VMware", "vmware-workstation-mc"
+                        elif "exec librewolf" in raw_desc:
+                            desc, icon = "LibreWolf", "librewolf-mc"
+                        elif "exec thunar" in raw_desc:
+                            desc, icon = "Thunar", "org.gtk.FileManager-clear"
+                        elif "exec obsidian" in raw_desc:
+                            desc, icon = "Obsidian", "md.obsidian-clear"
+                        elif "exec discord" in raw_desc:
+                            desc, icon = "Discord", "com.discordapp.Discord-clear"
+                        elif "exec claude" in raw_desc:
+                            desc, icon = "Claude", "com.anthropic.claude-clear"
+                        elif "exec chatgpt" in raw_desc:
+                            desc, icon = "ChatGPT", "com.openai.ChatGPT-clear"
+                        elif "exec whatsapp" in raw_desc:
+                            desc, icon = "WhatsApp", "com.whatsapp.Whatsapp-clear"
+                        elif "exec alacritty" in raw_desc:
+                            desc, icon = "Alacritty", "alacritty-mc"
+                        elif "flameshot" in raw_desc:
+                            desc, icon = "Screenshot", "applets-screenshooter"
+                        elif "rofi" in raw_desc:
+                            desc, icon = "App Launcher", "system-search"
+                        elif "powermenu" in raw_desc:
+                            desc, icon = "Power Menu", "system-shutdown"
+                        elif raw_desc == "kill":
+                            desc, icon = "Close Window", "window-close"
+                        elif "fullscreen" in raw_desc:
+                            desc, icon = "Fullscreen", "view-fullscreen"
+                        elif "floating toggle" in raw_desc:
+                            desc, icon = "Toggle Floating", "view-restore"
+                        elif "workspace" in raw_desc:
+                            desc, icon = "Workspace " + raw_desc.split()[-1].replace('"', ''), "desktop"
+                        elif "focus" in raw_desc:
+                            desc, icon = "Focus " + raw_desc.split()[-1].capitalize(), "go-next"
+                        elif "move container" in raw_desc:
+                            desc, icon = "Move to Workspace " + raw_desc.split()[-1].replace('"', ''), "go-next"
+                        elif "move" in raw_desc:
+                            desc, icon = "Move " + raw_desc.split()[-1].capitalize(), "go-next"
+                        elif "split h" in raw_desc:
+                            desc, icon = "Split Horizontal", "view-split-left-right"
+                        elif "split v" in raw_desc:
+                            desc, icon = "Split Vertical", "view-split-top-bottom"
+                        elif "mode" in raw_desc:
+                            desc, icon = "Resize Mode", "transform-scale"
+                        elif "reload" in raw_desc:
+                            desc, icon = "Reload i3", "view-refresh"
+                        elif "restart" in raw_desc:
+                            desc, icon = "Restart i3", "system-reboot"
+                        elif "exit" in raw_desc:
+                            desc, icon = "Exit i3", "system-log-out"
+                        elif "wpctl set-volume" in raw_desc and "+" in raw_desc:
+                            desc, icon = "Volume Up", "audio-volume-high"
+                        elif "wpctl set-volume" in raw_desc and "-" in raw_desc:
+                            desc, icon = "Volume Down", "audio-volume-low"
+                        elif "wpctl set-mute" in raw_desc:
+                            desc, icon = "Volume Mute", "audio-volume-muted"
+                        elif "brightnessctl" in raw_desc and "+" in raw_desc:
+                            desc, icon = "Brightness Up", "display-brightness-symbolic"
+                        elif "brightnessctl" in raw_desc and "-" in raw_desc:
+                            desc, icon = "Brightness Down", "display-brightness-symbolic"
+
+                        print(f"{keys}\t{desc}\t{icon}")
+    except Exception:
+        pass
+
+# ─────────────────────────────────────────────────────────────
+elif action == "action":
+    if not args:
+        sys.exit(0)
+    act = args[0]
+
+    if act == "restart-quickshell":
+        subprocess.Popen(
+            ["sh", "-c", "pkill -x quickshell; sleep 0.5; quickshell -c ~/.config/quickshell &"],
+            start_new_session=True
+        )
+    elif act == "restart-picom":
+        subprocess.Popen(["sh", "-c", "pkill picom; sleep 0.3; picom -b"], start_new_session=True)
+    elif act == "restart-networkmanager":
+        subprocess.Popen(["sudo", "systemctl", "restart", "NetworkManager"])
+    elif act == "reload-wallpaper":
+        subprocess.Popen(["xsetroot", "-solid", "#000000"])
+    elif act == "dependency-check":
+        tools = ["nmcli", "wpctl", "playerctl", "bluetoothctl", "quickshell",
+                 "python3", "pactl", "gtk-launch"]
+        for t in tools:
+            found = subprocess.run(["which", t], capture_output=True).returncode == 0
+            print(f'{"OK" if found else "MISSING"}\t{t}')
+    elif act == "install-missing-deps":
+        subprocess.Popen(["sh", "-c",
+            "sudo apt-get install -y playerctl i3lock pavucontrol nm-connection-editor"])
+    elif act == "open-wallpapers":
+        subprocess.Popen(["xdg-open", os.path.expanduser("~/Pictures")])
+    elif act == "gtk-settings":
+        subprocess.Popen(["lxappearance"])
+
+# ─────────────────────────────────────────────────────────────
+elif action == "power-status":
+    # key\tvalue rows for ControlCenterModel
+    dpms_available = False
+    dpms_enabled   = False
+    dpms_timeout   = 600
+    lock_available = subprocess.run(["which", "i3lock"], capture_output=True).returncode == 0
+
+    xset_out = run("xset", "q")
+    if "DPMS" in xset_out:
+        dpms_available = True
+        for line in xset_out.split("\n"):
+            if "DPMS is" in line:
+                dpms_enabled = "Enabled" in line
+            if "Standby:" in line:
+                m = re.search(r"Standby:\s+(\d+)", line)
+                if m:
+                    dpms_timeout = int(m.group(1))
+
+    print(f"dpms_available\t{'1' if dpms_available else '0'}")
+    print(f"dpms_enabled\t{'1'   if dpms_enabled   else '0'}")
+    print(f"dpms_timeout\t{dpms_timeout}")
+    print(f"lock_available\t{'1' if lock_available  else '0'}")
+    print(f"lock_enabled\t0")
+    print(f"lock_running\t0")
+    print(f"lock_timeout\t600")
+    print(f"config_file\t{os.path.expanduser('~/.config/i3/config')}")
+
+# ─────────────────────────────────────────────────────────────
+elif action == "power-dpms":
+    on_off = args[0] if args else "off"
+    if on_off == "on":
+        subprocess.run(["xset", "+dpms"])
+        subprocess.run(["xset", "dpms", "600", "600", "600"])
+    else:
+        subprocess.run(["xset", "-dpms"])
+
+elif action == "power-dpms-timeout":
+    secs = args[0] if args else "600"
+    subprocess.run(["xset", "dpms", secs, secs, secs])
+
+elif action in ("power-lock", "power-lock-timeout"):
+    pass  # xautolock integration placeholder
+
+else:
+    print(f"Unknown action: {action}", file=sys.stderr)
+    sys.exit(1)

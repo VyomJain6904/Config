@@ -1,0 +1,143 @@
+#!/usr/bin/env python3
+"""
+Quickshell network helper — nmcli-based, i3/X11/Debian compatible.
+Replaces dwm-quickshell-network.
+"""
+import sys
+import re
+import subprocess
+import os
+
+
+def run(*args, timeout=10):
+    try:
+        result = subprocess.run(
+            list(args), capture_output=True, text=True, timeout=timeout
+        )
+        return result.stdout
+    except Exception:
+        return ""
+
+
+def split_terse(line):
+    """Split nmcli -t output on unescaped colons, then unescape \\: → :"""
+    parts = re.split(r"(?<!\\):", line)
+    return [p.replace("\\:", ":") for p in parts]
+
+
+action = sys.argv[1] if len(sys.argv) > 1 else "status"
+args = sys.argv[2:]
+
+# ─────────────────────────────────────────────────────────────
+if action == "status":
+    # Returns "  SSID" /  "  eth0" / "NET offline"
+    out = run("nmcli", "-t", "-f", "TYPE,STATE,CONNECTION", "device", "status")
+    result = "NET offline"
+    for line in out.strip().split("\n"):
+        if not line:
+            continue
+        parts = split_terse(line)
+        if len(parts) < 3:
+            continue
+        dtype, state = parts[0], parts[1]
+        conn = ":".join(parts[2:])
+        if state == "connected":
+            if dtype in ("wifi", "802-11-wireless"):
+                result = f"\uf1eb  {conn}"
+                break
+            elif dtype in ("ethernet", "802-3-ethernet"):
+                result = f"\uf6ff  {conn}"
+                break
+    print(result)
+
+# ─────────────────────────────────────────────────────────────
+elif action == "devices":
+    # Tab-separated: DEVICE TYPE STATE CONNECTION
+    out = run("nmcli", "-t", "-f", "DEVICE,TYPE,STATE,CONNECTION", "device", "status")
+    for line in out.strip().split("\n"):
+        if not line:
+            continue
+        parts = split_terse(line)
+        if len(parts) >= 4:
+            print("\t".join(parts[:4]))
+
+# ─────────────────────────────────────────────────────────────
+elif action == "connections":
+    # Tab-separated: NAME UUID TYPE ACTIVE(yes/no) DEVICE
+    out = run("nmcli", "-t", "-f", "NAME,UUID,TYPE,DEVICE", "connection", "show")
+    for line in out.strip().split("\n"):
+        if not line:
+            continue
+        parts = split_terse(line)
+        if len(parts) < 4:
+            continue
+        name, uuid, ctype = parts[0], parts[1], parts[2]
+        device = ":".join(parts[3:])
+        active = "yes" if device and device != "--" else "no"
+        dev_out = device if active == "yes" else ""
+        print(f"{name}\t{uuid}\t{ctype}\t{active}\t{dev_out}")
+
+# ─────────────────────────────────────────────────────────────
+elif action == "wifi-scan":
+    rescan = "no"
+    i = 0
+    while i < len(args):
+        if args[i] == "--rescan" and i + 1 < len(args):
+            rescan = args[i + 1]
+        i += 1
+
+    out = run(
+        "nmcli", "-t", "-f", "IN-USE,BSSID,SSID,SIGNAL,SECURITY,CHAN,DEVICE",
+        "device", "wifi", "list", "--rescan", rescan
+    )
+    for line in out.strip().split("\n"):
+        if not line:
+            continue
+        parts = split_terse(line)
+        # IN-USE, BSSID, SSID, SIGNAL, SECURITY, CHAN, DEVICE
+        if len(parts) >= 7:
+            active = parts[0]        # "*" or ""
+            bssid  = parts[1]
+            ssid   = parts[2]
+            signal = parts[3]
+            sec    = parts[4]
+            chan   = parts[5]
+            device = ":".join(parts[6:])
+            if ssid:  # skip hidden/empty SSIDs
+                print(f"{active}\t{bssid}\t{ssid}\t{signal}\t{sec}\t{chan}\t{device}")
+
+# ─────────────────────────────────────────────────────────────
+elif action == "wifi-connect":
+    # args: DEVICE BSSID SSID [PASSWORD]
+    if len(args) < 3:
+        sys.exit(1)
+    device, bssid, ssid = args[0], args[1], args[2]
+    password = args[3] if len(args) > 3 else None
+    cmd = ["nmcli", "device", "wifi", "connect", bssid, "ifname", device]
+    if password:
+        cmd += ["password", password]
+    subprocess.run(cmd)
+
+# ─────────────────────────────────────────────────────────────
+elif action == "connect":
+    if args:
+        subprocess.run(["nmcli", "connection", "up", "uuid", args[0]])
+
+# ─────────────────────────────────────────────────────────────
+elif action == "disconnect":
+    if args:
+        subprocess.run(["nmcli", "device", "disconnect", args[0]])
+
+# ─────────────────────────────────────────────────────────────
+elif action == "monitor":
+    # Tail nmcli monitor — each line triggers a refresh in NetworkModel
+    os.execlp("nmcli", "nmcli", "monitor")
+
+# ─────────────────────────────────────────────────────────────
+elif action == "editor":
+    subprocess.Popen(["nm-connection-editor"])
+
+# ─────────────────────────────────────────────────────────────
+else:
+    print(f"Unknown action: {action}", file=sys.stderr)
+    sys.exit(1)

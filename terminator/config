@@ -15,7 +15,7 @@
 
     # Font
     use_system_font = False
-    font = JetBrainsMonoNL Nerd Font Propo Semi-Bold 10
+    font = JetBrainsMono Nerd Font Propo SemiBold 10
 
     # Background
     background_color = "#000000"

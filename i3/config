@@ -11,7 +11,8 @@ mouse_warping none
 # Auto Start
 exec --no-startup-id nm-applet
 exec --no-startup-id pkill dunst
-exec --no-startup-id quickshell -c ~/.config/quickshell
+exec --no-startup-id ~/.config/i3/power-monitor.sh
+exec_always --no-startup-id ~/.config/quickshell/scripts/qs-daemon
 exec --no-startup-id touchegg
 exec --no-startup-id xinput set-prop 17 "libinput Tapping Enabled" 1
 exec --no-startup-id xinput set-prop 17 "libinput Natural Scrolling Enabled" 1
@@ -58,7 +59,7 @@ bindsym $mod+e exec thunar
 bindsym $mod+n exec obsidian
 bindsym $mod+Shift+s exec flameshot gui -c -p ~/Pictures/Screenshots/
 bindsym $mod+m exec alacritty
-bindsym $mod+F4 exec --no-startup-id ~/.config/polybar/powermenu.sh
+bindsym $mod+F4 exec --no-startup-id quickshell ipc call power toggle
 ############################
 
 # LAUNCHERS
@@ -66,6 +67,7 @@ bindsym $mod+F4 exec --no-startup-id ~/.config/polybar/powermenu.sh
 ############################
 bindsym $mod+space exec --no-startup-id rofi -show drun -theme ~/.config/rofi/spotlight.rasi
 bindsym $mod+k exec --no-startup-id quickshell ipc call controlcenter openKeybinds
+bindsym $mod+l exec --no-startup-id quickshell ipc call controlcenter openInfo
 ############################
 
 # WINDOW CONTROL
@@ -181,9 +183,9 @@ bindsym $mod+Shift+e exec "i3-msg exit"
 
 ############################
 
-gaps inner 8
+gaps inner 0
 gaps outer 0
-smart_gaps off
+smart_gaps on
 
 ############################
 

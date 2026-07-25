@@ -15,6 +15,7 @@ Scope {
     property bool showNetworkWidget: true
     property bool showPowerWidget: true
     property bool showWorkspaceWidget: true
+    property bool showBatteryWidget: true
     property string message: ""
     property var infoRows: []
     property var themeRows: []
@@ -65,6 +66,7 @@ Scope {
         if (name === "Bluetooth") return root.showBluetoothWidget;
         if (name === "Network") return root.showNetworkWidget;
         if (name === "Power") return root.showPowerWidget;
+        if (name === "Battery") return root.showBatteryWidget;
         return root.showWorkspaceWidget;
     }
 
@@ -73,6 +75,7 @@ Scope {
         else if (name === "Bluetooth") root.showBluetoothWidget = !root.showBluetoothWidget;
         else if (name === "Network") root.showNetworkWidget = !root.showNetworkWidget;
         else if (name === "Power") root.showPowerWidget = !root.showPowerWidget;
+        else if (name === "Battery") root.showBatteryWidget = !root.showBatteryWidget;
         else if (name === "Workspaces") root.showWorkspaceWidget = !root.showWorkspaceWidget;
     }
 
@@ -100,10 +103,18 @@ Scope {
         root.openPage("appearance", "Loading themes...", themesProcess);
     }
 
-    function openKeybinds() {
-        root.utilityPage = "keybinds";
+    function openUtilityPage(name, message, process) {
+        root.utilityPage = name;
+        root.message = message;
+        root.busy = true;
         root.utilityVisible = true;
-        root.openPage("keybinds", "Loading keybinds...", keybindsProcess);
+        if (!process.running) {
+            process.running = true;
+        }
+    }
+
+    function openKeybinds() {
+        root.openUtilityPage("keybinds", "Loading keybinds...", keybindsProcess);
     }
 
     function openPower() {
@@ -111,9 +122,7 @@ Scope {
     }
 
     function openInfo() {
-        root.utilityPage = "info";
-        root.utilityVisible = true;
-        root.openPage("info", "Loading system info...", infoProcess);
+        root.openUtilityPage("info", "Loading system info...", infoProcess);
     }
 
     function refreshCurrentPage() {
@@ -220,13 +229,7 @@ Scope {
         root.runPowerAction("power-dpms-timeout", [seconds.toString()]);
     }
 
-    function setPowerLock(enabled) {
-        root.runPowerAction("power-lock", [enabled ? "on" : "off"]);
-    }
 
-    function setPowerLockTimeout(seconds) {
-        root.runPowerAction("power-lock-timeout", [seconds.toString()]);
-    }
 
     Process {
         id: infoProcess

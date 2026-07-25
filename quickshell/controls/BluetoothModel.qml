@@ -67,10 +67,21 @@ Scope {
     Process {
         id: actionProcess
         command: ["sh", "-c", "exit 0"]
+        property string lastError: ""
+        
+        stderr: StdioCollector {
+            onStreamFinished: actionProcess.lastError = this.text.trim()
+        }
+
         onRunningChanged: {
             if (!running && root.busy) {
                 root.busy = false;
-                root.message = "";
+                if (exitCode !== 0) {
+                    root.message = actionProcess.lastError || "Action failed";
+                } else {
+                    root.message = "";
+                }
+                actionProcess.lastError = "";
                 root.refresh(false);
             }
         }

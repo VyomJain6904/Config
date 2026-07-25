@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Quickshell network helper — nmcli-based, i3/X11/Debian compatible.
-Replaces dwm-quickshell-network.
+Replaces qs-network.
 """
 import sys
 import re

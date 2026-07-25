@@ -1,3 +1,4 @@
+import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.core
@@ -206,16 +207,6 @@ Scope {
         root.connectWifi(root.selectedWifiNetwork());
     }
 
-    function connectProfile(profile) {
-        if (!profile || profile.uuid.length === 0) {
-            return;
-        }
-
-        root.busy = true;
-        root.message = "Connecting " + profile.name;
-        actionProcess.command = Commands.networkHelperCommand("connect", [profile.uuid]);
-        actionProcess.running = true;
-    }
 
     function disconnectDevice(device) {
         if (!device || device.length === 0) {
@@ -233,8 +224,19 @@ Scope {
             return;
         }
 
-        editorProcess.running = true;
+        if (!editorProcess.running) {
+            editorProcess.running = true;
+        }
     }
+
+    Timer {
+        id: networkRefreshDebouncer
+        interval: 1000
+        running: false
+        repeat: false
+        onTriggered: root.refresh(false)
+    }
+
 
     Process {
         id: statusProcess
@@ -284,7 +286,13 @@ Scope {
                 root.busy = false;
                 root.wifiPassword = "";
                 root.message = "";
-                root.refresh(false);
+                networkRefreshDebouncer.restart();
+            }
+        }
+        
+        stderr: StdioCollector {
+            onStreamFinished: {
+                if (this.text.length > 0) console.warn("Network action error: " + this.text);
             }
         }
     }
@@ -301,11 +309,18 @@ Scope {
     }
 
     Process {
+        id: monitorProcess
         command: Commands.networkHelperCommand("monitor")
         running: true
 
         stdout: SplitParser {
-            onRead: root.refresh(false)
+            onRead: networkRefreshDebouncer.restart()
+        }
+        
+        onRunningChanged: {
+            if (!running) {
+                Qt.callLater(() => { running = true; })
+            }
         }
     }
 
@@ -314,6 +329,12 @@ Scope {
 
         command: Commands.networkHelperCommand("editor")
         running: false
+        
+        stderr: StdioCollector {
+            onStreamFinished: {
+                if (this.text.length > 0) console.warn("Network editor error: " + this.text);
+            }
+        }
     }
 
     Process {

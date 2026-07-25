@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Quickshell controls helper — wpctl / playerctl / bluetoothctl, i3/X11/Debian.
-Replaces dwm-quickshell-controls.
+Replaces qs-controls.
 """
 import sys
 import re
@@ -251,11 +251,19 @@ elif action == "bluetooth-power":
 
 elif action == "bluetooth-connect":
     if args:
-        subprocess.run(["bluetoothctl", "connect", args[0]])
+        res = subprocess.run(["bluetoothctl", "connect", args[0]], capture_output=True, text=True)
+        if res.returncode != 0:
+            err = res.stderr.strip() or res.stdout.strip()
+            print(f"Failed to connect: {err}", file=sys.stderr)
+            sys.exit(1)
 
 elif action == "bluetooth-disconnect":
     if args:
-        subprocess.run(["bluetoothctl", "disconnect", args[0]])
+        res = subprocess.run(["bluetoothctl", "disconnect", args[0]], capture_output=True, text=True)
+        if res.returncode != 0:
+            err = res.stderr.strip() or res.stdout.strip()
+            print(f"Failed to disconnect: {err}", file=sys.stderr)
+            sys.exit(1)
 
 elif action == "bluetooth-pair":
     if args:

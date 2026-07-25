@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Quickshell control-center helper — system info, keybinds, actions for i3/Debian.
-Replaces dwm-quickshell-controlcenter.
+Replaces qs-controlcenter.
 """
 import sys
 import os
@@ -153,6 +153,10 @@ elif action == "keybinds":
                         icon = ""
                         desc = raw_desc
 
+                        if desc.startswith("exec"):
+                            desc = desc.replace("exec --no-startup-id", "").replace("exec", "").strip().capitalize()
+                            icon = "system-run"
+
                         if "exec $term" in raw_desc:
                             desc, icon = "Ghostty", "com.mitchellh.ghostty-clear"
                         elif "exec $browser" in raw_desc:
@@ -181,8 +185,12 @@ elif action == "keybinds":
                             desc, icon = "Screenshot", "applets-screenshooter"
                         elif "rofi" in raw_desc:
                             desc, icon = "App Launcher", "system-search"
-                        elif "powermenu" in raw_desc:
+                        elif "power toggle" in raw_desc or "powermenu" in raw_desc:
                             desc, icon = "Power Menu", "system-shutdown"
+                        elif "openKeybinds" in raw_desc:
+                            desc, icon = "Keybinds Menu", "preferences-system"
+                        elif "controlcenter" in raw_desc:
+                            desc, icon = "Control Center", "preferences-system"
                         elif raw_desc == "kill":
                             desc, icon = "Close Window", "window-close"
                         elif "fullscreen" in raw_desc:
@@ -232,7 +240,7 @@ elif action == "action":
 
     if act == "restart-quickshell":
         subprocess.Popen(
-            ["sh", "-c", "pkill -x quickshell; sleep 0.5; quickshell -c ~/.config/quickshell &"],
+            ["sh", "-c", "pkill -x quickshell; sleep 0.5; quickshell -p /home/jain/.config/quickshell &"],
             start_new_session=True
         )
     elif act == "restart-picom":

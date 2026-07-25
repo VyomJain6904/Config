@@ -9,11 +9,12 @@ Scope {
 
     property bool visible: false
     property bool busy: false
+    property string requestedTab: "audio"
     property string volumeText: "VOL unavailable"
     property int volumePercent: 0
     property bool volumeMuted: false
     property string volumeDisplayText: volumeText + (outputDeviceDescription.length > 0 ? " - " + outputDeviceDescription : "")
-    
+
     property string brightnessText: "BRIGHTNESS unavailable"
     property int brightnessPercent: 0
     property int targetVolume: -1
@@ -180,7 +181,7 @@ Scope {
         const m = root.batteryText.match(/BATTERY\s+([0-9]+)%\s+(.+)/);
         if (m) {
             root.batteryPercent = parseInt(m[1], 10);
-            root.batteryCharging = (m[2] === "Charging" || m[2] === "Full");
+            root.batteryCharging = (m[2] !== "Discharging" && m[2] !== "unavailable");
         } else {
             root.batteryPercent = 0;
             root.batteryCharging = false;
@@ -237,7 +238,11 @@ Scope {
             const description = fields.length > 1 && fields[1].length > 0 ? fields[1] : name;
             const isDefault = fields.length > 2 && fields[2] === "1";
 
-            devices.push({ "name": name, "description": description, "isDefault": isDefault });
+            devices.push({
+                "name": name,
+                "description": description,
+                "isDefault": isDefault
+            });
             if (isDefault) {
                 defaultName = name;
                 defaultDescription = description;
@@ -272,7 +277,11 @@ Scope {
             const description = fields.length > 1 && fields[1].length > 0 ? fields[1] : name;
             const isDefault = fields.length > 2 && fields[2] === "1";
 
-            devices.push({ "name": name, "description": description, "isDefault": isDefault });
+            devices.push({
+                "name": name,
+                "description": description,
+                "isDefault": isDefault
+            });
             if (isDefault) {
                 defaultName = name;
                 defaultDescription = description;
@@ -545,8 +554,16 @@ Scope {
         running: true
 
         stdout: SplitParser {
-            onRead: function(data) {
+            onRead: function (data) {
                 root.parseMedia(data);
+            }
+        }
+
+        onRunningChanged: {
+            if (!running) {
+                Qt.callLater(() => {
+                    running = true;
+                });
             }
         }
     }
@@ -578,6 +595,13 @@ Scope {
                 root.refresh();
             }
         }
+
+        stderr: StdioCollector {
+            onStreamFinished: {
+                if (this.text.length > 0)
+                    console.warn("Controls action error: " + this.text);
+            }
+        }
     }
 
     Process {
@@ -598,7 +622,9 @@ Scope {
         running: true
         repeat: true
         onTriggered: {
-            batteryStatusProcess.running = true;
+            if (!batteryStatusProcess.running) {
+                batteryStatusProcess.running = true;
+            }
         }
     }
 

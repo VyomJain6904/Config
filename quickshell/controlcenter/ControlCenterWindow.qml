@@ -9,7 +9,6 @@ PopupWindow {
     id: root
 
     required property var controlCenterModel
-    required property var healthModel
     required property var panelWindow
     required property var powerMenuModel
 
@@ -40,11 +39,6 @@ PopupWindow {
             return (seconds / 60) + "m";
         }
         return seconds + "s";
-    }
-
-    function openSystemHealth() {
-        root.controlCenterModel.close();
-        root.healthModel.openOnScreen(root.panelWindow.screen);
     }
 
     function openPowerSettings() {
@@ -108,15 +102,6 @@ PopupWindow {
 
         ShellSurface {
             id: controlCard
-
-            Connections {
-                target: root._backingWindow
-                function onActiveChanged() {
-                    if (!root._backingWindow.active) {
-                        root.controlCenterModel.close();
-                    }
-                }
-            }
 
             Layout.preferredWidth: root.cardWidth
             Layout.maximumHeight: implicitHeight
@@ -241,7 +226,7 @@ PopupWindow {
                     rowSpacing: 8
 
                     Repeater {
-                        model: ["Volume", "Bluetooth", "Network", "Power", "Workspaces"]
+                        model: ["Volume", "Bluetooth", "Network", "Battery", "Power", "Workspaces"]
                         delegate: Tile {
                             required property string modelData
                             Layout.fillWidth: true
@@ -257,11 +242,6 @@ PopupWindow {
                     visible: root.sidePanel === "utilities"
                     spacing: 8
 
-                    Tile {
-                        Layout.fillWidth: true
-                        label: "System Health  >"
-                        onActivated: root.openSystemHealth()
-                    }
                     Tile {
                         Layout.fillWidth: true
                         label: "Quick Actions  >"

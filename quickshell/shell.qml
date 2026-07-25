@@ -1,5 +1,7 @@
 //@ pragma UseQApplication
 
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import Quickshell
 import Quickshell.Io
@@ -7,14 +9,11 @@ import Quickshell.Services.SystemTray
 import qs.controlcenter
 import qs.calendar
 import qs.controls
-import qs.health
 import qs.network
-import qs.notifications
+import qs.vpn
 import qs.panel
 import qs.power
 import qs.state
-
-pragma ComponentBehavior: Bound
 
 ShellRoot {
     id: root
@@ -28,8 +27,6 @@ ShellRoot {
     I3State {
         id: i3State
     }
-
-
 
     PowerMenuModel {
         id: powerMenuModel
@@ -55,8 +52,8 @@ ShellRoot {
         id: controlCenterModel
     }
 
-    SystemHealthModel {
-        id: systemHealthModel
+    VpnModel {
+        id: vpnModel
     }
 
     LazyLoader {
@@ -70,13 +67,7 @@ ShellRoot {
         }
     }
 
-    NotificationModel {
-        id: notificationModel
-    }
-
     // ── IPC Handlers ──────────────────────────────────────────────────
-
-
 
     IpcHandler {
         target: "power"
@@ -183,42 +174,6 @@ ShellRoot {
     }
 
     IpcHandler {
-        target: "notifications"
-
-        function clear(): void {
-            notificationModel.clear();
-        }
-
-        function count(): int {
-            return notificationModel.notifications.length;
-        }
-
-        function clearHistory(): void {
-            notificationModel.clearHistory();
-        }
-
-        function closeHistory(): void {
-            notificationModel.closeHistory();
-        }
-
-        function historyCount(): int {
-            return notificationModel.history.length;
-        }
-
-        function historyLatestSummary(): string {
-            return notificationModel.historyLatestSummary();
-        }
-
-        function openHistory(): void {
-            notificationModel.openHistory();
-        }
-
-        function toggleHistory(): void {
-            notificationModel.toggleHistory();
-        }
-    }
-
-    IpcHandler {
         target: "controlcenter"
 
         function close(): void {
@@ -233,6 +188,10 @@ ShellRoot {
             controlCenterModel.openKeybinds();
         }
 
+        function openInfo(): void {
+            controlCenterModel.openInfo();
+        }
+
         function refresh(): void {
             controlCenterModel.refresh();
         }
@@ -243,26 +202,26 @@ ShellRoot {
     }
 
     IpcHandler {
-        target: "systemhealth"
+        target: "vpn"
 
         function close(): void {
-            systemHealthModel.close();
+            vpnModel.close();
         }
 
         function open(): void {
-            systemHealthModel.openOnScreen(primaryPanel ? primaryPanel.screen : null);
+            vpnModel.open();
         }
 
         function refresh(): void {
-            systemHealthModel.refresh();
+            vpnModel.refresh();
+        }
+
+        function status(): string {
+            return vpnModel.active ? vpnModel.vpnIp : "VPN disconnected";
         }
 
         function toggle(): void {
-            if (systemHealthModel.visible) {
-                systemHealthModel.close();
-            } else {
-                systemHealthModel.openOnScreen(primaryPanel ? primaryPanel.screen : null);
-            }
+            vpnModel.toggle();
         }
     }
 
@@ -290,13 +249,7 @@ ShellRoot {
 
             for (let i = 0; i < items.length; i++) {
                 const item = items[i];
-                rows.push([
-                    item.id || "unknown",
-                    item.title || "",
-                    item.icon || "",
-                    item.hasMenu ? "menu" : "no-menu",
-                    item.status || ""
-                ].join("\t"));
+                rows.push([item.id || "unknown", item.title || "", item.icon || "", item.hasMenu ? "menu" : "no-menu", item.status || ""].join("\t"));
             }
 
             return rows.join("\n");
@@ -315,20 +268,21 @@ ShellRoot {
             id: panelInstance
             required property var modelData
 
-            screen:              modelData
-            state:               i3State
-            clock:               clock
-            networkModel:        networkModel
-            controlsModel:       controlsModel
-            bluetoothModel:      bluetoothModel
-            controlCenterModel:  controlCenterModel
-            powerMenuModel:      powerMenuModel
-            calendarModel:       calendarModel
+            screen: modelData
+            state: i3State
+            clock: clock
+            networkModel: networkModel
+            controlsModel: controlsModel
+            bluetoothModel: bluetoothModel
+            controlCenterModel: controlCenterModel
+            powerMenuModel: powerMenuModel
+            calendarModel: calendarModel
+            vpnModel: vpnModel
 
             Component.onCompleted: {
                 // Use the primary screen's panel as the popup anchor
                 if (!root.primaryPanel || modelData === Quickshell.screens[0]) {
-                    root.primaryPanel = panelInstance
+                    root.primaryPanel = panelInstance;
                 }
             }
         }
@@ -336,13 +290,8 @@ ShellRoot {
 
     // ── Global windows (popups) — anchored to primary screen panel ────
 
-
-
-
-
     PowerMenuWindow {
         powerMenuModel: powerMenuModel
-        panelWindow: root.primaryPanel
     }
 
     CalendarWindow {
@@ -350,43 +299,20 @@ ShellRoot {
         panelWindow: root.primaryPanel
     }
 
-    NetworkWindow {
+    UtilityWindow {
         networkModel: networkModel
-        panelWindow: root.primaryPanel
-    }
-
-    NotificationPopupWindow {
-        notificationModel: notificationModel
-        panelWindow: root.primaryPanel
-    }
-
-    NotificationHistoryWindow {
-        notificationModel: notificationModel
-    }
-
-    ControlsWindow {
-        controlsModel: controlsModel
-        panelWindow: root.primaryPanel
-    }
-
-    BluetoothWindow {
         bluetoothModel: bluetoothModel
-        panelWindow: root.primaryPanel
+        controlsModel: controlsModel
+        vpnModel: vpnModel
     }
 
     ControlCenterWindow {
         controlCenterModel: controlCenterModel
         panelWindow: root.primaryPanel
         powerMenuModel: powerMenuModel
-        healthModel: systemHealthModel
     }
 
     UtilityDetailWindow {
         controlCenterModel: controlCenterModel
-    }
-
-    SystemHealthWindow {
-        healthModel: systemHealthModel
-        screen: systemHealthModel.targetScreen ? systemHealthModel.targetScreen : (root.primaryPanel ? root.primaryPanel.screen : null)
     }
 }

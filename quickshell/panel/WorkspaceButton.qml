@@ -7,7 +7,7 @@ Rectangle {
 
     required property string label
     required property bool selected
-    signal clicked()
+    signal clicked
 
     Layout.preferredWidth: Theme.workspaceButtonSize
     Layout.preferredHeight: Theme.workspaceButtonSize

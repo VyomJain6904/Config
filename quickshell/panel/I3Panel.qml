@@ -1,13 +1,17 @@
+pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import qs.core
 
-pragma ComponentBehavior: Bound
-
 // qmllint disable uncreatable-type
 PanelWindow {
     id: root
+
+    FontLoader {
+        id: vpnFont
+        source: "file:///home/jain/.local/share/fonts/JetBrainsMono-VPN.ttf"
+    }
 
     required property var state
     required property var clock
@@ -17,6 +21,7 @@ PanelWindow {
     required property var bluetoothModel
     required property var controlCenterModel
     required property var powerMenuModel
+    required property var vpnModel
 
     implicitHeight: Theme.panelHeight
     color: Theme.transparent
@@ -42,7 +47,9 @@ PanelWindow {
         border.width: Theme.pillBorderWidth
         radius: Theme.barRadius
 
-        PillShadow { cornerRadius: island.radius }
+        PillShadow {
+            cornerRadius: island.radius
+        }
 
         RowLayout {
             anchors.fill: parent
@@ -61,10 +68,6 @@ PanelWindow {
                     width: Math.min(implicitWidth, parent.width)
                     height: parent.height
                     spacing: Theme.panelGap
-
-                    LogoButton {
-                        onActivated: root.controlCenterModel.toggle()
-                    }
 
                     PanelPill {
                         visible: root.controlCenterModel.showWorkspaceWidget
@@ -105,7 +108,7 @@ PanelWindow {
                     id: clockLabel
 
                     anchors.centerIn: parent
-                    text: Qt.formatDateTime(root.clock.date, "ddd dd MMM  hh:mm A")
+                    text: Qt.formatDateTime(root.clock.date, "hh:mm A")
                     color: Theme.textStrong
                     font.bold: true
                 }
@@ -128,7 +131,9 @@ PanelWindow {
                     anchors.fill: parent
                     spacing: Theme.panelGap
 
-                    Item { Layout.fillWidth: true }
+                    Item {
+                        Layout.fillWidth: true
+                    }
 
                     Repeater {
                         model: root.state.statusSegments
@@ -141,6 +146,63 @@ PanelWindow {
                     }
 
                     TrayArea {}
+
+                    PanelPill {
+                        visible: root.vpnModel && root.vpnModel.active
+                        Layout.preferredWidth: vpnRow.implicitWidth + Theme.pillHorizontalPadding * 2
+                        Layout.preferredHeight: Theme.pillHeight
+                        active: root.vpnModel.visible
+                        hovered: vpnMouse.containsMouse
+
+                        RowLayout {
+                            id: vpnRow
+                            anchors.centerIn: parent
+                            spacing: Theme.compactSpacing + 4
+
+                            IconText {
+                                visible: root.vpnModel && root.vpnModel.active
+                                text: "" // Custom JetBrainsMono-VPN icon
+                                color: "#50fa7b" // Dracula Green
+                                font.family: vpnFont.name
+                                font.pixelSize: 14
+                            }
+
+                            UiText {
+                                visible: text.length > 0
+                                text: root.vpnModel ? root.vpnModel.vpnIp : ""
+                                color: Theme.accentSecondary
+                                font.bold: true
+                            }
+
+                            Item {
+                                visible: root.vpnModel && root.vpnModel.targetIp !== ""
+                                Layout.preferredWidth: 6
+                            }
+
+                            IconText {
+                                visible: root.vpnModel && root.vpnModel.targetIp !== ""
+                                text: "" // nf-fa-globe
+                                color: Theme.danger
+                                font.family: Theme.iconFontFamily
+                                font.pixelSize: 14
+                            }
+
+                            UiText {
+                                visible: text.length > 0
+                                text: root.vpnModel ? root.vpnModel.targetIp : ""
+                                color: Theme.danger
+                                font.bold: true
+                            }
+                        }
+
+                        MouseArea {
+                            id: vpnMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: root.vpnModel.open()
+                        }
+                    }
 
                     PanelPill {
                         visible: root.controlCenterModel.showVolumeWidget
@@ -177,7 +239,7 @@ PanelWindow {
                             }
 
                             UiText {
-                                text: root.controlsModel.volumeMuted ? "Muted" : root.controlsModel.volumePercent.toString() + "%"
+                                text: root.controlsModel.volumePercent.toString() + "%"
                                 color: Theme.accentSecondary
                             }
                         }
@@ -187,8 +249,15 @@ PanelWindow {
                             anchors.fill: parent
                             hoverEnabled: true
                             cursorShape: Qt.PointingHandCursor
-                            onClicked: root.controlsModel.toggle()
-                            onWheel: (wheel) => {
+                            onClicked: {
+                                if (root.controlsModel.visible && root.controlsModel.requestedTab === "audio") {
+                                    root.controlsModel.close();
+                                } else {
+                                    root.controlsModel.requestedTab = "audio";
+                                    root.controlsModel.open();
+                                }
+                            }
+                            onWheel: wheel => {
                                 if (wheel.angleDelta.y > 0) {
                                     root.controlsModel.volumeUp();
                                 } else {
@@ -244,8 +313,15 @@ PanelWindow {
                             anchors.fill: parent
                             hoverEnabled: true
                             cursorShape: Qt.PointingHandCursor
-                            onClicked: root.controlsModel.toggle()
-                            onWheel: (wheel) => {
+                            onClicked: {
+                                if (root.controlsModel.visible && root.controlsModel.requestedTab === "brightness") {
+                                    root.controlsModel.close();
+                                } else {
+                                    root.controlsModel.requestedTab = "brightness";
+                                    root.controlsModel.open();
+                                }
+                            }
+                            onWheel: wheel => {
                                 if (wheel.angleDelta.y > 0) {
                                     root.controlsModel.brightnessUp();
                                 } else {
@@ -257,7 +333,7 @@ PanelWindow {
                     }
 
                     PanelPill {
-                        visible: true
+                        visible: root.controlCenterModel.showBatteryWidget
                         Layout.preferredWidth: batteryRow.implicitWidth + Theme.pillHorizontalPadding * 2
                         Layout.preferredHeight: Theme.pillHeight
                         active: root.controlsModel.visible
@@ -285,7 +361,7 @@ PanelWindow {
                                 Rectangle {
                                     width: Math.max(height, Math.round((root.controlsModel.batteryPercent / 100) * parent.width))
                                     height: parent.height
-                                    color: root.controlsModel.batteryPercent <= 20 && !root.controlsModel.batteryCharging ? Theme.error : Theme.accent
+                                    color: root.controlsModel.batteryCharging ? Theme.success : (root.controlsModel.batteryPercent <= 20 ? Theme.danger : Theme.accent)
                                     radius: parent.radius
                                 }
                             }
@@ -299,37 +375,7 @@ PanelWindow {
                         MouseArea {
                             id: batteryMouse
                             anchors.fill: parent
-                            hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: root.controlsModel.toggle()
-                        }
-                    }
-
-                    PanelPill {
-                        visible: root.controlCenterModel.showBluetoothWidget
-                        Layout.preferredWidth: bluetoothRow.implicitWidth + Theme.pillHorizontalPadding * 2
-                        Layout.preferredHeight: Theme.pillHeight
-                        active: root.bluetoothModel.visible
-                        hovered: bluetoothMouse.containsMouse
-
-                        RowLayout {
-                            id: bluetoothRow
-                            anchors.centerIn: parent
-                            spacing: Theme.compactSpacing
-
-                            FallbackIcon {
-                                iconName: "bluetooth-active"
-                                Layout.preferredWidth: 16
-                                Layout.preferredHeight: 16
-                            }
-                        }
-
-                        MouseArea {
-                            id: bluetoothMouse
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: root.bluetoothModel.toggle()
+                            hoverEnabled: false
                         }
                     }
 
@@ -346,12 +392,9 @@ PanelWindow {
                             spacing: Theme.compactSpacing
 
                             FallbackIcon {
-                                iconName: root.networkModel.statusText.indexOf("offline") >= 0
-                                    || root.networkModel.statusText.indexOf("unavailable") >= 0
-                                    ? "network-wireless-disconnected"
-                                    : "network-wireless-signal-excellent"
-                                Layout.preferredWidth: 16
-                                Layout.preferredHeight: 16
+                                iconName: root.networkModel.statusText.indexOf("offline") >= 0 || root.networkModel.statusText.indexOf("unavailable") >= 0 ? "network-wireless-disconnected" : "network-wireless-signal-excellent"
+                                Layout.preferredWidth: 14
+                                Layout.preferredHeight: 14
                             }
                         }
 

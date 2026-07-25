@@ -18,12 +18,21 @@ PopupWindow {
     implicitWidth: popupWidth
     implicitHeight: popupHeight
     anchor.window: panelWindow
-    anchor.rect.x: (panelWindow.width - popupWidth) / 2
+    anchor.rect.x: ((panelWindow ? panelWindow.width : 0) - popupWidth) / 2
     anchor.rect.y: 0
     grabFocus: true
     color: Theme.transparent
 
-    onVisibleChanged: if (!visible) root.calendarModel.close()
+    onVisibleChanged: {
+        if (!visible) {
+            root.calendarModel.close()
+        } else {
+            currentDate = new Date()
+            currentMonth = currentDate.getMonth()
+            currentYear = currentDate.getFullYear()
+            generateDays()
+        }
+    }
 
     property date currentDate: new Date()
     property int currentMonth: currentDate.getMonth()
@@ -66,15 +75,6 @@ PopupWindow {
 
     ShellSurface {
         id: content
-
-        Connections {
-            target: root._backingWindow
-            function onActiveChanged() {
-                if (!root._backingWindow.active) {
-                    root.calendarModel.close();
-                }
-            }
-        }
 
         anchors.fill: parent
         anchors.bottomMargin: 12

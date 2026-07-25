@@ -3,18 +3,6 @@ pragma Singleton
 import Quickshell
 
 Singleton {
-    function launcherIcon(iconName) {
-        if (iconName.length > 0) {
-            return Quickshell.iconPath(iconName, true);
-        }
-
-        return Quickshell.iconPath("application-x-executable", true);
-    }
-
-    function trayIconSource(trayItem) {
-        const sources = trayIconSources(trayItem);
-        return sources.length > 0 ? sources[0] : "";
-    }
 
     function addIconSource(sources, source) {
         if (typeof source !== "string" && !(source instanceof String)) {
@@ -115,19 +103,29 @@ Singleton {
         }
     }
 
-    function addHicolorFallbacks(sources, iconName) {
+    function addMacTahoeFallbacks(sources, iconName) {
         const home = Quickshell.env("HOME") || "";
         const xdgDataHome = Quickshell.env("XDG_DATA_HOME") || (home.length > 0 ? home + "/.local/share" : "");
 
         addIconThemeFileSources(sources, "/usr/share/icons/MacTahoe", iconName);
+        addIconThemeFileSources(sources, "/usr/share/icons/hicolor", iconName);
         addIconThemeFileSources(sources, "/usr/local/share/icons/MacTahoe", iconName);
+        addIconThemeFileSources(sources, "/usr/local/share/icons/hicolor", iconName);
+
+        // Flatpak system-wide icon exports
+        addIconThemeFileSources(sources, "/var/lib/flatpak/exports/share/icons/hicolor", iconName);
 
         if (xdgDataHome.length > 0) {
             addIconThemeFileSources(sources, xdgDataHome + "/icons/MacTahoe", iconName);
+            addIconThemeFileSources(sources, xdgDataHome + "/icons/hicolor", iconName);
+            // Flatpak user icon exports
+            addIconThemeFileSources(sources, xdgDataHome + "/flatpak/exports/share/icons/hicolor", iconName);
         }
 
         if (home.length > 0) {
             addIconThemeFileSources(sources, home + "/.icons/MacTahoe", iconName);
+            addIconThemeFileSources(sources, home + "/.icons/hicolor", iconName);
+            addIconThemeFileSources(sources, home + "/.local/share/flatpak/exports/share/icons/hicolor", iconName);
         }
     }
 
@@ -139,10 +137,24 @@ Singleton {
         }
     }
     function trayIconSources(trayItem) {
-        const iconName = decodeIconPart(trayItem.icon);
+        let rawIconName = decodeIconPart(trayItem.icon);
+        let iconName = rawIconName;
         const iconPath = decodeIconPart(trayItem.iconPath);
 
+        // Quickshell prefixes tray icons with its image provider (e.g. image://icon/discord)
+        // We need the raw name to match our custom flatpak resolution rules
+        if (iconName && iconName.indexOf("image://icon/") === 0) {
+            iconName = iconName.substring(13); // remove "image://icon/"
+        }
+
+        console.log("TRAY ICON REQUEST:", "id=", trayItem.id, "iconName=", iconName, "rawIconName=", rawIconName, "iconPath=", iconPath);
+
         const sources = [];
+
+        // Always add the raw Quickshell provided URI as the last resort fallback
+        if (rawIconName && rawIconName.indexOf("image://") === 0) {
+            addIconSource(sources, rawIconName);
+        }
 
         // Special case flameshot
         if (trayItem.id === "flameshot") {
@@ -156,93 +168,141 @@ Singleton {
             addIconSource(sources, "image://icon/org.flameshot.Flameshot");
         }
 
+        // Special case: Discord flatpak - sends "discord" as icon name but icon is
+        // in the flatpak hicolor export as "com.discordapp.Discord"
+        if (iconName === "discord" || trayItem.id === "discord" || iconName === "com.discordapp.Discord" || (trayItem.id && trayItem.id.indexOf("discord") >= 0)) {
+            addIconSource(sources, "file:///var/lib/flatpak/exports/share/icons/hicolor/scalable/apps/com.discordapp.Discord.svg");
+            addIconSource(sources, "file:///usr/share/icons/MacTahoe/apps/scalable/discord.svg");
+            addIconSource(sources, "file:///usr/share/icons/MacTahoe/apps/scalable/com.discordapp.Discord.svg");
+            addIconSource(sources, "image://icon/discord");
+            addIconSource(sources, "image://icon/com.discordapp.Discord");
+        }
+
+        // Special case: Telegram flatpak - uses "telegram-panel" / "org.telegram.desktop" as icon name
+        if (iconName === "telegram-panel" || iconName === "org.telegram.desktop" || (trayItem.id && trayItem.id.indexOf("telegram") >= 0)) {
+            addIconSource(sources, "file:///usr/share/icons/MacTahoe/status/16/telegram-panel.svg");
+            addIconSource(sources, "file:///usr/share/icons/MacTahoe/status/22/telegram-panel.svg");
+            addIconSource(sources, "file:///usr/share/icons/MacTahoe/apps/scalable/telegram-desktop.svg");
+            addIconSource(sources, "file:///usr/share/icons/MacTahoe/apps/scalable/org.telegram.desktop.svg");
+            addIconSource(sources, "file:///var/lib/flatpak/exports/share/icons/hicolor/64x64/apps/org.telegram.desktop.png");
+            addIconSource(sources, "image://icon/telegram-panel");
+            addIconSource(sources, "image://icon/org.telegram.desktop");
+        }
+        if (iconName === "telegram-attention-panel") {
+            addIconSource(sources, "file:///usr/share/icons/MacTahoe/status/16/telegram-attention-panel.svg");
+            addIconSource(sources, "file:///usr/share/icons/MacTahoe/status/22/telegram-attention-panel.svg");
+        }
+        if (iconName === "telegram-mute-panel") {
+            addIconSource(sources, "file:///usr/share/icons/MacTahoe/status/16/telegram-mute-panel.svg");
+            addIconSource(sources, "file:///usr/share/icons/MacTahoe/status/22/telegram-mute-panel.svg");
+        }
+
         if (looksLikeIconFilePath(iconPath)) {
             addIconSource(sources, "file://" + iconPath);
         } else if (looksLikeIconFilePath(iconName)) {
             addIconSource(sources, "file://" + iconName);
+        } else if (iconName === "steam_tray_mono") {
+            addIconSource(sources, "file:///usr/share/pixmaps/steam_tray_mono.png");
         } else if (iconName.length > 0) {
             const names = iconNameFallbacks(iconName);
             const home = Quickshell.env("HOME") || "";
+            const xdgDataHome = Quickshell.env("XDG_DATA_HOME") || (home.length > 0 ? home + "/.local/share" : "");
             for (let i = 0; i < names.length; i++) {
+                // Search MacTahoe (primary theme)
                 addIconThemeFileSources(sources, "/usr/share/icons/MacTahoe", names[i]);
                 if (home.length > 0) {
                     addIconThemeFileSources(sources, home + "/.local/share/icons/MacTahoe", names[i]);
                 }
-                addIconThemeFileSources(sources, "/usr/share/icons/MacTahoe", names[i]);
                 addIconThemeFileSources(sources, "/usr/local/share/icons/MacTahoe", names[i]);
+
+                // Search hicolor (standard fallback - system)
+                addIconThemeFileSources(sources, "/usr/share/icons/hicolor", names[i]);
+                addIconThemeFileSources(sources, "/usr/local/share/icons/hicolor", names[i]);
+
+                // Search flatpak icon exports (system-wide flatpak - Discord, Telegram, etc.)
+                addIconThemeFileSources(sources, "/var/lib/flatpak/exports/share/icons/hicolor", names[i]);
+
+                // Search flatpak icon exports (user-local flatpak)
+                if (xdgDataHome.length > 0) {
+                    addIconThemeFileSources(sources, xdgDataHome + "/flatpak/exports/share/icons/hicolor", names[i]);
+                }
+                if (home.length > 0) {
+                    addIconThemeFileSources(sources, home + "/.local/share/flatpak/exports/share/icons/hicolor", names[i]);
+                    addIconThemeFileSources(sources, home + "/.local/share/icons/hicolor", names[i]);
+                }
+
                 addIconSource(sources, "image://icon/" + names[i]);
             }
-        } else if (iconName === "steam_tray_mono") {
-            addIconSource(sources, "file:///usr/share/pixmaps/steam_tray_mono.png");
         }
 
-        if (typeof icon !== "string" && !(icon instanceof String)) {
+        if (typeof iconName !== "string" && !(iconName instanceof String)) {
             return sources;
         }
 
-        if (icon.length === 0) {
+        if (iconName.length === 0) {
             return sources;
         }
 
-        if (icon.indexOf("image://icon/") === 0) {
-            const queryIndex = icon.indexOf("?path=");
+        const iconString = trayItem.icon;
+        if (typeof iconString === "string" && iconString.indexOf("image://icon/") === 0) {
+            const queryIndex = iconString.indexOf("?path=");
             const iconStart = "image://icon/".length;
-            const iconName = decodeIconPart(queryIndex >= 0 ? icon.substring(iconStart, queryIndex) : icon.substring(iconStart));
+            const parsedIconName = decodeIconPart(queryIndex >= 0 ? iconString.substring(iconStart, queryIndex) : iconString.substring(iconStart));
 
-            if (iconName.indexOf("/") === 0) {
-                addIconSource(sources, "file://" + iconName);
-                addIconSource(sources, icon);
+            if (parsedIconName.indexOf("/") === 0) {
+                addIconSource(sources, "file://" + parsedIconName);
+                addIconSource(sources, iconString);
                 return sources;
             }
 
             if (queryIndex >= 0) {
-                let iconPath = icon.substring(queryIndex + "?path=".length);
-                const iconPathEnd = iconPath.indexOf("&");
+                let innerIconPath = iconString.substring(queryIndex + "?path=".length);
+                const iconPathEnd = innerIconPath.indexOf("&");
 
                 if (iconPathEnd >= 0) {
-                    iconPath = iconPath.substring(0, iconPathEnd);
+                    innerIconPath = innerIconPath.substring(0, iconPathEnd);
                 }
 
-                iconPath = decodeIconPart(iconPath);
-                if (iconName.indexOf("/") !== 0) {
-                    if (iconPath.indexOf("/") === 0 && looksLikeIconFilePath(iconPath)) {
-                        addIconSource(sources, "file://" + iconPath);
+                innerIconPath = decodeIconPart(innerIconPath);
+                if (parsedIconName.indexOf("/") !== 0) {
+                    if (innerIconPath.indexOf("/") === 0 && looksLikeIconFilePath(innerIconPath)) {
+                        addIconSource(sources, "file://" + innerIconPath);
                     }
 
-                    addIconSource(sources, "file://" + iconPath + "/" + iconName);
-                    addIconSource(sources, "file://" + iconPath + "/" + iconName + ".png");
-                    addIconSource(sources, "file://" + iconPath + "/" + iconName + ".svg");
-                    addIconSource(sources, "file://" + iconPath + "/" + iconName + ".ico");
-                    addIconSource(sources, "file://" + iconPath + "/" + iconName + ".tga");
-                    addIconThemeFileSources(sources, iconPath, iconName);
+                    addIconSource(sources, "file://" + innerIconPath + "/" + parsedIconName);
+                    addIconSource(sources, "file://" + innerIconPath + "/" + parsedIconName + ".png");
+                    addIconSource(sources, "file://" + innerIconPath + "/" + parsedIconName + ".svg");
+                    addIconSource(sources, "file://" + innerIconPath + "/" + parsedIconName + ".ico");
+                    addIconSource(sources, "file://" + innerIconPath + "/" + parsedIconName + ".tga");
+                    addIconThemeFileSources(sources, innerIconPath, parsedIconName);
                 }
             }
 
-            addThemeFallbacks(sources, iconName);
-            addHicolorFallbacks(sources, iconName);
-            addCheckedThemeSources(sources, iconName);
-            addIconSource(sources, icon);
+            addMacTahoeFallbacks(sources, parsedIconName);
+            addCheckedThemeSources(sources, parsedIconName);
+            addIconSource(sources, iconString);
             return sources;
         }
 
-        if (icon.indexOf("image://") === 0 || icon.indexOf("file://") === 0 || icon.indexOf("qrc:") === 0) {
-            addIconSource(sources, icon);
-            return sources;
-        }
+        if (typeof iconString === "string") {
+            if (iconString.indexOf("image://") === 0 || iconString.indexOf("file://") === 0 || iconString.indexOf("qrc:") === 0) {
+                addIconSource(sources, iconString);
+                return sources;
+            }
 
-        if (icon.indexOf("/") === 0 && icon.indexOf("file://") !== 0) {
-            addIconSource(sources, "file://" + icon);
-            return sources;
-        }
+            if (iconString.indexOf("/") === 0 && iconString.indexOf("file://") !== 0) {
+                addIconSource(sources, "file://" + iconString);
+                return sources;
+            }
 
-        if (icon === "dialog-password") {
-            addIconSource(sources, Quickshell.iconPath("dialog-password-symbolic", true));
-        }
+            if (iconString === "dialog-password") {
+                addIconSource(sources, Quickshell.iconPath("dialog-password-symbolic", true));
+            }
 
-        addThemeFallbacks(sources, icon);
-        addHicolorFallbacks(sources, icon);
-        addCheckedThemeSources(sources, icon);
-        addIconSource(sources, icon);
+            addMacTahoeFallbacks(sources, iconString);
+            addCheckedThemeSources(sources, iconString);
+            addIconSource(sources, iconString);
+        }
         return sources;
     }
 }

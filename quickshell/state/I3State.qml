@@ -22,6 +22,11 @@ Scope {
     Process {
         id: switchProc
         running: false
+        stderr: StdioCollector {
+            onStreamFinished: {
+                if (this.text.length > 0) console.warn("i3-msg switch error: " + this.text);
+            }
+        }
     }
 
     // ── Fetch workspaces periodically via i3-msg ─────────────────────
@@ -42,32 +47,29 @@ Scope {
                     }
                     nums.sort((a,b) => parseInt(a) - parseInt(b));
                     root.workspaceNames = nums;
-                } catch(e) {}
+                } catch(e) {
+                    console.warn("i3-msg get_workspaces parse error: " + e);
+                }
             }
         }
     }
 
-    Timer {
-        id: wsTimer
-        interval: 300
+    // ── Subscribe to i3 events for updates ────────────────────────────
+    Process {
+        id: i3SubProcess
+        command: ["i3-msg", "-t", "subscribe", "-m", "[ \"workspace\", \"window\" ]"]
         running: true
-        repeat: true
-        onTriggered: {
-            if (!wsFetchProc.running) {
-                wsFetchProc.running = true;
+
+        stdout: SplitParser {
+            onRead: {
+                if (!wsFetchProc.running) wsFetchProc.running = true;
+                if (!titleProcess.running) titleProcess.running = true;
             }
         }
-    }
-
-    // ── Poll active window title via xdotool ──────────────────────────
-    Timer {
-        id: titleTimer
-        interval: 600
-        running: true
-        repeat: true
-        onTriggered: {
-            if (!titleProcess.running) {
-                titleProcess.running = true
+        
+        onRunningChanged: {
+            if (!running) {
+                Qt.callLater(() => { running = true; })
             }
         }
     }

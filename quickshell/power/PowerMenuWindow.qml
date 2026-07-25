@@ -4,24 +4,15 @@ import QtQuick.Layouts
 import Quickshell
 import qs.core
 
-PopupWindow {
+FloatingWindow {
     id: root
 
     required property var powerMenuModel
-    required property var panelWindow
-
-    readonly property int popupWidth: 240
-    readonly property int menuHeight: 292
-    readonly property int confirmHeight: 210
-    readonly property int edgeMargin: Theme.rowSpacing
 
     visible: powerMenuModel.visible
-    implicitWidth: popupWidth
-    implicitHeight: powerMenuModel.confirming ? confirmHeight : menuHeight
-    anchor.window: panelWindow
-    anchor.rect.x: Math.max(edgeMargin, panelWindow.width - popupWidth - edgeMargin)
-    anchor.rect.y: 0
-    grabFocus: true
+    implicitWidth: 460
+    implicitHeight: 580
+    title: "Quickshell Utility"
     color: Theme.transparent
 
     onVisibleChanged: if (!visible)
@@ -39,15 +30,6 @@ PopupWindow {
 
     ShellSurface {
         id: content
-
-        Connections {
-            target: root._backingWindow
-            function onActiveChanged() {
-                if (!root._backingWindow.active) {
-                    root.powerMenuModel.close();
-                }
-            }
-        }
 
         anchors.fill: parent
         anchors.bottomMargin: 12

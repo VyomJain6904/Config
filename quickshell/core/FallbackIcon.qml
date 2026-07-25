@@ -13,7 +13,7 @@ IconImage {
     onIconNameChanged: {
         if (iconName.length > 0) {
             const sources = [];
-            Icons.addHicolorFallbacks(sources, iconName);
+            Icons.addMacTahoeFallbacks(sources, iconName);
             Icons.addIconSource(sources, Quickshell.iconPath(iconName, true));
             Icons.addIconSource(sources, "image://icon/" + iconName);
             iconSources = sources;

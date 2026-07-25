@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+# Terminate any old qs-daemon instances (skip ourselves)
+SCRIPT_PATH="$(realpath "$0")"
+for pid in $(pgrep -f "$SCRIPT_PATH"); do
+    if [ "$pid" != "$$" ] && [ "$pid" != "$PPID" ]; then
+        kill -9 "$pid" 2>/dev/null || true
+    fi
+done
+
+# Terminate any already running Quickshell instances
+pkill -x quickshell 2>/dev/null || true
+
+# Wait briefly to ensure processes have shut down
+sleep 1
+
+# Launch Quickshell in an auto-restarting loop
+while true; do
+    quickshell -c ~/.config/quickshell
+    
+    # If quickshell exits (e.g. crashes on syntax error), wait 2 seconds before restarting
+    # This prevents tight crash loops from consuming 100% CPU
+    sleep 2
+done

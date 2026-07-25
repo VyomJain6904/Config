@@ -2,7 +2,6 @@ pragma Singleton
 import Quickshell
 
 Singleton {
-    readonly property bool dark: true
 
     // Colors - Monochrome Black
     readonly property string transparent: "#00000000"
@@ -20,10 +19,8 @@ Singleton {
     readonly property string accent: "#c0caf5"
     readonly property string accentSecondary: "#888888"
     readonly property string accentText: "#000000"
-    readonly property string success: "#888888"
-    readonly property string warning: "#888888"
-    readonly property string danger: "#f7768e"
-    readonly property string dangerSurface: "#2a1115"
+    readonly property string danger: "#ff5555"
+    readonly property string success: "#50fa7b"
     readonly property string shadow: "#70000000"
 
     // Font
@@ -31,7 +28,7 @@ Singleton {
     readonly property string iconFontFamily: fontFamily
 
     // Panel sizing (match your polybar)
-    readonly property int panelHeight: 20
+    readonly property int panelHeight: 16
     readonly property int panelMargin: 0
     readonly property int panelEdgeMargin: 0
     readonly property int panelGap: 4
@@ -46,26 +43,22 @@ Singleton {
     readonly property int smallRadius: 0
     readonly property int barRadius: 0
     readonly property int pillRadius: 0
-    readonly property int pillHeight: 22
+    readonly property int pillHeight: 16
     readonly property int pillHorizontalPadding: 8
     readonly property int pillBorderWidth: 0
-    readonly property int animationFast: 120
     readonly property int animationNormal: 180
     readonly property int buttonHeight: 30
     readonly property int chipHeight: 28
-    readonly property int workspaceButtonSize: 22
+    readonly property int workspaceButtonSize: 16
     readonly property int compactButtonHeight: 40
     readonly property int confirmButtonHeight: 48
-    readonly property int notificationAccentWidth: 4
-    readonly property int notificationAccentRadius: 2
     readonly property int titleFontSize: 18
     readonly property int bodyFontSize: 14
-    readonly property int panelFontSize: 13
+    readonly property int panelFontSize: 11
     readonly property int smallFontSize: 12
     readonly property int tinyFontSize: 10
     readonly property int inputFontSize: 16
     readonly property int iconSize: 28
-    readonly property int trayItemSize: 24
-    readonly property int trayIconSize: 18
-    readonly property int closeButtonSize: 30
+    readonly property int trayItemSize: 16
+    readonly property int trayIconSize: 14
 }

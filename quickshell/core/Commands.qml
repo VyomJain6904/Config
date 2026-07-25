@@ -30,6 +30,11 @@ Singleton {
         return scriptCmd("qs-controls", action, args)
     }
 
+    // ── VPN (OpenVPN profiles) ───────────────────────────────────────
+    function vpnHelperCommand(action, args) {
+        return scriptCmd("qs-vpn", action, args)
+    }
+
     // ── Launcher (XDG .desktop) ───────────────────────────────────────
     function launcherHelperCommand(action, args) {
         return scriptCmd("qs-launcher", action, args)
@@ -45,8 +50,4 @@ Singleton {
         return bashCmd("qs-lock")
     }
 
-    // ── System Health (stub — not yet implemented) ─────────────────────
-    function systemHealthHelperCommand(action, args) {
-        return ["sh", "-c", "exit 0"]
-    }
 }

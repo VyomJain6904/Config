@@ -16,7 +16,7 @@ FloatingWindow {
     implicitHeight: 500
     color: Theme.transparent
     // The prefix keeps this window compatible with preserved user rules that
-    // already float the dwm control center by title substring.
+    // already float the i3 control center by title substring.
     title: "Quickshell Utility"
 
     function titleForPage() {
@@ -74,11 +74,11 @@ FloatingWindow {
 
             TextField {
                 Layout.fillWidth: true
-                placeholderText: "Search keybinds..."
+                placeholderText: root.controlCenterModel.utilityPage === "keybinds" ? "Search keybinds..." : "Search info..."
                 color: Theme.text
                 placeholderTextColor: Theme.placeholder
                 font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSize
+                font.pixelSize: Theme.inputFontSize
                 background: Rectangle {
                     color: Theme.surface
                     border.color: Theme.border

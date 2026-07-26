@@ -3,6 +3,9 @@ __pycache__/
 *.pyc
 *.pyo
 
+# Locally built Quickshell helper
+quickshell/helpers/bin/
+
 # Logs and dumps
 *.log
 *.dmp

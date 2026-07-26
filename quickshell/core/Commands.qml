@@ -2,14 +2,14 @@ pragma Singleton
 import Quickshell
 
 Singleton {
-    // Resolve the scripts directory relative to this file
+    // Resolve helper paths relative to this file
     readonly property string scriptsPath: Qt.resolvedUrl("../scripts/").toString().replace("file://", "")
+    readonly property string helperPath: Qt.resolvedUrl("../helpers/bin/qs-helper").toString().replace("file://", "")
 
-    // ── Generic helper ────────────────────────────────────────────────
-    function scriptCmd(script, action, extra) {
+    // ── Native Go helper ──────────────────────────────────────────────
+    function helperCmd(helper, action, extra) {
         const argv  = extra || []
-        const path  = scriptsPath + script
-        const cmd   = ["python3", path]
+        const cmd   = [helperPath, helper]
         if (action !== undefined && action !== null) {
             cmd.push(action)
         }
@@ -22,32 +22,22 @@ Singleton {
 
     // ── Network (nmcli) ───────────────────────────────────────────────
     function networkHelperCommand(action, args) {
-        return scriptCmd("qs-network", action, args)
+        return helperCmd("network", action, args)
     }
 
     // ── Controls (wpctl / playerctl / bluetoothctl) ───────────────────
     function controlsHelperCommand(action, args) {
-        return scriptCmd("qs-controls", action, args)
+        return helperCmd("controls", action, args)
     }
 
     // ── VPN (OpenVPN profiles) ───────────────────────────────────────
     function vpnHelperCommand(action, args) {
-        return scriptCmd("qs-vpn", action, args)
+        return helperCmd("vpn", action, args)
     }
 
-    // ── Launcher (XDG .desktop) ───────────────────────────────────────
-    function launcherHelperCommand(action, args) {
-        return scriptCmd("qs-launcher", action, args)
-    }
-
-    // ── Calendar (Native Compiled Service & Google Calendar API) ──────
+    // ── Calendar (Google Calendar API) ────────────────────────────────
     function calendarHelperCommand(action, args) {
-        const argv = args || []
-        const cmd = ["/home/jain/.local/bin/qs-calendar-service"]
-        if (action !== undefined && action !== null) {
-            cmd.push(action)
-        }
-        return cmd.concat(argv)
+        return helperCmd("calendar", action, args)
     }
 
     // ── Lock screen (i3lock) ──────────────────────────────────────────

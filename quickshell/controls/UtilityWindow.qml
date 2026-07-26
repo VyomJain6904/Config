@@ -15,9 +15,11 @@ FloatingWindow {
     required property var vpnModel
 
     property string activeTab: "wifi"
+    property int selectedIndex: 0
 
     readonly property int popupWidth: 460
     readonly property int popupHeight: 580
+    readonly property var tabOrder: ["wifi", "bluetooth", "audio", "brightness", "vpn"]
     readonly property int edgeMargin: Theme.rowSpacing
     readonly property int contentSpacing: Theme.popupSpacing
     readonly property int rowSpacing: Theme.rowSpacing
@@ -37,7 +39,7 @@ FloatingWindow {
         target: root.networkModel
         function onVisibleChanged() {
             if (root.networkModel.visible) {
-                root.activeTab = "wifi";
+                root.setActiveTab("wifi");
                 root.bluetoothModel.close();
                 root.controlsModel.close();
                 root.vpnModel.close();
@@ -49,7 +51,7 @@ FloatingWindow {
         target: root.bluetoothModel
         function onVisibleChanged() {
             if (root.bluetoothModel.visible) {
-                root.activeTab = "bluetooth";
+                root.setActiveTab("bluetooth");
                 root.networkModel.close();
                 root.controlsModel.close();
                 root.vpnModel.close();
@@ -61,7 +63,7 @@ FloatingWindow {
         target: root.controlsModel
         function onVisibleChanged() {
             if (root.controlsModel.visible) {
-                root.activeTab = root.controlsModel.requestedTab;
+                root.setActiveTab(root.controlsModel.requestedTab);
                 root.networkModel.close();
                 root.bluetoothModel.close();
                 root.vpnModel.close();
@@ -73,7 +75,7 @@ FloatingWindow {
         target: root.vpnModel
         function onVisibleChanged() {
             if (root.vpnModel.visible) {
-                root.activeTab = "vpn";
+                root.setActiveTab("vpn");
                 root.networkModel.close();
                 root.bluetoothModel.close();
                 root.controlsModel.close();
@@ -82,7 +84,10 @@ FloatingWindow {
     }
 
     onVisibleChanged: {
-        if (!visible) {
+        if (visible) {
+            root.selectedIndex = 0;
+            Qt.callLater(() => content.forceActiveFocus());
+        } else {
             root.networkModel.close();
             root.bluetoothModel.close();
             root.controlsModel.close();
@@ -90,12 +95,204 @@ FloatingWindow {
         }
     }
 
+    function setActiveTab(tab) {
+        root.activeTab = tab;
+        root.selectedIndex = 0;
+        Qt.callLater(() => content.forceActiveFocus());
+    }
+
+    function cycleTab(delta) {
+        let index = root.tabOrder.indexOf(root.activeTab);
+        if (index < 0) {
+            index = 0;
+        }
+        index = (index + delta + root.tabOrder.length) % root.tabOrder.length;
+        root.setActiveTab(root.tabOrder[index]);
+    }
+
+    function selectedWifiNetwork() {
+        if (root.networkModel.selectedWifiIndex < 0 || root.networkModel.selectedWifiIndex >= root.networkModel.wifiNetworks.length) {
+            return null;
+        }
+        return root.networkModel.wifiNetworks[root.networkModel.selectedWifiIndex];
+    }
+
+    function percentFromText(text, fallbackValue) {
+        const match = text.match(/[0-9]+/);
+        if (match === null) {
+            return fallbackValue;
+        }
+
+        return Math.max(0, Math.min(100, parseInt(match[0], 10)));
+    }
+
+    function wifiPasswordIndex() {
+        const network = root.selectedWifiNetwork();
+        return network !== null && network.secured ? 1 + root.networkModel.wifiNetworks.length : -1;
+    }
+
+    function wifiEditIndex() {
+        let index = 1 + root.networkModel.wifiNetworks.length;
+        if (root.wifiPasswordIndex() >= 0) {
+            index += 1;
+        }
+        return root.networkModel.editorAvailable ? index : -1;
+    }
+
+    function itemCountForTab() {
+        if (root.activeTab === "wifi") {
+            return 1 + root.networkModel.wifiNetworks.length
+                + (root.wifiPasswordIndex() >= 0 ? 1 : 0)
+                + (root.networkModel.editorAvailable ? 1 : 0);
+        }
+        if (root.activeTab === "bluetooth") {
+            return 3 + root.bluetoothModel.devices.length;
+        }
+        if (root.activeTab === "vpn") {
+            return 2 + (root.vpnModel.connected ? 1 : 0) + root.vpnModel.profiles.length;
+        }
+        if (root.activeTab === "brightness") {
+            return 1;
+        }
+        if (root.activeTab === "audio") {
+            return 2 + root.controlsModel.outputDevices.length + root.controlsModel.inputDevices.length + 3;
+        }
+        return 1;
+    }
+
+    function normalizeSelectedIndex() {
+        const count = Math.max(1, root.itemCountForTab());
+        if (root.selectedIndex < 0) {
+            root.selectedIndex = count - 1;
+        } else if (root.selectedIndex >= count) {
+            root.selectedIndex = 0;
+        }
+
+        if (root.activeTab === "wifi" && root.selectedIndex > 0 && root.selectedIndex <= root.networkModel.wifiNetworks.length) {
+            root.networkModel.selectWifi(root.selectedIndex - 1);
+        }
+    }
+
+    function moveSelection(delta) {
+        root.selectedIndex += delta;
+        root.normalizeSelectedIndex();
+    }
+
+    function activateSelected() {
+        root.normalizeSelectedIndex();
+
+        if (root.activeTab === "wifi") {
+            if (root.selectedIndex === 0) {
+                root.networkModel.refresh(true);
+                return;
+            }
+            if (root.selectedIndex <= root.networkModel.wifiNetworks.length) {
+                const network = root.networkModel.wifiNetworks[root.selectedIndex - 1];
+                root.networkModel.selectWifi(root.selectedIndex - 1);
+                if (network.secured && root.networkModel.wifiPassword.length === 0) {
+                    Qt.callLater(() => wifiPasswordInput.forceActiveFocus());
+                } else {
+                    root.networkModel.connectWifi(network);
+                }
+                return;
+            }
+            if (root.selectedIndex === root.wifiPasswordIndex()) {
+                Qt.callLater(() => wifiPasswordInput.forceActiveFocus());
+                return;
+            }
+            if (root.selectedIndex === root.wifiEditIndex()) {
+                root.networkModel.openEditor();
+            }
+            return;
+        }
+
+        if (root.activeTab === "bluetooth") {
+            if (root.selectedIndex === 0) {
+                root.bluetoothModel.refresh(true);
+            } else if (root.selectedIndex === 1) {
+                root.bluetoothModel.action("bluetooth-power", ["on"]);
+            } else if (root.selectedIndex === 2) {
+                root.bluetoothModel.action("bluetooth-power", ["off"]);
+            } else {
+                const device = root.bluetoothModel.devices[root.selectedIndex - 3];
+                if (device) {
+                    root.bluetoothModel.action(device.connected ? "bluetooth-disconnect" : (device.paired ? "bluetooth-connect" : "bluetooth-pair"), [device.address]);
+                }
+            }
+            return;
+        }
+
+        if (root.activeTab === "vpn") {
+            if (root.selectedIndex === 0) {
+                root.vpnModel.refresh();
+                return;
+            }
+            if (root.selectedIndex === 1) {
+                if (!root.vpnModel.targetLocked) {
+                    Qt.callLater(() => vpnTargetInput.forceActiveFocus());
+                }
+                return;
+            }
+            let profileOffset = 2;
+            if (root.vpnModel.connected) {
+                if (root.selectedIndex === 2) {
+                    root.vpnModel.disconnect();
+                    return;
+                }
+                profileOffset = 3;
+            }
+            const profile = root.vpnModel.profiles[root.selectedIndex - profileOffset];
+            if (profile) {
+                root.vpnModel.connectProfile(profile);
+            }
+            return;
+        }
+
+        if (root.activeTab === "brightness") {
+            Qt.callLater(() => brightnessPercentInput.forceActiveFocus());
+            return;
+        }
+
+        if (root.activeTab === "audio") {
+            const outputStart = 2;
+            const inputStart = outputStart + root.controlsModel.outputDevices.length;
+            const mediaStart = inputStart + root.controlsModel.inputDevices.length;
+            if (root.selectedIndex === 0) {
+                Qt.callLater(() => volumePercentInput.forceActiveFocus());
+            } else if (root.selectedIndex === 1) {
+                root.controlsModel.volumeToggleMute();
+            } else if (root.selectedIndex >= outputStart && root.selectedIndex < inputStart) {
+                root.controlsModel.outputSetDefault(root.controlsModel.outputDevices[root.selectedIndex - outputStart].name);
+            } else if (root.selectedIndex >= inputStart && root.selectedIndex < mediaStart) {
+                root.controlsModel.inputSetDefault(root.controlsModel.inputDevices[root.selectedIndex - inputStart].name);
+            } else if (root.selectedIndex === mediaStart && root.controlsModel.mediaPlayer.length > 0) {
+                root.controlsModel.mediaPrevious();
+            } else if (root.selectedIndex === mediaStart + 1 && root.controlsModel.mediaPlayer.length > 0) {
+                root.controlsModel.mediaPlayPause();
+            } else if (root.selectedIndex === mediaStart + 2 && root.controlsModel.mediaPlayer.length > 0) {
+                root.controlsModel.mediaNext();
+            }
+        }
+    }
+
+    function adjustSelected(delta) {
+        if (root.activeTab === "brightness") {
+            if (delta > 0) root.controlsModel.brightnessUp(); else root.controlsModel.brightnessDown();
+        } else if (root.activeTab === "audio" && root.selectedIndex === 0) {
+            if (delta > 0) root.controlsModel.volumeUp(); else root.controlsModel.volumeDown();
+        } else {
+            root.moveSelection(delta);
+        }
+    }
+
     function setVolumePendingFromX(x) {
         volumeSlider.pendingPercent = volumeSlider.percentFromX(x);
+        root.controlsModel.volumeSet(volumeSlider.pendingPercent);
     }
 
     function setBrightnessPendingFromX(x) {
         brightnessSlider.pendingPercent = brightnessSlider.percentFromX(x);
+        root.controlsModel.brightnessSet(brightnessSlider.pendingPercent);
     }
 
     ShellSurface {
@@ -110,6 +307,31 @@ FloatingWindow {
                 root.bluetoothModel.close();
                 root.controlsModel.close();
                 root.vpnModel.close();
+                event.accepted = true;
+                return;
+            }
+
+            if (wifiPasswordInput.activeFocus || vpnTargetInput.activeFocus || volumePercentInput.activeFocus || brightnessPercentInput.activeFocus) {
+                return;
+            }
+
+            if (event.key === Qt.Key_Tab) {
+                root.cycleTab((event.modifiers & Qt.ShiftModifier) ? -1 : 1);
+                event.accepted = true;
+            } else if (event.key === Qt.Key_Down) {
+                root.moveSelection(1);
+                event.accepted = true;
+            } else if (event.key === Qt.Key_Up) {
+                root.moveSelection(-1);
+                event.accepted = true;
+            } else if (event.key === Qt.Key_Right) {
+                root.adjustSelected(1);
+                event.accepted = true;
+            } else if (event.key === Qt.Key_Left) {
+                root.adjustSelected(-1);
+                event.accepted = true;
+            } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter || event.key === Qt.Key_Space) {
+                root.activateSelected();
                 event.accepted = true;
             }
         }
@@ -141,7 +363,7 @@ FloatingWindow {
                     MouseArea {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: root.activeTab = "wifi"
+                        onClicked: root.setActiveTab("wifi")
                     }
                 }
 
@@ -161,7 +383,7 @@ FloatingWindow {
                     MouseArea {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: root.activeTab = "bluetooth"
+                        onClicked: root.setActiveTab("bluetooth")
                     }
                 }
 
@@ -181,7 +403,7 @@ FloatingWindow {
                     MouseArea {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: root.activeTab = "audio"
+                        onClicked: root.setActiveTab("audio")
                     }
                 }
 
@@ -201,7 +423,7 @@ FloatingWindow {
                     MouseArea {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: root.activeTab = "brightness"
+                        onClicked: root.setActiveTab("brightness")
                     }
                 }
 
@@ -221,7 +443,7 @@ FloatingWindow {
                     MouseArea {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: root.activeTab = "vpn"
+                        onClicked: root.setActiveTab("vpn")
                     }
                 }
 
@@ -281,6 +503,7 @@ FloatingWindow {
                         Layout.preferredHeight: Theme.buttonHeight
                         label: "Scan"
                         enabled: !root.networkModel.busy
+                        selected: root.activeTab === "wifi" && root.selectedIndex === 0
                         onActivated: root.networkModel.refresh(true)
                     }
                 }
@@ -367,6 +590,8 @@ FloatingWindow {
                     Layout.preferredHeight: currentSelectedNetwork !== null && currentSelectedNetwork.secured ? 44 : 0
                     visible: currentSelectedNetwork !== null && currentSelectedNetwork.secured
                     color: Theme.surface
+                    border.color: root.activeTab === "wifi" && root.selectedIndex === root.wifiPasswordIndex() ? Theme.accent : Theme.border
+                    border.width: 1
                     radius: Theme.radius
 
                     RowLayout {
@@ -423,6 +648,7 @@ FloatingWindow {
                     visible: root.networkModel.editorAvailable
                     label: "Edit Connections"
                     compact: false
+                    selected: root.activeTab === "wifi" && root.selectedIndex === root.wifiEditIndex()
                     onActivated: root.networkModel.openEditor()
                 }
             }
@@ -448,6 +674,7 @@ FloatingWindow {
                         Layout.preferredWidth: implicitWidth
                         Layout.preferredHeight: Theme.buttonHeight
                         label: "Scan"
+                        selected: root.activeTab === "bluetooth" && root.selectedIndex === 0
                         onActivated: root.bluetoothModel.refresh(true)
                     }
                 }
@@ -469,12 +696,14 @@ FloatingWindow {
                         Layout.fillWidth: true
                         Layout.preferredHeight: Theme.buttonHeight
                         label: "Bluetooth On"
+                        selected: root.activeTab === "bluetooth" && root.selectedIndex === 1
                         onActivated: root.bluetoothModel.action("bluetooth-power", ["on"])
                     }
                     ShellButton {
                         Layout.fillWidth: true
                         Layout.preferredHeight: Theme.buttonHeight
                         label: "Bluetooth Off"
+                        selected: root.activeTab === "bluetooth" && root.selectedIndex === 2
                         onActivated: root.bluetoothModel.action("bluetooth-power", ["off"])
                     }
                 }
@@ -489,13 +718,15 @@ FloatingWindow {
 
                     delegate: Rectangle {
                         id: deviceRow
+                        required property int index
                         required property var modelData
+                        readonly property bool selected: root.activeTab === "bluetooth" && root.selectedIndex === index + 3
                         width: ListView.view.width
                         height: 54
                         radius: Theme.smallRadius
-                        color: modelData.connected ? Theme.accent : (deviceMouse.containsMouse ? Theme.surfaceHover : Theme.surface)
-                        border.color: Theme.border
-                        border.width: 0
+                        color: modelData.connected ? Theme.accent : (selected ? Theme.surfaceActive : (deviceMouse.containsMouse ? Theme.surfaceHover : Theme.surface))
+                        border.color: selected ? Theme.accent : Theme.border
+                        border.width: selected ? 1 : 0
 
                         RowLayout {
                             anchors.fill: parent
@@ -584,6 +815,7 @@ FloatingWindow {
                         Layout.preferredHeight: Theme.buttonHeight
                         label: "Refresh"
                         enabled: !root.vpnModel.busy
+                        selected: root.activeTab === "vpn" && root.selectedIndex === 0
                         onActivated: root.vpnModel.refresh()
                     }
                 }
@@ -605,8 +837,8 @@ FloatingWindow {
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 44
-                    color: Theme.surface
-                    border.color: Theme.border
+                    color: root.vpnModel.targetLocked ? Theme.surfaceActive : Theme.surface
+                    border.color: root.activeTab === "vpn" && root.selectedIndex === 1 ? Theme.accent : (root.vpnModel.connected ? Theme.accent : Theme.border)
                     border.width: 1
                     radius: Theme.radius
 
@@ -614,17 +846,23 @@ FloatingWindow {
                         id: vpnTargetInput
                         anchors.fill: parent
                         anchors.leftMargin: Theme.rowSpacing
-                        anchors.rightMargin: Theme.rowSpacing
+                        anchors.rightMargin: root.vpnModel.targetLocked ? 38 : Theme.rowSpacing
                         text: root.vpnModel.targetInput
-                        color: Theme.textStrong
+                        color: root.vpnModel.targetLocked ? Theme.text : Theme.textStrong
                         selectionColor: Theme.accent
                         selectedTextColor: Theme.accentText
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.inputFontSize
                         clip: true
                         verticalAlignment: TextInput.AlignVCenter
-                        enabled: !root.vpnModel.busy
-                        onTextChanged: root.vpnModel.targetInput = text
+                        readOnly: root.vpnModel.targetLocked
+                        activeFocusOnPress: !root.vpnModel.targetLocked
+                        cursorVisible: !root.vpnModel.targetLocked && activeFocus
+                        onTextChanged: {
+                            if (!root.vpnModel.targetLocked) {
+                                root.vpnModel.targetInput = text;
+                            }
+                        }
                     }
 
                     Text {
@@ -636,6 +874,17 @@ FloatingWindow {
                         color: Theme.placeholder
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.inputFontSize
+                    }
+
+                    Text {
+                        anchors.right: parent.right
+                        anchors.rightMargin: Theme.rowSpacing
+                        anchors.verticalCenter: parent.verticalCenter
+                        visible: root.vpnModel.targetLocked
+                        text: "\uf023"
+                        color: root.vpnModel.connected ? Theme.accent : Theme.textMuted
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.bodyFontSize
                     }
                 }
 
@@ -654,6 +903,7 @@ FloatingWindow {
                         visible: root.vpnModel.connected
                         label: "Disconnect"
                         enabled: !root.vpnModel.busy
+                        selected: root.activeTab === "vpn" && root.selectedIndex === 2
                         onActivated: root.vpnModel.disconnect()
                     }
                 }
@@ -669,16 +919,20 @@ FloatingWindow {
                     delegate: Rectangle {
                         id: vpnRow
 
+                        required property int index
                         required property var modelData
                         readonly property bool profileActive: root.vpnModel.connected && root.vpnModel.activeProfile === modelData.name
+                        readonly property bool rowInteractive: !root.vpnModel.busy && !root.vpnModel.connected
+                        readonly property int profileSelectionIndex: index + (root.vpnModel.connected ? 3 : 2)
+                        readonly property bool selected: root.activeTab === "vpn" && root.selectedIndex === profileSelectionIndex
 
                         width: ListView.view.width
                         height: 54
                         radius: Theme.smallRadius
-                        color: profileActive ? Theme.accent : (vpnMouse.containsMouse && !root.vpnModel.busy ? Theme.surfaceHover : Theme.surface)
-                        border.color: profileActive ? Theme.accent : Theme.border
+                        color: profileActive ? Theme.accent : (selected ? Theme.surfaceActive : (vpnMouse.containsMouse && rowInteractive ? Theme.surfaceHover : Theme.surface))
+                        border.color: selected || profileActive ? Theme.accent : Theme.border
                         border.width: 1
-                        opacity: root.vpnModel.busy && !profileActive ? 0.5 : 1
+                        opacity: (root.vpnModel.busy || root.vpnModel.connected) && !profileActive ? 0.5 : 1
 
                         RowLayout {
                             anchors.fill: parent
@@ -686,12 +940,28 @@ FloatingWindow {
                             anchors.rightMargin: Theme.rowSpacing
                             spacing: Theme.rowSpacing
 
-                            Rectangle {
-                                Layout.preferredWidth: 10
-                                Layout.preferredHeight: 10
+                            Item {
+                                Layout.preferredWidth: 30
+                                Layout.preferredHeight: 30
                                 Layout.alignment: Qt.AlignVCenter
-                                radius: 5
-                                color: vpnRow.profileActive ? Theme.accentText : Theme.accentSecondary
+
+                                Image {
+                                    anchors.fill: parent
+                                    source: vpnRow.modelData.logoPath && vpnRow.modelData.logoPath.length > 0 ? "file://" + vpnRow.modelData.logoPath : ""
+                                    fillMode: Image.PreserveAspectFit
+                                    smooth: true
+                                    asynchronous: true
+                                    visible: source.toString().length > 0 && status === Image.Ready
+                                }
+
+                                Rectangle {
+                                    anchors.centerIn: parent
+                                    width: 10
+                                    height: 10
+                                    radius: 5
+                                    visible: !vpnRow.modelData.logoPath || vpnRow.modelData.logoPath.length === 0
+                                    color: vpnRow.profileActive ? Theme.accentText : Theme.accentSecondary
+                                }
                             }
 
                             ColumnLayout {
@@ -710,7 +980,7 @@ FloatingWindow {
 
                                 Text {
                                     Layout.fillWidth: true
-                                    text: vpnRow.profileActive ? ("Connected" + (root.vpnModel.vpnIp.length > 0 ? " - " + root.vpnModel.vpnIp : "")) : vpnRow.modelData.path
+                                    text: vpnRow.profileActive ? ("Connected" + (root.vpnModel.vpnIp.length > 0 ? " - " + root.vpnModel.vpnIp : "")) : "Ready"
                                     color: vpnRow.profileActive ? Theme.accentText : Theme.textMuted
                                     font.family: Theme.fontFamily
                                     font.pixelSize: Theme.smallFontSize
@@ -719,9 +989,9 @@ FloatingWindow {
                             }
 
                             ShellButton {
-                                label: vpnRow.profileActive ? "Connected" : "Connect"
+                                label: vpnRow.profileActive ? "Connected" : (root.vpnModel.connected ? "Locked" : "Connect")
                                 compact: true
-                                enabled: !root.vpnModel.busy && !vpnRow.profileActive
+                                enabled: !root.vpnModel.busy && !root.vpnModel.connected && !vpnRow.profileActive
                                 onActivated: root.vpnModel.connectProfile(vpnRow.modelData)
                             }
                         }
@@ -816,20 +1086,46 @@ FloatingWindow {
                             }
                             onReleased: function (mouse) {
                                 root.setBrightnessPendingFromX(mouse.x);
-                                root.controlsModel.brightnessSet(brightnessSlider.pendingPercent);
                             }
                         }
                     }
 
-                    Text {
+                    TextInput {
+                        id: brightnessPercentInput
                         Layout.preferredWidth: root.volumePercentWidth
                         text: root.controlsModel.brightnessPercent + "%"
                         color: Theme.text
+                        selectionColor: Theme.accent
+                        selectedTextColor: Theme.accentText
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.panelFontSize
                         font.bold: true
-                        horizontalAlignment: Text.AlignRight
-                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: TextInput.AlignRight
+                        verticalAlignment: TextInput.AlignVCenter
+                        selectByMouse: true
+                        clip: true
+                        onActiveFocusChanged: {
+                            if (activeFocus) {
+                                selectAll();
+                            } else {
+                                text = root.controlsModel.brightnessPercent + "%";
+                            }
+                        }
+                        onAccepted: {
+                            const value = root.percentFromText(text, root.controlsModel.brightnessPercent);
+                            root.controlsModel.brightnessSet(value);
+                            text = value + "%";
+                            content.forceActiveFocus();
+                        }
+
+                        Connections {
+                            target: root.controlsModel
+                            function onBrightnessPercentChanged() {
+                                if (!brightnessPercentInput.activeFocus) {
+                                    brightnessPercentInput.text = root.controlsModel.brightnessPercent + "%";
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -907,20 +1203,46 @@ FloatingWindow {
                             }
                             onReleased: function (mouse) {
                                 root.setVolumePendingFromX(mouse.x);
-                                root.controlsModel.volumeSet(volumeSlider.pendingPercent);
                             }
                         }
                     }
 
-                    Text {
+                    TextInput {
+                        id: volumePercentInput
                         Layout.preferredWidth: root.volumePercentWidth
                         text: root.controlsModel.volumePercent + "%"
                         color: Theme.text
+                        selectionColor: Theme.accent
+                        selectedTextColor: Theme.accentText
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.panelFontSize
                         font.bold: true
-                        horizontalAlignment: Text.AlignRight
-                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: TextInput.AlignRight
+                        verticalAlignment: TextInput.AlignVCenter
+                        selectByMouse: true
+                        clip: true
+                        onActiveFocusChanged: {
+                            if (activeFocus) {
+                                selectAll();
+                            } else {
+                                text = root.controlsModel.volumePercent + "%";
+                            }
+                        }
+                        onAccepted: {
+                            const value = root.percentFromText(text, root.controlsModel.volumePercent);
+                            root.controlsModel.volumeSet(value);
+                            text = value + "%";
+                            content.forceActiveFocus();
+                        }
+
+                        Connections {
+                            target: root.controlsModel
+                            function onVolumePercentChanged() {
+                                if (!volumePercentInput.activeFocus) {
+                                    volumePercentInput.text = root.controlsModel.volumePercent + "%";
+                                }
+                            }
+                        }
                     }
 
                     ControlsActionButton {
@@ -928,6 +1250,7 @@ FloatingWindow {
                         Layout.preferredHeight: root.volumeControlHeight
                         label: root.controlsModel.volumeMuted ? "Unmute" : "Mute"
                         enabled: !root.controlsModel.busy
+                        selected: root.activeTab === "audio" && root.selectedIndex === 1
                         onActivated: root.controlsModel.volumeToggleMute()
                     }
                 }
@@ -962,13 +1285,15 @@ FloatingWindow {
                     delegate: Rectangle {
                         id: outputDeviceRow
 
+                        required property int index
                         required property var modelData
+                        readonly property bool selected: root.activeTab === "audio" && root.selectedIndex === index + 2
 
                         width: ListView.view.width
                         height: root.outputDeviceRowHeight
                         radius: Theme.radius
-                        color: outputDeviceRow.modelData.isDefault ? Theme.accent : (outputMouse.containsMouse && !root.controlsModel.busy ? Theme.surfaceHover : Theme.surface)
-                        border.color: outputDeviceRow.modelData.isDefault ? Theme.accent : Theme.border
+                        color: outputDeviceRow.modelData.isDefault ? Theme.accent : (selected ? Theme.surfaceActive : (outputMouse.containsMouse && !root.controlsModel.busy ? Theme.surfaceHover : Theme.surface))
+                        border.color: selected || outputDeviceRow.modelData.isDefault ? Theme.accent : Theme.border
                         border.width: 1
                         opacity: root.controlsModel.busy && !outputDeviceRow.modelData.isDefault ? 0.5 : 1
 
@@ -1057,13 +1382,16 @@ FloatingWindow {
                     delegate: Rectangle {
                         id: inputDeviceRow
 
+                        required property int index
                         required property var modelData
+                        readonly property int inputSelectionIndex: index + 2 + root.controlsModel.outputDevices.length
+                        readonly property bool selected: root.activeTab === "audio" && root.selectedIndex === inputSelectionIndex
 
                         width: ListView.view.width
                         height: root.outputDeviceRowHeight
                         radius: Theme.radius
-                        color: inputDeviceRow.modelData.isDefault ? Theme.accent : (inputMouse.containsMouse && !root.controlsModel.busy ? Theme.surfaceHover : Theme.surface)
-                        border.color: inputDeviceRow.modelData.isDefault ? Theme.accent : Theme.border
+                        color: inputDeviceRow.modelData.isDefault ? Theme.accent : (selected ? Theme.surfaceActive : (inputMouse.containsMouse && !root.controlsModel.busy ? Theme.surfaceHover : Theme.surface))
+                        border.color: selected || inputDeviceRow.modelData.isDefault ? Theme.accent : Theme.border
                         border.width: 1
                         opacity: root.controlsModel.busy && !inputDeviceRow.modelData.isDefault ? 0.5 : 1
 
@@ -1160,6 +1488,7 @@ FloatingWindow {
                         Layout.preferredHeight: root.actionButtonHeight
                         label: "Previous"
                         enabled: !root.controlsModel.busy && root.controlsModel.mediaPlayer.length > 0
+                        selected: root.activeTab === "audio" && root.selectedIndex === 2 + root.controlsModel.outputDevices.length + root.controlsModel.inputDevices.length
                         onActivated: root.controlsModel.mediaPrevious()
                     }
 
@@ -1168,6 +1497,7 @@ FloatingWindow {
                         Layout.preferredHeight: root.actionButtonHeight
                         label: "Play/Pause"
                         enabled: !root.controlsModel.busy && root.controlsModel.mediaPlayer.length > 0
+                        selected: root.activeTab === "audio" && root.selectedIndex === 3 + root.controlsModel.outputDevices.length + root.controlsModel.inputDevices.length
                         onActivated: root.controlsModel.mediaPlayPause()
                     }
 
@@ -1176,6 +1506,7 @@ FloatingWindow {
                         Layout.preferredHeight: root.actionButtonHeight
                         label: "Next"
                         enabled: !root.controlsModel.busy && root.controlsModel.mediaPlayer.length > 0
+                        selected: root.activeTab === "audio" && root.selectedIndex === 4 + root.controlsModel.outputDevices.length + root.controlsModel.inputDevices.length
                         onActivated: root.controlsModel.mediaNext()
                     }
                 } // RowLayout

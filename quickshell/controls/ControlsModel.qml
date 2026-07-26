@@ -45,8 +45,7 @@ Scope {
         repeat: false
         onTriggered: {
             if (root.targetVolume >= 0) {
-                root.volumeSet(root.targetVolume);
-                root.targetVolume = -1;
+                root.commitVolumeSet();
             }
         }
     }
@@ -57,8 +56,7 @@ Scope {
         repeat: false
         onTriggered: {
             if (root.targetBrightness >= 0) {
-                root.brightnessSet(root.targetBrightness);
-                root.targetBrightness = -1;
+                root.commitBrightnessSet();
             }
         }
     }
@@ -305,33 +303,22 @@ Scope {
 
     function runAction(action, args) {
         if (root.busy) {
-            return;
+            return false;
         }
 
         root.busy = true;
         root.message = "";
         actionProcess.command = Commands.controlsHelperCommand(action, args || []);
         actionProcess.running = true;
+        return true;
     }
 
     function volumeUp() {
-        if (root.targetVolume < 0) {
-            root.targetVolume = root.volumePercent;
-        }
-        root.targetVolume = root.clampPercent(root.targetVolume + 1);
-        root.volumePercent = root.targetVolume;
-        root.volumeText = (root.volumeMuted ? "VOL muted " : "VOL ") + root.volumePercent.toString() + "%";
-        volumeTimer.restart();
+        root.volumeSet((root.targetVolume >= 0 ? root.targetVolume : root.volumePercent) + 1);
     }
 
     function volumeDown() {
-        if (root.targetVolume < 0) {
-            root.targetVolume = root.volumePercent;
-        }
-        root.targetVolume = root.clampPercent(root.targetVolume - 1);
-        root.volumePercent = root.targetVolume;
-        root.volumeText = (root.volumeMuted ? "VOL muted " : "VOL ") + root.volumePercent.toString() + "%";
-        volumeTimer.restart();
+        root.volumeSet((root.targetVolume >= 0 ? root.targetVolume : root.volumePercent) - 1);
     }
 
     function volumeToggleMute() {
@@ -339,31 +326,51 @@ Scope {
     }
 
     function volumeSet(percent) {
-        root.runAction("volume-set", [root.clampPercent(percent).toString() + "%"]);
+        const value = root.clampPercent(percent);
+        root.targetVolume = value;
+        root.volumePercent = value;
+        root.volumeText = (root.volumeMuted ? "VOL muted " : "VOL ") + value.toString() + "%";
+        volumeTimer.restart();
     }
 
     function brightnessSet(percent) {
-        root.runAction("brightness-set", [root.clampPercent(percent).toString() + "%"]);
+        const value = root.clampPercent(percent);
+        root.targetBrightness = value;
+        root.brightnessPercent = value;
+        root.brightnessText = "BRIGHTNESS " + value.toString() + "%";
+        brightnessTimer.restart();
+    }
+
+    function commitVolumeSet() {
+        if (root.targetVolume < 0) {
+            return;
+        }
+
+        if (root.runAction("volume-set", [root.targetVolume.toString() + "%"])) {
+            root.targetVolume = -1;
+        } else {
+            volumeTimer.restart();
+        }
+    }
+
+    function commitBrightnessSet() {
+        if (root.targetBrightness < 0) {
+            return;
+        }
+
+        if (root.runAction("brightness-set", [root.targetBrightness.toString() + "%"])) {
+            root.targetBrightness = -1;
+        } else {
+            brightnessTimer.restart();
+        }
     }
 
     function brightnessUp() {
-        if (root.targetBrightness < 0) {
-            root.targetBrightness = root.brightnessPercent;
-        }
-        root.targetBrightness = root.clampPercent(root.targetBrightness + 1);
-        root.brightnessPercent = root.targetBrightness;
-        root.brightnessText = "BRIGHTNESS " + root.brightnessPercent.toString() + "%";
-        brightnessTimer.restart();
+        root.brightnessSet((root.targetBrightness >= 0 ? root.targetBrightness : root.brightnessPercent) + 1);
     }
 
     function brightnessDown() {
-        if (root.targetBrightness < 0) {
-            root.targetBrightness = root.brightnessPercent;
-        }
-        root.targetBrightness = root.clampPercent(root.targetBrightness - 1);
-        root.brightnessPercent = root.targetBrightness;
-        root.brightnessText = "BRIGHTNESS " + root.brightnessPercent.toString() + "%";
-        brightnessTimer.restart();
+        root.brightnessSet((root.targetBrightness >= 0 ? root.targetBrightness : root.brightnessPercent) - 1);
     }
 
     function outputSetDefault(name) {

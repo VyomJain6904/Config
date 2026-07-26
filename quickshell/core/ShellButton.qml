@@ -7,14 +7,15 @@ Rectangle {
     required property string label
     property bool danger: false
     property bool compact: true
+    property bool selected: false
     property bool hovered: buttonMouse.containsMouse
 
     signal activated
 
     implicitWidth: buttonLabel.implicitWidth + 18
     implicitHeight: Theme.buttonHeight
-    color: hovered && enabled ? Theme.surfaceHover : Theme.surface
-    border.color: danger ? Theme.danger : Theme.border
+    color: selected ? Theme.surfaceActive : (hovered && enabled ? Theme.surfaceHover : Theme.surface)
+    border.color: selected ? Theme.accent : (danger ? Theme.danger : Theme.border)
     border.width: 1
     radius: Theme.radius
     opacity: enabled ? 1 : 0.5

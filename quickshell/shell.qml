@@ -6,7 +6,6 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import Quickshell.Services.SystemTray
-import qs.controlcenter
 import qs.calendar
 import qs.controls
 import qs.network
@@ -46,10 +45,6 @@ ShellRoot {
 
     BluetoothModel {
         id: bluetoothModel
-    }
-
-    ControlCenterModel {
-        id: controlCenterModel
     }
 
     VpnModel {
@@ -174,34 +169,6 @@ ShellRoot {
     }
 
     IpcHandler {
-        target: "controlcenter"
-
-        function close(): void {
-            controlCenterModel.close();
-        }
-
-        function open(): void {
-            controlCenterModel.open();
-        }
-
-        function openKeybinds(): void {
-            controlCenterModel.openKeybinds();
-        }
-
-        function openInfo(): void {
-            controlCenterModel.openInfo();
-        }
-
-        function refresh(): void {
-            controlCenterModel.refresh();
-        }
-
-        function toggle(): void {
-            controlCenterModel.toggle();
-        }
-    }
-
-    IpcHandler {
         target: "vpn"
 
         function close(): void {
@@ -274,7 +241,6 @@ ShellRoot {
             networkModel: networkModel
             controlsModel: controlsModel
             bluetoothModel: bluetoothModel
-            controlCenterModel: controlCenterModel
             powerMenuModel: powerMenuModel
             calendarModel: calendarModel
             vpnModel: vpnModel
@@ -304,15 +270,6 @@ ShellRoot {
         bluetoothModel: bluetoothModel
         controlsModel: controlsModel
         vpnModel: vpnModel
-    }
-
-    ControlCenterWindow {
-        controlCenterModel: controlCenterModel
-        panelWindow: root.primaryPanel
-        powerMenuModel: powerMenuModel
-    }
-
-    UtilityDetailWindow {
-        controlCenterModel: controlCenterModel
+        i3State: i3State
     }
 }

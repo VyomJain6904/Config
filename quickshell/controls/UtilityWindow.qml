@@ -13,6 +13,7 @@ FloatingWindow {
     required property var bluetoothModel
     required property var controlsModel
     required property var vpnModel
+    required property var i3State
 
     property string activeTab: "wifi"
     property int selectedIndex: 0
@@ -28,6 +29,42 @@ FloatingWindow {
     readonly property int volumePercentWidth: 42
     readonly property int muteButtonWidth: 84
     readonly property int outputDeviceRowHeight: 34
+    readonly property string workspaceIconRoot: "file:///usr/share/icons/MacTahoe/"
+    readonly property string workspaceFallbackIcon: workspaceIconRoot + "apps/scalable/preferences-system.svg"
+    readonly property var workspaceIconMap: ({
+        "ghostty": "apps/scalable/com.mitchellh.ghostty-clear.png",
+        "helium": "apps/scalable/helium-clear.png",
+        "librewolf": "apps/scalable/librewolf-mc.png",
+        "sublime": "apps/scalable/sublime-mc.png",
+        "burp": "/usr/share/icons/MacTahoe/apps/scalable/burpsuitepro.icns",
+        "excalidraw": "/usr/share/icons/MacTahoe/apps/scalable/pake-excalidraw-mc.png",
+        "brave-browser": "apps/scalable/brave-browser-clear.png",
+        "camera": "apps/scalable/camera-clear.png",
+        "discord": "apps/scalable/com.discordapp.Discord-clear.png",
+        "obs": "apps/scalable/com.obsproject.Studio-clear.png",
+        "whatsapp": "apps/scalable/com.whatsapp.Whatsapp-clear.png",
+        "obsidian": "apps/scalable/md.obsidian-clear.png",
+        "nvidia": "apps/scalable/nvidia-clear.png",
+        "thunar": "apps/scalable/org.gtk.FileManager-clear.png",
+        "telegram": "apps/scalable/org.telegram.desktop-clear.png",
+        "vlc": "apps/scalable/org.videolan.VLC-clear.png",
+        "terminal": "apps/scalable/utilities-terminal-clear.png",
+        "wireshark": "apps/scalable/wireshark-clear.png",
+        "alacritty": "apps/scalable/alacritty-mc.png",
+        "antigravity": "apps/scalable/antigravity-mc.png",
+        "localsend": "apps/scalable/localsend-mc.png",
+        "torbrowser": "apps/scalable/torbrowser-mc.png",
+        "vmware-workstation": "apps/scalable/vmware-workstation-mc.png"
+    })
+
+    function workspaceAppIconSource(iconKey) {
+        const key = (iconKey || "").toString().toLowerCase().trim();
+        const icon = root.workspaceIconMap[key] || "";
+        if (icon.length === 0) {
+            return root.workspaceFallbackIcon;
+        }
+        return icon.indexOf("/") === 0 ? "file://" + icon : root.workspaceIconRoot + icon;
+    }
 
     visible: networkModel.visible || bluetoothModel.visible || controlsModel.visible || vpnModel.visible
     implicitWidth: popupWidth
@@ -1123,6 +1160,180 @@ FloatingWindow {
                             function onBrightnessPercentChanged() {
                                 if (!brightnessPercentInput.activeFocus) {
                                     brightnessPercentInput.text = root.controlsModel.brightnessPercent + "%";
+                                }
+                            }
+                        }
+                    }
+                }
+
+                SectionLabel {
+                    label: "Workspaces"
+                }
+
+                GridLayout {
+                    Layout.fillWidth: true
+                    columns: 2
+                    columnSpacing: root.rowSpacing
+                    rowSpacing: Theme.listSpacing
+
+                    Repeater {
+                        model: root.i3State.workspaceAppGrid
+
+                        delegate: Rectangle {
+                            id: workspaceTile
+
+                            required property var modelData
+
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: Math.max(74, (Math.ceil(modelData.windows.length / 3) * 56) + 16)
+                            color: modelData.focused ? Theme.surfaceActive : ((workspaceMouse.containsMouse || workspaceDrop.containsDrag) ? Theme.surfaceHover : Theme.surface)
+                            border.color: (modelData.focused || workspaceDrop.containsDrag) ? Theme.accent : Theme.border
+                            border.width: 1
+                            radius: Theme.radius
+
+                            MouseArea {
+                                id: workspaceMouse
+
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: root.i3State.switchWorkspace(modelData.num)
+                            }
+
+                            Item {
+                                anchors.fill: parent
+                                anchors.margins: 8
+
+                                Item {
+                                    anchors.centerIn: parent
+                                    width: parent.width
+                                    height: iconGrid.implicitHeight
+
+                                    GridLayout {
+                                        id: iconGrid
+
+                                        anchors.centerIn: parent
+                                        width: Math.min(parent.width, Math.max(0, Math.min(3, modelData.windows.length) * 46 + Math.max(0, Math.min(3, modelData.windows.length) - 1) * 10))
+                                        height: implicitHeight
+                                        columns: 3
+                                        columnSpacing: 10
+                                        rowSpacing: 10
+
+                                        Repeater {
+                                            model: modelData.windows
+
+                                            delegate: Item {
+                                                id: iconSlot
+
+                                                required property var modelData
+
+                                                Layout.preferredWidth: 46
+                                                Layout.preferredHeight: 46
+                                                Layout.minimumWidth: 46
+                                                Layout.minimumHeight: 46
+                                                Layout.maximumWidth: 46
+                                                Layout.maximumHeight: 46
+
+                                                property bool dragStarted: false
+                                                property bool dragging: dragStarted
+
+                                                Image {
+                                                    anchors.fill: parent
+                                                    source: root.workspaceAppIconSource(iconSlot.modelData.iconKey)
+                                                    fillMode: Image.PreserveAspectFit
+                                                    asynchronous: true
+                                                    smooth: true
+                                                    mipmap: true
+                                                    opacity: iconSlot.dragging ? 0.45 : 1
+                                                }
+
+                                                Item {
+                                                    id: dragProxy
+
+                                                    property string conId: iconSlot.modelData.conId ? iconSlot.modelData.conId.toString() : ""
+                                                    property int workspaceNum: iconSlot.modelData.workspaceNum
+
+                                                    width: iconSlot.width
+                                                    height: iconSlot.height
+                                                    x: 0
+                                                    y: 0
+                                                    z: iconSlot.dragging ? 1000 : 0
+                                                    visible: iconSlot.dragging
+                                                    Drag.active: iconSlot.dragging
+                                                    Drag.hotSpot.x: width / 2
+                                                    Drag.hotSpot.y: height / 2
+                                                    Drag.keys: ["application/x-i3-con-id"]
+                                                    Drag.mimeData: ({
+                                                        "application/x-i3-con-id": conId.toString()
+                                                    })
+                                                    Drag.source: dragProxy
+
+                                                    Image {
+                                                        anchors.fill: parent
+                                                        source: root.workspaceAppIconSource(iconSlot.modelData.iconKey)
+                                                        fillMode: Image.PreserveAspectFit
+                                                        smooth: true
+                                                        mipmap: true
+                                                    }
+                                                }
+
+                                                MouseArea {
+                                                    id: iconMouse
+
+                                                    anchors.fill: parent
+                                                    acceptedButtons: Qt.LeftButton
+                                                    hoverEnabled: true
+                                                    preventStealing: true
+                                                    cursorShape: iconSlot.dragging ? Qt.ClosedHandCursor : Qt.OpenHandCursor
+                                                    drag.target: dragProxy
+                                                    drag.threshold: 6
+                                                    onPressed: {
+                                                        iconSlot.dragStarted = false;
+                                                        dragProxy.x = 0;
+                                                        dragProxy.y = 0;
+                                                    }
+                                                    onPositionChanged: {
+                                                        if (pressed && (Math.abs(dragProxy.x) > 3 || Math.abs(dragProxy.y) > 3)) {
+                                                            iconSlot.dragStarted = true;
+                                                        }
+                                                    }
+                                                    onReleased: {
+                                                        if (iconSlot.dragStarted) {
+                                                            dragProxy.Drag.drop();
+                                                        }
+                                                        iconSlot.dragStarted = false;
+                                                        dragProxy.x = 0;
+                                                        dragProxy.y = 0;
+                                                    }
+                                                    onCanceled: {
+                                                        iconSlot.dragStarted = false;
+                                                        dragProxy.x = 0;
+                                                        dragProxy.y = 0;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            DropArea {
+                                id: workspaceDrop
+
+                                z: 50
+                                anchors.fill: parent
+                                keys: ["application/x-i3-con-id"]
+                                onDropped: function(drop) {
+                                    if (!drop.source || !drop.source.conId) {
+                                        return;
+                                    }
+
+                                    drop.accepted = true;
+                                    if (drop.source.workspaceNum === workspaceTile.modelData.num) {
+                                        return;
+                                    }
+
+                                    root.i3State.moveWindowToWorkspace(drop.source.conId, workspaceTile.modelData.num);
                                 }
                             }
                         }

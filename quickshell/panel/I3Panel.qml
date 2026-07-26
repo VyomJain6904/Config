@@ -19,7 +19,6 @@ PanelWindow {
     required property var networkModel
     required property var controlsModel
     required property var bluetoothModel
-    required property var controlCenterModel
     required property var powerMenuModel
     required property var vpnModel
 
@@ -70,7 +69,7 @@ PanelWindow {
                     spacing: Theme.panelGap
 
                     PanelPill {
-                        visible: root.controlCenterModel.showWorkspaceWidget
+                        visible: true
                         Layout.preferredWidth: workspaceRow.implicitWidth + 8
                         Layout.preferredHeight: Theme.pillHeight
 
@@ -205,7 +204,7 @@ PanelWindow {
                     }
 
                     PanelPill {
-                        visible: root.controlCenterModel.showVolumeWidget
+                        visible: true
                         Layout.preferredWidth: volumeRow.implicitWidth + Theme.pillHorizontalPadding * 2
                         Layout.preferredHeight: Theme.pillHeight
                         active: root.controlsModel.visible
@@ -269,7 +268,7 @@ PanelWindow {
                     }
 
                     PanelPill {
-                        visible: root.controlCenterModel.showVolumeWidget // Using same toggle as volume for now
+                        visible: true
                         Layout.preferredWidth: brightnessRow.implicitWidth + Theme.pillHorizontalPadding * 2
                         Layout.preferredHeight: Theme.pillHeight
                         active: root.controlsModel.visible
@@ -333,7 +332,7 @@ PanelWindow {
                     }
 
                     PanelPill {
-                        visible: root.controlCenterModel.showBatteryWidget
+                        visible: true
                         Layout.preferredWidth: batteryRow.implicitWidth + Theme.pillHorizontalPadding * 2
                         Layout.preferredHeight: Theme.pillHeight
                         active: root.controlsModel.visible
@@ -380,7 +379,7 @@ PanelWindow {
                     }
 
                     PanelPill {
-                        visible: root.controlCenterModel.showNetworkWidget
+                        visible: true
                         Layout.preferredWidth: networkRow.implicitWidth + Theme.pillHorizontalPadding * 2
                         Layout.preferredHeight: Theme.pillHeight
                         active: root.networkModel.visible
@@ -408,7 +407,7 @@ PanelWindow {
                     }
 
                     PanelPill {
-                        visible: root.controlCenterModel.showPowerWidget
+                        visible: true
                         Layout.preferredWidth: Theme.pillHeight
                         Layout.preferredHeight: Theme.pillHeight
                         active: root.powerMenuModel.visible

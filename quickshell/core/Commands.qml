@@ -40,11 +40,6 @@ Singleton {
         return scriptCmd("qs-launcher", action, args)
     }
 
-    // ── Control Center (system info / keybinds / actions) ─────────────
-    function controlCenterHelperCommand(action, args) {
-        return scriptCmd("qs-controlcenter", action, args)
-    }
-
     // ── Lock screen (i3lock) ──────────────────────────────────────────
     function lockHelperCommand() {
         return bashCmd("qs-lock")

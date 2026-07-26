@@ -1,7 +1,6 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
-import qs.core
 
 Scope {
     id: root
@@ -9,8 +8,6 @@ Scope {
     property int    currentWorkspaceNum: 1
     property var    workspaceNames:      []
     property var    workspaceAppGrid:   []
-    property string activeWindowTitle:   "Desktop"
-    property var    statusSegments:      []
     property var    workspaceWindowMap: ({})
     property var    pendingWindowMove:  null
     readonly property var workspaceSlots: ["1", "2", "3", "4", "5", "6", "7", "8"]
@@ -221,7 +218,6 @@ Scope {
     function refreshWorkspaceState() {
         if (!wsFetchProc.running) wsFetchProc.running = true;
         if (!treeFetchProc.running) treeFetchProc.running = true;
-        if (!titleProcess.running) titleProcess.running = true;
     }
 
     function runWindowMove(conIdText, workspaceNumText) {
@@ -322,6 +318,13 @@ Scope {
         }
     }
 
+    Timer {
+        id: i3SubRestartTimer
+        interval: 3000
+        repeat: false
+        onTriggered: i3SubProcess.running = true
+    }
+
     // ── Subscribe to i3 events for updates ────────────────────────────
     Process {
         id: i3SubProcess
@@ -336,20 +339,7 @@ Scope {
         
         onRunningChanged: {
             if (!running) {
-                Qt.callLater(() => { running = true; })
-            }
-        }
-    }
-
-    Process {
-        id: titleProcess
-        command: ["xdotool", "getactivewindow", "getwindowname"]
-        running: false
-
-        stdout: StdioCollector {
-            onStreamFinished: {
-                const t = this.text.trim()
-                root.activeWindowTitle = (t.length > 0) ? t : "Desktop"
+                i3SubRestartTimer.restart();
             }
         }
     }
@@ -358,6 +348,5 @@ Scope {
     Component.onCompleted: {
         wsFetchProc.running = true;
         treeFetchProc.running = true;
-        titleProcess.running = true;
     }
 }

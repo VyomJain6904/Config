@@ -8,7 +8,6 @@ Scope {
     property bool visible: false
     property bool confirming: false
     property var pendingAction: null
-    property string status: ""
     property int selectedActionIndex: 0
     property int selectedConfirmIndex: 0
 
@@ -47,7 +46,6 @@ Scope {
         root.visible = true;
         root.confirming = false;
         root.pendingAction = null;
-        root.status = "";
         root.selectedActionIndex = 0;
         root.selectedConfirmIndex = 0;
     }
@@ -56,7 +54,6 @@ Scope {
         root.visible = false;
         root.confirming = false;
         root.pendingAction = null;
-        root.status = "";
         root.selectedActionIndex = 0;
         root.selectedConfirmIndex = 0;
     }
@@ -108,7 +105,6 @@ Scope {
             root.pendingAction = action;
             root.confirming = true;
             root.selectedConfirmIndex = 0;
-            root.status = "";
             return;
         }
 
@@ -119,7 +115,6 @@ Scope {
         root.confirming = false;
         root.pendingAction = null;
         root.selectedConfirmIndex = 0;
-        root.status = "";
     }
 
     function confirmAction() {
@@ -144,7 +139,6 @@ Scope {
     Process {
         id: actionProcess
 
-        command: ["sh", "-c", "exit 0"]
         running: false
     }
 }

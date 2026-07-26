@@ -1,4 +1,3 @@
-import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.core
@@ -17,14 +16,6 @@ Scope {
 
     function close() {
         root.visible = false;
-    }
-
-    function toggle() {
-        if (root.visible) {
-            root.close();
-        } else {
-            root.open();
-        }
     }
 
     function refreshEvents() {

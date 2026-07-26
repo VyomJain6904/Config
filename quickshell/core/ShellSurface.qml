@@ -5,7 +5,6 @@ Rectangle {
     id: root
 
     default property alias content: body.data
-    property alias contentItem: body
     property int margin: Theme.popupMargin
 
     color: Theme.bg

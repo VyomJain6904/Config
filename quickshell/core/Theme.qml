@@ -37,7 +37,6 @@ Singleton {
     readonly property int rowSpacing: 10
     readonly property int listSpacing: 4
     readonly property int compactSpacing: 2
-    readonly property int tightSpacing: 3
     readonly property int sectionSpacing: 14
     readonly property int radius: 0
     readonly property int smallRadius: 0
@@ -58,7 +57,6 @@ Singleton {
     readonly property int smallFontSize: 12
     readonly property int tinyFontSize: 10
     readonly property int inputFontSize: 16
-    readonly property int iconSize: 28
     readonly property int trayItemSize: 16
     readonly property int trayIconSize: 14
 }

@@ -5,7 +5,6 @@ Rectangle {
     id: root
 
     required property string label
-    property bool danger: false
     property bool compact: true
     property bool selected: false
     property bool hovered: buttonMouse.containsMouse
@@ -25,7 +24,7 @@ Rectangle {
 
         anchors.centerIn: parent
         text: root.label
-        color: root.danger ? Theme.textStrong : Theme.text
+        color: Theme.text
         font.family: Theme.fontFamily
         font.pixelSize: root.compact ? Theme.smallFontSize : Theme.panelFontSize
         font.bold: true

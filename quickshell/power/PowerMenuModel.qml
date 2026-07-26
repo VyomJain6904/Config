@@ -9,6 +9,8 @@ Scope {
     property bool confirming: false
     property var pendingAction: null
     property string status: ""
+    property int selectedActionIndex: 0
+    property int selectedConfirmIndex: 0
 
     readonly property var sessionActions: [
         {
@@ -46,6 +48,8 @@ Scope {
         root.confirming = false;
         root.pendingAction = null;
         root.status = "";
+        root.selectedActionIndex = 0;
+        root.selectedConfirmIndex = 0;
     }
 
     function close() {
@@ -53,6 +57,38 @@ Scope {
         root.confirming = false;
         root.pendingAction = null;
         root.status = "";
+        root.selectedActionIndex = 0;
+        root.selectedConfirmIndex = 0;
+    }
+
+    function moveSelection(delta) {
+        if (root.confirming) {
+            root.selectedConfirmIndex = root.selectedConfirmIndex === 0 ? 1 : 0;
+            return;
+        }
+
+        const count = root.sessionActions.length;
+        if (count === 0) {
+            root.selectedActionIndex = 0;
+            return;
+        }
+
+        root.selectedActionIndex = (root.selectedActionIndex + delta + count) % count;
+    }
+
+    function activateSelected() {
+        if (root.confirming) {
+            if (root.selectedConfirmIndex === 0) {
+                root.cancelConfirmation();
+            } else {
+                root.confirmAction();
+            }
+            return;
+        }
+
+        if (root.selectedActionIndex >= 0 && root.selectedActionIndex < root.sessionActions.length) {
+            root.requestAction(root.sessionActions[root.selectedActionIndex]);
+        }
     }
 
     function toggle() {
@@ -71,6 +107,7 @@ Scope {
         if (action.confirm) {
             root.pendingAction = action;
             root.confirming = true;
+            root.selectedConfirmIndex = 0;
             root.status = "";
             return;
         }
@@ -81,6 +118,7 @@ Scope {
     function cancelConfirmation() {
         root.confirming = false;
         root.pendingAction = null;
+        root.selectedConfirmIndex = 0;
         root.status = "";
     }
 

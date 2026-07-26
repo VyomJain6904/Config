@@ -15,8 +15,13 @@ FloatingWindow {
     title: "Quickshell Utility"
     color: Theme.transparent
 
-    onVisibleChanged: if (!visible)
-        root.powerMenuModel.close()
+    onVisibleChanged: {
+        if (visible) {
+            content.forceActiveFocus();
+        } else {
+            root.powerMenuModel.close();
+        }
+    }
 
     readonly property var cancelAction: {
         "label": "Cancel",
@@ -42,6 +47,15 @@ FloatingWindow {
                 } else {
                     root.powerMenuModel.close();
                 }
+                event.accepted = true;
+            } else if (event.key === Qt.Key_Down || event.key === Qt.Key_Right) {
+                root.powerMenuModel.moveSelection(1);
+                event.accepted = true;
+            } else if (event.key === Qt.Key_Up || event.key === Qt.Key_Left) {
+                root.powerMenuModel.moveSelection(-1);
+                event.accepted = true;
+            } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter || event.key === Qt.Key_Space) {
+                root.powerMenuModel.activateSelected();
                 event.accepted = true;
             }
         }
@@ -79,11 +93,13 @@ FloatingWindow {
 
                 delegate: PowerMenuActionButton {
                     required property var modelData
+                    required property int index
 
                     Layout.fillWidth: true
                     Layout.preferredHeight: 58
                     action: modelData
                     danger: modelData.id === "shutdown"
+                    selected: index === root.powerMenuModel.selectedActionIndex
                     onActivated: root.powerMenuModel.requestAction(modelData)
                 }
             }
@@ -123,6 +139,7 @@ FloatingWindow {
                         Layout.preferredHeight: Theme.confirmButtonHeight
                         action: root.cancelAction
                         compact: true
+                        selected: root.powerMenuModel.selectedConfirmIndex === 0
                         onActivated: root.powerMenuModel.cancelConfirmation()
                     }
 
@@ -132,6 +149,7 @@ FloatingWindow {
                         action: root.confirmButtonAction
                         compact: true
                         danger: true
+                        selected: root.powerMenuModel.selectedConfirmIndex === 1
                         onActivated: root.powerMenuModel.confirmAction()
                     }
                 }

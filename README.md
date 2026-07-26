@@ -151,7 +151,12 @@ export PATH="$PATH:/opt/nvim-linux-x86_64/bin"
 ## Highlights
 
 - **Dual WM support** — i3 (X11) and Hyprland (Wayland) both fully configured with matching status bars (Polybar / Waybar)
-- **Quickshell panel** — custom QML-based desktop shell with battery, volume, brightness, bluetooth, network, notifications, and control center
+- **Quickshell panel** — high-performance QML desktop shell featuring:
+  - **Native C++ Daemon (`qs-calendar-service`)** — Google Calendar API OAuth2 sync & 55+ Indian National Holidays with 1-year offline disk cache (-365 to +365 days)
+  - **Interactive Calendar Tab** — trackpad 2-finger swipe month navigation, locked Month Grid, dual-mode filtering (National Holidays default overview / specific date schedule view), and formatted Date + Time badges
+  - **Sticky Top Tab Bar** — permanently pinned navigation header (`Wi-Fi`, `Bluetooth`, `Audio`, `Display`, `VPN`, `Calendar`, `X`)
+  - **Control Center** — Pipewire audio/mic controls, brightness, Bluetooth scanning, OpenVPN profiles, and nmcli Wi-Fi manager with instant rescanning
+  - **Expanded Dimensions** — 560px × 740px utility menu and 8-slot workspace switcher
 - **Multi-agent AI** — OpenCode configured with specialized agents and MCP integration
 - **Neovim IDE** — full LSP, DAP, formatting, linting, telescope, and language support for Go, Rust, Python, TypeScript, Zig
 - **Obsidian vault** — tracked themes, plugins, and CSS snippets

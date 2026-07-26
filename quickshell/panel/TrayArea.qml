@@ -8,6 +8,7 @@ RowLayout {
 
     visible: SystemTray.items.values.length > 0
     spacing: Theme.compactSpacing
+    Layout.alignment: Qt.AlignVCenter
 
     Repeater {
         model: SystemTray.items.values

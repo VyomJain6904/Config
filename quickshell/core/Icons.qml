@@ -43,6 +43,13 @@ Singleton {
             names.push("blueman-active");
             names.push("bluetooth-active-symbolic");
             names.push("bluetooth-symbolic");
+        } else if (iconName === "audio-volume-muted-panel") {
+            names.push("audio-volume-muted-blocking-panel");
+            names.push("audio-volume-muted-symbolic");
+            names.push("audio-volume-muted");
+        } else if (iconName === "network-wireless-signal-excellent") {
+            names.push("network-wireless-100");
+            names.push("network-wireless-connected-100");
         } else if (iconName === "org.remmina.Remmina-status") {
             names.push("org.remmina.Remmina");
             names.push("org.remmina.Remmina-symbolic");
@@ -104,28 +111,35 @@ Singleton {
     }
 
     function addMacTahoeFallbacks(sources, iconName) {
-        const home = Quickshell.env("HOME") || "";
-        const xdgDataHome = Quickshell.env("XDG_DATA_HOME") || (home.length > 0 ? home + "/.local/share" : "");
+        if (!iconName || iconName.length === 0) return;
+        const names = iconNameFallbacks(iconName);
+        const statusFirst = iconName.indexOf("audio-volume-") === 0
+            || iconName.indexOf("battery-") === 0
+            || iconName.indexOf("display-brightness") === 0
+            || iconName.indexOf("network-wireless-") === 0
+            || iconName.indexOf("bluetooth") === 0;
 
-        addIconThemeFileSources(sources, "/usr/share/icons/MacTahoe", iconName);
-        addIconThemeFileSources(sources, "/usr/share/icons/hicolor", iconName);
-        addIconThemeFileSources(sources, "/usr/local/share/icons/MacTahoe", iconName);
-        addIconThemeFileSources(sources, "/usr/local/share/icons/hicolor", iconName);
+        for (let i = 0; i < names.length; i++) {
+            if (statusFirst) {
+                addIconSource(sources, "file:///usr/share/icons/MacTahoe/status/24/" + names[i] + ".svg");
+                addIconSource(sources, "file:///usr/share/icons/MacTahoe/status/22/" + names[i] + ".svg");
+                addIconSource(sources, "file:///usr/share/icons/MacTahoe/status/16/" + names[i] + ".svg");
+                addIconSource(sources, "file:///usr/share/icons/MacTahoe/status/32/" + names[i] + ".svg");
+                addIconSource(sources, "file:///usr/share/icons/MacTahoe/status/symbolic/" + names[i] + ".svg");
+            }
 
-        // Flatpak system-wide icon exports
-        addIconThemeFileSources(sources, "/var/lib/flatpak/exports/share/icons/hicolor", iconName);
+            addIconSource(sources, "file:///usr/share/icons/MacTahoe/apps/scalable/" + names[i] + ".png");
+            addIconSource(sources, "file:///usr/share/icons/MacTahoe/apps/scalable/" + names[i] + ".svg");
 
-        if (xdgDataHome.length > 0) {
-            addIconThemeFileSources(sources, xdgDataHome + "/icons/MacTahoe", iconName);
-            addIconThemeFileSources(sources, xdgDataHome + "/icons/hicolor", iconName);
-            // Flatpak user icon exports
-            addIconThemeFileSources(sources, xdgDataHome + "/flatpak/exports/share/icons/hicolor", iconName);
-        }
+            if (!statusFirst) {
+                addIconSource(sources, "file:///usr/share/icons/MacTahoe/status/24/" + names[i] + ".svg");
+                addIconSource(sources, "file:///usr/share/icons/MacTahoe/status/22/" + names[i] + ".svg");
+                addIconSource(sources, "file:///usr/share/icons/MacTahoe/status/16/" + names[i] + ".svg");
+                addIconSource(sources, "file:///usr/share/icons/MacTahoe/status/32/" + names[i] + ".svg");
+                addIconSource(sources, "file:///usr/share/icons/MacTahoe/status/symbolic/" + names[i] + ".svg");
+            }
 
-        if (home.length > 0) {
-            addIconThemeFileSources(sources, home + "/.icons/MacTahoe", iconName);
-            addIconThemeFileSources(sources, home + "/.icons/hicolor", iconName);
-            addIconThemeFileSources(sources, home + "/.local/share/flatpak/exports/share/icons/hicolor", iconName);
+            addIconSource(sources, "image://icon/" + names[i]);
         }
     }
 
@@ -147,8 +161,6 @@ Singleton {
             iconName = iconName.substring(13); // remove "image://icon/"
         }
 
-        console.log("TRAY ICON REQUEST:", "id=", trayItem.id, "iconName=", iconName, "rawIconName=", rawIconName, "iconPath=", iconPath);
-
         const sources = [];
 
         // Always add the raw Quickshell provided URI as the last resort fallback
@@ -168,33 +180,37 @@ Singleton {
             addIconSource(sources, "image://icon/org.flameshot.Flameshot");
         }
 
-        // Special case: Discord flatpak - sends "discord" as icon name but icon is
-        // in the flatpak hicolor export as "com.discordapp.Discord"
+        // Special case: Discord - use MacTahoe com.discordapp.Discord-clear.png
         if (iconName === "discord" || trayItem.id === "discord" || iconName === "com.discordapp.Discord" || (trayItem.id && trayItem.id.indexOf("discord") >= 0)) {
-            addIconSource(sources, "file:///var/lib/flatpak/exports/share/icons/hicolor/scalable/apps/com.discordapp.Discord.svg");
-            addIconSource(sources, "file:///usr/share/icons/MacTahoe/apps/scalable/discord.svg");
+            addIconSource(sources, "file:///usr/share/icons/MacTahoe/apps/scalable/com.discordapp.Discord-clear.png");
             addIconSource(sources, "file:///usr/share/icons/MacTahoe/apps/scalable/com.discordapp.Discord.svg");
+            addIconSource(sources, "file:///usr/share/icons/MacTahoe/apps/scalable/discord.svg");
+            addIconSource(sources, "file:///var/lib/flatpak/exports/share/icons/hicolor/scalable/apps/com.discordapp.Discord.svg");
             addIconSource(sources, "image://icon/discord");
             addIconSource(sources, "image://icon/com.discordapp.Discord");
+            return sources;
         }
 
-        // Special case: Telegram flatpak - uses "telegram-panel" / "org.telegram.desktop" as icon name
-        if (iconName === "telegram-panel" || iconName === "org.telegram.desktop" || (trayItem.id && trayItem.id.indexOf("telegram") >= 0)) {
-            addIconSource(sources, "file:///usr/share/icons/MacTahoe/status/16/telegram-panel.svg");
+        // Special case: Telegram - use MacTahoe org.telegram.desktop-clear.png
+        if (iconName === "telegram-panel" || iconName === "telegram" || iconName === "telegram-desktop" || iconName === "org.telegram.desktop" || (trayItem.id && trayItem.id.indexOf("telegram") >= 0)) {
+            addIconSource(sources, "file:///usr/share/icons/MacTahoe/apps/scalable/org.telegram.desktop-clear.png");
             addIconSource(sources, "file:///usr/share/icons/MacTahoe/status/22/telegram-panel.svg");
-            addIconSource(sources, "file:///usr/share/icons/MacTahoe/apps/scalable/telegram-desktop.svg");
+            addIconSource(sources, "file:///usr/share/icons/MacTahoe/status/16/telegram-panel.svg");
+            addIconSource(sources, "file:///usr/share/icons/MacTahoe/apps/scalable/telegram.svg");
             addIconSource(sources, "file:///usr/share/icons/MacTahoe/apps/scalable/org.telegram.desktop.svg");
-            addIconSource(sources, "file:///var/lib/flatpak/exports/share/icons/hicolor/64x64/apps/org.telegram.desktop.png");
             addIconSource(sources, "image://icon/telegram-panel");
             addIconSource(sources, "image://icon/org.telegram.desktop");
+            return sources;
         }
         if (iconName === "telegram-attention-panel") {
             addIconSource(sources, "file:///usr/share/icons/MacTahoe/status/16/telegram-attention-panel.svg");
             addIconSource(sources, "file:///usr/share/icons/MacTahoe/status/22/telegram-attention-panel.svg");
+            return sources;
         }
         if (iconName === "telegram-mute-panel") {
             addIconSource(sources, "file:///usr/share/icons/MacTahoe/status/16/telegram-mute-panel.svg");
             addIconSource(sources, "file:///usr/share/icons/MacTahoe/status/22/telegram-mute-panel.svg");
+            return sources;
         }
 
         if (looksLikeIconFilePath(iconPath)) {
@@ -205,32 +221,15 @@ Singleton {
             addIconSource(sources, "file:///usr/share/pixmaps/steam_tray_mono.png");
         } else if (iconName.length > 0) {
             const names = iconNameFallbacks(iconName);
-            const home = Quickshell.env("HOME") || "";
-            const xdgDataHome = Quickshell.env("XDG_DATA_HOME") || (home.length > 0 ? home + "/.local/share" : "");
             for (let i = 0; i < names.length; i++) {
-                // Search MacTahoe (primary theme)
-                addIconThemeFileSources(sources, "/usr/share/icons/MacTahoe", names[i]);
-                if (home.length > 0) {
-                    addIconThemeFileSources(sources, home + "/.local/share/icons/MacTahoe", names[i]);
-                }
-                addIconThemeFileSources(sources, "/usr/local/share/icons/MacTahoe", names[i]);
-
-                // Search hicolor (standard fallback - system)
-                addIconThemeFileSources(sources, "/usr/share/icons/hicolor", names[i]);
-                addIconThemeFileSources(sources, "/usr/local/share/icons/hicolor", names[i]);
-
-                // Search flatpak icon exports (system-wide flatpak - Discord, Telegram, etc.)
-                addIconThemeFileSources(sources, "/var/lib/flatpak/exports/share/icons/hicolor", names[i]);
-
-                // Search flatpak icon exports (user-local flatpak)
-                if (xdgDataHome.length > 0) {
-                    addIconThemeFileSources(sources, xdgDataHome + "/flatpak/exports/share/icons/hicolor", names[i]);
-                }
-                if (home.length > 0) {
-                    addIconThemeFileSources(sources, home + "/.local/share/flatpak/exports/share/icons/hicolor", names[i]);
-                    addIconThemeFileSources(sources, home + "/.local/share/icons/hicolor", names[i]);
-                }
-
+                // Direct targeted paths in MacTahoe (fast, no heavy loops)
+                addIconSource(sources, "file:///usr/share/icons/MacTahoe/apps/scalable/" + names[i] + ".png");
+                addIconSource(sources, "file:///usr/share/icons/MacTahoe/apps/scalable/" + names[i] + ".svg");
+                addIconSource(sources, "file:///usr/share/icons/MacTahoe/status/24/" + names[i] + ".svg");
+                addIconSource(sources, "file:///usr/share/icons/MacTahoe/status/22/" + names[i] + ".svg");
+                addIconSource(sources, "file:///usr/share/icons/MacTahoe/status/16/" + names[i] + ".svg");
+                addIconSource(sources, "file:///usr/share/icons/MacTahoe/status/32/" + names[i] + ".svg");
+                addIconSource(sources, "file:///usr/share/icons/MacTahoe/status/symbolic/" + names[i] + ".svg");
                 addIconSource(sources, "image://icon/" + names[i]);
             }
         }

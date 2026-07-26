@@ -7,15 +7,34 @@ IconImage {
     id: root
 
     property string iconName: ""
+    property var preferredNames: []
+    property bool providerFallback: true
     property var iconSources: []
     property int iconSourceIndex: 0
 
-    onIconNameChanged: {
-        if (iconName.length > 0) {
+    function rebuildSources() {
+        if (iconName.length > 0 || preferredNames.length > 0) {
             const sources = [];
-            Icons.addMacTahoeFallbacks(sources, iconName);
-            Icons.addIconSource(sources, Quickshell.iconPath(iconName, true));
-            Icons.addIconSource(sources, "image://icon/" + iconName);
+
+            for (let i = 0; i < preferredNames.length; i++) {
+                const preferred = preferredNames[i];
+                if (preferred && preferred.length > 0) {
+                    Icons.addMacTahoeFallbacks(sources, preferred);
+                    Icons.addIconSource(sources, Quickshell.iconPath(preferred, true));
+                    if (providerFallback) {
+                        Icons.addIconSource(sources, "image://icon/" + preferred);
+                    }
+                }
+            }
+
+            if (iconName.length > 0) {
+                Icons.addMacTahoeFallbacks(sources, iconName);
+                Icons.addIconSource(sources, Quickshell.iconPath(iconName, true));
+                if (providerFallback) {
+                    Icons.addIconSource(sources, "image://icon/" + iconName);
+                }
+            }
+
             iconSources = sources;
         } else {
             iconSources = [];
@@ -23,7 +42,12 @@ IconImage {
         iconSourceIndex = 0;
     }
 
+    onIconNameChanged: rebuildSources()
+    onPreferredNamesChanged: rebuildSources()
+    onProviderFallbackChanged: rebuildSources()
+
     source: iconSources.length > iconSourceIndex ? iconSources[iconSourceIndex] : ""
+    implicitSize: Math.max(width, height)
     asynchronous: true
     mipmap: true
     visible: status === Image.Ready

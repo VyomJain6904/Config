@@ -127,11 +127,17 @@ elif action == "input-set-default":
 # ══════════════════════════════ BATTERY ══════════════════════════════
 elif action == "battery-status":
     try:
-        with open("/sys/class/power_supply/BAT1/capacity") as f:
-            cap = f.read().strip()
-        with open("/sys/class/power_supply/BAT1/status") as f:
-            stat = f.read().strip()
-        print(f"BATTERY {cap}% {stat}")
+        import glob
+        bat_dirs = glob.glob("/sys/class/power_supply/BAT*")
+        if not bat_dirs:
+            print("BATTERY unavailable")
+        else:
+            bat_dir = bat_dirs[0]
+            with open(f"{bat_dir}/capacity") as f:
+                cap = f.read().strip()
+            with open(f"{bat_dir}/status") as f:
+                stat = f.read().strip()
+            print(f"BATTERY {cap}% {stat}")
     except Exception:
         print("BATTERY unavailable")
 

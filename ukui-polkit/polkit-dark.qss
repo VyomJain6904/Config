@@ -1,0 +1,88 @@
+QWidget {
+    background-color: #000000;
+    color: #e0e0e0;
+    font-family: "SF Pro Text", "Inter", "JetBrainsMono Nerd Font";
+    font-size: 10pt;
+}
+
+QDialog,
+QMainWindow,
+QFrame {
+    background-color: #000000;
+    border: 1px solid #2a2a2a;
+}
+
+QLabel {
+    color: #c0caf5;
+    background: transparent;
+}
+
+QLineEdit,
+QComboBox {
+    background-color: #111111;
+    color: #e0e0e0;
+    border: 1px solid #333333;
+    padding: 8px;
+    selection-background-color: #c0caf5;
+    selection-color: #000000;
+}
+
+QLineEdit:focus,
+QComboBox:focus {
+    border-color: #c0caf5;
+}
+
+QPushButton {
+    background-color: #111111;
+    color: #c0caf5;
+    border: 1px solid #2a2a2a;
+    padding: 8px 14px;
+    min-height: 26px;
+}
+
+QPushButton:hover,
+QPushButton:focus {
+    background-color: #1a1a1a;
+    border-color: #c0caf5;
+}
+
+QPushButton:pressed {
+    background-color: #222222;
+}
+
+QPushButton:disabled,
+QLineEdit:disabled,
+QComboBox:disabled {
+    color: #555555;
+    border-color: #2a2a2a;
+}
+
+QToolButton {
+    background: transparent;
+    color: #c0caf5;
+    border: 1px solid transparent;
+    padding: 4px;
+}
+
+QToolButton:hover,
+QToolButton:focus {
+    background-color: #1a1a1a;
+    border-color: #c0caf5;
+}
+
+QCheckBox,
+QRadioButton {
+    color: #c0caf5;
+    background: transparent;
+}
+
+QScrollArea,
+QScrollBar,
+QAbstractScrollArea {
+    background-color: #000000;
+    border: none;
+}
+
+QScrollBar::handle {
+    background-color: #333333;
+}

@@ -10,6 +10,7 @@ mouse_warping none
 
 # Auto Start
 exec --no-startup-id nm-applet
+exec --no-startup-id /usr/lib/x86_64-linux-gnu/ukui-polkit/polkit-ukui-authentication-agent-1 -stylesheet /home/jain/.config/ukui-polkit/polkit-dark.qss
 exec --no-startup-id pkill dunst
 exec --no-startup-id ~/.config/i3/power-monitor.sh
 exec_always --no-startup-id ~/.config/quickshell/scripts/qs-daemon
@@ -199,5 +200,8 @@ for_window [class="Brave-browser" title="Picture-in-Picture"] floating enable, s
 for_window [title="^quickshell$"] floating enable, move position center
 for_window [title="^Quickshell Utility$"] floating enable, move position center
 for_window [title="^dwm system health$"] floating enable, move position center
+for_window [title="(?i).*authentication.*"] floating enable, border pixel 2, resize set 460 580, move position center, focus
+for_window [class="(?i).*polkit.*"] floating enable, border pixel 2, resize set 460 580, move position center, focus
+for_window [class="(?i).*ukui-polkit.*"] floating enable, border pixel 2, resize set 460 580, move position center, focus
 
 for_window [class="(?i)rofi"] border pixel 0

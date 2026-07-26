@@ -6,6 +6,11 @@ __pycache__/
 # Locally built Quickshell helper
 quickshell/helpers/bin/
 
+# Quickshell local runtime secrets/state
+quickshell/google_calendar_credentials.json
+quickshell/google_calendar_tokens.json
+quickshell/hotspot.json
+
 # Logs and dumps
 *.log
 *.dmp

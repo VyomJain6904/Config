@@ -54,17 +54,6 @@ ShellRoot {
         id: vpnModel
     }
 
-    LazyLoader {
-        active: true
-
-        component: Item {
-            Component.onCompleted: {
-                networkModel.refresh();
-                controlsModel.refresh();
-            }
-        }
-    }
-
     // ── IPC Handlers ──────────────────────────────────────────────────
 
     IpcHandler {
@@ -251,12 +240,16 @@ ShellRoot {
         powerMenuModel: powerMenuModel
     }
 
-    UtilityWindow {
-        networkModel: networkModel
-        bluetoothModel: bluetoothModel
-        controlsModel: controlsModel
-        vpnModel: vpnModel
-        calendarModel: calendarModel
-        i3State: i3State
+    LazyLoader {
+        active: networkModel.visible || controlsModel.visible || vpnModel.visible || calendarModel.visible
+
+        component: UtilityWindow {
+            networkModel: networkModel
+            bluetoothModel: bluetoothModel
+            controlsModel: controlsModel
+            vpnModel: vpnModel
+            calendarModel: calendarModel
+            i3State: i3State
+        }
     }
 }

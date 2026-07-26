@@ -30,6 +30,7 @@ Scope {
     property string mediaPlayer: ""
     property string mediaState: ""
     property string bluetoothText: "BT unavailable"
+    property string pendingAction: ""
     readonly property var audioSink: Pipewire.defaultAudioSink
     readonly property var audioSource: Pipewire.defaultAudioSource
 
@@ -106,26 +107,53 @@ Scope {
         root.refreshAudioStatus();
         root.refreshOutputDevices();
         root.refreshInputDevices();
-        if (!mediaStatusProcess.running) {
-            mediaStatusProcess.running = true;
-        }
-        if (!bluetoothStatusProcess.running) {
-            bluetoothStatusProcess.running = true;
-        }
-        if (!brightnessStatusProcess.running) {
-            brightnessStatusProcess.running = true;
-        }
+        root.refreshMediaStatus();
+        root.refreshBluetoothStatus();
+        root.refreshBrightnessStatus();
     }
 
     function refreshOutputDevices() {
+        if (!root.visible) {
+            return;
+        }
         if (!outputDevicesProcess.running) {
             outputDevicesProcess.running = true;
         }
     }
 
     function refreshInputDevices() {
+        if (!root.visible) {
+            return;
+        }
         if (!inputDevicesProcess.running) {
             inputDevicesProcess.running = true;
+        }
+    }
+
+    function refreshMediaStatus() {
+        if (!root.visible) {
+            return;
+        }
+        if (!mediaStatusProcess.running) {
+            mediaStatusProcess.running = true;
+        }
+    }
+
+    function refreshBluetoothStatus() {
+        if (!root.visible) {
+            return;
+        }
+        if (!bluetoothStatusProcess.running) {
+            bluetoothStatusProcess.running = true;
+        }
+    }
+
+    function refreshBrightnessStatus() {
+        if (!root.visible) {
+            return;
+        }
+        if (!brightnessStatusProcess.running) {
+            brightnessStatusProcess.running = true;
         }
     }
 
@@ -284,6 +312,7 @@ Scope {
         }
 
         root.busy = true;
+        root.pendingAction = action;
         actionProcess.command = Commands.controlsHelperCommand(action, args || []);
         actionProcess.running = true;
         return true;
@@ -472,7 +501,7 @@ Scope {
         id: brightnessStatusProcess
 
         command: Commands.controlsHelperCommand("brightness-status")
-        running: true
+        running: false
 
         stdout: StdioCollector {
             onStreamFinished: {
@@ -531,31 +560,6 @@ Scope {
         }
     }
 
-    Timer {
-        id: mediaWatchRestartTimer
-        interval: 3000
-        repeat: false
-        onTriggered: mediaWatchProcess.running = true
-    }
-
-    Process {
-        id: mediaWatchProcess
-        command: Commands.controlsHelperCommand("media-watch")
-        running: true
-
-        stdout: SplitParser {
-            onRead: function (data) {
-                root.parseMedia(data);
-            }
-        }
-
-        onRunningChanged: {
-            if (!running) {
-                mediaWatchRestartTimer.restart();
-            }
-        }
-    }
-
     Process {
         id: bluetoothStatusProcess
 
@@ -578,8 +582,15 @@ Scope {
 
         onRunningChanged: {
             if (!running) {
+                const action = root.pendingAction;
                 root.busy = false;
-                root.refresh();
+                root.refreshAudioStatus();
+                if (root.visible) {
+                    root.refresh();
+                } else if (action.indexOf("media-") === 0 && !mediaStatusProcess.running) {
+                    mediaStatusProcess.running = true;
+                }
+                root.pendingAction = "";
             }
         }
 

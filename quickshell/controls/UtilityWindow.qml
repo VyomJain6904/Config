@@ -65,7 +65,7 @@ FloatingWindow {
         return icon.indexOf("/") === 0 ? "file://" + icon : root.workspaceIconRoot + icon;
     }
 
-    visible: networkModel.visible || controlsModel.visible || vpnModel.visible
+    visible: networkModel.visible || controlsModel.visible || vpnModel.visible || calendarModel.visible
     implicitWidth: popupWidth
     implicitHeight: popupHeight
     title: "Quickshell Utility"
@@ -123,6 +123,7 @@ FloatingWindow {
             root.vpnModel.close();
             root.calendarModel.close();
         }
+        root.updateWorkspaceGridActive();
     }
 
     function setActiveTab(tab) {
@@ -133,7 +134,26 @@ FloatingWindow {
         } else if (tab === "calendar") {
             root.calendarModel.refreshEvents();
         }
+        root.updateWorkspaceGridActive();
         Qt.callLater(() => content.forceActiveFocus());
+    }
+
+    function updateWorkspaceGridActive() {
+        root.i3State.windowGridActive = root.visible && root.activeTab === "brightness";
+    }
+
+    Component.onCompleted: {
+        if (root.networkModel.visible) {
+            root.setActiveTab("wifi");
+        } else if (root.controlsModel.visible) {
+            root.setActiveTab(root.controlsModel.requestedTab);
+        } else if (root.vpnModel.visible) {
+            root.setActiveTab("vpn");
+        } else if (root.calendarModel.visible) {
+            root.setActiveTab("calendar");
+        } else {
+            root.updateWorkspaceGridActive();
+        }
     }
 
     function cycleTab(delta) {

@@ -31,6 +31,9 @@ Scope {
 
     function open() {
         root.visible = true;
+        if (!editorCheckProcess.running) {
+            editorCheckProcess.running = true;
+        }
         root.refresh(true);
     }
 
@@ -51,8 +54,9 @@ Scope {
     }
 
     function refresh(rescanWifi) {
-        if (!statusProcess.running) {
-            statusProcess.running = true;
+        root.refreshStatus();
+        if (!root.visible) {
+            return;
         }
         if (!connectionsProcess.running) {
             connectionsProcess.running = true;
@@ -61,6 +65,12 @@ Scope {
             hotspotStatusProcess.running = true;
         }
         root.refreshWifi(rescanWifi === true);
+    }
+
+    function refreshStatus() {
+        if (!statusProcess.running) {
+            statusProcess.running = true;
+        }
     }
 
     function refreshWifi(rescan) {
@@ -251,7 +261,13 @@ Scope {
         interval: 1000
         running: false
         repeat: false
-        onTriggered: root.refresh(false)
+        onTriggered: {
+            if (root.visible) {
+                root.refresh(false);
+            } else {
+                root.refreshStatus();
+            }
+        }
     }
 
 
@@ -407,5 +423,5 @@ Scope {
         }
     }
 
-    Component.onCompleted: editorCheckProcess.running = true
+    Component.onCompleted: root.refreshStatus()
 }

@@ -134,7 +134,7 @@ Scope {
     Process {
         id: profilesProcess
         command: Commands.vpnHelperCommand("list")
-        running: true
+        running: false
 
         stdout: StdioCollector {
             onStreamFinished: root.parseProfiles(this.text)

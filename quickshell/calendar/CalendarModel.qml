@@ -38,8 +38,13 @@ Scope {
 
         stdout: StdioCollector {
             onStreamFinished: {
+                const text = this.text.trim();
+                if (text.length === 0) {
+                    return;
+                }
+
                 try {
-                    const parsed = JSON.parse(this.text);
+                    const parsed = JSON.parse(text);
                     root.events = parsed;
                     const byDate = {};
                     for (let i = 0; i < parsed.length; i++) {

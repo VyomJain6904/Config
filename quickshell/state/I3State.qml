@@ -10,7 +10,14 @@ Scope {
     property var    workspaceAppGrid:   []
     property var    workspaceWindowMap: ({})
     property var    pendingWindowMove:  null
+    property bool   windowGridActive:   false
     readonly property var workspaceSlots: ["1", "2", "3", "4", "5", "6", "7", "8"]
+
+    onWindowGridActiveChanged: {
+        if (windowGridActive && !treeFetchProc.running) {
+            treeFetchProc.running = true;
+        }
+    }
 
     function normalizeAppIconName(rawName) {
         if (!rawName || rawName.length === 0) {
@@ -215,9 +222,9 @@ Scope {
         }
     }
 
-    function refreshWorkspaceState() {
+    function refreshWorkspaceState(includeTree) {
         if (!wsFetchProc.running) wsFetchProc.running = true;
-        if (!treeFetchProc.running) treeFetchProc.running = true;
+        if ((includeTree || root.windowGridActive) && !treeFetchProc.running) treeFetchProc.running = true;
     }
 
     function runWindowMove(conIdText, workspaceNumText) {
@@ -259,7 +266,7 @@ Scope {
         running: false
         onRunningChanged: {
             if (!running) {
-                root.refreshWorkspaceState();
+                root.refreshWorkspaceState(true);
                 if (root.pendingWindowMove !== null) {
                     const move = root.pendingWindowMove;
                     root.pendingWindowMove = null;
@@ -333,7 +340,7 @@ Scope {
 
         stdout: SplitParser {
             onRead: {
-                root.refreshWorkspaceState();
+                root.refreshWorkspaceState(false);
             }
         }
         
@@ -347,6 +354,5 @@ Scope {
     // ── Init ──────────────────────────────────────────────────────────
     Component.onCompleted: {
         wsFetchProc.running = true;
-        treeFetchProc.running = true;
     }
 }

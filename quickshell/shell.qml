@@ -17,6 +17,11 @@ import qs.state
 ShellRoot {
     id: root
 
+    FontLoader {
+        id: vpnFont
+        source: "file:///home/jain/.local/share/fonts/JetBrainsMono-VPN.ttf"
+    }
+
     SystemClock {
         id: clock
 
@@ -260,16 +265,12 @@ ShellRoot {
         powerMenuModel: powerMenuModel
     }
 
-    CalendarWindow {
-        calendarModel: calendarModel
-        panelWindow: root.primaryPanel
-    }
-
     UtilityWindow {
         networkModel: networkModel
         bluetoothModel: bluetoothModel
         controlsModel: controlsModel
         vpnModel: vpnModel
+        calendarModel: calendarModel
         i3State: i3State
     }
 }

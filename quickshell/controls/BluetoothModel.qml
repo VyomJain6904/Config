@@ -26,11 +26,11 @@ Scope {
     }
 
     function refresh(scan) {
-        if (!statusProcess.running) statusProcess.running = true;
-        if (!devicesProcess.running) {
-            devicesProcess.command = Commands.controlsHelperCommand(scan ? "bluetooth-scan" : "bluetooth-devices");
-            devicesProcess.running = true;
-        }
+        statusProcess.running = false;
+        statusProcess.running = true;
+        devicesProcess.running = false;
+        devicesProcess.command = Commands.controlsHelperCommand(scan ? "bluetooth-scan" : "bluetooth-devices");
+        devicesProcess.running = true;
     }
 
     function parseDevices(text) {

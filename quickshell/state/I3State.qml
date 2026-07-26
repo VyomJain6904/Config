@@ -13,7 +13,7 @@ Scope {
     property var    statusSegments:      []
     property var    workspaceWindowMap: ({})
     property var    pendingWindowMove:  null
-    readonly property var workspaceSlots: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+    readonly property var workspaceSlots: ["1", "2", "3", "4", "5", "6", "7", "8"]
 
     function normalizeAppIconName(rawName) {
         if (!rawName || rawName.length === 0) {

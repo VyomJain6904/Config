@@ -13,14 +13,15 @@ FloatingWindow {
     required property var bluetoothModel
     required property var controlsModel
     required property var vpnModel
+    required property var calendarModel
     required property var i3State
 
     property string activeTab: "wifi"
     property int selectedIndex: 0
 
-    readonly property int popupWidth: 460
-    readonly property int popupHeight: 580
-    readonly property var tabOrder: ["wifi", "bluetooth", "audio", "brightness", "vpn"]
+    readonly property int popupWidth: 560
+    readonly property int popupHeight: 740
+    readonly property var tabOrder: ["wifi", "bluetooth", "audio", "brightness", "vpn", "calendar"]
     readonly property int edgeMargin: Theme.rowSpacing
     readonly property int contentSpacing: Theme.popupSpacing
     readonly property int rowSpacing: Theme.rowSpacing
@@ -32,30 +33,29 @@ FloatingWindow {
     readonly property string workspaceIconRoot: "file:///usr/share/icons/MacTahoe/"
     readonly property string workspaceFallbackIcon: workspaceIconRoot + "apps/scalable/preferences-system.svg"
     readonly property var workspaceIconMap: ({
-        "ghostty": "apps/scalable/com.mitchellh.ghostty-clear.png",
-        "helium": "apps/scalable/helium-clear.png",
-        "librewolf": "apps/scalable/librewolf-mc.png",
-        "sublime": "apps/scalable/sublime-mc.png",
-        "burp": "/usr/share/icons/MacTahoe/apps/scalable/burpsuitepro.icns",
-        "excalidraw": "/usr/share/icons/MacTahoe/apps/scalable/pake-excalidraw-mc.png",
-        "brave-browser": "apps/scalable/brave-browser-clear.png",
-        "camera": "apps/scalable/camera-clear.png",
-        "discord": "apps/scalable/com.discordapp.Discord-clear.png",
-        "obs": "apps/scalable/com.obsproject.Studio-clear.png",
-        "whatsapp": "apps/scalable/com.whatsapp.Whatsapp-clear.png",
-        "obsidian": "apps/scalable/md.obsidian-clear.png",
-        "nvidia": "apps/scalable/nvidia-clear.png",
-        "thunar": "apps/scalable/org.gtk.FileManager-clear.png",
-        "telegram": "apps/scalable/org.telegram.desktop-clear.png",
-        "vlc": "apps/scalable/org.videolan.VLC-clear.png",
-        "terminal": "apps/scalable/utilities-terminal-clear.png",
-        "wireshark": "apps/scalable/wireshark-clear.png",
-        "alacritty": "apps/scalable/alacritty-mc.png",
-        "antigravity": "apps/scalable/antigravity-mc.png",
-        "localsend": "apps/scalable/localsend-mc.png",
-        "torbrowser": "apps/scalable/torbrowser-mc.png",
-        "vmware-workstation": "apps/scalable/vmware-workstation-mc.png"
-    })
+            "ghostty": "apps/scalable/com.mitchellh.ghostty-clear.png",
+            "helium": "apps/scalable/helium-clear.png",
+            "librewolf": "apps/scalable/librewolf-mc.png",
+            "sublime": "apps/scalable/sublime-mc.png",
+            "burp": "/usr/share/icons/MacTahoe/apps/scalable/burpsuitepro.icns",
+            "excalidraw": "/usr/share/icons/MacTahoe/apps/scalable/pake-excalidraw-mc.png",
+            "camera": "apps/scalable/camera-clear.png",
+            "discord": "apps/scalable/com.discordapp.Discord-clear.png",
+            "obs": "apps/scalable/com.obsproject.Studio-clear.png",
+            "whatsapp": "apps/scalable/com.whatsapp.Whatsapp-clear.png",
+            "obsidian": "apps/scalable/md.obsidian-clear.png",
+            "nvidia": "apps/scalable/nvidia-clear.png",
+            "thunar": "apps/scalable/org.gtk.FileManager-clear.png",
+            "telegram": "apps/scalable/org.telegram.desktop-clear.png",
+            "vlc": "apps/scalable/org.videolan.VLC-clear.png",
+            "terminal": "apps/scalable/utilities-terminal-clear.png",
+            "wireshark": "apps/scalable/wireshark-clear.png",
+            "alacritty": "apps/scalable/alacritty-mc.png",
+            "antigravity": "apps/scalable/antigravity-mc.png",
+            "localsend": "apps/scalable/localsend-mc.png",
+            "torbrowser": "apps/scalable/torbrowser-mc.png",
+            "vmware-workstation": "apps/scalable/vmware-workstation-mc.png"
+        })
 
     function workspaceAppIconSource(iconKey) {
         const key = (iconKey || "").toString().toLowerCase().trim();
@@ -120,6 +120,15 @@ FloatingWindow {
         }
     }
 
+    Connections {
+        target: root.calendarModel
+        function onVisibleChanged() {
+            if (root.calendarModel && root.calendarModel.visible) {
+                root.setActiveTab("calendar");
+            }
+        }
+    }
+
     onVisibleChanged: {
         if (visible) {
             root.selectedIndex = 0;
@@ -129,12 +138,17 @@ FloatingWindow {
             root.bluetoothModel.close();
             root.controlsModel.close();
             root.vpnModel.close();
+            if (root.calendarModel)
+                root.calendarModel.close();
         }
     }
 
     function setActiveTab(tab) {
         root.activeTab = tab;
         root.selectedIndex = 0;
+        if (tab === "calendar" && root.calendarModel) {
+            root.calendarModel.refresh();
+        }
         Qt.callLater(() => content.forceActiveFocus());
     }
 
@@ -178,9 +192,7 @@ FloatingWindow {
 
     function itemCountForTab() {
         if (root.activeTab === "wifi") {
-            return 1 + root.networkModel.wifiNetworks.length
-                + (root.wifiPasswordIndex() >= 0 ? 1 : 0)
-                + (root.networkModel.editorAvailable ? 1 : 0);
+            return 1 + root.networkModel.wifiNetworks.length + (root.wifiPasswordIndex() >= 0 ? 1 : 0) + (root.networkModel.editorAvailable ? 1 : 0);
         }
         if (root.activeTab === "bluetooth") {
             return 3 + root.bluetoothModel.devices.length;
@@ -314,9 +326,15 @@ FloatingWindow {
 
     function adjustSelected(delta) {
         if (root.activeTab === "brightness") {
-            if (delta > 0) root.controlsModel.brightnessUp(); else root.controlsModel.brightnessDown();
+            if (delta > 0)
+                root.controlsModel.brightnessUp();
+            else
+                root.controlsModel.brightnessDown();
         } else if (root.activeTab === "audio" && root.selectedIndex === 0) {
-            if (delta > 0) root.controlsModel.volumeUp(); else root.controlsModel.volumeDown();
+            if (delta > 0)
+                root.controlsModel.volumeUp();
+            else
+                root.controlsModel.volumeDown();
         } else {
             root.moveSelection(delta);
         }
@@ -377,9 +395,11 @@ FloatingWindow {
             anchors.fill: parent
             spacing: Theme.popupSpacing
 
-            // TABS
+            // STICKY TOP TAB NAVIGATION BAR
             RowLayout {
+                id: stickyTabBar
                 Layout.fillWidth: true
+                Layout.alignment: Qt.AlignTop
                 Layout.preferredHeight: Theme.buttonHeight + 10
                 Layout.maximumHeight: Theme.buttonHeight + 10
                 spacing: Theme.rowSpacing
@@ -481,6 +501,26 @@ FloatingWindow {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
                         onClicked: root.setActiveTab("vpn")
+                    }
+                }
+
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    color: root.activeTab === "calendar" ? Theme.accent : Theme.surface
+                    radius: Theme.radius
+
+                    UiText {
+                        anchors.centerIn: parent
+                        text: "Calendar"
+                        font.bold: true
+                        color: root.activeTab === "calendar" ? Theme.accentText : Theme.textStrong
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: root.setActiveTab("calendar")
                     }
                 }
 
@@ -836,9 +876,7 @@ FloatingWindow {
 
                     Text {
                         Layout.fillWidth: true
-                        text: root.vpnModel.connected
-                            ? "VPN connected" + (root.vpnModel.activeProfile.length > 0 ? " - " + root.vpnModel.activeProfile : "")
-                            : "VPN disconnected"
+                        text: root.vpnModel.connected ? "VPN connected" + (root.vpnModel.activeProfile.length > 0 ? " - " + root.vpnModel.activeProfile : "") : "VPN disconnected"
                         color: Theme.text
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.titleFontSize
@@ -1264,8 +1302,8 @@ FloatingWindow {
                                                     Drag.hotSpot.y: height / 2
                                                     Drag.keys: ["application/x-i3-con-id"]
                                                     Drag.mimeData: ({
-                                                        "application/x-i3-con-id": conId.toString()
-                                                    })
+                                                            "application/x-i3-con-id": conId.toString()
+                                                        })
                                                     Drag.source: dragProxy
 
                                                     Image {
@@ -1323,7 +1361,7 @@ FloatingWindow {
                                 z: 50
                                 anchors.fill: parent
                                 keys: ["application/x-i3-con-id"]
-                                onDropped: function(drop) {
+                                onDropped: function (drop) {
                                     if (!drop.source || !drop.source.conId) {
                                         return;
                                     }
@@ -1653,6 +1691,7 @@ FloatingWindow {
                 }
 
                 Rectangle {
+                    id: mediaRect
                     Layout.fillWidth: true
                     Layout.preferredHeight: 54
                     color: Theme.surface
@@ -1668,25 +1707,92 @@ FloatingWindow {
                         anchors.rightMargin: 12
                         spacing: Theme.compactSpacing
 
-                        Text {
+                        Item {
+                            id: mediaMarquee
                             width: parent.width
-                            text: root.controlsModel.mediaText
-                            color: Theme.text
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.panelFontSize
-                            font.bold: true
-                            elide: Text.ElideRight
-                        }
+                            height: mediaTitleText.implicitHeight
+                            clip: true
 
-                        Text {
-                            width: parent.width
-                            visible: root.controlsModel.mediaPlayer.length > 0
-                            text: root.controlsModel.mediaPlayer
-                            color: Theme.textMuted
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.smallFontSize
-                            elide: Text.ElideRight
+                            Text {
+                                id: mediaTitleText
+                                text: root.controlsModel.mediaText
+                                color: Theme.text
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.panelFontSize
+                                font.bold: true
+                                anchors.verticalCenter: parent.verticalCenter
+                                x: mediaAnim.running ? mediaAnim.from : ((parent.width - implicitWidth) / 2)
+                            }
+
+                            NumberAnimation {
+                                id: mediaAnim
+                                target: mediaTitleText
+                                property: "x"
+                                from: mediaMarquee.width
+                                to: -mediaTitleText.implicitWidth
+                                duration: Math.max(3000, mediaTitleText.implicitWidth * 30)
+                                loops: 1
+                            }
+
+                            Timer {
+                                id: mediaStartTimer
+                                interval: 1000
+                                running: false
+                                repeat: false
+                                onTriggered: {
+                                    if (root.controlsModel.mediaState === "Playing" && mediaTitleText.implicitWidth > mediaMarquee.width) {
+                                        mediaTitleText.x = mediaMarquee.width;
+                                        mediaAnim.start();
+                                    }
+                                }
+                            }
+
+                            function startMarquee() {
+                                if (mediaAnim.running || mediaStartTimer.running)
+                                    return;
+                                mediaTitleText.x = mediaMarquee.width;
+                                mediaStartTimer.restart();
+                            }
+
+                            function stopMarquee() {
+                                mediaAnim.stop();
+                                mediaTitleText.x = (mediaMarquee.width - mediaTitleText.implicitWidth) / 2;
+                            }
+
+                            Connections {
+                                target: root.controlsModel
+                                function onMediaStateChanged() {
+                                    if (root.controlsModel.mediaState === "Playing") {
+                                        mediaMarquee.startMarquee();
+                                    } else {
+                                        mediaMarquee.stopMarquee();
+                                    }
+                                }
+
+                                function onMediaTextChanged() {
+                                    if (root.controlsModel.mediaState === "Playing") {
+                                        mediaMarquee.startMarquee();
+                                    } else {
+                                        mediaMarquee.stopMarquee();
+                                    }
+                                }
+                            }
+
+                            onWidthChanged: {
+                                if (root.controlsModel.mediaState === "Playing" && mediaTitleText.implicitWidth > width) {
+                                    mediaMarquee.startMarquee();
+                                } else {
+                                    mediaMarquee.stopMarquee();
+                                }
+                            }
                         }
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        enabled: root.controlsModel.mediaState === "Playing"
+                        cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+                        onClicked: mediaMarquee.startMarquee()
                     }
                 }
 
@@ -1722,9 +1828,358 @@ FloatingWindow {
                     }
                 } // RowLayout
             } // Audio ColumnLayout
-            Item {
+
+            // CALENDAR CONTENT CONTAINER (Static Month Grid + Independent Scrollable Event List)
+            ColumnLayout {
+                id: calContainer
+                visible: root.activeTab === "calendar"
+                Layout.fillWidth: true
                 Layout.fillHeight: true
-            }
+                spacing: Theme.popupSpacing
+
+                property date currentDate: new Date()
+                property int currentMonth: currentDate.getMonth()
+                property int currentYear: currentDate.getFullYear()
+                property int selectedDay: 0
+                property var days: []
+
+                function getDateString(day) {
+                    if (day === 0)
+                        return "";
+                    const m = (currentMonth + 1).toString().padStart(2, '0');
+                    const d = day.toString().padStart(2, '0');
+                    return currentYear + "-" + m + "-" + d;
+                }
+
+                function formatEventBadge(dateStr, timeStr, isHoliday) {
+                    let datePart = "";
+                    if (dateStr) {
+                        const parts = dateStr.split("-");
+                        if (parts.length === 3) {
+                            const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                            const mIdx = parseInt(parts[1], 10) - 1;
+                            const d = parseInt(parts[2], 10);
+                            if (mIdx >= 0 && mIdx < 12) {
+                                datePart = months[mIdx] + " " + d;
+                            }
+                        }
+                    }
+                    const tYear = currentDate.getFullYear();
+                    const tMonth = (currentDate.getMonth() + 1).toString().padStart(2, '0');
+                    const tDay = currentDate.getDate().toString().padStart(2, '0');
+                    const todayStr = tYear + "-" + tMonth + "-" + tDay;
+                    if (dateStr === todayStr) {
+                        datePart = "Today";
+                    }
+
+                    const timePart = (timeStr && timeStr.length > 0) ? timeStr : "All Day";
+                    if (isHoliday) {
+                        return (datePart ? datePart + " • " : "") + "Holiday (" + timePart + ")";
+                    }
+                    return datePart ? (datePart + " • " + timePart) : timePart;
+                }
+
+                function updateMonth(offset) {
+                    let m = currentMonth + offset;
+                    let y = currentYear;
+                    if (m < 0) {
+                        m = 11;
+                        y--;
+                    } else if (m > 11) {
+                        m = 0;
+                        y++;
+                    }
+                    currentMonth = m;
+                    currentYear = y;
+                    selectedDay = 0;
+                    generateDays();
+                    if (root.calendarModel && root.calendarModel.refreshEventsForMonth) {
+                        root.calendarModel.refreshEventsForMonth(currentMonth + 1, currentYear);
+                    }
+                }
+
+                function generateDays() {
+                    const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+                    const totalDays = new Date(currentYear, currentMonth + 1, 0).getDate();
+                    const list = [];
+                    for (let i = 0; i < firstDay; i++) {
+                        list.push(0);
+                    }
+                    for (let d = 1; d <= totalDays; d++) {
+                        list.push(d);
+                    }
+                    while (list.length % 7 !== 0) {
+                        list.push(0);
+                    }
+                    days = list;
+                }
+
+                Component.onCompleted: generateDays()
+
+                // Month Navigation Header
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: Theme.rowSpacing
+
+                    ShellButton {
+                        label: "<<"
+                        Layout.preferredWidth: 32
+                        onActivated: calContainer.updateMonth(-12)
+                    }
+
+                    ShellButton {
+                        label: "<"
+                        Layout.preferredWidth: 32
+                        onActivated: calContainer.updateMonth(-1)
+                    }
+
+                    UiText {
+                        Layout.fillWidth: true
+                        horizontalAlignment: Text.AlignHCenter
+                        text: Qt.formatDateTime(new Date(calContainer.currentYear, calContainer.currentMonth, 1), "MMMM yyyy")
+                        color: Theme.textStrong
+                        font.pixelSize: Theme.titleFontSize
+                        font.bold: true
+                    }
+
+                    ShellButton {
+                        label: ">"
+                        Layout.preferredWidth: 32
+                        onActivated: calContainer.updateMonth(1)
+                    }
+
+                    ShellButton {
+                        label: ">>"
+                        Layout.preferredWidth: 32
+                        onActivated: calContainer.updateMonth(12)
+                    }
+
+                    ShellButton {
+                        label: "T"
+                        Layout.preferredWidth: implicitWidth
+                        onActivated: {
+                            calContainer.currentMonth = calContainer.currentDate.getMonth();
+                            calContainer.currentYear = calContainer.currentDate.getFullYear();
+                            calContainer.selectedDay = calContainer.currentDate.getDate();
+                            calContainer.generateDays();
+                        }
+                    }
+                }
+
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 1
+                    color: Theme.border
+                }
+
+                // Weekdays Header
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 4
+                    Repeater {
+                        model: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]
+                        delegate: UiText {
+                            required property string modelData
+                            Layout.fillWidth: true
+                            horizontalAlignment: Text.AlignHCenter
+                            text: modelData
+                            color: Theme.textMuted
+                            font.bold: true
+                        }
+                    }
+                }
+
+                // Calendar Month Grid Container (Static at top with gesture MouseArea)
+                Item {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 230
+
+                    GridLayout {
+                        anchors.fill: parent
+                        columns: 7
+                        columnSpacing: 4
+                        rowSpacing: 4
+
+                        Repeater {
+                            model: calContainer.days
+                            delegate: Rectangle {
+                                required property int modelData
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: 34
+                                color: Theme.transparent
+
+                                property string dateStr: calContainer.getDateString(modelData)
+                                property var dayEvents: dateStr.length > 0 && root.calendarModel.eventsByDate ? (root.calendarModel.eventsByDate[dateStr] || []) : []
+                                property bool hasEvents: dayEvents.length > 0
+                                property bool isSelected: modelData !== 0 && modelData === calContainer.selectedDay
+                                property bool isToday: modelData !== 0 && modelData === calContainer.currentDate.getDate() && calContainer.currentMonth === calContainer.currentDate.getMonth() && calContainer.currentYear === calContainer.currentDate.getFullYear()
+                                property bool hasHoliday: dayEvents.some(function (e) {
+                                    return e.is_holiday;
+                                })
+
+                                Rectangle {
+                                    anchors.centerIn: parent
+                                    width: 32
+                                    height: 32
+                                    radius: 16
+                                    color: isToday ? Theme.accent : (isSelected ? Theme.surfaceHover : Theme.transparent)
+                                    border.color: isSelected && !isToday ? Theme.accent : "transparent"
+                                    border.width: 1
+
+                                    UiText {
+                                        anchors.centerIn: parent
+                                        anchors.verticalCenterOffset: (hasEvents && modelData !== 0) ? -3 : 0
+                                        text: modelData === 0 ? "" : modelData
+                                        color: isToday ? Theme.surface : Theme.textStrong
+                                        font.bold: isToday || isSelected
+                                        font.pixelSize: Theme.smallFontSize
+                                    }
+
+                                    Rectangle {
+                                        visible: hasEvents && modelData !== 0
+                                        anchors.horizontalCenter: parent.horizontalCenter
+                                        anchors.bottom: parent.bottom
+                                        anchors.bottomMargin: 4
+                                        width: 4
+                                        height: 4
+                                        radius: 2
+                                        color: isToday ? Theme.surface : (hasHoliday ? Theme.danger : Theme.success)
+                                    }
+
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        enabled: modelData !== 0
+                                        cursorShape: Qt.PointingHandCursor
+                                        onClicked: calContainer.selectedDay = modelData
+                                    }
+                                }
+                            }
+                        }
+
+                        MouseArea {
+                            width: parent.width
+                            height: parent.height
+                            z: 10
+                            acceptedButtons: Qt.NoButton
+                            hoverEnabled: false
+
+                            property double lastWheelTime: 0
+
+                            onWheel: function (wheel) {
+                                const now = Date.now();
+                                if (now - lastWheelTime < 250) {
+                                    return;
+                                }
+                                let delta = wheel.angleDelta.y !== 0 ? wheel.angleDelta.y : wheel.angleDelta.x;
+                                if (delta < 0) {
+                                    lastWheelTime = now;
+                                    calContainer.updateMonth(1);
+                                } else if (delta > 0) {
+                                    lastWheelTime = now;
+                                    calContainer.updateMonth(-1);
+                                }
+                            }
+                        }
+                    }
+                } // End Item (Month Grid Container)
+
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 1
+                    color: Theme.border
+                }
+
+                // Chronological Event Timeline (Independent Scrollable ListView)
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    spacing: 4
+
+                    UiText {
+                        text: calContainer.selectedDay > 0 ? "Events for " + calContainer.getDateString(calContainer.selectedDay) : "Upcoming Events"
+                        color: Theme.textStrong
+                        font.bold: true
+                        font.pixelSize: Theme.smallFontSize
+                    }
+
+                    ListView {
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        clip: true
+                        spacing: 6
+
+                        model: {
+                            const allEvents = root.calendarModel.events || [];
+
+                            // 1. Specific Date Selection View: Show ALL events (personal + holidays) for that date
+                            if (calContainer.selectedDay > 0) {
+                                const dateStr = calContainer.getDateString(calContainer.selectedDay);
+                                return allEvents.filter(function(e) { return e.date === dateStr; });
+                            }
+
+                            // 2. Default Upcoming Events View: Show ONLY National Holidays
+                            const mStr = (calContainer.currentMonth + 1).toString().padStart(2, '0');
+                            const prefix = calContainer.currentYear + "-" + mStr + "-";
+                            const holidaysOnly = allEvents.filter(function(e) { return e.is_holiday === true; });
+                            const monthHolidays = holidaysOnly.filter(function(e) { return e.date && e.date.startsWith(prefix); });
+
+                            if (monthHolidays.length > 0) {
+                                return monthHolidays;
+                            }
+                            return holidaysOnly.filter(function(e) { return e.date >= prefix + "01"; });
+                        }
+
+                        delegate: Rectangle {
+                            required property var modelData
+                            width: ListView.view.width
+                            implicitHeight: eventCol.implicitHeight + 14
+                            color: modelData.is_holiday ? Theme.surfaceHover : Theme.surface
+                            border.color: modelData.is_holiday ? Theme.borderStrong : Theme.border
+                            border.width: modelData.is_holiday ? 1 : 0
+                            radius: Theme.smallRadius
+
+                            ColumnLayout {
+                                id: eventCol
+                                anchors.left: parent.left
+                                anchors.right: parent.right
+                                anchors.top: parent.top
+                                anchors.leftMargin: 12
+                                anchors.rightMargin: 12
+                                anchors.topMargin: 7
+                                spacing: 3
+
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 8
+
+                                    UiText {
+                                        Layout.fillWidth: true
+                                        text: modelData.summary || "Untitled Event"
+                                        color: Theme.textStrong
+                                        font.bold: true
+                                        elide: Text.ElideRight
+                                    }
+
+                                    UiText {
+                                        text: calContainer.formatEventBadge(modelData.date, modelData.time, modelData.is_holiday)
+                                        color: modelData.is_holiday ? Theme.danger : Theme.accent
+                                        font.pixelSize: Theme.tinyFontSize
+                                        font.bold: true
+                                    }
+                                }
+                            }
+                        }
+
+                        UiText {
+                            anchors.centerIn: parent
+                            visible: parent.count === 0
+                            text: "No events scheduled"
+                            color: Theme.textMuted
+                            font.pixelSize: Theme.smallFontSize
+                        }
+                    }
+                }
+            } // End calContainer ColumnLayout
         }
     }
 }

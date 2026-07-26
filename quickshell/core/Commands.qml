@@ -40,6 +40,16 @@ Singleton {
         return scriptCmd("qs-launcher", action, args)
     }
 
+    // ── Calendar (Native Compiled Service & Google Calendar API) ──────
+    function calendarHelperCommand(action, args) {
+        const argv = args || []
+        const cmd = ["/home/jain/.local/bin/qs-calendar-service"]
+        if (action !== undefined && action !== null) {
+            cmd.push(action)
+        }
+        return cmd.concat(argv)
+    }
+
     // ── Lock screen (i3lock) ──────────────────────────────────────────
     function lockHelperCommand() {
         return bashCmd("qs-lock")

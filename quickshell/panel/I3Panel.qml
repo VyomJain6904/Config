@@ -8,11 +8,6 @@ import qs.core
 PanelWindow {
     id: root
 
-    FontLoader {
-        id: vpnFont
-        source: "file:///home/jain/.local/share/fonts/JetBrainsMono-VPN.ttf"
-    }
-
     required property var state
     required property var clock
     required property var calendarModel
@@ -117,7 +112,10 @@ PanelWindow {
                     anchors.fill: parent
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
-                    onClicked: root.calendarModel.toggle()
+                    onClicked: {
+                        root.networkModel.open();
+                        root.calendarModel.open();
+                    }
                 }
             }
 

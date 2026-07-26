@@ -15,8 +15,8 @@ Rectangle {
     implicitWidth: buttonLabel.implicitWidth + 18
     implicitHeight: Theme.buttonHeight
     color: selected ? Theme.surfaceActive : (hovered && enabled ? Theme.surfaceHover : Theme.surface)
-    border.color: selected ? Theme.accent : (danger ? Theme.danger : Theme.border)
-    border.width: 1
+    border.color: "transparent"
+    border.width: 0
     radius: Theme.radius
     opacity: enabled ? 1 : 0.5
 

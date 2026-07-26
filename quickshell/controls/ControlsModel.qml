@@ -32,8 +32,6 @@ Scope {
     property string mediaText: "MEDIA none"
     property string mediaPlayer: ""
     property string mediaState: ""
-    property string mediaArtist: ""
-    property string mediaTitle: ""
     property string bluetoothText: "BT unavailable"
     property string message: ""
     readonly property var audioSink: Pipewire.defaultAudioSink
@@ -143,8 +141,6 @@ Scope {
             root.mediaText = trimmed.length > 0 ? trimmed : "MEDIA none";
             root.mediaPlayer = "";
             root.mediaState = "";
-            root.mediaArtist = "";
-            root.mediaTitle = "";
             return;
         }
 
@@ -152,26 +148,19 @@ Scope {
 
         root.mediaPlayer = fields.length > 0 ? fields[0] : "";
         root.mediaState = fields.length > 1 ? fields[1] : "";
-        root.mediaArtist = fields.length > 2 ? fields[2] : "";
-        root.mediaTitle = fields.length > 3 ? fields.slice(3).join("\t") : "";
 
-        const labelParts = [];
-        if (root.mediaPlayer.length > 0) {
-            labelParts.push(root.mediaPlayer);
-        }
-        if (root.mediaState.length > 0) {
-            labelParts.push(root.mediaState);
-        }
+        const artist = fields.length > 2 ? fields[2] : "";
+        const title = fields.length > 3 ? fields.slice(3).join("\t") : "";
 
         const titleParts = [];
-        if (root.mediaArtist.length > 0) {
-            titleParts.push(root.mediaArtist);
+        if (artist.length > 0) {
+            titleParts.push(artist);
         }
-        if (root.mediaTitle.length > 0) {
-            titleParts.push(root.mediaTitle);
+        if (title.length > 0) {
+            titleParts.push(title);
         }
 
-        root.mediaText = (labelParts.length > 0 ? labelParts.join(" ") : "MEDIA") + (titleParts.length > 0 ? ": " + titleParts.join(" - ") : "");
+        root.mediaText = titleParts.length > 0 ? titleParts.join(" - ") : "MEDIA none";
     }
 
     function parseBattery(text) {

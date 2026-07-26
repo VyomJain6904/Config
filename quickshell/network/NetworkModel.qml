@@ -67,10 +67,9 @@ Scope {
     }
 
     function refreshWifi(rescan) {
-        if (!wifiScanProcess.running) {
-            wifiScanProcess.command = Commands.networkHelperCommand("wifi-scan", rescan ? ["--rescan", "yes"] : ["--rescan", "no"]);
-            wifiScanProcess.running = true;
-        }
+        wifiScanProcess.running = false;
+        wifiScanProcess.command = Commands.networkHelperCommand("wifi-scan", rescan ? ["--rescan", "yes"] : ["--rescan", "no"]);
+        wifiScanProcess.running = true;
     }
 
     function parseDevices(text) {

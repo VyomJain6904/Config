@@ -13,7 +13,6 @@ Scope {
     property string targetIp: ""
     property string targetInput: ""
     property string activeProfile: ""
-    property string iconUrl: ""
     property var profiles: []
     property bool active: vpnIp !== ""
     property bool connected: active
@@ -21,11 +20,14 @@ Scope {
 
     function open() {
         root.visible = true;
+        vpnRefreshTimer.interval = 5000;
+        root.refreshProfiles();
         root.refresh();
     }
 
     function close() {
         root.visible = false;
+        vpnRefreshTimer.interval = 15000;
         if (!root.busy) {
             root.message = "";
         }
@@ -39,10 +41,13 @@ Scope {
         }
     }
 
-    function refresh() {
+    function refreshProfiles() {
         if (!profilesProcess.running) {
             profilesProcess.running = true;
         }
+    }
+
+    function refresh() {
         if (!statusProcess.running) {
             statusProcess.running = true;
         }
@@ -112,7 +117,7 @@ Scope {
 
     Timer {
         id: vpnRefreshTimer
-        interval: 5000
+        interval: 15000
         running: true
         repeat: true
         onTriggered: root.refresh()
@@ -148,7 +153,6 @@ Scope {
 
     Process {
         id: actionProcess
-        command: ["sh", "-c", "exit 0"]
         running: false
 
         onRunningChanged: {

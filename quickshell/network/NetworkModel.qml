@@ -9,25 +9,25 @@ Scope {
     property bool visible: false
     property bool busy: false
     property bool editorAvailable: false
-    property int selectedIndex: 0
     property int selectedWifiIndex: -1
     property string statusText: "NET offline"
     property string message: ""
     property string wifiPassword: ""
-    property var devices: []
+    property bool hotspotAvailable: false
+    property bool hotspotActive: false
+    property string hotspotSsid: "Hotspot"
+    property string hotspotPassword: ""
+    property string hotspotSsidInput: ""
+    property string hotspotPasswordInput: ""
+    property bool editingHotspot: false
+    property string hotspotChannel: ""
+    property var hotspotClients: []
     property var connections: []
     property var wifiNetworks: []
 
     readonly property var activeConnections: root.connections.filter(function(profile) {
-        return profile.active && profile.name !== "lo" && !profile.name.startsWith("docker");
+        return profile.active && profile.name !== "lo" && profile.name !== "Quickshell Hotspot" && !profile.name.startsWith("docker");
     })
-    readonly property var savedProfiles: root.connections.filter(function(profile) {
-        return !profile.active && root.isSupportedProfile(profile.type);
-    })
-
-    function isSupportedProfile(type) {
-        return type === "802-3-ethernet" || type === "ethernet" || type === "802-11-wireless" || type === "wifi" || type === "vpn";
-    }
 
     function open() {
         root.visible = true;
@@ -36,10 +36,10 @@ Scope {
 
     function close() {
         root.visible = false;
-        root.selectedIndex = 0;
         root.selectedWifiIndex = -1;
         root.message = "";
         root.wifiPassword = "";
+        root.editingHotspot = false;
     }
 
     function toggle() {
@@ -54,44 +54,19 @@ Scope {
         if (!statusProcess.running) {
             statusProcess.running = true;
         }
-        if (!devicesProcess.running) {
-            devicesProcess.running = true;
-        }
         if (!connectionsProcess.running) {
             connectionsProcess.running = true;
         }
-        root.refreshWifi(rescanWifi === true);
-        if (!editorCheckProcess.running) {
-            editorCheckProcess.running = true;
+        if (!hotspotStatusProcess.running) {
+            hotspotStatusProcess.running = true;
         }
+        root.refreshWifi(rescanWifi === true);
     }
 
     function refreshWifi(rescan) {
         wifiScanProcess.running = false;
         wifiScanProcess.command = Commands.networkHelperCommand("wifi-scan", rescan ? ["--rescan", "yes"] : ["--rescan", "no"]);
         wifiScanProcess.running = true;
-    }
-
-    function parseDevices(text) {
-        const rows = [];
-        const lines = text.trim().length > 0 ? text.trim().split("\n") : [];
-
-        for (const line of lines) {
-            const fields = line.split("\t");
-
-            if (fields.length < 4) {
-                continue;
-            }
-
-            rows.push({
-                "device": fields[0],
-                "type": fields[1],
-                "state": fields[2],
-                "connection": fields[3]
-            });
-        }
-
-        root.devices = rows;
     }
 
     function parseConnections(text) {
@@ -115,9 +90,41 @@ Scope {
         }
 
         root.connections = rows;
-        if (root.selectedIndex >= rows.length) {
-            root.selectedIndex = Math.max(0, rows.length - 1);
+    }
+
+    function parseHotspotStatus(text) {
+        const lines = text.trim().length > 0 ? text.trim().split("\n") : [];
+        const clients = [];
+
+        if (lines.length > 0) {
+            const fields = lines[0].split("\t");
+            root.hotspotAvailable = fields.length > 0 && fields[0] === "1";
+            root.hotspotActive = fields.length > 1 && fields[1] === "1";
+            root.hotspotSsid = fields.length > 2 && fields[2].length > 0 ? fields[2] : "Hotspot";
+            root.hotspotChannel = fields.length > 5 ? fields[5] : "";
+            root.hotspotPassword = fields.length > 8 ? fields[8] : "";
+        } else {
+            root.hotspotAvailable = false;
+            root.hotspotActive = false;
+            root.hotspotSsid = "Hotspot";
+            root.hotspotPassword = "";
+            root.hotspotChannel = "";
         }
+
+        for (let i = 1; i < lines.length; i++) {
+            const fields = lines[i].split("\t");
+            if (fields.length < 4 || fields[0] !== "client") {
+                continue;
+            }
+
+            clients.push({
+                "name": fields[1],
+                "ip": fields[2],
+                "mac": fields[3]
+            });
+        }
+
+        root.hotspotClients = clients;
     }
 
     function parseWifiNetworks(text) {
@@ -206,6 +213,17 @@ Scope {
         root.connectWifi(root.selectedWifiNetwork());
     }
 
+    function toggleHotspot() {
+        if (!root.hotspotAvailable || root.busy) {
+            return;
+        }
+
+        root.busy = true;
+        root.message = root.hotspotActive ? "Stopping hotspot " + root.hotspotSsid : "Starting hotspot " + root.hotspotSsid + (root.hotspotChannel.length > 0 ? " on channel " + root.hotspotChannel : "");
+        actionProcess.command = Commands.networkHelperCommand(root.hotspotActive ? "hotspot-stop" : "hotspot-start");
+        actionProcess.running = true;
+    }
+
 
     function disconnectDevice(device) {
         if (!device || device.length === 0) {
@@ -253,17 +271,6 @@ Scope {
     }
 
     Process {
-        id: devicesProcess
-
-        command: Commands.networkHelperCommand("devices")
-        running: false
-
-        stdout: StdioCollector {
-            onStreamFinished: root.parseDevices(this.text)
-        }
-    }
-
-    Process {
         id: connectionsProcess
 
         command: Commands.networkHelperCommand("connections")
@@ -275,9 +282,19 @@ Scope {
     }
 
     Process {
+        id: hotspotStatusProcess
+
+        command: Commands.networkHelperCommand("hotspot-status")
+        running: false
+
+        stdout: StdioCollector {
+            onStreamFinished: root.parseHotspotStatus(this.text)
+        }
+    }
+
+    Process {
         id: actionProcess
 
-        command: ["sh", "-c", "exit 0"]
         running: false
 
         onRunningChanged: {
@@ -307,6 +324,13 @@ Scope {
         }
     }
 
+    Timer {
+        id: monitorRestartTimer
+        interval: 3000
+        repeat: false
+        onTriggered: monitorProcess.running = true
+    }
+
     Process {
         id: monitorProcess
         command: Commands.networkHelperCommand("monitor")
@@ -318,7 +342,7 @@ Scope {
         
         onRunningChanged: {
             if (!running) {
-                Qt.callLater(() => { running = true; })
+                monitorRestartTimer.restart();
             }
         }
     }
@@ -346,4 +370,42 @@ Scope {
             onStreamFinished: root.editorAvailable = this.text.trim() === "yes"
         }
     }
+
+    function startEditingHotspot() {
+        root.hotspotSsidInput = root.hotspotSsid;
+        root.hotspotPasswordInput = root.hotspotPassword;
+        root.editingHotspot = true;
+    }
+
+    function cancelEditingHotspot() {
+        root.editingHotspot = false;
+    }
+
+    function saveHotspotConfig(newSsid, newPassword) {
+        if (!newPassword || newPassword.length < 8) {
+            root.message = "Hotspot password must be at least 8 characters";
+            return;
+        }
+
+        root.busy = true;
+        root.message = "Saving Hotspot settings...";
+        hotspotSaveProcess.command = Commands.networkHelperCommand("hotspot-save", ["--ssid", newSsid, "--password", newPassword]);
+        hotspotSaveProcess.running = true;
+        root.editingHotspot = false;
+    }
+
+    Process {
+        id: hotspotSaveProcess
+
+        running: false
+
+        onRunningChanged: {
+            if (!running) {
+                root.busy = false;
+                root.refresh();
+            }
+        }
+    }
+
+    Component.onCompleted: editorCheckProcess.running = true
 }

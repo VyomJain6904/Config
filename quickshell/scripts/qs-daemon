@@ -22,4 +22,5 @@ pkill -x quickshell 2>/dev/null || true
 sleep 0.5
 
 # Launch Quickshell detached; i3's exec_always reruns this on reload/restart.
-quickshell -d -p /home/jain/.config/quickshell
+CONFIG_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+quickshell -d -p "$CONFIG_DIR"

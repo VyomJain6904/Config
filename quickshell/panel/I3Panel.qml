@@ -10,10 +10,10 @@ PanelWindow {
 
     required property var state
     required property var clock
+    required property string vpnFontFamily
     required property var calendarModel
     required property var networkModel
     required property var controlsModel
-    required property var bluetoothModel
     required property var powerMenuModel
     required property var vpnModel
 
@@ -132,16 +132,6 @@ PanelWindow {
                         Layout.fillWidth: true
                     }
 
-                    Repeater {
-                        model: root.state.statusSegments
-
-                        delegate: UiText {
-                            required property string modelData
-                            text: modelData
-                            color: Theme.text
-                        }
-                    }
-
                     TrayArea {}
 
                     PanelPill {
@@ -160,7 +150,7 @@ PanelWindow {
                                 visible: root.vpnModel && root.vpnModel.active
                                 text: "" // Custom JetBrainsMono-VPN icon
                                 color: "#50fa7b" // Dracula Green
-                                font.family: vpnFont.name
+                                font.family: root.vpnFontFamily
                                 font.pixelSize: 14
                             }
 
@@ -334,7 +324,6 @@ PanelWindow {
                         Layout.preferredWidth: batteryRow.implicitWidth + Theme.pillHorizontalPadding * 2
                         Layout.preferredHeight: Theme.pillHeight
                         active: root.controlsModel.visible
-                        hovered: batteryMouse.containsMouse
 
                         RowLayout {
                             id: batteryRow
@@ -369,11 +358,6 @@ PanelWindow {
                             }
                         }
 
-                        MouseArea {
-                            id: batteryMouse
-                            anchors.fill: parent
-                            hoverEnabled: false
-                        }
                     }
 
                     PanelPill {

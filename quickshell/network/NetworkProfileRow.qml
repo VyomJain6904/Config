@@ -6,8 +6,6 @@ Rectangle {
     id: root
 
     required property var profile
-    property bool active: false
-    signal connectRequested(var profile)
     signal disconnectRequested(string device)
 
     height: Theme.confirmButtonHeight
@@ -35,7 +33,7 @@ Rectangle {
 
             Text {
                 Layout.fillWidth: true
-                text: root.active ? root.profile.type + " on " + root.profile.device : root.profile.type
+                text: root.profile.type + " on " + root.profile.device
                 color: Theme.textMuted
                 font.family: Theme.fontFamily
                 font.pixelSize: Theme.smallFontSize
@@ -53,7 +51,7 @@ Rectangle {
                 id: actionText
 
                 anchors.centerIn: parent
-                text: root.active ? "Disconnect" : "Connect"
+                text: "Disconnect"
                 color: Theme.textStrong
                 font.family: Theme.fontFamily
                 font.pixelSize: Theme.smallFontSize
@@ -65,7 +63,7 @@ Rectangle {
                 anchors.fill: parent
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
-                onClicked: root.active ? root.disconnectRequested(root.profile.device) : root.connectRequested(root.profile)
+                onClicked: root.disconnectRequested(root.profile.device)
             }
         }
     }

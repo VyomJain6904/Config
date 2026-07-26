@@ -15,11 +15,9 @@ Scope {
     property bool volumeMuted: false
     property string volumeDisplayText: volumeText + (outputDeviceDescription.length > 0 ? " - " + outputDeviceDescription : "")
 
-    property string brightnessText: "BRIGHTNESS unavailable"
     property int brightnessPercent: 0
     property int targetVolume: -1
     property int targetBrightness: -1
-    property string batteryText: "BATTERY unavailable"
     property int batteryPercent: 0
     property bool batteryCharging: false
     property var outputDevices: []
@@ -27,13 +25,11 @@ Scope {
     property string outputDeviceDescription: ""
     property var inputDevices: []
     property string inputDeviceName: ""
-    property string inputDeviceDescription: ""
     property string micText: "MIC unavailable"
     property string mediaText: "MEDIA none"
     property string mediaPlayer: ""
     property string mediaState: ""
     property string bluetoothText: "BT unavailable"
-    property string message: ""
     readonly property var audioSink: Pipewire.defaultAudioSink
     readonly property var audioSource: Pipewire.defaultAudioSource
 
@@ -96,7 +92,6 @@ Scope {
 
     function close() {
         root.visible = false;
-        root.message = "";
     }
 
     function toggle() {
@@ -164,8 +159,8 @@ Scope {
     }
 
     function parseBattery(text) {
-        root.batteryText = text.trim();
-        const m = root.batteryText.match(/BATTERY\s+([0-9]+)%\s+(.+)/);
+        const batteryText = text.trim();
+        const m = batteryText.match(/BATTERY\s+([0-9]+)%\s+(.+)/);
         if (m) {
             root.batteryPercent = parseInt(m[1], 10);
             root.batteryCharging = (m[2] !== "Discharging" && m[2] !== "unavailable");
@@ -191,10 +186,6 @@ Scope {
 
     function parseBrightness(text) {
         const trimmed = text.trim();
-
-        if (trimmed.length > 0) {
-            root.brightnessText = trimmed;
-        }
 
         const match = trimmed.match(/([0-9]+)%/);
         if (match !== null) {
@@ -245,7 +236,6 @@ Scope {
         const devices = [];
         const lines = text.trim().split("\n");
         let defaultName = "";
-        let defaultDescription = "";
 
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i].trim();
@@ -271,13 +261,11 @@ Scope {
             });
             if (isDefault) {
                 defaultName = name;
-                defaultDescription = description;
             }
         }
 
         root.inputDevices = devices;
         root.inputDeviceName = defaultName;
-        root.inputDeviceDescription = defaultDescription;
     }
 
     function clampPercent(value) {
@@ -296,7 +284,6 @@ Scope {
         }
 
         root.busy = true;
-        root.message = "";
         actionProcess.command = Commands.controlsHelperCommand(action, args || []);
         actionProcess.running = true;
         return true;
@@ -326,7 +313,6 @@ Scope {
         const value = root.clampPercent(percent);
         root.targetBrightness = value;
         root.brightnessPercent = value;
-        root.brightnessText = "BRIGHTNESS " + value.toString() + "%";
         brightnessTimer.restart();
     }
 
@@ -545,7 +531,15 @@ Scope {
         }
     }
 
+    Timer {
+        id: mediaWatchRestartTimer
+        interval: 3000
+        repeat: false
+        onTriggered: mediaWatchProcess.running = true
+    }
+
     Process {
+        id: mediaWatchProcess
         command: Commands.controlsHelperCommand("media-watch")
         running: true
 
@@ -557,9 +551,7 @@ Scope {
 
         onRunningChanged: {
             if (!running) {
-                Qt.callLater(() => {
-                    running = true;
-                });
+                mediaWatchRestartTimer.restart();
             }
         }
     }
@@ -582,7 +574,6 @@ Scope {
     Process {
         id: actionProcess
 
-        command: ["sh", "-c", "exit 0"]
         running: false
 
         onRunningChanged: {

@@ -5,27 +5,13 @@ import qs.core
 Scope {
     id: root
 
-    property bool visible: false
     property bool busy: false
     property string statusText: "BT unavailable"
     property var devices: []
     property string message: ""
 
-    function open() {
-        root.visible = true;
-        root.refresh();
-    }
-
-    function close() {
-        root.visible = false;
-        root.message = "";
-    }
-
-    function toggle() {
-        if (root.visible) root.close(); else root.open();
-    }
-
     function refresh(scan) {
+        root.message = "";
         statusProcess.running = false;
         statusProcess.running = true;
         devicesProcess.running = false;
@@ -66,7 +52,6 @@ Scope {
 
     Process {
         id: actionProcess
-        command: ["sh", "-c", "exit 0"]
         property string lastError: ""
         
         stderr: StdioCollector {

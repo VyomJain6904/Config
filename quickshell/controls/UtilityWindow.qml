@@ -22,7 +22,6 @@ FloatingWindow {
     readonly property int popupWidth: 560
     readonly property int popupHeight: 740
     readonly property var tabOrder: ["wifi", "bluetooth", "audio", "brightness", "vpn", "calendar"]
-    readonly property int edgeMargin: Theme.rowSpacing
     readonly property int contentSpacing: Theme.popupSpacing
     readonly property int rowSpacing: Theme.rowSpacing
     readonly property int actionButtonHeight: Theme.compactButtonHeight
@@ -66,7 +65,7 @@ FloatingWindow {
         return icon.indexOf("/") === 0 ? "file://" + icon : root.workspaceIconRoot + icon;
     }
 
-    visible: networkModel.visible || bluetoothModel.visible || controlsModel.visible || vpnModel.visible
+    visible: networkModel.visible || controlsModel.visible || vpnModel.visible
     implicitWidth: popupWidth
     implicitHeight: popupHeight
     title: "Quickshell Utility"
@@ -77,19 +76,6 @@ FloatingWindow {
         function onVisibleChanged() {
             if (root.networkModel.visible) {
                 root.setActiveTab("wifi");
-                root.bluetoothModel.close();
-                root.controlsModel.close();
-                root.vpnModel.close();
-            }
-        }
-    }
-
-    Connections {
-        target: root.bluetoothModel
-        function onVisibleChanged() {
-            if (root.bluetoothModel.visible) {
-                root.setActiveTab("bluetooth");
-                root.networkModel.close();
                 root.controlsModel.close();
                 root.vpnModel.close();
             }
@@ -102,7 +88,6 @@ FloatingWindow {
             if (root.controlsModel.visible) {
                 root.setActiveTab(root.controlsModel.requestedTab);
                 root.networkModel.close();
-                root.bluetoothModel.close();
                 root.vpnModel.close();
             }
         }
@@ -114,7 +99,6 @@ FloatingWindow {
             if (root.vpnModel.visible) {
                 root.setActiveTab("vpn");
                 root.networkModel.close();
-                root.bluetoothModel.close();
                 root.controlsModel.close();
             }
         }
@@ -123,7 +107,7 @@ FloatingWindow {
     Connections {
         target: root.calendarModel
         function onVisibleChanged() {
-            if (root.calendarModel && root.calendarModel.visible) {
+            if (root.calendarModel.visible) {
                 root.setActiveTab("calendar");
             }
         }
@@ -135,19 +119,19 @@ FloatingWindow {
             Qt.callLater(() => content.forceActiveFocus());
         } else {
             root.networkModel.close();
-            root.bluetoothModel.close();
             root.controlsModel.close();
             root.vpnModel.close();
-            if (root.calendarModel)
-                root.calendarModel.close();
+            root.calendarModel.close();
         }
     }
 
     function setActiveTab(tab) {
         root.activeTab = tab;
         root.selectedIndex = 0;
-        if (tab === "calendar" && root.calendarModel) {
-            root.calendarModel.refresh();
+        if (tab === "bluetooth") {
+            root.bluetoothModel.refresh(false);
+        } else if (tab === "calendar") {
+            root.calendarModel.refreshEvents();
         }
         Qt.callLater(() => content.forceActiveFocus());
     }
@@ -179,11 +163,11 @@ FloatingWindow {
 
     function wifiPasswordIndex() {
         const network = root.selectedWifiNetwork();
-        return network !== null && network.secured ? 1 + root.networkModel.wifiNetworks.length : -1;
+        return network !== null && network.secured ? 2 + root.networkModel.wifiNetworks.length : -1;
     }
 
     function wifiEditIndex() {
-        let index = 1 + root.networkModel.wifiNetworks.length;
+        let index = 2 + root.networkModel.wifiNetworks.length;
         if (root.wifiPasswordIndex() >= 0) {
             index += 1;
         }
@@ -192,7 +176,7 @@ FloatingWindow {
 
     function itemCountForTab() {
         if (root.activeTab === "wifi") {
-            return 1 + root.networkModel.wifiNetworks.length + (root.wifiPasswordIndex() >= 0 ? 1 : 0) + (root.networkModel.editorAvailable ? 1 : 0);
+            return 2 + root.networkModel.wifiNetworks.length + (root.wifiPasswordIndex() >= 0 ? 1 : 0) + (root.networkModel.editorAvailable ? 1 : 0);
         }
         if (root.activeTab === "bluetooth") {
             return 3 + root.bluetoothModel.devices.length;
@@ -217,8 +201,8 @@ FloatingWindow {
             root.selectedIndex = 0;
         }
 
-        if (root.activeTab === "wifi" && root.selectedIndex > 0 && root.selectedIndex <= root.networkModel.wifiNetworks.length) {
-            root.networkModel.selectWifi(root.selectedIndex - 1);
+        if (root.activeTab === "wifi" && root.selectedIndex >= 2 && root.selectedIndex < 2 + root.networkModel.wifiNetworks.length) {
+            root.networkModel.selectWifi(root.selectedIndex - 2);
         }
     }
 
@@ -235,9 +219,13 @@ FloatingWindow {
                 root.networkModel.refresh(true);
                 return;
             }
-            if (root.selectedIndex <= root.networkModel.wifiNetworks.length) {
-                const network = root.networkModel.wifiNetworks[root.selectedIndex - 1];
-                root.networkModel.selectWifi(root.selectedIndex - 1);
+            if (root.selectedIndex === 1) {
+                root.networkModel.toggleHotspot();
+                return;
+            }
+            if (root.selectedIndex < 2 + root.networkModel.wifiNetworks.length) {
+                const network = root.networkModel.wifiNetworks[root.selectedIndex - 2];
+                root.networkModel.selectWifi(root.selectedIndex - 2);
                 if (network.secured && root.networkModel.wifiPassword.length === 0) {
                     Qt.callLater(() => wifiPasswordInput.forceActiveFocus());
                 } else {
@@ -359,7 +347,6 @@ FloatingWindow {
         Keys.onPressed: function (event) {
             if (event.key === Qt.Key_Escape) {
                 root.networkModel.close();
-                root.bluetoothModel.close();
                 root.controlsModel.close();
                 root.vpnModel.close();
                 event.accepted = true;
@@ -397,7 +384,6 @@ FloatingWindow {
 
             // STICKY TOP TAB NAVIGATION BAR
             RowLayout {
-                id: stickyTabBar
                 Layout.fillWidth: true
                 Layout.alignment: Qt.AlignTop
                 Layout.preferredHeight: Theme.buttonHeight + 10
@@ -545,7 +531,6 @@ FloatingWindow {
                         cursorShape: Qt.PointingHandCursor
                         onClicked: {
                             root.networkModel.close();
-                            root.bluetoothModel.close();
                             root.controlsModel.close();
                             root.vpnModel.close();
                         }
@@ -611,7 +596,6 @@ FloatingWindow {
                         required property var modelData
                         width: ListView.view.width
                         profile: modelData
-                        active: true
                         onDisconnectRequested: device => root.networkModel.disconnectDevice(device)
                     }
                 }
@@ -623,6 +607,229 @@ FloatingWindow {
                     color: Theme.textMuted
                     font.family: Theme.fontFamily
                     font.pixelSize: Theme.smallFontSize
+                }
+
+                SectionLabel {
+                    label: "Hotspot"
+                }
+
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: hotspotColumn.implicitHeight + Theme.rowSpacing * 2
+                    color: Theme.surface
+                    border.color: root.activeTab === "wifi" && root.selectedIndex === 1 ? Theme.accent : Theme.border
+                    border.width: 1
+                    radius: Theme.radius
+
+                    ColumnLayout {
+                        id: hotspotColumn
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.leftMargin: Theme.rowSpacing
+                        anchors.rightMargin: Theme.rowSpacing
+                        spacing: Theme.compactSpacing
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: Theme.rowSpacing
+
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                spacing: Theme.compactSpacing
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: root.networkModel.hotspotAvailable ? root.networkModel.hotspotSsid : "Hotspot unavailable"
+                                    color: Theme.textStrong
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: Theme.panelFontSize
+                                    font.bold: true
+                                    elide: Text.ElideRight
+                                }
+                            }
+
+                            ShellButton {
+                                Layout.preferredWidth: implicitWidth
+                                Layout.preferredHeight: Theme.buttonHeight
+                                label: root.networkModel.editingHotspot ? "Cancel" : "Edit"
+                                enabled: root.networkModel.hotspotAvailable && !root.networkModel.busy
+                                onActivated: {
+                                    if (root.networkModel.editingHotspot) {
+                                        root.networkModel.cancelEditingHotspot();
+                                    } else {
+                                        root.networkModel.startEditingHotspot();
+                                    }
+                                }
+                            }
+
+                            ShellButton {
+                                Layout.preferredWidth: implicitWidth
+                                Layout.preferredHeight: Theme.buttonHeight
+                                label: root.networkModel.hotspotActive ? "Stop" : "Start"
+                                enabled: root.networkModel.hotspotAvailable && !root.networkModel.busy
+                                selected: root.activeTab === "wifi" && root.selectedIndex === 1
+                                onActivated: root.networkModel.toggleHotspot()
+                            }
+                        }
+
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            visible: root.networkModel.editingHotspot
+                            spacing: Theme.compactSpacing
+
+                            Text {
+                                text: "Hotspot Name (SSID)"
+                                color: Theme.textMuted
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.smallFontSize
+                            }
+
+                            Rectangle {
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: 34
+                                color: Theme.surface
+                                border.color: Theme.border
+                                border.width: 1
+                                radius: Theme.radius
+
+                                TextInput {
+                                    id: hotspotSsidInput
+                                    anchors.fill: parent
+                                    anchors.leftMargin: Theme.rowSpacing
+                                    anchors.rightMargin: Theme.rowSpacing
+                                    text: root.networkModel.hotspotSsidInput
+                                    color: Theme.textStrong
+                                    selectionColor: Theme.accent
+                                    selectedTextColor: Theme.accentText
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: Theme.inputFontSize
+                                    clip: true
+                                    verticalAlignment: TextInput.AlignVCenter
+                                    onTextChanged: root.networkModel.hotspotSsidInput = text
+                                }
+                            }
+
+                            Text {
+                                text: "Hotspot Password (min 8 chars)"
+                                color: Theme.textMuted
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.smallFontSize
+                            }
+
+                            Rectangle {
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: 34
+                                color: Theme.surface
+                                border.color: Theme.border
+                                border.width: 1
+                                radius: Theme.radius
+
+                                RowLayout {
+                                    anchors.fill: parent
+                                    anchors.leftMargin: Theme.rowSpacing
+                                    anchors.rightMargin: Theme.rowSpacing
+                                    spacing: 4
+
+                                    TextInput {
+                                        id: hotspotPasswordInput
+                                        property bool showPassword: false
+                                        Layout.fillWidth: true
+                                        Layout.fillHeight: true
+                                        text: root.networkModel.hotspotPasswordInput
+                                        echoMode: showPassword ? TextInput.Normal : TextInput.Password
+                                        color: Theme.textStrong
+                                        selectionColor: Theme.accent
+                                        selectedTextColor: Theme.accentText
+                                        font.family: Theme.fontFamily
+                                        font.pixelSize: Theme.inputFontSize
+                                        clip: true
+                                        verticalAlignment: TextInput.AlignVCenter
+                                        onTextChanged: root.networkModel.hotspotPasswordInput = text
+                                    }
+
+                                    Text {
+                                        text: hotspotPasswordInput.showPassword ? "Hide" : "Show"
+                                        color: eyeMouse.containsMouse ? Theme.accent : Theme.textMuted
+                                        font.family: Theme.fontFamily
+                                        font.pixelSize: Theme.smallFontSize
+                                        Layout.alignment: Qt.AlignVCenter
+
+                                        MouseArea {
+                                            id: eyeMouse
+                                            anchors.fill: parent
+                                            hoverEnabled: true
+                                            cursorShape: Qt.PointingHandCursor
+                                            onClicked: hotspotPasswordInput.showPassword = !hotspotPasswordInput.showPassword
+                                        }
+                                    }
+                                }
+                            }
+
+                            RowLayout {
+                                Layout.fillWidth: true
+                                spacing: Theme.rowSpacing
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    visible: hotspotPasswordInput.text.length < 8
+                                    text: "Password must be >= 8 chars"
+                                    color: Theme.danger
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: Theme.smallFontSize
+                                }
+
+                                Item {
+                                    Layout.fillWidth: true
+                                    visible: hotspotPasswordInput.text.length >= 8
+                                }
+
+                                ShellButton {
+                                    Layout.preferredWidth: implicitWidth
+                                    Layout.preferredHeight: Theme.buttonHeight
+                                    label: "Save"
+                                    enabled: hotspotSsidInput.text.length > 0 && hotspotPasswordInput.text.length >= 8 && !root.networkModel.busy
+                                    onActivated: root.networkModel.saveHotspotConfig(hotspotSsidInput.text, hotspotPasswordInput.text)
+                                }
+                            }
+                        }
+
+                        Text {
+                            Layout.fillWidth: true
+                            visible: root.networkModel.hotspotActive && root.networkModel.hotspotClients.length === 0
+                            text: "No connected devices"
+                            color: Theme.textMuted
+                            font.family: Theme.fontFamily
+                            font.pixelSize: Theme.smallFontSize
+                            elide: Text.ElideRight
+                        }
+
+                        Repeater {
+                            model: root.networkModel.hotspotClients
+
+                            RowLayout {
+                                required property var modelData
+                                Layout.fillWidth: true
+                                spacing: Theme.rowSpacing
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: modelData.name
+                                    color: Theme.text
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: Theme.smallFontSize
+                                    elide: Text.ElideRight
+                                }
+
+                                Text {
+                                    text: modelData.ip
+                                    color: Theme.textMuted
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: Theme.smallFontSize
+                                }
+                            }
+                        }
+                    }
                 }
 
                 SectionLabel {
@@ -681,31 +888,58 @@ FloatingWindow {
                             Layout.fillWidth: true
                             Layout.fillHeight: true
 
-                            TextInput {
-                                id: wifiPasswordInput
+                            RowLayout {
                                 anchors.fill: parent
-                                text: root.networkModel.wifiPassword
-                                echoMode: TextInput.Password
-                                color: Theme.textStrong
-                                selectionColor: Theme.accent
-                                selectedTextColor: Theme.accentText
-                                font.family: Theme.fontFamily
-                                font.pixelSize: Theme.inputFontSize
-                                clip: true
-                                verticalAlignment: TextInput.AlignVCenter
-                                enabled: !root.networkModel.busy
-                                onTextChanged: root.networkModel.wifiPassword = text
-                                onAccepted: root.networkModel.connectSelectedWifi()
-                            }
+                                spacing: 4
 
-                            Text {
-                                anchors.left: parent.left
-                                anchors.verticalCenter: parent.verticalCenter
-                                visible: wifiPasswordInput.text.length === 0
-                                text: "Password"
-                                color: Theme.placeholder
-                                font.family: Theme.fontFamily
-                                font.pixelSize: Theme.inputFontSize
+                                Item {
+                                    Layout.fillWidth: true
+                                    Layout.fillHeight: true
+
+                                    TextInput {
+                                        id: wifiPasswordInput
+                                        property bool showPassword: false
+                                        anchors.fill: parent
+                                        text: root.networkModel.wifiPassword
+                                        echoMode: showPassword ? TextInput.Normal : TextInput.Password
+                                        color: Theme.textStrong
+                                        selectionColor: Theme.accent
+                                        selectedTextColor: Theme.accentText
+                                        font.family: Theme.fontFamily
+                                        font.pixelSize: Theme.inputFontSize
+                                        clip: true
+                                        verticalAlignment: TextInput.AlignVCenter
+                                        enabled: !root.networkModel.busy
+                                        onTextChanged: root.networkModel.wifiPassword = text
+                                        onAccepted: root.networkModel.connectSelectedWifi()
+                                    }
+
+                                    Text {
+                                        anchors.left: parent.left
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        visible: wifiPasswordInput.text.length === 0
+                                        text: "Password"
+                                        color: Theme.placeholder
+                                        font.family: Theme.fontFamily
+                                        font.pixelSize: Theme.inputFontSize
+                                    }
+                                }
+
+                                Text {
+                                    text: wifiPasswordInput.showPassword ? "Hide" : "Show"
+                                    color: wifiEyeMouse.containsMouse ? Theme.accent : Theme.textMuted
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: Theme.smallFontSize
+                                    Layout.alignment: Qt.AlignVCenter
+
+                                    MouseArea {
+                                        id: wifiEyeMouse
+                                        anchors.fill: parent
+                                        hoverEnabled: true
+                                        cursorShape: Qt.PointingHandCursor
+                                        onClicked: wifiPasswordInput.showPassword = !wifiPasswordInput.showPassword
+                                    }
+                                }
                             }
                         }
 
@@ -794,7 +1028,6 @@ FloatingWindow {
                     model: root.bluetoothModel.devices
 
                     delegate: Rectangle {
-                        id: deviceRow
                         required property int index
                         required property var modelData
                         readonly property bool selected: root.activeTab === "bluetooth" && root.selectedIndex === index + 3
@@ -1316,8 +1549,6 @@ FloatingWindow {
                                                 }
 
                                                 MouseArea {
-                                                    id: iconMouse
-
                                                     anchors.fill: parent
                                                     acceptedButtons: Qt.LeftButton
                                                     hoverEnabled: true
@@ -1407,8 +1638,6 @@ FloatingWindow {
                         }
 
                         Rectangle {
-                            id: sliderTrack
-
                             anchors.left: parent.left
                             anchors.right: parent.right
                             anchors.verticalCenter: parent.verticalCenter
@@ -1691,7 +1920,6 @@ FloatingWindow {
                 }
 
                 Rectangle {
-                    id: mediaRect
                     Layout.fillWidth: true
                     Layout.preferredHeight: 54
                     color: Theme.surface
@@ -1893,9 +2121,7 @@ FloatingWindow {
                     currentYear = y;
                     selectedDay = 0;
                     generateDays();
-                    if (root.calendarModel && root.calendarModel.refreshEventsForMonth) {
-                        root.calendarModel.refreshEventsForMonth(currentMonth + 1, currentYear);
-                    }
+                    root.calendarModel.refreshEventsForMonth(currentMonth + 1, currentYear);
                 }
 
                 function generateDays() {
@@ -2114,19 +2340,27 @@ FloatingWindow {
                             // 1. Specific Date Selection View: Show ALL events (personal + holidays) for that date
                             if (calContainer.selectedDay > 0) {
                                 const dateStr = calContainer.getDateString(calContainer.selectedDay);
-                                return allEvents.filter(function(e) { return e.date === dateStr; });
+                                return allEvents.filter(function (e) {
+                                    return e.date === dateStr;
+                                });
                             }
 
                             // 2. Default Upcoming Events View: Show ONLY National Holidays
                             const mStr = (calContainer.currentMonth + 1).toString().padStart(2, '0');
                             const prefix = calContainer.currentYear + "-" + mStr + "-";
-                            const holidaysOnly = allEvents.filter(function(e) { return e.is_holiday === true; });
-                            const monthHolidays = holidaysOnly.filter(function(e) { return e.date && e.date.startsWith(prefix); });
+                            const holidaysOnly = allEvents.filter(function (e) {
+                                return e.is_holiday === true;
+                            });
+                            const monthHolidays = holidaysOnly.filter(function (e) {
+                                return e.date && e.date.startsWith(prefix);
+                            });
 
                             if (monthHolidays.length > 0) {
                                 return monthHolidays;
                             }
-                            return holidaysOnly.filter(function(e) { return e.date >= prefix + "01"; });
+                            return holidaysOnly.filter(function (e) {
+                                return e.date >= prefix + "01";
+                            });
                         }
 
                         delegate: Rectangle {

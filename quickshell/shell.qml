@@ -15,8 +15,6 @@ import qs.power
 import qs.state
 
 ShellRoot {
-    id: root
-
     FontLoader {
         id: vpnFont
         source: "file:///home/jain/.local/share/fonts/JetBrainsMono-VPN.ttf"
@@ -228,38 +226,26 @@ ShellRoot {
         }
     }
 
-    // ── Primary panel reference (used by popups for anchoring) ────────
-    // The first panel in the Variants list acts as the anchor for all popups.
-    property var primaryPanel: null
-
     // ── Multi-monitor panel: one I3Panel per screen ──────────────────
     Variants {
         model: Quickshell.screens
 
         delegate: I3Panel {
-            id: panelInstance
             required property var modelData
 
             screen: modelData
             state: i3State
             clock: clock
+            vpnFontFamily: vpnFont.name
             networkModel: networkModel
             controlsModel: controlsModel
-            bluetoothModel: bluetoothModel
             powerMenuModel: powerMenuModel
             calendarModel: calendarModel
             vpnModel: vpnModel
-
-            Component.onCompleted: {
-                // Use the primary screen's panel as the popup anchor
-                if (!root.primaryPanel || modelData === Quickshell.screens[0]) {
-                    root.primaryPanel = panelInstance;
-                }
-            }
         }
     }
 
-    // ── Global windows (popups) — anchored to primary screen panel ────
+    // ── Global windows ────────────────────────────────────────────────
 
     PowerMenuWindow {
         powerMenuModel: powerMenuModel

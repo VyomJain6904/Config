@@ -17,6 +17,7 @@ Scope {
     property var profiles: []
     property bool active: vpnIp !== ""
     property bool connected: active
+    property bool targetLocked: connected || busy
 
     function open() {
         root.visible = true;
@@ -60,7 +61,8 @@ Scope {
             rows.push({
                 "name": fields[0],
                 "path": fields[1],
-                "active": fields.length > 2 && fields[2] === "1"
+                "active": fields.length > 2 && fields[2] === "1",
+                "logoPath": fields.length > 3 ? fields[3] : ""
             });
         }
 
@@ -75,7 +77,7 @@ Scope {
         root.targetIp = isConnected && fields.length > 2 ? fields[2] : "";
         root.activeProfile = isConnected && fields.length > 3 ? fields[3] : "";
 
-        if (isConnected && root.targetInput.length === 0 && root.targetIp.length > 0) {
+        if (isConnected && root.targetIp.length > 0) {
             root.targetInput = root.targetIp;
         }
 
@@ -87,7 +89,7 @@ Scope {
     }
 
     function connectProfile(profile) {
-        if (root.busy || !profile || !profile.path || profile.path.length === 0) {
+        if (root.busy || root.connected || !profile || !profile.path || profile.path.length === 0) {
             return;
         }
 

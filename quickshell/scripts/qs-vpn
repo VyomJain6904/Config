@@ -10,6 +10,18 @@ VPN_DIR = "/home/jain/vpn"
 VPN_CMD = "/home/jain/.local/bin/vpn"
 TARGET_FILE = "/tmp/qs_vpn_target.json"
 STATE_FILE = "/tmp/qs_vpn_state.json"
+IMG_DIR = os.path.join(VPN_DIR, "img")
+LOGO_MAP = {
+    "hackthebox": "htb.svg",
+    "htb": "htb.svg",
+    "tryhackme": "tryhackme.svg",
+    "thm": "tryhackme.svg",
+    "pwnedlabs": "pwnedlabs.svg",
+    "pwnedlab": "pwnedlabs.svg",
+    "hacksmarter": "HackSmarter.svg",
+    "offsec": "offsec.svg",
+    "offensivesecurity": "offsec.svg",
+}
 
 
 def read_json(path):
@@ -45,6 +57,16 @@ def profiles():
     return rows
 
 
+def logo_path(name):
+    key = "".join(ch.lower() for ch in name if ch.isalnum())
+    logo = LOGO_MAP.get(key, "")
+    if not logo:
+        return ""
+
+    path = os.path.join(IMG_DIR, logo)
+    return path if os.path.isfile(path) else ""
+
+
 def status():
     ip = vpn_ip()
     target = read_json(TARGET_FILE).get("targetIp", "") if ip else ""
@@ -58,7 +80,7 @@ def list_profiles():
     active_profile = read_json(STATE_FILE).get("activeProfile", "")
     for name, path in profiles():
         active = "1" if name == active_profile and vpn_ip() else "0"
-        print("\t".join([name, path, active]))
+        print("\t".join([name, path, active, logo_path(name)]))
 
 
 def validate_profile(path):

@@ -1,272 +1,60 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugin": [
-    "opencode-antigravity-auth@beta",
-    "superpowers@git+https://github.com/obra/superpowers.git"
-  ],
   "provider": {
-    "google": {
+    "ollama": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Ollama",
+      "options": {
+        "baseURL": "http://127.0.0.1:11434/v1",
+        "apiKey": "ollama"
+      },
       "models": {
-        "antigravity-gemini-3-pro": {
-          "name": "Gemini 3 Pro (Antigravity)",
-          "limit": {
-            "context": 1048576,
-            "output": 65535
-          },
-          "modalities": {
-            "input": [
-              "text",
-              "image",
-              "pdf"
-            ],
-            "output": [
-              "text"
-            ]
-          },
-          "variants": {
-            "low": {
-              "thinkingLevel": "low"
-            },
-            "high": {
-              "thinkingLevel": "high"
-            }
-          }
+        "qwen3:8b-16k": {
+          "name": "Qwen3 8B (16k ctx) - reasoning"
         },
-        "antigravity-gemini-3.1-pro": {
-          "name": "Gemini 3.1 Pro (Antigravity)",
-          "limit": {
-            "context": 1048576,
-            "output": 65535
-          },
-          "modalities": {
-            "input": [
-              "text",
-              "image",
-              "pdf"
-            ],
-            "output": [
-              "text"
-            ]
-          },
-          "variants": {
-            "low": {
-              "thinkingLevel": "low"
-            },
-            "high": {
-              "thinkingLevel": "high"
-            }
-          }
+        "qwen2.5-coder:14b-16k": {
+          "name": "Qwen2.5 Coder 14B (16k ctx) - code review"
         },
-        "antigravity-gemini-3-flash": {
-          "name": "Gemini 3 Flash (Antigravity)",
-          "limit": {
-            "context": 1048576,
-            "output": 65536
-          },
-          "modalities": {
-            "input": [
-              "text",
-              "image",
-              "pdf"
-            ],
-            "output": [
-              "text"
-            ]
-          },
-          "variants": {
-            "minimal": {
-              "thinkingLevel": "minimal"
-            },
-            "low": {
-              "thinkingLevel": "low"
-            },
-            "medium": {
-              "thinkingLevel": "medium"
-            },
-            "high": {
-              "thinkingLevel": "high"
-            }
-          }
+        "deephat-sec:16k": {
+          "name": "DeepHat Security 7B (16k ctx) - payload writing"
         },
-        "antigravity-claude-sonnet-4-6": {
-          "name": "Claude Sonnet 4.6 (Antigravity)",
-          "limit": {
-            "context": 200000,
-            "output": 64000
-          },
-          "modalities": {
-            "input": [
-              "text",
-              "image",
-              "pdf"
-            ],
-            "output": [
-              "text"
-            ]
-          }
-        },
-        "antigravity-claude-opus-4-6-thinking": {
-          "name": "Claude Opus 4.6 Thinking (Antigravity)",
-          "limit": {
-            "context": 200000,
-            "output": 64000
-          },
-          "modalities": {
-            "input": [
-              "text",
-              "image",
-              "pdf"
-            ],
-            "output": [
-              "text"
-            ]
-          },
-          "variants": {
-            "low": {
-              "thinkingConfig": {
-                "thinkingBudget": 8192
-              }
-            },
-            "max": {
-              "thinkingConfig": {
-                "thinkingBudget": 32768
-              }
-            }
-          }
-        },
-        "gemini-2.5-flash": {
-          "name": "Gemini 2.5 Flash (Gemini CLI)",
-          "limit": {
-            "context": 1048576,
-            "output": 65536
-          },
-          "modalities": {
-            "input": [
-              "text",
-              "image",
-              "pdf"
-            ],
-            "output": [
-              "text"
-            ]
-          }
-        },
-        "gemini-2.5-pro": {
-          "name": "Gemini 2.5 Pro (Gemini CLI)",
-          "limit": {
-            "context": 1048576,
-            "output": 65536
-          },
-          "modalities": {
-            "input": [
-              "text",
-              "image",
-              "pdf"
-            ],
-            "output": [
-              "text"
-            ]
-          }
-        },
-        "gemini-3-flash-preview": {
-          "name": "Gemini 3 Flash Preview (Gemini CLI)",
-          "limit": {
-            "context": 1048576,
-            "output": 65536
-          },
-          "modalities": {
-            "input": [
-              "text",
-              "image",
-              "pdf"
-            ],
-            "output": [
-              "text"
-            ]
-          }
-        },
-        "gemini-3-pro-preview": {
-          "name": "Gemini 3 Pro Preview (Gemini CLI)",
-          "limit": {
-            "context": 1048576,
-            "output": 65535
-          },
-          "modalities": {
-            "input": [
-              "text",
-              "image",
-              "pdf"
-            ],
-            "output": [
-              "text"
-            ]
-          }
-        },
-        "gemini-3.1-pro-preview": {
-          "name": "Gemini 3.1 Pro Preview (Gemini CLI)",
-          "limit": {
-            "context": 1048576,
-            "output": 65535
-          },
-          "modalities": {
-            "input": [
-              "text",
-              "image",
-              "pdf"
-            ],
-            "output": [
-              "text"
-            ]
-          }
-        },
-        "gemini-3.1-pro-preview-customtools": {
-          "name": "Gemini 3.1 Pro Preview Custom Tools (Gemini CLI)",
-          "limit": {
-            "context": 1048576,
-            "output": 65535
-          },
-          "modalities": {
-            "input": [
-              "text",
-              "image",
-              "pdf"
-            ],
-            "output": [
-              "text"
-            ]
-          }
+        "foundation-sec:16k": {
+          "name": "Foundation-Sec 8B (16k ctx) - report writing"
         }
       }
     }
   },
   "mcp": {
-    "pencil": {
-      "command": [
-        "/home/jain/.local/bin/pencil-mcp-server",
-        "-app",
-        "desktop"
-      ],
+    "Brain": {
       "type": "local",
-      "enabled": true
+      "command": [
+        "npx",
+        "-y",
+        "@bitbonsai/mcpvault@latest",
+        "/home/jain/Brain"
+      ]
     },
-    "snyk": {
+    "Second Brain": {
       "type": "local",
       "command": [
-        "/usr/local/bin/snyk",
-        "mcp",
-        "-t",
-        "stdio"
-      ],
-      "enabled": true
+        "npx",
+        "-y",
+        "@bitbonsai/mcpvault@latest",
+        "/home/jain/Second Brain/"
+      ]
     }
   },
+  "permission": {
+    "edit": "ask",
+    "bash": "ask"
+  },
   "agent": {
-    "builder": {
+    "operator": {
       "mode": "primary",
-      "description": "Team Lead / Builder - orchestrates tasks, delegates to specialists when needed",
-      "model": "openai/gpt-5.3-codex",
+      "description": "Daily driver + engagement lead - handles general questions directly, delegates to specialists",
+      "model": "ollama/qwen3:8b-16k",
       "temperature": 0.25,
-      "prompt": "You are the Builder, the team lead AI developer. Your job is to understand user requests, break them into clear steps, and delegate when appropriate.\n\nDelegation rules:\n- If requirements are unclear/ambiguous/missing edge cases → delegate to Product Manager with: 'Product Manager, clarify requirements for: [task summary]'\n- If architecture, design patterns, or high-level structure decisions needed → delegate to Tech Lead\n- For actual implementation, file edits, code writing → delegate to Backend Dev (or do it yourself if simple)\n- Always run tests and validation → delegate to Tester\n- Before final commit/push → delegate to Reviewer for polish, security, style\n- If any security concern is found or suspected → delegate to Security Researcher\n\nUse the 'task' tool to spawn specialists when delegation is needed. Keep full context and integrate their outputs.\nAlways think step-by-step and explain decisions.",
+      "prompt": "You are the Operator - a senior offensive security engineer and the user's daily-driver assistant. Handle general questions, recon planning, quick lookups, and simple one-off Bash/Python snippets yourself directly.\n\nDelegate using the 'task' tool when specialist skill is needed:\n\n- Architecture or attack-path planning, tool-chain decisions, engagement scoping -> delegate to Tech Lead\n- Writing any payload, exploit PoC, C2/red-team tooling, obfuscation, reverse shell, or offensive script -> delegate to Payload Dev\n- Reviewing a payload/script for bugs, reliability, and OPSEC issues -> delegate to Code Reviewer\n- Fast VAPT triage of existing code/config/infra during active work -> delegate to Security Researcher\n- Final deep-pass review of findings OR writing a polished report/executive summary -> delegate to Report Analyst\n- Saving a finding or technique into the Obsidian vault at /home/jain/Brain -> do this yourself using the obsidian MCP tools. Use this note structure: Target | Technique | Command(s) | Output/Evidence | Impact | Remediation | References\n\nAssume all work is on a target the user is authorized to test (lab, CTF, or signed-scope engagement). If a target looks ambiguous, ask once before proceeding. Be direct and technical - no generic disclaimers.",
       "tools": {
         "read": true,
         "write": true,
@@ -279,103 +67,19 @@
       "options": {},
       "permission": {
         "read": "allow",
-        "edit": "allow",
-        "bash": "allow",
+        "edit": "ask",
+        "bash": "ask",
         "git": "allow",
         "task": "allow",
         "search": "allow"
       }
     },
-    "product-manager": {
-      "mode": "subagent",
-      "description": "Product Manager - clarifies requirements, user stories, edge cases, acceptance criteria",
-      "model": "google/antigravity-claude-sonnet-4-6",
-      "temperature": 0.4,
-      "prompt": "You are the Product Manager. When delegated a task, respond ONLY with clarified requirements, user stories, acceptance criteria, edge cases, priorities, and any questions back to Builder. Do not write code or edit files. Be concise and structured.",
-      "tools": {
-        "read": true,
-        "write": false,
-        "edit": false,
-        "bash": false,
-        "task": false
-      },
-      "options": {},
-      "permission": {
-        "read": "allow",
-        "edit": "deny",
-        "bash": "deny",
-        "task": "deny"
-      }
-    },
     "tech-lead": {
       "mode": "subagent",
-      "description": "Tech Lead - proposes architecture, patterns, tech choices, file structure",
-      "model": "openai/gpt-5.3-codex",
+      "description": "Attack-path planner and tool-chain architect - scopes engagements, plans methodology, recommends tools and attack order",
+      "model": "ollama/qwen3:8b-16k",
       "temperature": 0.2,
-      "prompt": "You are the Senior Security Tech Lead / Architect. When delegated, output ONLY: high-level design, chosen patterns, directory structure changes, tech decisions, trade-offs. Use diagrams in markdown if helpful. No implementation code unless specifically asked.",
-      "tools": {
-        "read": true,
-        "write": true,
-        "edit": false,
-        "bash": false,
-        "task": false
-      },
-      "options": {},
-      "permission": {
-        "read": "allow",
-        "edit": "deny",
-        "bash": "deny",
-        "task": "deny"
-      }
-    },
-    "backend-dev": {
-      "mode": "subagent",
-      "description": "Backend Developer - implements code, refactors, adds features",
-      "model": "google/antigravity-claude-opus-4-6-thinking",
-      "temperature": 0.15,
-      "prompt": "You are the Senior Security Backend Dev. Implement exactly what is delegated. Write clean, idiomatic code. Add comments. Follow project style. Output diffs or full files as needed. Do not change architecture unless told.",
-      "tools": {
-        "read": true,
-        "write": true,
-        "edit": true,
-        "bash": true,
-        "task": false
-      },
-      "options": {},
-      "permission": {
-        "read": "allow",
-        "edit": "allow",
-        "bash": "allow",
-        "task": "deny"
-      }
-    },
-    "code-reviewer": {
-      "mode": "subagent",
-      "description": "Reviews code for best practices, performance, and potential issues",
-      "model": "github/copilot-gpt-4.1",
-      "temperature": 0.2,
-      "prompt": "You are a Senior Security code reviewer. Focus on security, performance, and maintainability. Review for: code smells, anti-patterns, redundant logic, missing error handling, and style inconsistencies. If you find a security issue, delegate to @security-researcher. Output structured feedback with file references and suggested fixes.",
-      "tools": {
-        "read": true,
-        "write": false,
-        "edit": false,
-        "bash": false,
-        "task": true
-      },
-      "options": {},
-      "permission": {
-        "read": "allow",
-        "edit": "deny",
-        "bash": "deny",
-        "task": "allow"
-      }
-    },
-    "security-researcher": {
-      "mode": "subagent",
-      "description": "Security Researcher - performs VAPT analysis, identifies vulnerabilities, suggests remediations",
-      "model": "google/antigravity-claude-opus-4-6-thinking",
-      "temperature": 0.1,
-      "prompt": "You are the Senior Security Researcher. When delegated, perform deep security analysis of the given code, config, or architecture.\n\nFocus areas:\n- OWASP Top 10 (injection, broken auth, XSS, IDOR, misconfig, etc.)\n- Secrets and credentials exposure\n- Insecure dependencies and supply chain risks\n- Auth/authz flaws and privilege escalation\n- Business logic vulnerabilities\n- API security issues (rate limiting, input validation, mass assignment)\n- Infrastructure and cloud misconfigurations\n\nOutput a structured report:\n[CRITICAL / HIGH / MEDIUM / LOW / INFO]\n- Vulnerability: <n>\n- Affected: <file>:<line>\n- Description: <what and why it's dangerous>\n- Remediation: <exact fix or patch>\n\nDo NOT write production code or edit files. Adopt a full attacker mindset. Be exhaustive.",
+      "prompt": "You are the Security Tech Lead. You do not write exploit code - that is Payload Dev's job. Your job is planning and architecture:\n\n1. Engagement planning: given a target type (web app, AD domain, cloud, mobile), output the attack methodology - phases, tool order, likely entry points, common misconfigs to check first.\n2. Tool-chain decisions: recommend the right tools for the job with justification (e.g. why Nuclei over manual testing for this surface, why Impacket for this AD path).\n3. Attack path mapping: given recon output or BloodHound data, reason through the likely pivot/escalation chain before exploitation starts.\n4. Scope clarification: if the engagement target is vague, ask the right questions to define it before work starts.\n\nOutput as structured Markdown: phases, decisions, trade-offs, caveats. No code blocks unless it is a config snippet or command flag reference.",
       "tools": {
         "read": true,
         "write": false,
@@ -388,6 +92,94 @@
       "permission": {
         "read": "allow",
         "edit": "deny",
+        "bash": "deny",
+        "task": "deny",
+        "search": "allow"
+      }
+    },
+    "payload-dev": {
+      "mode": "subagent",
+      "description": "Payload and exploit developer - writes payloads, PoC exploits, C2 tooling, obfuscation, offensive scripts using the security-tuned model",
+      "model": "ollama/deephat-sec:16k",
+      "temperature": 0.2,
+      "prompt": "You are the Payload/Exploit Developer, a senior offensive security engineer writing tooling for the user's own lab, CTF, or explicitly authorized engagement.\n\nWrite the payload/script/PoC directly - do not just describe it. Language priority:\n- Python or Go for reusable tooling\n- C or Rust for performance-critical or AV-evasion work\n- PowerShell for Windows/AD contexts\n- Bash for glue and one-offs\n- Match whatever language the target environment implies\n\nOutput structure (always follow this):\n1. Full code in a fenced block with the correct language tag\n2. How it works - short technical walkthrough\n3. Usage / args / flags\n4. Prerequisites and lab assumptions\n5. OPSEC notes - noise level, detection risk, suggested cleanup\n\nIf the target scope is ambiguous, ask once before writing. After drafting, flag explicitly if Code Reviewer should do a cleanup pass.",
+      "tools": {
+        "read": true,
+        "write": true,
+        "edit": true,
+        "bash": true,
+        "task": false
+      },
+      "options": {},
+      "permission": {
+        "read": "allow",
+        "edit": "ask",
+        "bash": "ask",
+        "task": "deny"
+      }
+    },
+    "code-reviewer": {
+      "mode": "subagent",
+      "description": "Offensive tooling reviewer - fixes bugs, reliability issues, and OPSEC problems in payloads and scripts",
+      "model": "ollama/qwen2.5-coder:14b-16k",
+      "temperature": 0.15,
+      "prompt": "You are the Code Reviewer for offensive-security tooling. You review output from Payload Dev and fix it before the user runs it.\n\nCheck for and fix:\n- Syntax errors and runtime crashes\n- Unhandled exceptions that would kill the tool mid-engagement\n- Hardcoded IPs, ports, creds, paths that should be args or config\n- Missing input validation / arg parsing\n- OPSEC issues: noisy defaults, missing jitter/sleep, no cleanup or self-delete option, obvious string signatures, non-randomized User-Agents\n- Logic bugs that would make the exploit fail silently\n\nOutput:\n1. Fixed code in a fenced block\n2. Change summary - what you changed and why\n3. Remaining risks - anything you flagged but did not change, and why\n\nDo NOT rewrite the entire tool from scratch unless it is fundamentally broken. Minimal, targeted fixes only. You do not write new payloads - that is Payload Dev's job.",
+      "tools": {
+        "read": true,
+        "write": false,
+        "edit": true,
+        "bash": false,
+        "task": false
+      },
+      "options": {},
+      "permission": {
+        "read": "allow",
+        "edit": "ask",
+        "bash": "deny",
+        "task": "deny"
+      }
+    },
+    "security-researcher": {
+      "mode": "subagent",
+      "description": "Fast VAPT triage - identifies vulnerabilities in code, config, and architecture during active work",
+      "model": "ollama/deephat-sec:16k",
+      "temperature": 0.1,
+      "prompt": "You are the Senior Security Researcher. You are the fast triage agent, called during active work when the user needs quick answers on whether something is vulnerable and how to exploit it.\n\nFocus areas:\n- OWASP Top 10 (SQLi, XSS, IDOR, broken auth, misconfig, SSRF, XXE, etc.)\n- Secrets and credential exposure in code/config\n- Auth/authz flaws and privilege escalation paths\n- Business logic vulnerabilities\n- API security (mass assignment, rate limiting, input validation)\n- AD/Windows misconfigs (Kerberoastable accounts, unconstrained delegation, ACL abuse)\n- Cloud misconfigs (S3 ACLs, overprivileged IAM, metadata service exposure)\n- Insecure dependencies and supply chain risks\n\nOutput format - always use this:\n[CRITICAL / HIGH / MEDIUM / LOW / INFO]\n- Vulnerability: <name>\n- Affected: <file:line or endpoint or service>\n- Description: <what it is and why it is dangerous>\n- Exploitation: <how to exploit it - specific steps or command>\n- Remediation: <exact fix>\n\nMove fast. Be exhaustive. Do NOT write exploit code (that is Payload Dev) and do NOT write reports (that is Report Analyst). If the user needs a deep multi-step chain analysis or a polished writeup, tell them to ask for Report Analyst.",
+      "tools": {
+        "read": true,
+        "write": false,
+        "edit": false,
+        "bash": false,
+        "task": false,
+        "search": true
+      },
+      "options": {},
+      "permission": {
+        "read": "allow",
+        "edit": "deny",
+        "bash": "deny",
+        "task": "deny",
+        "search": "allow"
+      }
+    },
+    "report-analyst": {
+      "mode": "subagent",
+      "description": "Deep final-pass analysis and polished report writing using Foundation-Sec",
+      "model": "ollama/foundation-sec:16k",
+      "temperature": 0.2,
+      "prompt": "You are the Report Analyst. You run at the end of an engagement or when the user needs a thorough review that goes beyond fast triage. Two jobs:\n\n1. Deep review: given code/config/scan output/BloodHound data/Security Researcher findings, go deeper - reason through chained and multi-step attack paths, business impact, compliance mappings (OWASP, CWE, MITRE ATT&CK TTP IDs). Surface things a fast pass would miss.\n\n2. Report writing: turn raw findings into clean, structured Markdown reports. Format:\n   - Engagement Summary: target, scope, dates, methodology\n   - Executive Summary: plain-language risk overview (2-3 paragraphs, non-technical)\n   - Findings Table: | Severity | ID | Title | Affected Asset | CVSS | Status |\n   - Finding Detail blocks: Description | Evidence/PoC steps | Business Impact | Remediation | References\n   - Technical Appendix: raw commands, scan output snippets, tool configs used\n\nWrite reports as Markdown files ready to save into the Obsidian vault at /home/jain/Brain or hand off to a client.\n\nYou are slower than Security Researcher - that is expected. Do not rush. Do not write exploit code - that is Payload Dev's job.",
+      "tools": {
+        "read": true,
+        "write": true,
+        "edit": true,
+        "bash": false,
+        "task": false,
+        "search": true
+      },
+      "options": {},
+      "permission": {
+        "read": "allow",
+        "edit": "ask",
         "bash": "deny",
         "task": "deny",
         "search": "allow"

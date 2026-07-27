@@ -15,12 +15,16 @@ import (
 const (
 	warpCommand          = "warp-cli"
 	warpSystemService    = "warp-svc.service"
-	warpUserService      = "warp-taskbar.service"
+	torSystemService     = "tor.service"
+	torInstanceService   = "tor@default.service"
 	targetFile           = "/tmp/qs_vpn_target.json"
 	stateFile            = "/tmp/qs_vpn_state.json"
 	cloudflareProfile    = "Cloudflare"
 	cloudflareProfileKey = "cloudflare-warp"
 	cloudflareLabel      = "Cloudflare WARP"
+	torProfile           = "Tor"
+	torProfileKey        = "tor-socks"
+	torLabel             = "Tor SOCKS :9050"
 	polkitAgent          = "/usr/lib/x86_64-linux-gnu/ukui-polkit/polkit-ukui-authentication-agent-1"
 )
 
@@ -123,11 +127,18 @@ func warpResult(args ...string) common.Result {
 }
 
 func warpConnected() bool {
+	if !systemServiceActive(warpSystemService) {
+		return false
+	}
 	result := warpResult("status")
 	if result.Code != 0 {
 		return false
 	}
-	for _, line := range strings.Split(result.Stdout, "\n") {
+	return warpStatusConnected(result.Stdout)
+}
+
+func warpStatusConnected(output string) bool {
+	for _, line := range strings.Split(output, "\n") {
 		text := strings.ToLower(strings.TrimSpace(line))
 		if text == "" {
 			continue
@@ -152,6 +163,10 @@ func printStatus() {
 	}
 	if warpConnected() {
 		fmt.Printf("1\t%s\t\t%s\n", cloudflareLabel, cloudflareProfile)
+		return
+	}
+	if torConnected() {
+		fmt.Printf("1\t%s\t\t%s\n", torLabel, torProfile)
 		return
 	}
 	fmt.Println("0\t\t\t")
@@ -202,6 +217,14 @@ func listProfiles() {
 			logoPath(cloudflareProfile),
 		)
 	}
+	if torAvailable() {
+		fmt.Printf(
+			"%s\t%s\t%s\t\n",
+			torProfile,
+			torProfileKey,
+			common.Bool01(torConnected()),
+		)
+	}
 }
 
 func validateProfile(path string) (string, error) {
@@ -234,10 +257,17 @@ func connect(args []string) int {
 		return 2
 	}
 	if args[0] == cloudflareProfileKey {
-		if code := startWarpServices(); code != 0 {
+		if code := startWarpService(); code != 0 {
 			return code
 		}
-		return runWarp("connect")
+		code := runWarp("connect")
+		if code != 0 {
+			_ = stopSystemService(warpSystemService)
+		}
+		return code
+	}
+	if args[0] == torProfileKey {
+		return startTorService()
 	}
 
 	profilePath, err := validateProfile(args[0])
@@ -255,25 +285,27 @@ func connect(args []string) int {
 func disconnect() int {
 	code := 0
 	openVPNActive := vpnIP() != ""
-	wasWarpConnected := warpConnected()
-	shouldStopWarp := wasWarpConnected || (!openVPNActive && warpResult("status").Code == 0)
 
 	if openVPNActive {
 		code = runVPN(vpnCommand(), "--disconnect")
 	}
-	if wasWarpConnected {
-		warpCode := runWarp("disconnect")
-		if code == 0 {
-			code = warpCode
+	if systemServiceActive(warpSystemService) {
+		if warpConnected() {
+			code = firstError(code, runWarp("disconnect"))
 		}
+		code = firstError(code, stopSystemService(warpSystemService))
 	}
-	if shouldStopWarp {
-		stopCode := stopWarpServices()
-		if code == 0 {
-			code = stopCode
-		}
+	if systemServiceActive(torSystemService) || systemServiceActive(torInstanceService) {
+		code = firstError(code, stopSystemService(torSystemService))
 	}
 	return code
+}
+
+func firstError(current, next int) int {
+	if current != 0 {
+		return current
+	}
+	return next
 }
 
 func runVPN(name string, args ...string) int {
@@ -304,64 +336,92 @@ func ensurePolkitAgent() {
 	}
 }
 
-func runUserService(action string) int {
+func systemServiceActive(service string) bool {
 	systemctl, err := exec.LookPath("systemctl")
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "systemctl is required for Cloudflare WARP service control")
-		return 1
+		return false
 	}
-	result := common.Run(30*time.Second, systemctl, "--user", action, warpUserService)
-	common.PrintResult(result)
-	return result.Code
+	return common.Run(3*time.Second, systemctl, "is-active", "--quiet", service).Code == 0
 }
 
-func runSystemService(action string) int {
+func systemServiceInstalled(service string) bool {
+	for _, root := range []string{"/etc/systemd/system", "/usr/lib/systemd/system", "/lib/systemd/system"} {
+		if common.FileExists(filepath.Join(root, service)) {
+			return true
+		}
+	}
+	return false
+}
+
+func torAvailable() bool {
+	return systemServiceInstalled(torSystemService) && systemServiceInstalled(torInstanceService)
+}
+
+func torConnected() bool {
+	return systemServiceActive(torInstanceService)
+}
+
+func runSystemService(action, service string) int {
 	systemctl, systemctlErr := exec.LookPath("systemctl")
 	if systemctlErr != nil {
-		fmt.Fprintln(os.Stderr, "systemctl is required for Cloudflare WARP service control")
+		fmt.Fprintln(os.Stderr, "systemctl is required for VPN service control")
 		return 1
 	}
 	pkexec, pkexecErr := exec.LookPath("pkexec")
 	if pkexecErr != nil {
-		fmt.Fprintln(os.Stderr, "pkexec is required for Cloudflare WARP service control")
+		fmt.Fprintln(os.Stderr, "pkexec is required for VPN service control")
 		return 1
 	}
 	ensurePolkitAgent()
-	result := common.Run(2*time.Minute, pkexec, systemctl, action, warpSystemService)
+	result := common.Run(2*time.Minute, pkexec, systemctl, action, service)
 	common.PrintResult(result)
 	return result.Code
 }
 
-func waitForWarpDaemon() bool {
-	deadline := time.Now().Add(6 * time.Second)
+func stopSystemService(service string) int {
+	return runSystemService("stop", service)
+}
+
+func waitForSystemService(service string, timeout time.Duration) bool {
+	deadline := time.Now().Add(timeout)
 	for time.Now().Before(deadline) {
-		if warpResult("status").Code == 0 {
+		if systemServiceActive(service) {
 			return true
 		}
 		time.Sleep(250 * time.Millisecond)
 	}
-	return warpResult("status").Code == 0
+	return systemServiceActive(service)
 }
 
-func startWarpServices() int {
-	if code := runSystemService("start"); code != 0 {
+func startWarpService() int {
+	if code := runSystemService("start", warpSystemService); code != 0 {
 		return code
 	}
-	if !waitForWarpDaemon() {
+	if !waitForSystemService(warpSystemService, 6*time.Second) {
 		fmt.Fprintln(os.Stderr, "Cloudflare WARP daemon did not become ready")
+		_ = stopSystemService(warpSystemService)
 		return 1
 	}
-	return runUserService("start")
+	deadline := time.Now().Add(6 * time.Second)
+	for time.Now().Before(deadline) {
+		if warpResult("status").Code == 0 {
+			return 0
+		}
+		time.Sleep(250 * time.Millisecond)
+	}
+	fmt.Fprintln(os.Stderr, "Cloudflare WARP daemon did not accept commands")
+	_ = stopSystemService(warpSystemService)
+	return 1
 }
 
-func stopWarpServices() int {
-	userCode := runUserService("stop")
-	if common.ExecutableExists("pkill") {
-		_ = common.Run(5*time.Second, "pkill", "-x", "warp-taskbar")
+func startTorService() int {
+	if code := runSystemService("start", torSystemService); code != 0 {
+		return code
 	}
-	systemCode := runSystemService("stop")
-	if systemCode != 0 {
-		return systemCode
+	if waitForSystemService(torInstanceService, 10*time.Second) {
+		return 0
 	}
-	return userCode
+	fmt.Fprintln(os.Stderr, "Tor SOCKS proxy did not become ready")
+	_ = stopSystemService(torSystemService)
+	return 1
 }

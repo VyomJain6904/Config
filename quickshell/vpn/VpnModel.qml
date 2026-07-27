@@ -20,14 +20,12 @@ Scope {
 
     function open() {
         root.visible = true;
-        vpnRefreshTimer.interval = 5000;
         root.refreshProfiles();
         root.refresh();
     }
 
     function close() {
         root.visible = false;
-        vpnRefreshTimer.interval = 15000;
         if (!root.busy) {
             root.message = "";
         }
@@ -117,8 +115,8 @@ Scope {
 
     Timer {
         id: vpnRefreshTimer
-        interval: 15000
-        running: true
+        interval: root.visible ? 5000 : 15000
+        running: root.visible || root.connected || root.busy
         repeat: true
         onTriggered: root.refresh()
     }

@@ -6,29 +6,31 @@
     "color": {
       "1": "white",
     },
-    "height": 5,
-    "width": 15,
+    "padding": {
+      "left": 0,
+      "right": 4
+    }
   },
   "modules": [
     "break",
     {
       "type": "custom",
-      "format": "┌─────────────────────Hardware───────────────────┐",
+      "format": "  ┌─────────────────────Hardware───────────────────┐",
     },
     {
       "type": "host",
-      "key": " PC   ",
+      "key": "  PC   ",
       "keyColor": "green",
     },
     {
       "type": "cpu",
-      "key": "│ ├󰻠  ",
+      "key": "  │ ├󰻠  ",
       "showPeCoreCount": true,
       "keyColor": "green",
     },
     {
       "type": "gpu",
-      "key": "│ ├󰢮  ",
+      "key": "  │ ├󰢮  ",
       "hideType": "integrated",
       "keyColor": "green",
       "showMemory": true,
@@ -36,65 +38,65 @@
     },
     {
       "type": "memory",
-      "key": "│ ├  ",
+      "key": "  │ ├  ",
       "keyColor": "green",
     },
     {
       "type": "disk",
-      "key": "└ └  ",
+      "key": "  └ └  ",
       "keyColor": "green",
     },
     {
       "type": "custom",
-      "format": "└────────────────────────────────────────────────┘",
+      "format": "  └────────────────────────────────────────────────┘",
     },
     "break",
     {
       "type": "custom",
-      "format": "┌────────────────────Software────────────────────┐",
+      "format": "  ┌────────────────────Software────────────────────┐",
     },
     {
       "type": "os",
-      "key": " OS   ",
+      "key": "  OS   ",
       "keyColor": "yellow",
     },
     {
       "type": "kernel",
-      "key": "│ ├  ",
+      "key": "  │ ├  ",
       "keyColor": "yellow",
     },
     {
       "type": "packages",
-      "key": "│ ├󰏖  ",
+      "key": "  │ ├󰏖  ",
       "keyColor": "yellow",
     },
     {
       "type": "uptime",
-      "key": "│ ├󰅐  ",
+      "key": "  │ ├󰅐  ",
       "keyColor": "yellow",
     },
     {
       "type": "shell",
-      "key": "└ └  ",
+      "key": "  └ └  ",
       "keyColor": "yellow",
     },
     {
       "type": "custom",
-      "format": "└────────────────────────────────────────────────┘",
+      "format": "  └────────────────────────────────────────────────┘",
     },
     "break",
     {
       "type": "custom",
-      "format": "┌─────────────────────Display────────────────────┐",
+      "format": "  ┌─────────────────────Display────────────────────┐",
     },
     {
       "type": "de",
-      "key": " DE   ",
+      "key": "  DE   ",
       "keyColor": "blue",
     },
     {
       "type": "display",
-      "key": "│ ├󰍹  ",
+      "key": "  │ ├󰍹  ",
       "keyColor": "blue",
       "displayIndex": 0,
       "showName": true,
@@ -103,12 +105,12 @@
     },
     {
       "type": "wm",
-      "key": "└ └  ",
+      "key": "  └ └  ",
       "keyColor": "blue",
     },
     {
       "type": "custom",
-      "format": "└────────────────────────────────────────────────┘",
+      "format": "  └────────────────────────────────────────────────┘",
     },
   ],
 }

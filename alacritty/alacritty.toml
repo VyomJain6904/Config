@@ -80,19 +80,19 @@ color = "#FF5555"
 # Copy
 [[keyboard.bindings]]
 key = "C"
-mods = "Control|Shift"
+mods = "Control"
 action = "Copy"
 
 # Paste
 [[keyboard.bindings]]
 key = "V"
-mods = "Control|Shift"
+mods = "Control"
 action = "Paste"
 
 # Close window
 [[keyboard.bindings]]
 key = "W"
-mods = "Control|Shift"
+mods = "Control"
 action = "Quit"
 
 # Fullscreen (optional)

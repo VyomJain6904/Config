@@ -2,7 +2,7 @@ QWidget {
     background-color: #000000;
     color: #e0e0e0;
     font-family: "SF Pro Text", "Inter", "JetBrainsMono Nerd Font";
-    font-size: 10pt;
+    font-size: 11pt;
 }
 
 QDialog,
@@ -10,11 +10,35 @@ QMainWindow,
 QFrame {
     background-color: #000000;
     border: 1px solid #2a2a2a;
+    min-width: 460px;
+    max-width: 460px;
+}
+
+QDialog,
+QMainWindow {
+    min-height: 580px;
+    max-height: 580px;
+    padding: 18px;
+}
+
+QWidget[windowTitle],
+QDialog QWidget,
+QMainWindow QWidget {
+    background-color: transparent;
+}
+
+QLabel,
+QCheckBox,
+QRadioButton {
+    margin-top: 6px;
+    margin-bottom: 6px;
 }
 
 QLabel {
     color: #c0caf5;
     background: transparent;
+    font-size: 14px;
+    line-height: 20px;
 }
 
 QLineEdit,
@@ -22,7 +46,9 @@ QComboBox {
     background-color: #111111;
     color: #e0e0e0;
     border: 1px solid #333333;
-    padding: 8px;
+    padding: 10px 12px;
+    min-height: 40px;
+    font-size: 16px;
     selection-background-color: #c0caf5;
     selection-color: #000000;
 }
@@ -36,8 +62,10 @@ QPushButton {
     background-color: #111111;
     color: #c0caf5;
     border: 1px solid #2a2a2a;
-    padding: 8px 14px;
-    min-height: 26px;
+    padding: 10px 16px;
+    min-height: 40px;
+    min-width: 96px;
+    font-size: 11pt;
 }
 
 QPushButton:hover,
@@ -57,6 +85,16 @@ QComboBox:disabled {
     border-color: #2a2a2a;
 }
 
+QDialogButtonBox {
+    background: transparent;
+    spacing: 12px;
+    button-layout: 0;
+}
+
+QDialogButtonBox QPushButton {
+    min-height: 40px;
+}
+
 QToolButton {
     background: transparent;
     color: #c0caf5;
@@ -74,6 +112,20 @@ QCheckBox,
 QRadioButton {
     color: #c0caf5;
     background: transparent;
+}
+
+QGroupBox {
+    border: 1px solid #2a2a2a;
+    margin-top: 12px;
+    padding-top: 12px;
+    color: #e0e0e0;
+}
+
+QMessageBox {
+    min-width: 460px;
+    max-width: 460px;
+    min-height: 580px;
+    max-height: 580px;
 }
 
 QScrollArea,

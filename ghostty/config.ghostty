@@ -2,6 +2,9 @@
 theme = Dracula
 background = #000000
 
+# Terminal Render Config
+term = xterm-256color
+
 # Font
 font-family = JetBrainsMono Nerd Font
 font-size = 10

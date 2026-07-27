@@ -34,3 +34,9 @@ func TestFirstError(t *testing.T) {
 		t.Fatalf("firstError(3, 4) = %d", code)
 	}
 }
+
+func TestTorLogoMapping(t *testing.T) {
+	if logo := logoMap["tor"]; logo != "tor.svg" {
+		t.Fatalf("logoMap[tor] = %q", logo)
+	}
+}

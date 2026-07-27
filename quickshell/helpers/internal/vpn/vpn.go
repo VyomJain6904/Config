@@ -39,6 +39,7 @@ var logoMap = map[string]string{
 	"offsec":            "offsec.svg",
 	"offensivesecurity": "offsec.svg",
 	"cloudflare":        "cloudflare.svg",
+	"tor":               "tor.svg",
 }
 
 type profile struct {
@@ -219,10 +220,11 @@ func listProfiles() {
 	}
 	if torAvailable() {
 		fmt.Printf(
-			"%s\t%s\t%s\t\n",
+			"%s\t%s\t%s\t%s\n",
 			torProfile,
 			torProfileKey,
 			common.Bool01(torConnected()),
+			logoPath(torProfile),
 		)
 	}
 }

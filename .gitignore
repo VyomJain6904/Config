@@ -35,6 +35,7 @@ opencode/opencode.json.*.bak
 **/GPUCache/
 **/DawnGraphiteCache/
 **/DawnWebGPUCache/
+**/DawnCache/
 **/CachedData/
 **/CachedConfigurations/
 **/CachedProfilesData/
@@ -47,13 +48,28 @@ opencode/opencode.json.*.bak
 **/WebStorage/
 **/IndexedDB/
 **/shared_proto_db/
+**/Shared Dictionary/
+**/SharedStorage/
+**/SharedStorage
+**/Dictionaries/
+**/File System/
+**/databases/
+**/logs/
 
 # Chromium/Electron sqlite and journaling artifacts
 **/Cookies
 **/Cookies-journal
+**/DIPS
 **/Network Persistent State
+**/Preferences
+**/TransportSecurity
 **/Trust Tokens
 **/Trust Tokens-journal
+**/id
+obsidian/*.json
+
+# btop runtime log
+btop/btop.log
 
 # Polybar ruff cache
 polybar/.ruff_cache/

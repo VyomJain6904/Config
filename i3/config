@@ -60,6 +60,7 @@ bindsym $mod+e exec thunar
 bindsym $mod+n exec obsidian
 bindsym $mod+Shift+s exec flameshot gui -c -p ~/Pictures/Screenshots/
 bindsym $mod+m exec alacritty
+bindsym $mod+Ctrl+t exec --no-startup-id /usr/bin/alacritty --class btop --title Activity -o font.size=8 -e /usr/local/bin/btop
 bindsym $mod+F4 exec --no-startup-id quickshell ipc call power toggle
 ############################
 
@@ -198,6 +199,7 @@ for_window [class="Brave-browser" title="Picture-in-Picture"] floating enable, s
 for_window [title="^quickshell$"] floating enable, move position center
 for_window [title="^Quickshell Utility$"] floating enable, move position center
 for_window [title="^dwm system health$"] floating enable, move position center
+for_window [class="^btop$"] floating enable, resize set 1400 980, move position center, focus
 for_window [title="(?i).*authentication.*"] floating enable, border pixel 2, resize set 460 580, move position center, focus
 for_window [class="(?i).*polkit.*"] floating enable, border pixel 2, resize set 460 580, move position center, focus
 for_window [class="(?i).*ukui-polkit.*"] floating enable, border pixel 2, resize set 460 580, move position center, focus

@@ -14,6 +14,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"quickshell/helpers/internal/common"
@@ -33,8 +34,8 @@ type credentials struct {
 }
 
 type calendarRef struct {
-	ID        string
-	IsHoliday bool
+	ID        string `json:"id"`
+	IsHoliday bool   `json:"is_holiday"`
 }
 
 type event struct {
@@ -53,6 +54,14 @@ type calendarListResponse struct {
 		ID      string `json:"id"`
 		Summary string `json:"summary"`
 	} `json:"items"`
+}
+
+type eventCache struct {
+	Version            int                `json:"version"`
+	UpdatedAt          string             `json:"updated_at"`
+	Months             map[string][]event `json:"months"`
+	Calendars          []calendarRef      `json:"calendars,omitempty"`
+	CalendarsUpdatedAt string             `json:"calendars_updated_at,omitempty"`
 }
 
 type eventsResponse struct {
@@ -86,6 +95,15 @@ func Run(argv []string) int {
 			year = args[1]
 		}
 		printJSON(fetchGoogleEvents(month, year))
+	case "cached":
+		month, year := "", ""
+		if len(args) > 0 {
+			month = args[0]
+		}
+		if len(args) > 1 {
+			year = args[1]
+		}
+		printJSON(loadCachedEvents(month, year))
 	case "status":
 		_, tokenErr := loadTokens()
 		fmt.Printf("authenticated\t%s\n", common.Bool01(tokenErr == nil))
@@ -145,16 +163,52 @@ func saveTokens(tokens map[string]any) error {
 	return common.WriteJSON(tokensFile(), tokens, 0o600)
 }
 
-func loadCache() []event {
-	var result []event
-	if err := common.ReadJSON(cacheFile(), &result); err != nil {
-		return []event{}
+func loadCache() eventCache {
+	result := eventCache{
+		Version: 1,
+		Months:  make(map[string][]event),
+	}
+	data, err := os.ReadFile(cacheFile())
+	if err != nil {
+		return result
+	}
+	if err := json.Unmarshal(data, &result); err == nil && result.Months != nil {
+		return result
+	}
+
+	var legacy []event
+	if err := json.Unmarshal(data, &legacy); err != nil {
+		return eventCache{Version: 1, Months: make(map[string][]event)}
+	}
+	for _, item := range legacy {
+		key := monthFromDate(item.Date)
+		if key != "" {
+			result.Months[key] = append(result.Months[key], item)
+		}
 	}
 	return result
 }
 
-func saveCache(events []event) {
-	_ = common.WriteJSON(cacheFile(), events, 0o600)
+func saveCache(cache eventCache) {
+	cache.Version = 1
+	cache.UpdatedAt = time.Now().UTC().Format(time.RFC3339)
+	_ = common.WriteJSON(cacheFile(), cache, 0o600)
+}
+
+func loadCachedEvents(monthText, yearText string) []event {
+	key, _, _ := eventMonth(monthText, yearText)
+	items := loadCache().Months[key]
+	if items == nil {
+		return []event{}
+	}
+	return items
+}
+
+func monthFromDate(date string) string {
+	if len(date) < 7 || date[4] != '-' {
+		return ""
+	}
+	return date[:7]
 }
 
 func tokenString(tokens map[string]any, key string) string {
@@ -162,20 +216,36 @@ func tokenString(tokens map[string]any, key string) string {
 	return value
 }
 
+func tokenNumber(tokens map[string]any, key string) int64 {
+	switch value := tokens[key].(type) {
+	case float64:
+		return int64(value)
+	case json.Number:
+		result, _ := value.Int64()
+		return result
+	case int64:
+		return value
+	case int:
+		return int64(value)
+	case string:
+		result, _ := strconv.ParseInt(value, 10, 64)
+		return result
+	default:
+		return 0
+	}
+}
+
 func isNetworkConnected() bool {
 	executable, err := os.Executable()
 	if err == nil {
 		result := common.Run(time.Second, executable, "network", "status")
 		output := strings.ToLower(strings.TrimSpace(result.Stdout))
-		if strings.Contains(output, "offline") ||
+		if result.Code == 0 && (strings.Contains(output, "offline") ||
 			strings.Contains(output, "unavailable") ||
-			strings.Contains(output, "disconnected") {
+			strings.Contains(output, "disconnected")) {
 			return false
 		}
-		if strings.Contains(output, "online") ||
-			strings.Contains(output, "connected") ||
-			strings.Contains(output, "wifi") ||
-			strings.Contains(output, "ethernet") {
+		if result.Code == 0 && output != "" {
 			return true
 		}
 	}
@@ -190,9 +260,15 @@ func isNetworkConnected() bool {
 }
 
 func refreshAccessToken(creds *credentials, tokens map[string]any) string {
+	accessToken := tokenString(tokens, "access_token")
+	expiresAt := tokenNumber(tokens, "expires_at")
+	if accessToken != "" && expiresAt > time.Now().Add(time.Minute).Unix() {
+		return accessToken
+	}
+
 	refreshToken := tokenString(tokens, "refresh_token")
 	if refreshToken == "" {
-		return ""
+		return accessToken
 	}
 	form := url.Values{
 		"client_id":     {creds.ClientID},
@@ -204,7 +280,7 @@ func refreshAccessToken(creds *credentials, tokens map[string]any) string {
 	response, err := client.PostForm(creds.TokenURI, form)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Token refresh failed: %v\n", err)
-		return tokenString(tokens, "access_token")
+		return accessToken
 	}
 	defer response.Body.Close()
 	body, err := io.ReadAll(response.Body)
@@ -213,16 +289,25 @@ func refreshAccessToken(creds *credentials, tokens map[string]any) string {
 			err = fmt.Errorf("%s: %s", response.Status, strings.TrimSpace(string(body)))
 		}
 		fmt.Fprintf(os.Stderr, "Token refresh failed: %v\n", err)
-		return tokenString(tokens, "access_token")
+		return accessToken
 	}
 	var refreshed map[string]any
 	if err := json.Unmarshal(body, &refreshed); err != nil {
 		fmt.Fprintf(os.Stderr, "Token refresh failed: %v\n", err)
-		return tokenString(tokens, "access_token")
+		return accessToken
 	}
-	accessToken := tokenString(refreshed, "access_token")
+	accessToken = tokenString(refreshed, "access_token")
 	if accessToken != "" {
-		tokens["access_token"] = accessToken
+		for key, value := range refreshed {
+			if key != "refresh_token" || tokenString(tokens, "refresh_token") == "" {
+				tokens[key] = value
+			}
+		}
+		expiresIn := tokenNumber(refreshed, "expires_in")
+		if expiresIn <= 0 {
+			expiresIn = 3600
+		}
+		tokens["expires_at"] = time.Now().Add(time.Duration(expiresIn) * time.Second).Unix()
 		_ = saveTokens(tokens)
 		return accessToken
 	}
@@ -230,104 +315,188 @@ func refreshAccessToken(creds *credentials, tokens map[string]any) string {
 }
 
 func fetchGoogleEvents(monthText, yearText string) []event {
+	key, _, _ := eventMonth(monthText, yearText)
+	cache := loadCache()
+	cached := cache.Months[key]
+	if cached == nil {
+		cached = []event{}
+	}
+
 	creds, credsErr := loadCredentials()
 	tokens, tokensErr := loadTokens()
 	if credsErr != nil || tokensErr != nil || !isNetworkConnected() {
-		return loadCache()
+		return cached
 	}
 	accessToken := refreshAccessToken(creds, tokens)
 	if accessToken == "" {
-		return loadCache()
+		return cached
 	}
 
 	timeMin, timeMax := eventRange(monthText, yearText)
-	calendars := []calendarRef{
-		{ID: "primary", IsHoliday: false},
-		{ID: holidayCalendar, IsHoliday: true},
-	}
-	client := &http.Client{Timeout: 10 * time.Second}
-
-	var calendarList calendarListResponse
-	if err := getJSON(client, "https://www.googleapis.com/calendar/v3/users/me/calendarList", accessToken, &calendarList); err == nil {
-		existing := map[string]bool{"primary": true, holidayCalendar: true}
-		for _, item := range calendarList.Items {
-			if item.ID == "" || existing[item.ID] {
-				continue
-			}
-			text := strings.ToLower(item.ID + " " + item.Summary)
-			calendars = append(calendars, calendarRef{ID: item.ID, IsHoliday: strings.Contains(text, "holiday")})
-			existing[item.ID] = true
+	calendars := cachedCalendars(cache)
+	client := &http.Client{Timeout: 8 * time.Second}
+	if len(calendars) == 0 {
+		discovered, ok := fetchCalendars(client, accessToken)
+		if ok {
+			calendars = discovered
+			cache.Calendars = calendars
+			cache.CalendarsUpdatedAt = time.Now().UTC().Format(time.RFC3339)
+			saveCache(cache)
+		} else if len(cache.Calendars) > 0 {
+			calendars = cache.Calendars
+		} else {
+			calendars = defaultCalendars()
 		}
 	}
 
-	var parsed []event
-	seen := make(map[string]bool)
+	type calendarResult struct {
+		calendar calendarRef
+		events   []event
+		err      error
+	}
+	results := make(chan calendarResult, len(calendars))
+	var requests sync.WaitGroup
 	for _, calendar := range calendars {
-		query := url.Values{
-			"timeMin":      {timeMin},
-			"timeMax":      {timeMax},
-			"singleEvents": {"true"},
-			"orderBy":      {"startTime"},
-		}
-		endpoint := "https://www.googleapis.com/calendar/v3/calendars/" +
-			url.PathEscape(calendar.ID) + "/events?" + query.Encode()
-		var response eventsResponse
-		if err := getJSON(client, endpoint, accessToken, &response); err != nil {
-			fmt.Fprintf(os.Stderr, "Fetch events for %s failed: %v\n", calendar.ID, err)
+		requests.Add(1)
+		go func(calendar calendarRef) {
+			defer requests.Done()
+
+			query := url.Values{
+				"timeMin":      {timeMin},
+				"timeMax":      {timeMax},
+				"singleEvents": {"true"},
+				"orderBy":      {"startTime"},
+				"maxResults":   {"2500"},
+			}
+			endpoint := "https://www.googleapis.com/calendar/v3/calendars/" +
+				url.PathEscape(calendar.ID) + "/events?" + query.Encode()
+			var response eventsResponse
+			if err := getJSON(client, endpoint, accessToken, &response); err != nil {
+				results <- calendarResult{calendar: calendar, err: err}
+				return
+			}
+
+			items := make([]event, 0, len(response.Items))
+			for _, item := range response.Items {
+				datePart, timePart := parseEventStart(item.Start.DateTime, item.Start.Date)
+				summary := item.Summary
+				if summary == "" {
+					summary = "Untitled Event"
+				}
+				items = append(items, event{
+					ID:          item.ID,
+					Summary:     summary,
+					Description: "",
+					Location:    "",
+					Date:        datePart,
+					Time:        timePart,
+					IsHoliday:   calendar.IsHoliday,
+					Link:        item.HTMLLink,
+				})
+			}
+			results <- calendarResult{calendar: calendar, events: items}
+		}(calendar)
+	}
+	go func() {
+		requests.Wait()
+		close(results)
+	}()
+
+	parsed := make([]event, 0)
+	seen := make(map[string]bool)
+	successful := 0
+	for result := range results {
+		if result.err != nil {
+			fmt.Fprintf(os.Stderr, "Fetch events for %s failed: %v\n", result.calendar.ID, result.err)
 			continue
 		}
-		for _, item := range response.Items {
-			if seen[item.ID] {
+		successful++
+		for _, item := range result.events {
+			dedupeKey := item.ID + "\x00" + item.Date + "\x00" + item.Time
+			if seen[dedupeKey] {
 				continue
 			}
-			seen[item.ID] = true
-			datePart, timePart := parseEventStart(item.Start.DateTime, item.Start.Date)
-			summary := item.Summary
-			if summary == "" {
-				summary = "Untitled Event"
-			}
-			parsed = append(parsed, event{
-				ID:          item.ID,
-				Summary:     summary,
-				Description: "",
-				Location:    "",
-				Date:        datePart,
-				Time:        timePart,
-				IsHoliday:   calendar.IsHoliday,
-				Link:        item.HTMLLink,
-			})
+			seen[dedupeKey] = true
+			parsed = append(parsed, item)
 		}
 	}
 
-	if len(parsed) == 0 {
-		return loadCache()
+	if successful == 0 || (successful < len(calendars) && len(cached) > 0) {
+		return cached
 	}
-	sort.SliceStable(parsed, func(i, j int) bool {
-		if parsed[i].Date != parsed[j].Date {
-			return parsed[i].Date < parsed[j].Date
-		}
-		left, right := parseTimeMinutes(parsed[i].Time), parseTimeMinutes(parsed[j].Time)
-		if left != right {
-			return left < right
-		}
-		return parsed[i].Summary < parsed[j].Summary
-	})
-	saveCache(parsed)
+	sortEvents(parsed)
+	cache.Months[key] = parsed
+	saveCache(cache)
 	return parsed
 }
 
-func eventRange(monthText, yearText string) (string, string) {
-	now := time.Now().UTC()
-	start := now.AddDate(0, 0, -365)
-	end := now.AddDate(0, 0, 365)
-	month, monthErr := strconv.Atoi(monthText)
-	year, yearErr := strconv.Atoi(yearText)
-	if monthText != "" && yearText != "" && monthErr == nil && yearErr == nil && month >= 1 && month <= 12 {
-		target := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC)
-		start = target.AddDate(0, 0, -60)
-		end = target.AddDate(0, 0, 120)
+func defaultCalendars() []calendarRef {
+	return []calendarRef{
+		{ID: "primary", IsHoliday: false},
+		{ID: holidayCalendar, IsHoliday: true},
 	}
-	return start.Format("2006-01-02") + "T00:00:00Z", end.Format("2006-01-02") + "T23:59:59Z"
+}
+
+func cachedCalendars(cache eventCache) []calendarRef {
+	if len(cache.Calendars) == 0 || cache.CalendarsUpdatedAt == "" {
+		return nil
+	}
+	updatedAt, err := time.Parse(time.RFC3339, cache.CalendarsUpdatedAt)
+	if err != nil || time.Since(updatedAt) > 24*time.Hour {
+		return nil
+	}
+	return cache.Calendars
+}
+
+func fetchCalendars(client *http.Client, accessToken string) ([]calendarRef, bool) {
+	calendars := defaultCalendars()
+	var calendarList calendarListResponse
+	if err := getJSON(client, "https://www.googleapis.com/calendar/v3/users/me/calendarList", accessToken, &calendarList); err != nil {
+		return calendars, false
+	}
+	existing := map[string]bool{"primary": true, holidayCalendar: true}
+	for _, item := range calendarList.Items {
+		if item.ID == "" || existing[item.ID] {
+			continue
+		}
+		text := strings.ToLower(item.ID + " " + item.Summary)
+		calendars = append(calendars, calendarRef{ID: item.ID, IsHoliday: strings.Contains(text, "holiday")})
+		existing[item.ID] = true
+	}
+	return calendars, true
+}
+
+func sortEvents(events []event) {
+	sort.SliceStable(events, func(i, j int) bool {
+		if events[i].Date != events[j].Date {
+			return events[i].Date < events[j].Date
+		}
+		left, right := parseTimeMinutes(events[i].Time), parseTimeMinutes(events[j].Time)
+		if left != right {
+			return left < right
+		}
+		return events[i].Summary < events[j].Summary
+	})
+}
+
+func eventRange(monthText, yearText string) (string, string) {
+	_, month, year := eventMonth(monthText, yearText)
+	start := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC)
+	end := start.AddDate(0, 1, 0)
+	return start.Format(time.RFC3339), end.Format(time.RFC3339)
+}
+
+func eventMonth(monthText, yearText string) (string, int, int) {
+	now := time.Now()
+	month := int(now.Month())
+	year := now.Year()
+	if parsedMonth, err := strconv.Atoi(monthText); err == nil && parsedMonth >= 1 && parsedMonth <= 12 {
+		month = parsedMonth
+	}
+	if parsedYear, err := strconv.Atoi(yearText); err == nil && parsedYear >= 1 {
+		year = parsedYear
+	}
+	return fmt.Sprintf("%04d-%02d", year, month), month, year
 }
 
 func getJSON(client *http.Client, endpoint, accessToken string, target any) error {
@@ -462,6 +631,11 @@ func runOAuthAuth() int {
 		fmt.Printf("Failed to exchange token: %v\n", err)
 		return 1
 	}
+	expiresIn := tokenNumber(tokens, "expires_in")
+	if expiresIn <= 0 {
+		expiresIn = 3600
+	}
+	tokens["expires_at"] = time.Now().Add(time.Duration(expiresIn) * time.Second).Unix()
 	if err := saveTokens(tokens); err != nil {
 		fmt.Printf("Failed to exchange token: %v\n", err)
 		return 1

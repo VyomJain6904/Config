@@ -22,6 +22,7 @@ FloatingWindow {
     readonly property int popupWidth: 560
     readonly property int popupHeight: 740
     readonly property var tabOrder: ["wifi", "bluetooth", "audio", "brightness", "vpn", "calendar"]
+    property string pendingTab: ""
     readonly property int contentSpacing: Theme.popupSpacing
     readonly property int rowSpacing: Theme.rowSpacing
     readonly property int actionButtonHeight: Theme.compactButtonHeight
@@ -129,13 +130,60 @@ FloatingWindow {
     function setActiveTab(tab) {
         root.activeTab = tab;
         root.selectedIndex = 0;
-        if (tab === "bluetooth") {
-            root.bluetoothModel.refresh(false);
-        } else if (tab === "calendar") {
-            root.calendarModel.refreshEvents();
-        }
         root.updateWorkspaceGridActive();
         Qt.callLater(() => content.forceActiveFocus());
+    }
+
+    function activateTab(tab) {
+        if (tab === "wifi") {
+            root.networkModel.visible = true;
+            root.controlsModel.close();
+            root.vpnModel.close();
+            root.calendarModel.close();
+            root.setActiveTab("wifi");
+            root.networkModel.refresh(false);
+        } else if (tab === "bluetooth" || tab === "audio" || tab === "brightness") {
+            root.controlsModel.requestedTab = tab;
+            root.controlsModel.visible = true;
+            root.networkModel.close();
+            root.vpnModel.close();
+            root.calendarModel.close();
+            root.setActiveTab(tab);
+            if (tab === "bluetooth") {
+                root.bluetoothModel.refresh(false);
+                root.controlsModel.refreshBluetoothStatus();
+            } else if (tab === "audio") {
+                root.controlsModel.refreshAudioStatus();
+                root.controlsModel.refreshOutputDevices();
+                root.controlsModel.refreshInputDevices();
+                root.controlsModel.refreshMediaStatus();
+            } else {
+                root.controlsModel.refreshBrightnessStatus();
+            }
+        } else if (tab === "vpn") {
+            root.vpnModel.visible = true;
+            root.networkModel.close();
+            root.controlsModel.close();
+            root.calendarModel.close();
+            root.setActiveTab("vpn");
+            root.vpnModel.refreshProfiles();
+            root.vpnModel.refresh();
+        } else if (tab === "calendar") {
+            root.calendarModel.visible = true;
+            root.networkModel.close();
+            root.controlsModel.close();
+            root.vpnModel.close();
+            root.setActiveTab("calendar");
+            if (root.calendarModel.events.length === 0) {
+                root.calendarModel.refreshEvents();
+            }
+        }
+    }
+
+    function scheduleTab(tab) {
+        root.pendingTab = tab;
+        root.setActiveTab(tab);
+        tabActivationTimer.restart();
     }
 
     function updateWorkspaceGridActive() {
@@ -162,7 +210,20 @@ FloatingWindow {
             index = 0;
         }
         index = (index + delta + root.tabOrder.length) % root.tabOrder.length;
-        root.setActiveTab(root.tabOrder[index]);
+        root.scheduleTab(root.tabOrder[index]);
+    }
+
+    Timer {
+        id: tabActivationTimer
+
+        interval: 120
+        repeat: false
+        onTriggered: {
+            if (root.pendingTab === root.activeTab) {
+                root.activateTab(root.pendingTab);
+            }
+            root.pendingTab = "";
+        }
     }
 
     function selectedWifiNetwork() {
@@ -369,6 +430,7 @@ FloatingWindow {
                 root.networkModel.close();
                 root.controlsModel.close();
                 root.vpnModel.close();
+                root.calendarModel.close();
                 event.accepted = true;
                 return;
             }
@@ -426,7 +488,7 @@ FloatingWindow {
                     MouseArea {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: root.setActiveTab("wifi")
+                        onClicked: root.activateTab("wifi")
                     }
                 }
 
@@ -446,7 +508,7 @@ FloatingWindow {
                     MouseArea {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: root.setActiveTab("bluetooth")
+                        onClicked: root.activateTab("bluetooth")
                     }
                 }
 
@@ -466,7 +528,7 @@ FloatingWindow {
                     MouseArea {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: root.setActiveTab("audio")
+                        onClicked: root.activateTab("audio")
                     }
                 }
 
@@ -486,7 +548,7 @@ FloatingWindow {
                     MouseArea {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: root.setActiveTab("brightness")
+                        onClicked: root.activateTab("brightness")
                     }
                 }
 
@@ -506,7 +568,7 @@ FloatingWindow {
                     MouseArea {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: root.setActiveTab("vpn")
+                        onClicked: root.activateTab("vpn")
                     }
                 }
 
@@ -526,7 +588,7 @@ FloatingWindow {
                     MouseArea {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: root.setActiveTab("calendar")
+                        onClicked: root.activateTab("calendar")
                     }
                 }
 
@@ -553,6 +615,7 @@ FloatingWindow {
                             root.networkModel.close();
                             root.controlsModel.close();
                             root.vpnModel.close();
+                            root.calendarModel.close();
                         }
                     }
                 }
@@ -2427,7 +2490,7 @@ FloatingWindow {
                         UiText {
                             anchors.centerIn: parent
                             visible: parent.count === 0
-                            text: "No events scheduled"
+                            text: root.calendarModel.loading ? "Loading events..." : "No events scheduled"
                             color: Theme.textMuted
                             font.pixelSize: Theme.smallFontSize
                         }

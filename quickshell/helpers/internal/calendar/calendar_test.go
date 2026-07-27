@@ -7,11 +7,27 @@ import (
 
 func TestEventRangeForRequestedMonth(t *testing.T) {
 	minimum, maximum := eventRange("7", "2026")
-	if minimum != "2026-05-02T00:00:00Z" {
+	if minimum != "2026-07-01T00:00:00Z" {
 		t.Fatalf("minimum = %q", minimum)
 	}
-	if maximum != "2026-10-29T23:59:59Z" {
+	if maximum != "2026-08-01T00:00:00Z" {
 		t.Fatalf("maximum = %q", maximum)
+	}
+}
+
+func TestEventMonthNormalizesRequestedMonth(t *testing.T) {
+	key, month, year := eventMonth("7", "2026")
+	if key != "2026-07" || month != 7 || year != 2026 {
+		t.Fatalf("eventMonth() = %q, %d, %d", key, month, year)
+	}
+}
+
+func TestMonthFromDate(t *testing.T) {
+	if month := monthFromDate("2026-07-27"); month != "2026-07" {
+		t.Fatalf("monthFromDate() = %q", month)
+	}
+	if month := monthFromDate("invalid"); month != "" {
+		t.Fatalf("monthFromDate(invalid) = %q", month)
 	}
 }
 

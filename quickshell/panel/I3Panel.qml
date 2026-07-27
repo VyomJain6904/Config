@@ -282,7 +282,7 @@ PanelWindow {
                                 radius: height / 2
 
                                 Rectangle {
-                                    width: Math.max(height, Math.round((root.controlsModel.brightnessPercent / 100) * parent.width))
+                                    width: root.controlsModel.brightnessReady ? Math.max(height, Math.round((root.controlsModel.brightnessPercent / 100) * parent.width)) : 0
                                     height: parent.height
                                     color: Theme.accent
                                     radius: parent.radius
@@ -290,7 +290,7 @@ PanelWindow {
                             }
 
                             UiText {
-                                text: root.controlsModel.brightnessPercent.toString() + "%"
+                                text: root.controlsModel.brightnessReady ? root.controlsModel.brightnessPercent.toString() + "%" : "--"
                                 color: Theme.accentSecondary
                             }
                         }

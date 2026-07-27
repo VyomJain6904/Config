@@ -16,6 +16,7 @@ Scope {
     property string volumeDisplayText: volumeText + (outputDeviceDescription.length > 0 ? " - " + outputDeviceDescription : "")
 
     property int brightnessPercent: 0
+    property bool brightnessReady: false
     property int targetVolume: -1
     property int targetBrightness: -1
     property int batteryPercent: 0
@@ -149,9 +150,6 @@ Scope {
     }
 
     function refreshBrightnessStatus() {
-        if (!root.visible) {
-            return;
-        }
         if (!brightnessStatusProcess.running) {
             brightnessStatusProcess.running = true;
         }
@@ -218,6 +216,7 @@ Scope {
         const match = trimmed.match(/([0-9]+)%/);
         if (match !== null) {
             root.brightnessPercent = root.clampPercent(parseInt(match[1], 10));
+            root.brightnessReady = true;
         }
     }
 
@@ -342,6 +341,7 @@ Scope {
         const value = root.clampPercent(percent);
         root.targetBrightness = value;
         root.brightnessPercent = value;
+        root.brightnessReady = true;
         brightnessTimer.restart();
     }
 
@@ -501,7 +501,7 @@ Scope {
         id: brightnessStatusProcess
 
         command: Commands.controlsHelperCommand("brightness-status")
-        running: false
+        running: true
 
         stdout: StdioCollector {
             onStreamFinished: {

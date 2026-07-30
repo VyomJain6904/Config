@@ -143,13 +143,6 @@ Scope {
         }
     }
 
-    Timer {
-        id: mediaArtworkServerRestartTimer
-
-        interval: 2000
-        repeat: false
-        onTriggered: mediaArtworkServerProcess.running = true
-    }
 
     Timer {
         id: mediaWatchRestartTimer
@@ -157,18 +150,6 @@ Scope {
         interval: 2000
         repeat: false
         onTriggered: mediaWatchProcess.running = true
-    }
-
-    // The artwork bridge writes current.json independently of the helper
-    // process stdout. Polling keeps the UI synchronized even when Quickshell
-    // has been restarted and an older helper still owns the bridge socket.
-    Timer {
-        id: mediaStatePollTimer
-
-        interval: 1000
-        repeat: true
-        running: root.visible
-        onTriggered: root.refreshMediaStatus()
     }
 
     function refreshBluetoothStatus() {
@@ -440,35 +421,41 @@ Scope {
         root.runAction("input-set-default", [name]);
     }
 
+    function runMediaAction(action, args) {
+        mediaActionProcess.command = Commands.controlsHelperCommand(action, args || []);
+        mediaActionProcess.running = true;
+    }
+
     function mediaPlayPause() {
-        root.runAction("media-play-pause", [root.mediaPlayer]);
+        const player = root.mediaPlayer.length > 0 ? root.mediaPlayer : "";
+        root.runMediaAction("media-play-pause", [player]);
     }
 
     function mediaNext() {
-        root.runAction("media-next", [root.mediaPlayer]);
+        const player = root.mediaPlayer.length > 0 ? root.mediaPlayer : "";
+        root.runMediaAction("media-next", [player]);
     }
 
     function mediaPrevious() {
-        root.runAction("media-previous", [root.mediaPlayer]);
+        const player = root.mediaPlayer.length > 0 ? root.mediaPlayer : "";
+        root.runMediaAction("media-previous", [player]);
     }
 
     function mediaSeek(progress) {
-        if (root.mediaPlayer.length === 0 || root.mediaLengthUs <= 0) {
-            return;
-        }
+        const player = root.mediaPlayer.length > 0 ? root.mediaPlayer : "";
         const clamped = Math.max(0, Math.min(1, Number(progress)));
-        const positionSeconds = Math.round((root.mediaLengthUs * clamped) / 1000000);
-        root.mediaPositionUs = root.mediaLengthUs * clamped;
-        root.runAction("media-seek", [root.mediaPlayer, positionSeconds.toString()]);
+        let positionSeconds = 0;
+        if (root.mediaLengthUs > 0) {
+            positionSeconds = Math.round((root.mediaLengthUs * clamped) / 1000000);
+            root.mediaPositionUs = root.mediaLengthUs * clamped;
+        }
+        root.runMediaAction("media-seek", [player, positionSeconds.toString()]);
     }
 
     function mediaSeekBy(seconds) {
-        if (root.mediaPlayer.length === 0 || root.mediaLengthUs <= 0) {
-            return;
-        }
-        const target = Math.max(0, Math.min(root.mediaLengthUs, root.mediaPositionUs + Number(seconds) * 1000000));
-        root.mediaPositionUs = target;
-        root.runAction("media-seek", [root.mediaPlayer, Math.round(target / 1000000).toString()]);
+        const player = root.mediaPlayer.length > 0 ? root.mediaPlayer : "";
+        const secStr = Math.round(Number(seconds)).toString();
+        root.runMediaAction("media-seek-by", [player, secStr]);
     }
 
     PwObjectTracker {
@@ -619,30 +606,6 @@ Scope {
         }
     }
 
-    Process {
-        id: mediaArtworkServerProcess
-
-        command: Commands.controlsHelperCommand("media-artwork-server")
-        running: true
-
-        stdout: SplitParser {
-            onRead: root.refreshMediaStatus()
-        }
-
-        stderr: StdioCollector {
-            onStreamFinished: {
-                if (this.text.length > 0) {
-                    console.warn("Media artwork bridge error: " + this.text);
-                }
-            }
-        }
-
-        onRunningChanged: {
-            if (!running) {
-                mediaArtworkServerRestartTimer.restart();
-            }
-        }
-    }
 
     Process {
         id: mediaWatchProcess
@@ -723,6 +686,30 @@ Scope {
     }
 
     Process {
+        id: mediaActionProcess
+        running: false
+        onRunningChanged: {
+            if (!running) {
+                root.refreshMediaStatus();
+            }
+        }
+        stderr: StdioCollector {
+            onStreamFinished: {
+                if (this.text.length > 0)
+                    console.warn("Media action error: " + this.text);
+            }
+        }
+    }
+
+    Timer {
+        id: mediaSyncTimer
+        interval: 500
+        running: root.visible
+        repeat: true
+        onTriggered: root.refreshMediaStatus()
+    }
+
+    Process {
         id: batteryStatusProcess
 
         command: Commands.controlsHelperCommand("battery-status")
@@ -752,6 +739,17 @@ Scope {
         onTriggered: {
             if (!batteryStatusProcess.running) {
                 batteryStatusProcess.running = true;
+            }
+        }
+    }
+
+    Timer {
+        interval: 2000
+        running: true
+        repeat: true
+        onTriggered: {
+            if (!brightnessStatusProcess.running) {
+                brightnessStatusProcess.running = true;
             }
         }
     }

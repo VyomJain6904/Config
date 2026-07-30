@@ -40,3 +40,9 @@ func TestTorLogoMapping(t *testing.T) {
 		t.Fatalf("logoMap[tor] = %q", logo)
 	}
 }
+
+func TestHtbLabVpnLogoMapping(t *testing.T) {
+	if logo := logoMap["htblab"]; logo != "htb.svg" {
+		t.Fatalf("logoMap[htblab] = %q", logo)
+	}
+}

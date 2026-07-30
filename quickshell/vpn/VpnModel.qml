@@ -113,6 +113,15 @@ Scope {
         actionProcess.running = true;
     }
 
+    function copyToClipboard(text) {
+        const value = (text || "").toString().trim();
+        if (value.length === 0 || copyProcess.running) {
+            return;
+        }
+        copyProcess.command = Commands.clipboardHelperCommand("copy", [value]);
+        copyProcess.running = true;
+    }
+
     Timer {
         id: vpnRefreshTimer
         interval: root.visible ? 5000 : 15000
@@ -169,5 +178,10 @@ Scope {
                 }
             }
         }
+    }
+
+    Process {
+        id: copyProcess
+        running: false
     }
 }

@@ -143,6 +143,7 @@ PanelWindow {
 
                         RowLayout {
                             id: vpnRow
+                            z: 1
                             anchors.centerIn: parent
                             spacing: Theme.compactSpacing + 4
 
@@ -154,11 +155,27 @@ PanelWindow {
                                 font.pixelSize: 14
                             }
 
-                            UiText {
-                                visible: text.length > 0
-                                text: root.vpnModel ? root.vpnModel.vpnIp : ""
-                                color: Theme.accentSecondary
-                                font.bold: true
+                            Item {
+                                id: vpnIpTarget
+                                visible: root.vpnModel && root.vpnModel.vpnIp.length > 0
+                                z: 1
+                                Layout.preferredWidth: vpnIpText.implicitWidth
+                                Layout.preferredHeight: vpnIpText.implicitHeight
+
+                                UiText {
+                                    id: vpnIpText
+                                    anchors.centerIn: parent
+                                    text: root.vpnModel ? root.vpnModel.vpnIp : ""
+                                    color: Theme.accentSecondary
+                                    font.bold: true
+                                }
+
+                                MouseArea {
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: root.vpnModel.copyToClipboard(vpnIpText.text)
+                                }
                             }
 
                             Item {
@@ -174,11 +191,27 @@ PanelWindow {
                                 font.pixelSize: 14
                             }
 
-                            UiText {
-                                visible: text.length > 0
-                                text: root.vpnModel ? root.vpnModel.targetIp : ""
-                                color: Theme.danger
-                                font.bold: true
+                            Item {
+                                id: vpnTargetIpTarget
+                                visible: root.vpnModel && root.vpnModel.targetIp.length > 0
+                                z: 1
+                                Layout.preferredWidth: vpnTargetIpText.implicitWidth
+                                Layout.preferredHeight: vpnTargetIpText.implicitHeight
+
+                                UiText {
+                                    id: vpnTargetIpText
+                                    anchors.centerIn: parent
+                                    text: root.vpnModel ? root.vpnModel.targetIp : ""
+                                    color: Theme.danger
+                                    font.bold: true
+                                }
+
+                                MouseArea {
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: root.vpnModel.copyToClipboard(vpnTargetIpText.text)
+                                }
                             }
                         }
 

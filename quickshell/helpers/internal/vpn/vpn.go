@@ -31,6 +31,7 @@ const (
 var logoMap = map[string]string{
 	"hackthebox":        "htb.svg",
 	"htb":               "htb.svg",
+	"htblab":            "htb.svg",
 	"tryhackme":         "tryhackme.svg",
 	"thm":               "tryhackme.svg",
 	"pwnedlabs":         "pwnedlabs.svg",

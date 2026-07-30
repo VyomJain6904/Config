@@ -1,0 +1,5 @@
+module qs.controls
+BluetoothModel 1.0 BluetoothModel.qml
+ControlsActionButton 1.0 ControlsActionButton.qml
+ControlsModel 1.0 ControlsModel.qml
+UtilityWindow 1.0 UtilityWindow.qml

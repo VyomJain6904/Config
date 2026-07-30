@@ -1,0 +1,12 @@
+module qs.core
+singleton Commands 1.0 Commands.qml
+FallbackIcon 1.0 FallbackIcon.qml
+IconText 1.0 IconText.qml
+singleton Icons 1.0 Icons.qml
+PanelPill 1.0 PanelPill.qml
+PillShadow 1.0 PillShadow.qml
+SectionLabel 1.0 SectionLabel.qml
+ShellButton 1.0 ShellButton.qml
+ShellSurface 1.0 ShellSurface.qml
+singleton Theme 1.0 Theme.qml
+UiText 1.0 UiText.qml

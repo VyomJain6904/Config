@@ -1,0 +1,4 @@
+module qs.power
+PowerMenuActionButton 1.0 PowerMenuActionButton.qml
+PowerMenuModel 1.0 PowerMenuModel.qml
+PowerMenuWindow 1.0 PowerMenuWindow.qml

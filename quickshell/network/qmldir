@@ -1,0 +1,4 @@
+module qs.network
+NetworkModel 1.0 NetworkModel.qml
+NetworkProfileRow 1.0 NetworkProfileRow.qml
+NetworkWifiRow 1.0 NetworkWifiRow.qml

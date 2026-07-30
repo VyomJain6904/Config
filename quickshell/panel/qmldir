@@ -1,0 +1,5 @@
+module qs.panel
+I3Panel 1.0 I3Panel.qml
+TrayArea 1.0 TrayArea.qml
+TrayItem 1.0 TrayItem.qml
+WorkspaceButton 1.0 WorkspaceButton.qml

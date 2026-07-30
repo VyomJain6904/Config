@@ -27,9 +27,14 @@ Scope {
     property var inputDevices: []
     property string inputDeviceName: ""
     property string micText: "MIC unavailable"
+    property int micPercent: 0
     property string mediaText: "MEDIA none"
     property string mediaPlayer: ""
     property string mediaState: ""
+    property string mediaArtUrl: ""
+    property double mediaLengthUs: 0
+    property double mediaPositionUs: 0
+    property real mediaProgress: mediaLengthUs > 0 ? Math.max(0, Math.min(1, mediaPositionUs / mediaLengthUs)) : 0
     property string bluetoothText: "BT unavailable"
     property string pendingAction: ""
     readonly property var audioSink: Pipewire.defaultAudioSink
@@ -78,6 +83,7 @@ Scope {
 
         const source = root.audioSource;
         if (source !== null && source.ready && source.audio !== null) {
+            root.micPercent = root.clampPercent(source.audio.volume * 100);
             root.micText = source.audio.muted ? "MIC muted" : "MIC on";
         } else {
             root.micText = "MIC unavailable";
@@ -132,12 +138,37 @@ Scope {
     }
 
     function refreshMediaStatus() {
-        if (!root.visible) {
-            return;
-        }
         if (!mediaStatusProcess.running) {
             mediaStatusProcess.running = true;
         }
+    }
+
+    Timer {
+        id: mediaArtworkServerRestartTimer
+
+        interval: 2000
+        repeat: false
+        onTriggered: mediaArtworkServerProcess.running = true
+    }
+
+    Timer {
+        id: mediaWatchRestartTimer
+
+        interval: 2000
+        repeat: false
+        onTriggered: mediaWatchProcess.running = true
+    }
+
+    // The artwork bridge writes current.json independently of the helper
+    // process stdout. Polling keeps the UI synchronized even when Quickshell
+    // has been restarted and an older helper still owns the bridge socket.
+    Timer {
+        id: mediaStatePollTimer
+
+        interval: 1000
+        repeat: true
+        running: root.visible
+        onTriggered: root.refreshMediaStatus()
     }
 
     function refreshBluetoothStatus() {
@@ -162,6 +193,9 @@ Scope {
             root.mediaText = trimmed.length > 0 ? trimmed : "MEDIA none";
             root.mediaPlayer = "";
             root.mediaState = "";
+            root.mediaArtUrl = "";
+            root.mediaLengthUs = 0;
+            root.mediaPositionUs = 0;
             return;
         }
 
@@ -171,7 +205,10 @@ Scope {
         root.mediaState = fields.length > 1 ? fields[1] : "";
 
         const artist = fields.length > 2 ? fields[2] : "";
-        const title = fields.length > 3 ? fields.slice(3).join("\t") : "";
+        const title = fields.length > 3 ? fields[3] : "";
+        root.mediaArtUrl = fields.length > 4 ? fields[4] : "";
+        root.mediaLengthUs = fields.length > 5 ? Math.max(0, Number(fields[5])) : 0;
+        root.mediaPositionUs = fields.length > 6 ? Math.max(0, Number(fields[6])) : 0;
 
         const titleParts = [];
         if (artist.length > 0) {
@@ -329,6 +366,16 @@ Scope {
         root.runAction("volume-toggle-mute");
     }
 
+    function micToggleMute() {
+        root.runAction("mic-toggle-mute");
+    }
+
+    function micSet(percent) {
+        const value = root.clampPercent(percent);
+        root.micPercent = value;
+        root.runAction("mic-set", [value.toString() + "%"]);
+    }
+
     function volumeSet(percent) {
         const value = root.clampPercent(percent);
         root.targetVolume = value;
@@ -394,15 +441,34 @@ Scope {
     }
 
     function mediaPlayPause() {
-        root.runAction("media-play-pause");
+        root.runAction("media-play-pause", [root.mediaPlayer]);
     }
 
     function mediaNext() {
-        root.runAction("media-next");
+        root.runAction("media-next", [root.mediaPlayer]);
     }
 
     function mediaPrevious() {
-        root.runAction("media-previous");
+        root.runAction("media-previous", [root.mediaPlayer]);
+    }
+
+    function mediaSeek(progress) {
+        if (root.mediaPlayer.length === 0 || root.mediaLengthUs <= 0) {
+            return;
+        }
+        const clamped = Math.max(0, Math.min(1, Number(progress)));
+        const positionSeconds = Math.round((root.mediaLengthUs * clamped) / 1000000);
+        root.mediaPositionUs = root.mediaLengthUs * clamped;
+        root.runAction("media-seek", [root.mediaPlayer, positionSeconds.toString()]);
+    }
+
+    function mediaSeekBy(seconds) {
+        if (root.mediaPlayer.length === 0 || root.mediaLengthUs <= 0) {
+            return;
+        }
+        const target = Math.max(0, Math.min(root.mediaLengthUs, root.mediaPositionUs + Number(seconds) * 1000000));
+        root.mediaPositionUs = target;
+        root.runAction("media-seek", [root.mediaPlayer, Math.round(target / 1000000).toString()]);
     }
 
     PwObjectTracker {
@@ -522,6 +588,10 @@ Scope {
                 if (source === null || !source.ready || source.audio === null) {
                     const text = this.text.trim();
                     root.micText = text.length > 0 ? text : "MIC unavailable";
+                    const match = text.match(/([0-9]+)%/);
+                    if (match !== null) {
+                        root.micPercent = root.clampPercent(parseInt(match[1], 10));
+                    }
                 }
             }
         }
@@ -546,6 +616,56 @@ Scope {
 
         stdout: StdioCollector {
             onStreamFinished: root.parseInputDevices(this.text)
+        }
+    }
+
+    Process {
+        id: mediaArtworkServerProcess
+
+        command: Commands.controlsHelperCommand("media-artwork-server")
+        running: true
+
+        stdout: SplitParser {
+            onRead: root.refreshMediaStatus()
+        }
+
+        stderr: StdioCollector {
+            onStreamFinished: {
+                if (this.text.length > 0) {
+                    console.warn("Media artwork bridge error: " + this.text);
+                }
+            }
+        }
+
+        onRunningChanged: {
+            if (!running) {
+                mediaArtworkServerRestartTimer.restart();
+            }
+        }
+    }
+
+    Process {
+        id: mediaWatchProcess
+
+        command: Commands.controlsHelperCommand("media-watch")
+        running: true
+
+        stdout: SplitParser {
+            onRead: root.refreshMediaStatus()
+        }
+
+        stderr: StdioCollector {
+            onStreamFinished: {
+                if (this.text.length > 0) {
+                    console.warn("Media watch error: " + this.text);
+                }
+            }
+        }
+
+        onRunningChanged: {
+            if (!running) {
+                mediaWatchRestartTimer.restart();
+            }
         }
     }
 
@@ -612,6 +732,16 @@ Scope {
             onStreamFinished: {
                 root.parseBattery(this.text);
             }
+        }
+    }
+
+    Timer {
+        id: mediaProgressTimer
+        interval: 1000
+        running: root.mediaState === "Playing" && root.mediaLengthUs > 0
+        repeat: true
+        onTriggered: {
+            root.mediaPositionUs = Math.min(root.mediaLengthUs, root.mediaPositionUs + 1000000);
         }
     }
 

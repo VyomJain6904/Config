@@ -35,6 +35,10 @@ Singleton {
         return helperCmd("vpn", action, args)
     }
 
+    function clipboardHelperCommand(action, args) {
+        return helperCmd("clipboard", action, args)
+    }
+
     // ── Calendar (Google Calendar API) ────────────────────────────────
     function calendarHelperCommand(action, args) {
         return helperCmd("calendar", action, args)

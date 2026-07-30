@@ -29,7 +29,13 @@ FloatingWindow {
     readonly property int volumeControlHeight: 46
     readonly property int volumePercentWidth: 42
     readonly property int muteButtonWidth: 84
-    readonly property int outputDeviceRowHeight: 34
+    // The media card has 12px side margins plus the popup/content padding.
+    // Keep the preview at 16:9 using the actual usable menu width.
+    readonly property int mediaThumbnailHeight: Math.round((popupWidth - 60) * 9 / 16)
+    readonly property int outputDeviceRowHeight: 32
+    readonly property int outputDeviceListMaxHeight: 68
+    readonly property int inputDeviceListMaxHeight: 68
+    readonly property int deviceListReservedHeight: outputDeviceRowHeight * 2 + Theme.compactSpacing
     readonly property string workspaceIconRoot: "file:///usr/share/icons/MacTahoe/"
     readonly property string workspaceFallbackIcon: workspaceIconRoot + "apps/scalable/preferences-system.svg"
     readonly property var workspaceIconMap: ({
@@ -269,7 +275,7 @@ FloatingWindow {
             return 1;
         }
         if (root.activeTab === "audio") {
-            return 2 + root.controlsModel.outputDevices.length + root.controlsModel.inputDevices.length + 3;
+            return 3 + root.controlsModel.outputDevices.length + root.controlsModel.inputDevices.length + 3;
         }
         return 1;
     }
@@ -374,15 +380,19 @@ FloatingWindow {
         if (root.activeTab === "audio") {
             const outputStart = 2;
             const inputStart = outputStart + root.controlsModel.outputDevices.length;
-            const mediaStart = inputStart + root.controlsModel.inputDevices.length;
+            const micIndex = inputStart;
+            const inputDeviceStart = micIndex + 1;
+            const mediaStart = inputDeviceStart + root.controlsModel.inputDevices.length;
             if (root.selectedIndex === 0) {
                 Qt.callLater(() => volumePercentInput.forceActiveFocus());
             } else if (root.selectedIndex === 1) {
                 root.controlsModel.volumeToggleMute();
             } else if (root.selectedIndex >= outputStart && root.selectedIndex < inputStart) {
                 root.controlsModel.outputSetDefault(root.controlsModel.outputDevices[root.selectedIndex - outputStart].name);
-            } else if (root.selectedIndex >= inputStart && root.selectedIndex < mediaStart) {
-                root.controlsModel.inputSetDefault(root.controlsModel.inputDevices[root.selectedIndex - inputStart].name);
+            } else if (root.selectedIndex === micIndex) {
+                root.controlsModel.micToggleMute();
+            } else if (root.selectedIndex >= inputDeviceStart && root.selectedIndex < mediaStart) {
+                root.controlsModel.inputSetDefault(root.controlsModel.inputDevices[root.selectedIndex - inputDeviceStart].name);
             } else if (root.selectedIndex === mediaStart && root.controlsModel.mediaPlayer.length > 0) {
                 root.controlsModel.mediaPrevious();
             } else if (root.selectedIndex === mediaStart + 1 && root.controlsModel.mediaPlayer.length > 0) {
@@ -412,6 +422,11 @@ FloatingWindow {
     function setVolumePendingFromX(x) {
         volumeSlider.pendingPercent = volumeSlider.percentFromX(x);
         root.controlsModel.volumeSet(volumeSlider.pendingPercent);
+    }
+
+    function setMicFromX(x, width) {
+        const value = Math.max(0, Math.min(100, Math.round((x / Math.max(1, width)) * 100)));
+        root.controlsModel.micSet(value);
     }
 
     function setBrightnessPendingFromX(x) {
@@ -1697,7 +1712,7 @@ FloatingWindow {
                 Layout.fillWidth: true
                 Layout.alignment: Qt.AlignTop
                 visible: root.activeTab === "audio"
-                spacing: root.contentSpacing
+                spacing: Theme.compactSpacing
 
                 SectionLabel {
                     label: "Volume"
@@ -1807,8 +1822,9 @@ FloatingWindow {
                     }
 
                     ControlsActionButton {
-                        Layout.preferredWidth: root.muteButtonWidth
-                        Layout.preferredHeight: root.volumeControlHeight
+                        Layout.preferredWidth: implicitWidth
+                        Layout.preferredHeight: Theme.buttonHeight
+                        Layout.alignment: Qt.AlignVCenter
                         label: root.controlsModel.volumeMuted ? "Unmute" : "Mute"
                         enabled: !root.controlsModel.busy
                         selected: root.activeTab === "audio" && root.selectedIndex === 1
@@ -1832,14 +1848,17 @@ FloatingWindow {
                 }
 
                 ListView {
+                    id: outputDeviceList
+
                     Layout.fillWidth: true
-                    Layout.preferredHeight: Math.min(150, Math.max(0, contentHeight))
+                    Layout.preferredHeight: Math.min(root.outputDeviceListMaxHeight, Math.max(root.deviceListReservedHeight, contentHeight))
                     clip: true
                     spacing: Theme.compactSpacing
                     visible: root.controlsModel.outputDevices.length > 0
                     model: root.controlsModel.outputDevices
                     ScrollBar.vertical: ScrollBar {
-                        active: true
+                        active: outputDeviceList.contentHeight > outputDeviceList.height
+                        policy: ScrollBar.AsNeeded
                         width: 4
                     }
 
@@ -1900,20 +1919,110 @@ FloatingWindow {
                     }
                 }
 
-                RowLayout {
+                Item {
                     Layout.fillWidth: true
-                    spacing: root.rowSpacing
+                    Layout.preferredHeight: root.volumeControlHeight
 
                     SectionLabel {
+                        anchors.left: parent.left
+                        anchors.verticalCenter: parent.verticalCenter
                         label: "Microphone"
                     }
 
                     Text {
+                        anchors.centerIn: parent
+                        width: Math.max(80, parent.width - 240)
+                        height: parent.height
                         text: root.controlsModel.micText
                         color: root.controlsModel.micText === "MIC muted" ? Theme.danger : Theme.text
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.panelFontSize
                         font.bold: true
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                        elide: Text.ElideRight
+                    }
+
+                    ControlsActionButton {
+                        anchors.right: parent.right
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: implicitWidth
+                        height: Theme.buttonHeight
+                        label: root.controlsModel.micText === "MIC muted" ? "Unmute Mic" : "Mute Mic"
+                        enabled: !root.controlsModel.busy
+                        selected: root.activeTab === "audio" && root.selectedIndex === 2 + root.controlsModel.outputDevices.length
+                        onActivated: root.controlsModel.micToggleMute()
+                    }
+                }
+
+                Item {
+                    id: micSlider
+
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 28
+
+                    Item {
+                        id: micTrack
+                        anchors.left: parent.left
+                        anchors.right: micPercentLabel.left
+                        anchors.rightMargin: root.rowSpacing
+                        anchors.verticalCenter: parent.verticalCenter
+                        height: parent.height
+
+                        Rectangle {
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.verticalCenter: parent.verticalCenter
+                            height: 8
+                            color: Theme.surface
+                            radius: Theme.radius
+
+                            Rectangle {
+                                width: Math.round((root.controlsModel.micPercent / 100) * parent.width)
+                                height: parent.height
+                                color: root.controlsModel.micText === "MIC muted" ? Theme.textMuted : Theme.accent
+                                radius: parent.radius
+                            }
+                        }
+
+                        Rectangle {
+                            width: 20
+                            height: 20
+                            x: Math.max(0, Math.min(parent.width - width, Math.round((root.controlsModel.micPercent / 100) * parent.width) - width / 2))
+                            y: parent.height / 2 - height / 2
+                            color: micMouse.enabled ? Theme.text : Theme.textMuted
+                            border.color: Theme.border
+                            border.width: 1
+                            radius: height / 2
+                        }
+
+                        MouseArea {
+                            id: micMouse
+                            anchors.fill: parent
+                            enabled: !root.controlsModel.busy
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onPressed: function (mouse) { root.setMicFromX(mouse.x, width); }
+                            onPositionChanged: function (mouse) {
+                                if (pressed) {
+                                    root.setMicFromX(mouse.x, width);
+                                }
+                            }
+                        }
+                    }
+
+                    Text {
+                        id: micPercentLabel
+                        anchors.right: parent.right
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: root.volumePercentWidth
+                        text: root.controlsModel.micPercent + "%"
+                        color: Theme.text
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.smallFontSize
+                        font.bold: true
+                        horizontalAlignment: Text.AlignRight
+                        verticalAlignment: Text.AlignVCenter
                     }
                 }
 
@@ -1929,14 +2038,17 @@ FloatingWindow {
                 }
 
                 ListView {
+                    id: inputDeviceList
+
                     Layout.fillWidth: true
-                    Layout.preferredHeight: Math.min(150, Math.max(0, contentHeight))
+                    Layout.preferredHeight: Math.min(root.inputDeviceListMaxHeight, Math.max(root.deviceListReservedHeight, contentHeight))
                     clip: true
                     spacing: Theme.compactSpacing
                     visible: root.controlsModel.inputDevices.length > 0
                     model: root.controlsModel.inputDevices
                     ScrollBar.vertical: ScrollBar {
-                        active: true
+                        active: inputDeviceList.contentHeight > inputDeviceList.height
+                        policy: ScrollBar.AsNeeded
                         width: 4
                     }
 
@@ -1945,7 +2057,7 @@ FloatingWindow {
 
                         required property int index
                         required property var modelData
-                        readonly property int inputSelectionIndex: index + 2 + root.controlsModel.outputDevices.length
+                        readonly property int inputSelectionIndex: index + 3 + root.controlsModel.outputDevices.length
                         readonly property bool selected: root.activeTab === "audio" && root.selectedIndex === inputSelectionIndex
 
                         width: ListView.view.width
@@ -2004,140 +2116,166 @@ FloatingWindow {
 
                 Rectangle {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 54
+                    Layout.preferredHeight: root.mediaThumbnailHeight + 64
                     color: Theme.surface
                     radius: Theme.radius
                     border.color: Theme.border
                     border.width: 1
 
-                    Column {
-                        anchors.left: parent.left
-                        anchors.right: parent.right
-                        anchors.verticalCenter: parent.verticalCenter
+                    ColumnLayout {
+                        anchors.fill: parent
                         anchors.leftMargin: 12
                         anchors.rightMargin: 12
+                        anchors.topMargin: 12
+                        anchors.bottomMargin: 12
                         spacing: Theme.compactSpacing
 
-                        Item {
-                            id: mediaMarquee
-                            width: parent.width
-                            height: mediaTitleText.implicitHeight
+                        Rectangle {
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: root.mediaThumbnailHeight
                             clip: true
+                            color: Theme.barBackground
+                            radius: Theme.radius
+                            border.color: Theme.border
+                            border.width: 1
 
-                            Text {
-                                id: mediaTitleText
-                                text: root.controlsModel.mediaText
-                                color: Theme.text
-                                font.family: Theme.fontFamily
-                                font.pixelSize: Theme.panelFontSize
-                                font.bold: true
+                            Image {
+                                id: mediaThumbnail
+                                anchors.centerIn: parent
+                                source: root.controlsModel.mediaArtUrl
+                                asynchronous: true
+                                // Artwork paths are managed by the bridge and
+                                // may be replaced while a browser player stays
+                                // active. Do not let Qt retain a deleted MPRIS
+                                // file or an older image for the same source.
+                                cache: false
+                                fillMode: Image.PreserveAspectFit
+                                smooth: true
+                                mipmap: true
+                                width: parent.width
+                                height: parent.height
+                                visible: source.toString().length > 0 && status === Image.Ready
+                            }
+
+                            Image {
+                                anchors.centerIn: parent
+                                visible: !mediaThumbnail.visible
+                                width: 42
+                                height: 42
+                                source: "file:///usr/share/icons/MacTahoe/apps/scalable/multimedia.svg"
+                                asynchronous: true
+                                fillMode: Image.PreserveAspectFit
+                            }
+                        }
+
+                        Item {
+                            id: mediaProgressBar
+
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: 16
+                            Layout.alignment: Qt.AlignVCenter
+
+                            function progressFromX(x) {
+                                return Math.max(0, Math.min(1, x / Math.max(1, width)));
+                            }
+
+                            Rectangle {
+                                anchors.left: parent.left
+                                anchors.right: parent.right
                                 anchors.verticalCenter: parent.verticalCenter
-                                x: mediaAnim.running ? mediaAnim.from : ((parent.width - implicitWidth) / 2)
-                            }
+                                height: 6
+                                color: Theme.barBackground
+                                radius: height / 2
+                                border.color: Theme.border
+                                border.width: 1
 
-                            NumberAnimation {
-                                id: mediaAnim
-                                target: mediaTitleText
-                                property: "x"
-                                from: mediaMarquee.width
-                                to: -mediaTitleText.implicitWidth
-                                duration: Math.max(3000, mediaTitleText.implicitWidth * 30)
-                                loops: 1
-                            }
-
-                            Timer {
-                                id: mediaStartTimer
-                                interval: 1000
-                                running: false
-                                repeat: false
-                                onTriggered: {
-                                    if (root.controlsModel.mediaState === "Playing" && mediaTitleText.implicitWidth > mediaMarquee.width) {
-                                        mediaTitleText.x = mediaMarquee.width;
-                                        mediaAnim.start();
-                                    }
+                                Rectangle {
+                                    width: Math.round(root.controlsModel.mediaProgress * parent.width)
+                                    height: parent.height
+                                    color: root.controlsModel.mediaPlayer.length > 0 ? Theme.accent : Theme.textMuted
+                                    radius: parent.radius
                                 }
                             }
 
-                            function startMarquee() {
-                                if (mediaAnim.running || mediaStartTimer.running)
-                                    return;
-                                mediaTitleText.x = mediaMarquee.width;
-                                mediaStartTimer.restart();
-                            }
-
-                            function stopMarquee() {
-                                mediaAnim.stop();
-                                mediaTitleText.x = (mediaMarquee.width - mediaTitleText.implicitWidth) / 2;
-                            }
-
-                            Connections {
-                                target: root.controlsModel
-                                function onMediaStateChanged() {
-                                    if (root.controlsModel.mediaState === "Playing") {
-                                        mediaMarquee.startMarquee();
-                                    } else {
-                                        mediaMarquee.stopMarquee();
+                            MouseArea {
+                                id: mediaProgressMouse
+                                anchors.fill: parent
+                                enabled: !root.controlsModel.busy && root.controlsModel.mediaLengthUs > 0
+                                hoverEnabled: true
+                                cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+                                onPressed: function (mouse) {
+                                    root.controlsModel.mediaPositionUs = root.controlsModel.mediaLengthUs * mediaProgressBar.progressFromX(mouse.x);
+                                }
+                                onPositionChanged: function (mouse) {
+                                    if (pressed) {
+                                        root.controlsModel.mediaPositionUs = root.controlsModel.mediaLengthUs * mediaProgressBar.progressFromX(mouse.x);
                                     }
                                 }
-
-                                function onMediaTextChanged() {
-                                    if (root.controlsModel.mediaState === "Playing") {
-                                        mediaMarquee.startMarquee();
-                                    } else {
-                                        mediaMarquee.stopMarquee();
-                                    }
-                                }
-                            }
-
-                            onWidthChanged: {
-                                if (root.controlsModel.mediaState === "Playing" && mediaTitleText.implicitWidth > width) {
-                                    mediaMarquee.startMarquee();
-                                } else {
-                                    mediaMarquee.stopMarquee();
+                                onReleased: function (mouse) {
+                                    root.controlsModel.mediaSeek(mediaProgressBar.progressFromX(mouse.x));
                                 }
                             }
                         }
-                    }
 
-                    MouseArea {
-                        anchors.fill: parent
-                        enabled: root.controlsModel.mediaState === "Playing"
-                        cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
-                        onClicked: mediaMarquee.startMarquee()
+                        RowLayout {
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: 28
+                            Layout.alignment: Qt.AlignHCenter
+                            spacing: Theme.compactSpacing
+
+                            ControlsActionButton {
+                                Layout.preferredWidth: 48
+                                Layout.preferredHeight: 26
+                                label: "−5s"
+                                labelPixelSize: 11
+                                enabled: !root.controlsModel.busy && root.controlsModel.mediaPlayer.length > 0
+                                onActivated: root.controlsModel.mediaSeekBy(-5)
+                            }
+
+                            ControlsActionButton {
+                                Layout.preferredWidth: 48
+                                Layout.preferredHeight: 26
+                                label: ""
+                                labelFontFamily: Theme.iconFontFamily
+                                labelPixelSize: 13
+                                enabled: !root.controlsModel.busy && root.controlsModel.mediaPlayer.length > 0
+                                selected: root.activeTab === "audio" && root.selectedIndex === 3 + root.controlsModel.outputDevices.length + root.controlsModel.inputDevices.length
+                                onActivated: root.controlsModel.mediaPrevious()
+                            }
+
+                            ControlsActionButton {
+                                Layout.preferredWidth: 48
+                                Layout.preferredHeight: 26
+                                label: root.controlsModel.mediaState === "Playing" ? "" : ""
+                                labelFontFamily: Theme.iconFontFamily
+                                labelPixelSize: 13
+                                enabled: !root.controlsModel.busy && root.controlsModel.mediaPlayer.length > 0
+                                selected: root.activeTab === "audio" && root.selectedIndex === 4 + root.controlsModel.outputDevices.length + root.controlsModel.inputDevices.length
+                                onActivated: root.controlsModel.mediaPlayPause()
+                            }
+
+                            ControlsActionButton {
+                                Layout.preferredWidth: 48
+                                Layout.preferredHeight: 26
+                                label: ""
+                                labelFontFamily: Theme.iconFontFamily
+                                labelPixelSize: 13
+                                enabled: !root.controlsModel.busy && root.controlsModel.mediaPlayer.length > 0
+                                selected: root.activeTab === "audio" && root.selectedIndex === 5 + root.controlsModel.outputDevices.length + root.controlsModel.inputDevices.length
+                                onActivated: root.controlsModel.mediaNext()
+                            }
+
+                            ControlsActionButton {
+                                Layout.preferredWidth: 48
+                                Layout.preferredHeight: 26
+                                label: "+5s"
+                                labelPixelSize: 11
+                                enabled: !root.controlsModel.busy && root.controlsModel.mediaPlayer.length > 0
+                                onActivated: root.controlsModel.mediaSeekBy(5)
+                            }
+                        }
                     }
                 }
-
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: Theme.listSpacing * 2
-
-                    ControlsActionButton {
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: root.actionButtonHeight
-                        label: "Previous"
-                        enabled: !root.controlsModel.busy && root.controlsModel.mediaPlayer.length > 0
-                        selected: root.activeTab === "audio" && root.selectedIndex === 2 + root.controlsModel.outputDevices.length + root.controlsModel.inputDevices.length
-                        onActivated: root.controlsModel.mediaPrevious()
-                    }
-
-                    ControlsActionButton {
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: root.actionButtonHeight
-                        label: "Play/Pause"
-                        enabled: !root.controlsModel.busy && root.controlsModel.mediaPlayer.length > 0
-                        selected: root.activeTab === "audio" && root.selectedIndex === 3 + root.controlsModel.outputDevices.length + root.controlsModel.inputDevices.length
-                        onActivated: root.controlsModel.mediaPlayPause()
-                    }
-
-                    ControlsActionButton {
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: root.actionButtonHeight
-                        label: "Next"
-                        enabled: !root.controlsModel.busy && root.controlsModel.mediaPlayer.length > 0
-                        selected: root.activeTab === "audio" && root.selectedIndex === 4 + root.controlsModel.outputDevices.length + root.controlsModel.inputDevices.length
-                        onActivated: root.controlsModel.mediaNext()
-                    }
-                } // RowLayout
             } // Audio ColumnLayout
 
             // CALENDAR CONTENT CONTAINER (Static Month Grid + Independent Scrollable Event List)

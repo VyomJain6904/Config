@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"quickshell/helpers/internal/calendar"
+	"quickshell/helpers/internal/clipboard"
 	"quickshell/helpers/internal/controls"
 	"quickshell/helpers/internal/network"
 	"quickshell/helpers/internal/vpn"
@@ -12,12 +13,14 @@ import (
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "usage: qs-helper <controls|network|vpn|calendar> [action] [args...]")
+		fmt.Fprintln(os.Stderr, "usage: qs-helper <clipboard|controls|network|vpn|calendar> [action] [args...]")
 		os.Exit(2)
 	}
 
 	var code int
 	switch os.Args[1] {
+	case "clipboard":
+		code = clipboard.Run(os.Args[2:])
 	case "controls":
 		code = controls.Run(os.Args[2:])
 	case "network":

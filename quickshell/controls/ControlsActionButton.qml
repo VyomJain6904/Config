@@ -6,9 +6,13 @@ Rectangle {
 
     required property string label
     property bool selected: false
+    property string labelFontFamily: Theme.fontFamily
+    property int labelPixelSize: Theme.panelFontSize
 
     signal activated
 
+    implicitWidth: buttonLabel.implicitWidth + 18
+    implicitHeight: Theme.buttonHeight
     radius: Theme.radius
     color: selected ? Theme.surfaceActive : (controlMouse.containsMouse && root.enabled ? Theme.surfaceHover : Theme.surface)
     border.color: selected ? Theme.accent : Theme.border
@@ -16,11 +20,13 @@ Rectangle {
     opacity: root.enabled ? 1 : 0.5
 
     Text {
+        id: buttonLabel
+
         anchors.centerIn: parent
         text: root.label
         color: Theme.text
-        font.family: Theme.fontFamily
-        font.pixelSize: Theme.panelFontSize
+        font.family: root.labelFontFamily
+        font.pixelSize: root.labelPixelSize
         font.bold: true
         elide: Text.ElideRight
     }

@@ -46,6 +46,13 @@ func Run(argv []string) int {
 		_ = common.RunAttached("wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", amount)
 	case "volume-toggle-mute":
 		_ = common.RunAttached("wpctl", "set-mute", "@DEFAULT_AUDIO_SINK@", "toggle")
+	case "mic-toggle-mute":
+		_ = common.RunAttached("wpctl", "set-mute", "@DEFAULT_AUDIO_SOURCE@", "toggle")
+	case "mic-set":
+		if len(args) > 0 {
+			value := strings.TrimSuffix(args[0], "%")
+			_ = common.RunAttached("wpctl", "set-volume", "@DEFAULT_AUDIO_SOURCE@", value+"%")
+		}
 	case "volume-set":
 		if len(args) > 0 {
 			value := strings.TrimSuffix(args[0], "%")
@@ -84,22 +91,20 @@ func Run(argv []string) int {
 		}
 	case "media-status":
 		mediaStatus()
+	case "media-artwork-server":
+		return mediaArtworkServer()
 	case "media-watch":
-		err := common.ReplaceProcess(
-			"playerctl",
-			"--follow", "--all-players", "metadata",
-			"--format", "{{playerName}}\t{{status}}\t{{xesam:artist}}\t{{xesam:title}}",
-		)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			return 1
-		}
+		mediaWatch()
 	case "media-play-pause":
-		_ = common.RunAttached("playerctl", "play-pause")
+		_ = common.RunAttached("playerctl", mediaPlayerArgs(firstOr(args, ""), "play-pause")...)
 	case "media-next":
-		_ = common.RunAttached("playerctl", "next")
+		_ = common.RunAttached("playerctl", mediaPlayerArgs(firstOr(args, ""), "next")...)
 	case "media-previous":
-		_ = common.RunAttached("playerctl", "previous")
+		_ = common.RunAttached("playerctl", mediaPlayerArgs(firstOr(args, ""), "previous")...)
+	case "media-seek":
+		if len(args) > 1 {
+			_ = common.RunAttached("playerctl", mediaPlayerArgs(args[0], "position", args[1])...)
+		}
 	case "bluetooth-status":
 		bluetoothStatus()
 	case "bluetooth-devices":
@@ -158,13 +163,20 @@ func brightnessStatus() {
 
 func micStatus() {
 	out := common.RunOutput(commandTimeout, "wpctl", "get-volume", "@DEFAULT_AUDIO_SOURCE@")
+	match := volumePattern.FindStringSubmatch(out)
+	percent := "0"
+	if len(match) > 1 {
+		if value, err := strconv.ParseFloat(match[1], 64); err == nil {
+			percent = strconv.Itoa(min(100, int(math.Round(value*100))))
+		}
+	}
 	switch {
 	case strings.TrimSpace(out) == "":
 		fmt.Println("MIC unavailable")
 	case strings.Contains(out, "[MUTED]"):
-		fmt.Println("MIC muted")
+		fmt.Printf("MIC muted %s%%\n", percent)
 	default:
-		fmt.Println("MIC on")
+		fmt.Printf("MIC on %s%%\n", percent)
 	}
 }
 
@@ -252,11 +264,157 @@ func mediaStatus() {
 		fmt.Println("MEDIA none")
 		return
 	}
-	player := players[0]
-	state := strings.TrimSpace(common.RunOutput(commandTimeout, "playerctl", "-p", player, "status"))
-	artist := strings.TrimSpace(common.RunOutput(commandTimeout, "playerctl", "-p", player, "metadata", "xesam:artist"))
-	title := strings.TrimSpace(common.RunOutput(commandTimeout, "playerctl", "-p", player, "metadata", "xesam:title"))
-	fmt.Printf("%s\t%s\t%s\t%s\n", player, state, artist, title)
+
+	type candidate struct {
+		player string
+		state  string
+		artist string
+		title  string
+		artURL string
+		url    string
+		length string
+		pos    string
+		score  int
+	}
+
+	best := candidate{score: -1}
+	for _, player := range players {
+		result := common.Run(
+			commandTimeout,
+			"playerctl",
+			"-p", player,
+			"metadata",
+			"--format", "{{playerName}}\t{{status}}\t{{xesam:artist}}\t{{xesam:title}}\t{{mpris:artUrl}}\t{{xesam:url}}\t{{mpris:length}}\t{{position}}",
+		)
+		if result.Code != 0 {
+			continue
+		}
+		fields := strings.Split(strings.TrimSpace(result.Stdout), "\t")
+		if len(fields) < 2 {
+			continue
+		}
+
+		item := candidate{
+			player: player,
+			state:  strings.TrimSpace(fields[1]),
+		}
+		if len(fields) > 2 {
+			item.artist = strings.TrimSpace(fields[2])
+		}
+		if len(fields) > 3 {
+			item.title = strings.TrimSpace(fields[3])
+		}
+		if len(fields) > 4 {
+			item.artURL = strings.TrimSpace(fields[4])
+		}
+		if len(fields) > 5 {
+			item.url = strings.TrimSpace(fields[5])
+		}
+		if len(fields) > 6 {
+			item.length = strings.TrimSpace(fields[6])
+		}
+		if len(fields) > 7 {
+			item.pos = strings.TrimSpace(fields[7])
+		}
+
+		if item.title == "" && !browserMediaPlayer(item.player) {
+			item.title = localMediaTitle(item.url)
+		}
+
+		switch item.state {
+		case "Playing":
+			item.score = 3
+		case "Paused":
+			item.score = 2
+		case "Stopped":
+			item.score = 0
+		default:
+			item.score = 1
+		}
+		if item.title != "" || item.artist != "" {
+			item.score++
+		}
+		if item.score > best.score {
+			best = item
+		}
+	}
+
+	if best.score < 0 {
+		fmt.Println("MEDIA none")
+		return
+	}
+	if browserMediaPlayer(best.player) {
+		if artworkPath, artworkTitle, ok := readCurrentArtwork(best.title); ok {
+			best.artURL = artworkPath
+			if placeholderArtworkTitle(best.title) && artworkTitle != "" {
+				best.title = artworkTitle
+			}
+		} else if !highQualityArtworkURL(best.artURL) {
+			// Do not enlarge Chromium's tiny MPRIS icon while the browser artwork
+			// bridge is resolving the real page thumbnail.
+			best.artURL = ""
+		}
+	} else if best.artURL == "" {
+		best.artURL = localMediaArtwork(best.url)
+	}
+	fmt.Printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\n", best.player, best.state, best.artist, best.title, best.artURL, best.length, best.pos)
+}
+
+func mediaWatch() {
+	const metadataFormat = "{{playerName}}\t{{status}}\t{{xesam:artist}}\t{{xesam:title}}\t{{mpris:artUrl}}\t{{xesam:url}}\t{{mpris:length}}\t{{position}}"
+	lockPath := filepath.Join(mediaArtworkRuntimeDir(), "media-watch.lock")
+	for {
+		release, acquired, err := common.TryFileLock(lockPath)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "media watch lock: %v\n", err)
+			return
+		}
+		if acquired {
+			defer release()
+			break
+		}
+		time.Sleep(2 * time.Second)
+	}
+
+	last := make(map[string]string)
+	ticker := time.NewTicker(1 * time.Second)
+	defer ticker.Stop()
+
+	for {
+		playersText := common.RunOutput(commandTimeout, "playerctl", "-l")
+		seen := make(map[string]bool)
+		for _, player := range strings.Split(playersText, "\n") {
+			player = strings.TrimSpace(player)
+			if player == "" {
+				continue
+			}
+			seen[player] = true
+			result := common.Run(commandTimeout, "playerctl", "-p", player, "metadata", "--format", metadataFormat)
+			if result.Code != 0 {
+				continue
+			}
+			line := strings.TrimSpace(result.Stdout)
+			if line == "" || line == last[player] {
+				continue
+			}
+			last[player] = line
+			fmt.Println(line)
+		}
+
+		for player := range last {
+			if !seen[player] {
+				delete(last, player)
+			}
+		}
+		<-ticker.C
+	}
+}
+
+func mediaPlayerArgs(player string, args ...string) []string {
+	if player == "" {
+		return args
+	}
+	return append([]string{"-p", player}, args...)
 }
 
 func bluetoothStatus() {

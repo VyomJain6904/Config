@@ -144,6 +144,29 @@ func FileExists(path string) bool {
 	return err == nil && !info.IsDir()
 }
 
+// TryFileLock obtains a kernel-backed advisory lock that is released when the
+// process exits. Unlike a PID file, this also recovers safely from crashes.
+func TryFileLock(path string) (func(), bool, error) {
+	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
+		return nil, false, err
+	}
+	file, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0o600)
+	if err != nil {
+		return nil, false, err
+	}
+	if err := syscall.Flock(int(file.Fd()), syscall.LOCK_EX|syscall.LOCK_NB); err != nil {
+		_ = file.Close()
+		if errors.Is(err, syscall.EWOULDBLOCK) {
+			return nil, false, nil
+		}
+		return nil, false, err
+	}
+	return func() {
+		_ = syscall.Flock(int(file.Fd()), syscall.LOCK_UN)
+		_ = file.Close()
+	}, true, nil
+}
+
 func ExecutableExists(name string) bool {
 	_, err := exec.LookPath(name)
 	return err == nil

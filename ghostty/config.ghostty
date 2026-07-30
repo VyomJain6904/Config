@@ -1,13 +1,12 @@
 # Theme
-theme = Dracula
-background = #000000
+theme = iTerm2 Tango Dark
 
 # Terminal Render Config
 term = xterm-256color
 
 # Font
 font-family = JetBrainsMono Nerd Font
-font-size = 10
+font-size = 14
 bold-is-bright = true
 
 # Cursor

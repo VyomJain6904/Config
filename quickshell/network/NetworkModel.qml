@@ -8,6 +8,7 @@ Scope {
 
     property bool visible: false
     property bool busy: false
+    property bool scanning: false
     property bool editorAvailable: false
     property int selectedWifiIndex: -1
     property string statusText: "NET offline"
@@ -24,9 +25,25 @@ Scope {
     property var hotspotClients: []
     property var connections: []
     property var wifiNetworks: []
+    property var savedNetworks: []
 
-    readonly property var activeConnections: root.connections.filter(function(profile) {
-        return profile.active && profile.name !== "lo" && profile.name !== "Quickshell Hotspot" && !profile.name.startsWith("docker");
+    property int passwordAttempts: 0
+    property bool connectingWithPassword: false
+    property bool testingSpeed: false
+    property string speedPing: "-- ms"
+    property string speedDownload: "-- Mbps"
+    property string speedUpload: "-- Mbps"
+
+    property bool sharingWifi: false
+    property string shareSsid: ""
+    property string sharePassword: ""
+    property string shareQrPath: ""
+    property bool showSharePassword: false
+
+    signal passwordFailed(int attempt)
+
+    readonly property var activeConnections: root.connections.filter(function (profile) {
+        return profile.active && profile.name !== "lo" && profile.name !== "Quickshell Hotspot" && !profile.name.startsWith("docker") && !profile.name.startsWith("br-") && (profile.type === "802-11-wireless" || profile.type === "wifi" || profile.type === "wireless");
     })
 
     function open() {
@@ -34,7 +51,7 @@ Scope {
         if (!editorCheckProcess.running) {
             editorCheckProcess.running = true;
         }
-        root.refresh(true);
+        root.refresh(false);
     }
 
     function close() {
@@ -43,6 +60,22 @@ Scope {
         root.message = "";
         root.wifiPassword = "";
         root.editingHotspot = false;
+        wifiScanPoller.stop();
+        root.scanning = false;
+        root.wifiNetworks = [];
+        root.speedPing = "-- ms";
+        root.speedDownload = "-- Mbps";
+        root.speedUpload = "-- Mbps";
+        root.sharingWifi = false;
+        root.showSharePassword = false;
+    }
+
+    onVisibleChanged: {
+        if (!root.visible) {
+            root.speedPing = "-- ms";
+            root.speedDownload = "-- Mbps";
+            root.speedUpload = "-- Mbps";
+        }
     }
 
     function toggle() {
@@ -51,6 +84,29 @@ Scope {
         } else {
             root.open();
         }
+    }
+
+    function shareActiveWifi() {
+        root.sharingWifi = false;
+        root.showSharePassword = false;
+        root.shareSsid = "";
+        root.sharePassword = "";
+        root.shareQrPath = "";
+        wifiShareProcess.running = true;
+    }
+
+    function closeShare() {
+        root.sharingWifi = false;
+        root.showSharePassword = false;
+    }
+
+    function copyToClipboard(text) {
+        const value = (text || "").toString().trim();
+        if (value.length === 0 || copyProcess.running) {
+            return;
+        }
+        copyProcess.command = Commands.clipboardHelperCommand("copy", [value]);
+        copyProcess.running = true;
     }
 
     function refresh(rescanWifi) {
@@ -64,7 +120,12 @@ Scope {
         if (!hotspotStatusProcess.running) {
             hotspotStatusProcess.running = true;
         }
-        root.refreshWifi(rescanWifi === true);
+        if (!savedNetworksProcess.running) {
+            savedNetworksProcess.running = true;
+        }
+        if (rescanWifi === true || root.wifiNetworks.length > 0) {
+            root.refreshWifi(rescanWifi === true);
+        }
     }
 
     function refreshStatus() {
@@ -75,8 +136,14 @@ Scope {
 
     function refreshWifi(rescan) {
         wifiScanProcess.running = false;
-        wifiScanProcess.command = Commands.networkHelperCommand("wifi-scan", rescan ? ["--rescan", "yes"] : ["--rescan", "no"]);
+        wifiScanProcess.command = Commands.networkHelperCommand("wifi-scan", ["--rescan", "no"]);
         wifiScanProcess.running = true;
+        if (rescan && !root.scanning) {
+            root.scanning = true;
+            wifiRescanProcess.running = true;
+            wifiScanPoller.pollCount = 0;
+            wifiScanPoller.start();
+        }
     }
 
     function parseConnections(text) {
@@ -95,7 +162,8 @@ Scope {
                 "uuid": fields[1],
                 "type": fields[2],
                 "active": fields[3] === "yes",
-                "device": fields[4]
+                "device": fields[4],
+                "signal": fields.length > 5 ? fields[5] : "0"
             });
         }
 
@@ -137,9 +205,42 @@ Scope {
         root.hotspotClients = clients;
     }
 
+    function parseSavedNetworks(text) {
+        const rows = [];
+        const lines = text.trim().length > 0 ? text.trim().split("\n") : [];
+        for (const line of lines) {
+            const fields = line.split("\t");
+            if (fields.length < 6)
+                continue;
+            rows.push({
+                "name": fields[0],
+                "uuid": fields[1],
+                "active": fields[2] === "yes",
+                "device": fields[3] || "wlo1",
+                "autoconnect": fields[4] === "yes",
+                "password": fields[5] || ""
+            });
+        }
+
+        let identical = root.savedNetworks && root.savedNetworks.length === rows.length;
+        if (identical) {
+            for (let i = 0; i < rows.length; i++) {
+                if (root.savedNetworks[i].uuid !== rows[i].uuid || root.savedNetworks[i].name !== rows[i].name || root.savedNetworks[i].active !== rows[i].active || root.savedNetworks[i].autoconnect !== rows[i].autoconnect || root.savedNetworks[i].password !== rows[i].password) {
+                    identical = false;
+                    break;
+                }
+            }
+        }
+
+        if (!identical) {
+            root.savedNetworks = rows;
+        }
+    }
+
     function parseWifiNetworks(text) {
         const rows = [];
         const lines = text.trim().length > 0 ? text.trim().split("\n") : [];
+        const selectedSsid = root.selectedWifiNetwork() ? root.selectedWifiNetwork().ssid : "";
         const selectedBssid = root.selectedWifiNetwork() ? root.selectedWifiNetwork().bssid : "";
 
         for (const line of lines) {
@@ -150,6 +251,7 @@ Scope {
             }
 
             const security = fields[4] === "--" ? "" : fields[4];
+            const isSaved = fields.length > 7 ? fields[7] === "yes" : false;
 
             rows.push({
                 "active": fields[0] === "*",
@@ -159,17 +261,32 @@ Scope {
                 "security": security,
                 "channel": fields[5],
                 "device": fields[6],
+                "saved": isSaved,
                 "secured": security.length > 0
             });
         }
 
-        root.wifiNetworks = rows;
-        root.selectedWifiIndex = -1;
+        let identical = root.wifiNetworks && root.wifiNetworks.length === rows.length;
+        if (identical) {
+            for (let i = 0; i < rows.length; i++) {
+                const oldSig = parseInt(root.wifiNetworks[i].signal, 10) || 0;
+                const newSig = parseInt(rows[i].signal, 10) || 0;
+                if (root.wifiNetworks[i].ssid !== rows[i].ssid || root.wifiNetworks[i].active !== rows[i].active || root.wifiNetworks[i].security !== rows[i].security || root.wifiNetworks[i].bssid !== rows[i].bssid || root.wifiNetworks[i].saved !== rows[i].saved || Math.abs(oldSig - newSig) > 5) {
+                    identical = false;
+                    break;
+                }
+            }
+        }
 
-        for (let i = 0; i < rows.length; i++) {
-            if (rows[i].bssid === selectedBssid) {
-                root.selectedWifiIndex = i;
-                break;
+        if (!identical) {
+            root.wifiNetworks = rows;
+            root.selectedWifiIndex = -1;
+
+            for (let i = 0; i < rows.length; i++) {
+                if (rows[i].ssid === selectedSsid || rows[i].bssid === selectedBssid) {
+                    root.selectedWifiIndex = i;
+                    break;
+                }
             }
         }
     }
@@ -188,6 +305,7 @@ Scope {
         }
 
         root.selectedWifiIndex = index;
+        root.passwordAttempts = 0;
         root.wifiPassword = "";
         root.message = "";
     }
@@ -197,7 +315,7 @@ Scope {
             return;
         }
 
-        if (network.secured && root.wifiPassword.length === 0) {
+        if (network.secured && !network.saved && !network.active && root.wifiPassword.length === 0) {
             for (let i = 0; i < root.wifiNetworks.length; i++) {
                 if (root.wifiNetworks[i].bssid === network.bssid && root.wifiNetworks[i].device === network.device) {
                     root.selectedWifiIndex = i;
@@ -209,18 +327,52 @@ Scope {
         }
 
         const args = [network.device, network.bssid, network.ssid];
-        if (network.secured) {
+        if (network.secured && root.wifiPassword.length > 0) {
             args.push(root.wifiPassword);
+            root.connectingWithPassword = true;
+        } else {
+            root.connectingWithPassword = false;
         }
 
         root.busy = true;
         root.message = "Connecting " + network.ssid;
         actionProcess.command = Commands.networkHelperCommand("wifi-connect", args);
         actionProcess.running = true;
+        realtimeSyncTimer.trigger();
     }
 
     function connectSelectedWifi() {
         root.connectWifi(root.selectedWifiNetwork());
+    }
+
+    function connectSavedNetwork(uuid) {
+        if (!uuid || root.busy)
+            return;
+        root.busy = true;
+        root.message = "Connecting saved network...";
+        actionProcess.command = ["nmcli", "connection", "up", "uuid", uuid];
+        actionProcess.running = true;
+        realtimeSyncTimer.trigger();
+    }
+
+    function forgetSavedNetwork(uuid) {
+        if (!uuid || root.busy)
+            return;
+        root.busy = true;
+        root.message = "Removing saved network...";
+        actionProcess.command = ["nmcli", "connection", "delete", "uuid", uuid];
+        actionProcess.running = true;
+        realtimeSyncTimer.trigger();
+    }
+
+    function toggleAutoconnect(uuid, enable) {
+        if (!uuid || root.busy)
+            return;
+        root.busy = true;
+        root.message = "Updating auto-connect...";
+        actionProcess.command = ["nmcli", "connection", "modify", "uuid", uuid, "connection.autoconnect", enable ? "yes" : "no"];
+        actionProcess.running = true;
+        realtimeSyncTimer.trigger();
     }
 
     function toggleHotspot() {
@@ -233,7 +385,6 @@ Scope {
         actionProcess.command = Commands.networkHelperCommand(root.hotspotActive ? "hotspot-stop" : "hotspot-start");
         actionProcess.running = true;
     }
-
 
     function disconnectDevice(device) {
         if (!device || device.length === 0) {
@@ -258,7 +409,7 @@ Scope {
 
     Timer {
         id: networkRefreshDebouncer
-        interval: 1000
+        interval: 150
         running: false
         repeat: false
         onTriggered: {
@@ -269,7 +420,6 @@ Scope {
             }
         }
     }
-
 
     Process {
         id: statusProcess
@@ -316,16 +466,135 @@ Scope {
         onRunningChanged: {
             if (!running) {
                 root.busy = false;
-                root.wifiPassword = "";
-                root.message = "";
+                if (root.connectingWithPassword) {
+                    root.connectingWithPassword = false;
+                    if (exitCode !== 0) {
+                        root.passwordAttempts++;
+                        root.wifiPassword = "";
+                        if (root.passwordAttempts < 3) {
+                            root.message = "Incorrect password (" + root.passwordAttempts + "/3 attempts failed)";
+                            root.passwordFailed(root.passwordAttempts);
+                        } else {
+                            root.selectedWifiIndex = -1;
+                            root.passwordAttempts = 0;
+                            root.message = "Connection failed after 3 incorrect attempts.";
+                        }
+                    } else {
+                        root.selectedWifiIndex = -1;
+                        root.passwordAttempts = 0;
+                        root.wifiPassword = "";
+                        root.message = "";
+                    }
+                } else {
+                    if (exitCode === 0 && root.selectedWifiIndex >= 0) {
+                        root.selectedWifiIndex = -1;
+                    }
+                    root.wifiPassword = "";
+                    root.message = "";
+                }
                 networkRefreshDebouncer.restart();
+                realtimeSyncTimer.trigger();
             }
         }
-        
+
         stderr: StdioCollector {
             onStreamFinished: {
-                if (this.text.length > 0) console.warn("Network action error: " + this.text);
+                if (this.text.length > 0)
+                    console.warn("Network action error: " + this.text);
             }
+        }
+    }
+
+    Process {
+        id: savedNetworksProcess
+        command: Commands.networkHelperCommand("wifi-saved")
+        running: false
+        stdout: StdioCollector {
+            onStreamFinished: root.parseSavedNetworks(this.text)
+        }
+    }
+
+    function runSpeedTest() {
+        if (root.testingSpeed)
+            return;
+        root.testingSpeed = true;
+        root.speedPing = "Testing...";
+        root.speedDownload = "Testing...";
+        root.speedUpload = "Testing...";
+        speedTestProcess.running = true;
+    }
+
+    Process {
+        id: speedTestProcess
+        command: Commands.networkHelperCommand("speedtest")
+        running: false
+        onRunningChanged: {
+            if (!running) {
+                root.testingSpeed = false;
+            }
+        }
+        stdout: StdioCollector {
+            onStreamFinished: {
+                const parts = this.text.trim().split("\t");
+                if (parts.length >= 3) {
+                    root.speedPing = parts[0];
+                    root.speedDownload = parts[1];
+                    root.speedUpload = parts[2];
+                } else {
+                    root.speedPing = "-- ms";
+                    root.speedDownload = "-- Mbps";
+                    root.speedUpload = "-- Mbps";
+                }
+            }
+        }
+    }
+
+    Process {
+        id: wifiShareProcess
+        command: Commands.networkHelperCommand("wifi-share")
+        running: false
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try {
+                    const data = JSON.parse(this.text.trim());
+                    if (data && data.success) {
+                        root.shareSsid = data.ssid || "";
+                        root.sharePassword = data.password || "";
+                        root.shareQrPath = data.qrPath || "";
+                        root.sharingWifi = true;
+                    } else {
+                        console.warn("WiFi share error: " + (data.error || "Unknown"));
+                        root.sharingWifi = false;
+                    }
+                } catch(e) {
+                    console.warn("Failed to parse WiFi share output: " + e);
+                    root.sharingWifi = false;
+                }
+            }
+        }
+    }
+
+    Process {
+        id: copyProcess
+        running: false
+    }
+
+    Timer {
+        id: realtimeSyncTimer
+        interval: 500
+        repeat: true
+        property int pollCount: 0
+        function trigger() {
+            pollCount = 0;
+            running = true;
+        }
+        onTriggered: {
+            pollCount++;
+            if (!root.visible || pollCount >= 8) {
+                running = false;
+                return;
+            }
+            root.refresh(false);
         }
     }
 
@@ -337,6 +606,32 @@ Scope {
 
         stdout: StdioCollector {
             onStreamFinished: root.parseWifiNetworks(this.text)
+        }
+    }
+
+    Process {
+        id: wifiRescanProcess
+        command: Commands.networkHelperCommand("wifi-rescan")
+        running: false
+    }
+
+    Timer {
+        id: wifiScanPoller
+        property int pollCount: 0
+        interval: 1500
+        repeat: true
+        running: false
+        onTriggered: {
+            pollCount++;
+            if (root.visible && !wifiScanProcess.running) {
+                wifiScanProcess.running = false;
+                wifiScanProcess.command = Commands.networkHelperCommand("wifi-scan", ["--rescan", "no"]);
+                wifiScanProcess.running = true;
+            }
+            if (pollCount >= 4 || !root.visible) {
+                wifiScanPoller.stop();
+                root.scanning = false;
+            }
         }
     }
 
@@ -355,7 +650,7 @@ Scope {
         stdout: SplitParser {
             onRead: networkRefreshDebouncer.restart()
         }
-        
+
         onRunningChanged: {
             if (!running) {
                 monitorRestartTimer.restart();
@@ -368,10 +663,11 @@ Scope {
 
         command: Commands.networkHelperCommand("editor")
         running: false
-        
+
         stderr: StdioCollector {
             onStreamFinished: {
-                if (this.text.length > 0) console.warn("Network editor error: " + this.text);
+                if (this.text.length > 0)
+                    console.warn("Network editor error: " + this.text);
             }
         }
     }

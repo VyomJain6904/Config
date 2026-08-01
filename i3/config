@@ -9,7 +9,6 @@ focus_follows_mouse yes
 mouse_warping none
 
 # Auto Start
-exec --no-startup-id nm-applet
 exec --no-startup-id /home/jain/.config/quickshell/helpers/bin/qs-helper polkit ensure
 exec --no-startup-id pkill dunst
 exec --no-startup-id ~/.config/i3/power-monitor.sh

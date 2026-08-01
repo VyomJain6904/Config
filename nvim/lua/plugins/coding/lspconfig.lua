@@ -212,7 +212,7 @@ return {
             }
 
             -- Merge servers from opts (includes language plugin additions like docker, tailwind, python)
-            local servers = vim.tbl_deep_extend('force', opts.servers or {}, {})
+            local servers = opts.servers or {}
 
             --------------------------------------------------------
             --                MASON INSTALLATION LIST              --

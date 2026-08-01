@@ -526,7 +526,7 @@ FloatingWindow {
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    color: root.activeTab === "wifi" ? Theme.accent : Theme.surface
+                    color: root.activeTab === "wifi" ? Theme.buttonSelectedBackground : (wifiTabMouse.containsMouse ? Theme.buttonHoverBackground : Theme.buttonBackground)
                     radius: Theme.radius
 
                     UiText {
@@ -538,7 +538,9 @@ FloatingWindow {
                     }
 
                     MouseArea {
+                        id: wifiTabMouse
                         anchors.fill: parent
+                        hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
                         onClicked: root.activateTab("wifi")
                     }
@@ -547,7 +549,7 @@ FloatingWindow {
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    color: root.activeTab === "bluetooth" ? Theme.accent : Theme.surface
+                    color: root.activeTab === "bluetooth" ? Theme.buttonSelectedBackground : (bluetoothTabMouse.containsMouse ? Theme.buttonHoverBackground : Theme.buttonBackground)
                     radius: Theme.radius
 
                     UiText {
@@ -559,7 +561,9 @@ FloatingWindow {
                     }
 
                     MouseArea {
+                        id: bluetoothTabMouse
                         anchors.fill: parent
+                        hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
                         onClicked: root.activateTab("bluetooth")
                     }
@@ -568,7 +572,7 @@ FloatingWindow {
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    color: root.activeTab === "audio" ? Theme.accent : Theme.surface
+                    color: root.activeTab === "audio" ? Theme.buttonSelectedBackground : (audioTabMouse.containsMouse ? Theme.buttonHoverBackground : Theme.buttonBackground)
                     radius: Theme.radius
 
                     UiText {
@@ -580,7 +584,9 @@ FloatingWindow {
                     }
 
                     MouseArea {
+                        id: audioTabMouse
                         anchors.fill: parent
+                        hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
                         onClicked: root.activateTab("audio")
                     }
@@ -589,7 +595,7 @@ FloatingWindow {
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    color: root.activeTab === "brightness" ? Theme.accent : Theme.surface
+                    color: root.activeTab === "brightness" ? Theme.buttonSelectedBackground : (brightnessTabMouse.containsMouse ? Theme.buttonHoverBackground : Theme.buttonBackground)
                     radius: Theme.radius
 
                     UiText {
@@ -601,7 +607,9 @@ FloatingWindow {
                     }
 
                     MouseArea {
+                        id: brightnessTabMouse
                         anchors.fill: parent
+                        hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
                         onClicked: root.activateTab("brightness")
                     }
@@ -610,7 +618,7 @@ FloatingWindow {
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    color: root.activeTab === "battery" ? Theme.accent : Theme.surface
+                    color: root.activeTab === "battery" ? Theme.buttonSelectedBackground : (batteryTabMouse.containsMouse ? Theme.buttonHoverBackground : Theme.buttonBackground)
                     radius: Theme.radius
 
                     UiText {
@@ -622,7 +630,9 @@ FloatingWindow {
                     }
 
                     MouseArea {
+                        id: batteryTabMouse
                         anchors.fill: parent
+                        hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
                         onClicked: root.activateTab("battery")
                     }
@@ -631,7 +641,7 @@ FloatingWindow {
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    color: root.activeTab === "vpn" ? Theme.accent : Theme.surface
+                    color: root.activeTab === "vpn" ? Theme.buttonSelectedBackground : (vpnTabMouse.containsMouse ? Theme.buttonHoverBackground : Theme.buttonBackground)
                     radius: Theme.radius
 
                     UiText {
@@ -643,7 +653,9 @@ FloatingWindow {
                     }
 
                     MouseArea {
+                        id: vpnTabMouse
                         anchors.fill: parent
+                        hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
                         onClicked: root.activateTab("vpn")
                     }
@@ -652,7 +664,7 @@ FloatingWindow {
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    color: root.activeTab === "calendar" ? Theme.accent : Theme.surface
+                    color: root.activeTab === "calendar" ? Theme.buttonSelectedBackground : (calendarTabMouse.containsMouse ? Theme.buttonHoverBackground : Theme.buttonBackground)
                     radius: Theme.radius
 
                     UiText {
@@ -664,7 +676,9 @@ FloatingWindow {
                     }
 
                     MouseArea {
+                        id: calendarTabMouse
                         anchors.fill: parent
+                        hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
                         onClicked: root.activateTab("calendar")
                     }
@@ -673,14 +687,16 @@ FloatingWindow {
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    color: root.activeTab === "ai" ? Theme.accent : Theme.surface
+                    color: root.activeTab === "ai" ? Theme.buttonSelectedBackground : (aiTabMouse.containsMouse ? Theme.buttonHoverBackground : Theme.buttonBackground)
                     radius: Theme.radius
 
                     Image {
                         anchors.centerIn: parent
                         width: 20
                         height: 20
-                        source: "file:///usr/share/icons/MacTahoe/apps/scalable/agent.png"
+                        source: root.activeTab === "ai"
+                            ? "file:///usr/share/icons/MacTahoe/apps/scalable/agent-dark.png"
+                            : "file:///usr/share/icons/MacTahoe/apps/scalable/agent-light.png"
                         sourceSize.width: 32
                         sourceSize.height: 32
                         fillMode: Image.PreserveAspectFit
@@ -688,7 +704,9 @@ FloatingWindow {
                     }
 
                     MouseArea {
+                        id: aiTabMouse
                         anchors.fill: parent
+                        hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
                         onClicked: root.activateTab("ai")
                     }
@@ -697,7 +715,7 @@ FloatingWindow {
                 Rectangle {
                     Layout.preferredWidth: Theme.buttonHeight + 10
                     Layout.preferredHeight: Theme.buttonHeight + 10
-                    color: Theme.transparent
+                    color: closeMouse.containsMouse ? Theme.buttonHoverBackground : Theme.buttonBackground
                     radius: Theme.radius
 
                     UiText {
@@ -768,7 +786,7 @@ FloatingWindow {
                     Rectangle {
                         Layout.preferredWidth: 36
                         Layout.preferredHeight: Theme.buttonHeight
-                        color: qrMouse.containsMouse ? Theme.accent : Theme.surface
+                        color: qrMouse.containsMouse ? Theme.buttonHoverBackground : Theme.buttonBackground
                         border.color: qrMouse.containsMouse ? Theme.accent : Theme.border
                         border.width: 1
                         radius: Theme.radius
@@ -777,7 +795,7 @@ FloatingWindow {
                         Text {
                             anchors.centerIn: parent
                             text: "\udb81\udc33"
-                            color: qrMouse.containsMouse ? Theme.surface : Theme.textStrong
+                            color: qrMouse.containsMouse ? Theme.accent : Theme.textStrong
                             font.family: Theme.iconFontFamily
                             font.pixelSize: 18
                         }
@@ -848,7 +866,7 @@ FloatingWindow {
                             Rectangle {
                                 Layout.preferredWidth: 28
                                 Layout.preferredHeight: 28
-                                color: closeShareMouse.containsMouse ? Theme.surfaceHover : "transparent"
+                                color: closeShareMouse.containsMouse ? Theme.buttonHoverBackground : Theme.buttonBackground
                                 radius: 14
 
                                 Text {
@@ -883,6 +901,8 @@ FloatingWindow {
                                 width: 256
                                 height: 256
                                 source: root.networkModel.shareQrPath
+                                sourceSize.width: 256
+                                sourceSize.height: 256
                                 fillMode: Image.PreserveAspectFit
                                 smooth: false
                                 cache: false
@@ -902,7 +922,7 @@ FloatingWindow {
                             Layout.alignment: Qt.AlignHCenter
                             Layout.preferredWidth: passText.implicitWidth + 24
                             Layout.preferredHeight: Theme.chipHeight
-                            color: passMouse.containsMouse ? Theme.surfaceHover : "transparent"
+                            color: passMouse.containsMouse ? Theme.buttonHoverBackground : Theme.buttonBackground
                             border.color: passMouse.containsMouse || root.networkModel.showSharePassword ? Theme.border : "transparent"
                             border.width: 1
                             radius: Theme.radius
@@ -1377,7 +1397,7 @@ FloatingWindow {
                         Rectangle {
                             Layout.preferredWidth: availText.implicitWidth + 20
                             Layout.preferredHeight: Theme.chipHeight
-                            color: !root.showSavedWifi ? Theme.accent : (availMouse.containsMouse ? Theme.surfaceHover : Theme.surface)
+                            color: !root.showSavedWifi ? Theme.buttonSelectedBackground : (availMouse.containsMouse ? Theme.buttonHoverBackground : Theme.buttonBackground)
                             radius: Theme.radius
 
                             Text {
@@ -1402,7 +1422,7 @@ FloatingWindow {
                         Rectangle {
                             Layout.preferredWidth: savedText.implicitWidth + 20
                             Layout.preferredHeight: Theme.chipHeight
-                            color: root.showSavedWifi ? Theme.accent : (savedMouse.containsMouse ? Theme.surfaceHover : Theme.surface)
+                            color: root.showSavedWifi ? Theme.buttonSelectedBackground : (savedMouse.containsMouse ? Theme.buttonHoverBackground : Theme.buttonBackground)
                             radius: Theme.radius
 
                             Text {
@@ -1734,7 +1754,7 @@ FloatingWindow {
                         width: ListView.view.width
                         height: 54
                         radius: Theme.smallRadius
-                        color: modelData.connected ? Theme.accent : (selected ? Theme.surfaceActive : (deviceMouse.containsMouse ? Theme.surfaceHover : Theme.surface))
+                        color: modelData.connected ? Theme.buttonSelectedBackground : (selected ? Theme.buttonFocusBackground : (deviceMouse.containsMouse ? Theme.buttonHoverBackground : Theme.buttonBackground))
                         border.color: selected ? Theme.accent : Theme.border
                         border.width: selected ? 1 : 0
 
@@ -1961,7 +1981,7 @@ FloatingWindow {
                         width: ListView.view.width
                         height: 54
                         radius: Theme.smallRadius
-                        color: profileActive ? Theme.accent : (selected ? Theme.surfaceActive : (vpnMouse.containsMouse && rowInteractive ? Theme.surfaceHover : Theme.surface))
+                        color: profileActive ? Theme.buttonSelectedBackground : (selected ? Theme.buttonFocusBackground : (vpnMouse.containsMouse && rowInteractive ? Theme.buttonHoverBackground : Theme.buttonBackground))
                         border.color: selected || profileActive ? Theme.accent : Theme.border
                         border.width: 1
                         opacity: (root.vpnModel.busy || root.vpnModel.connected) && !profileActive ? 0.5 : 1
@@ -1980,6 +2000,8 @@ FloatingWindow {
                                 Image {
                                     anchors.fill: parent
                                     source: vpnRow.modelData.logoPath && vpnRow.modelData.logoPath.length > 0 ? "file://" + vpnRow.modelData.logoPath : ""
+                                    sourceSize.width: 30
+                                    sourceSize.height: 30
                                     fillMode: Image.PreserveAspectFit
                                     smooth: true
                                     asynchronous: true
@@ -2291,7 +2313,9 @@ FloatingWindow {
                             Layout.fillWidth: true
                             Layout.preferredWidth: 1
                             Layout.preferredHeight: 34
-                            color: root.controlsModel.displayScale === modelData ? Theme.accent : Theme.surface
+                            color: root.controlsModel.displayScale === modelData
+                                ? Theme.buttonSelectedBackground
+                                : (scaleMouse.containsMouse ? Theme.buttonHoverBackground : Theme.buttonBackground)
                             border.color: Theme.border
                             border.width: 1
                             radius: Theme.radius
@@ -2306,6 +2330,7 @@ FloatingWindow {
                             }
 
                             MouseArea {
+                                id: scaleMouse
                                 anchors.fill: parent
                                 hoverEnabled: true
                                 cursorShape: Qt.PointingHandCursor
@@ -2325,7 +2350,7 @@ FloatingWindow {
                         required property var modelData
                         Layout.fillWidth: true
                         Layout.preferredHeight: 44
-                        color: Theme.surface
+                        color: displayMouse.containsMouse ? Theme.buttonHoverBackground : Theme.buttonBackground
                         border.color: Theme.border
                         border.width: 1
                         radius: Theme.radius
@@ -2365,6 +2390,7 @@ FloatingWindow {
                         }
 
                         MouseArea {
+                            id: displayMouse
                             anchors.fill: parent
                             hoverEnabled: true
                             cursorShape: Qt.PointingHandCursor
@@ -2395,7 +2421,7 @@ FloatingWindow {
 
                             Layout.fillWidth: true
                             Layout.preferredHeight: Math.max(42, (Math.ceil(modelData.windows.length / 4) * 32) + 12)
-                            color: modelData.focused ? Theme.surfaceActive : ((workspaceMouse.containsMouse || workspaceDrop.containsDrag) ? Theme.surfaceHover : Theme.surface)
+                            color: modelData.focused ? Theme.buttonFocusBackground : ((workspaceMouse.containsMouse || workspaceDrop.containsDrag) ? Theme.buttonHoverBackground : Theme.buttonBackground)
                             border.color: (modelData.focused || workspaceDrop.containsDrag) ? Theme.accent : Theme.border
                             border.width: 1
                             radius: Theme.radius
@@ -2449,6 +2475,8 @@ FloatingWindow {
                                                 Image {
                                                     anchors.fill: parent
                                                     source: root.workspaceAppIconSource(iconSlot.modelData.iconKey)
+                                                    sourceSize.width: 26
+                                                    sourceSize.height: 26
                                                     fillMode: Image.PreserveAspectFit
                                                     asynchronous: true
                                                     smooth: true
@@ -2480,6 +2508,8 @@ FloatingWindow {
                                                     Image {
                                                         anchors.fill: parent
                                                         source: root.workspaceAppIconSource(iconSlot.modelData.iconKey)
+                                                        sourceSize.width: 26
+                                                        sourceSize.height: 26
                                                         fillMode: Image.PreserveAspectFit
                                                         smooth: true
                                                         mipmap: true
@@ -2744,7 +2774,7 @@ FloatingWindow {
                             Layout.fillWidth: true
                             Layout.preferredWidth: 1
                             Layout.preferredHeight: 46
-                            color: root.controlsModel.powerProfile === modelData.id ? Theme.accent : (profileMouse.containsMouse ? Theme.surfaceHover : Theme.surface)
+                            color: root.controlsModel.powerProfile === modelData.id ? Theme.buttonSelectedBackground : (profileMouse.containsMouse ? Theme.buttonHoverBackground : Theme.buttonBackground)
                             border.color: Theme.border
                             border.width: 1
                             radius: Theme.radius
@@ -3676,7 +3706,11 @@ FloatingWindow {
                                     width: 32
                                     height: 32
                                     radius: 16
-                                    color: isToday ? Theme.accent : (isSelected ? Theme.surfaceHover : Theme.transparent)
+                                    color: modelData === 0
+                                        ? Theme.transparent
+                                        : (isToday
+                                            ? Theme.buttonSelectedBackground
+                                            : (isSelected ? Theme.buttonFocusBackground : (dayMouse.containsMouse ? Theme.buttonHoverBackground : Theme.buttonBackground)))
                                     border.color: isSelected && !isToday ? Theme.accent : "transparent"
                                     border.width: 1
 
@@ -3701,8 +3735,10 @@ FloatingWindow {
                                     }
 
                                     MouseArea {
+                                        id: dayMouse
                                         anchors.fill: parent
                                         enabled: modelData !== 0
+                                        hoverEnabled: true
                                         cursorShape: Qt.PointingHandCursor
                                         onClicked: calContainer.selectedDay = modelData
                                     }
@@ -3843,11 +3879,17 @@ FloatingWindow {
                 }
             } // End calContainer ColumnLayout
 
-            AiUsageView {
+            Loader {
+                active: root.activeTab === "ai"
                 visible: root.activeTab === "ai"
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                aiModel: root.aiModel
+
+                sourceComponent: Component {
+                    AiUsageView {
+                        aiModel: root.aiModel
+                    }
+                }
             }
         }
     }

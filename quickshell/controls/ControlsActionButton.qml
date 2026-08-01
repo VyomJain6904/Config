@@ -5,6 +5,7 @@ Rectangle {
     id: root
 
     required property string label
+    property bool enabled: true
     property bool selected: false
     property string labelFontFamily: Theme.fontFamily
     property int labelPixelSize: Theme.panelFontSize

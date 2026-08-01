@@ -1,0 +1,5 @@
+module qs.ai
+AiModel 1.0 AiModel.qml
+AiUsageView 1.0 AiUsageView.qml
+AiPlatformTabs 1.0 AiPlatformTabs.qml
+AiModelList 1.0 AiModelList.qml

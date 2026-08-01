@@ -13,7 +13,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	"quickshell/helpers/internal/common"
@@ -75,6 +74,12 @@ func Run(argv []string) int {
 		_ = runResultTimeout(5*time.Second, "nmcli", "device", "wifi", "rescan")
 	case "wifi-saved":
 		printSavedWiFiNetworks()
+	case "wifi-secret":
+		if len(args) < 1 {
+			fmt.Fprintln(os.Stderr, "Missing saved Wi-Fi UUID")
+			return 2
+		}
+		printSavedWiFiSecret(args[0])
 	case "wifi-share":
 		printWiFiShare(args)
 	case "speedtest":
@@ -843,7 +848,6 @@ type savedWiFiRow struct {
 	Active      bool
 	Device      string
 	Autoconnect bool
-	Password    string
 }
 
 func printSavedWiFiNetworks() {
@@ -875,17 +879,6 @@ func printSavedWiFiNetworks() {
 		}
 	}
 
-	var wg sync.WaitGroup
-	for _, item := range items {
-		wg.Add(1)
-		go func(row *savedWiFiRow) {
-			defer wg.Done()
-			res := common.RunOutput(3*time.Second, "nmcli", "-s", "-g", "802-11-wireless-security.psk", "connection", "show", "uuid", row.UUID)
-			row.Password = strings.TrimSpace(res)
-		}(item)
-	}
-	wg.Wait()
-
 	sort.Slice(items, func(i, j int) bool {
 		if items[i].Active && !items[j].Active {
 			return true
@@ -905,8 +898,13 @@ func printSavedWiFiNetworks() {
 		if item.Autoconnect {
 			autoStr = "yes"
 		}
-		fmt.Printf("%s\t%s\t%s\t%s\t%s\t%s\n", item.Name, item.UUID, activeStr, item.Device, autoStr, item.Password)
+		fmt.Printf("%s\t%s\t%s\t%s\t%s\n", item.Name, item.UUID, activeStr, item.Device, autoStr)
 	}
+}
+
+func printSavedWiFiSecret(uuid string) {
+	value := common.RunOutput(3*time.Second, "nmcli", "-s", "-g", "802-11-wireless-security.psk", "connection", "show", "uuid", uuid)
+	fmt.Println(strings.TrimSpace(value))
 }
 
 func runSpeedTest() int {

@@ -74,10 +74,19 @@ FloatingWindow {
                     font.pixelSize: Theme.titleFontSize
                     font.bold: true
                 }
-                UiText {
-                    text: "x"
-                    color: closeMouse.containsMouse ? Theme.accent : Theme.textMuted
-                    font.pixelSize: Theme.titleFontSize
+                Rectangle {
+                    Layout.preferredWidth: Theme.buttonHeight
+                    Layout.preferredHeight: Theme.buttonHeight
+                    color: closeMouse.containsMouse ? Theme.buttonHoverBackground : Theme.buttonBackground
+                    radius: Theme.radius
+
+                    UiText {
+                        anchors.centerIn: parent
+                        text: "x"
+                        color: closeMouse.containsMouse ? Theme.accent : Theme.textMuted
+                        font.pixelSize: Theme.titleFontSize
+                    }
+
                     MouseArea {
                         id: closeMouse
                         anchors.fill: parent

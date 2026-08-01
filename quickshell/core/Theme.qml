@@ -10,6 +10,12 @@ Singleton {
     readonly property string surface: "#111111"
     readonly property string surfaceHover: "#1a1a1a"
     readonly property string surfaceActive: "#222222"
+    // Shared utility-menu button palette. Keep button surfaces centralized so
+    // hand-built controls and reusable button components cannot drift apart.
+    readonly property string buttonBackground: surface
+    readonly property string buttonHoverBackground: surfaceHover
+    readonly property string buttonFocusBackground: surfaceActive
+    readonly property string buttonSelectedBackground: accent
     readonly property string border: "#2a2a2a"
     readonly property string borderStrong: "#333333"
     readonly property string text: "#c0caf5"

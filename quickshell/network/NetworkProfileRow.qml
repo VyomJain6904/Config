@@ -33,7 +33,7 @@ Rectangle {
 
             Text {
                 Layout.fillWidth: true
-                text: root.profile.type + " on " + root.profile.device
+                text: (root.profile.type === "802-11-wireless" || root.profile.type === "wifi" || root.profile.type === "wireless" || (root.profile.signal && root.profile.signal !== "0")) ? ("Signal strength: " + (root.profile.signal || "0") + "%") : "Connected"
                 color: Theme.textMuted
                 font.family: Theme.fontFamily
                 font.pixelSize: Theme.smallFontSize

@@ -1,15 +1,19 @@
 package network
 
 import (
+	"bytes"
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"net"
+	"net/http"
 	"os"
 	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"quickshell/helpers/internal/common"
@@ -67,15 +71,37 @@ func Run(argv []string) int {
 		return stopHotspot()
 	case "wifi-scan":
 		printWiFiScan(args)
+	case "wifi-rescan":
+		_ = runResultTimeout(5*time.Second, "nmcli", "device", "wifi", "rescan")
+	case "wifi-saved":
+		printSavedWiFiNetworks()
+	case "wifi-share":
+		printWiFiShare(args)
+	case "speedtest":
+		return runSpeedTest()
 	case "wifi-connect":
 		if len(args) < 3 {
 			return 1
 		}
-		command := []string{"device", "wifi", "connect", args[1], "ifname", args[0]}
-		if len(args) > 3 && args[3] != "" {
-			command = append(command, "password", args[3])
+		ifname := args[0]
+		ssid := args[2]
+		password := ""
+		if len(args) > 3 {
+			password = strings.TrimSpace(args[3])
 		}
-		_ = common.RunAttached("nmcli", command...)
+		savedUUID := getSavedWiFiUUID(ssid)
+		if savedUUID != "" && password == "" {
+			return common.RunAttached("nmcli", "connection", "up", "uuid", savedUUID)
+		} else if savedUUID != "" && password != "" {
+			_ = common.RunAttached("nmcli", "connection", "modify", "uuid", savedUUID, "wifi-sec.psk", password)
+			return common.RunAttached("nmcli", "connection", "up", "uuid", savedUUID)
+		} else {
+			command := []string{"device", "wifi", "connect", ssid, "ifname", ifname}
+			if password != "" {
+				command = append(command, "password", password)
+			}
+			return common.RunAttached("nmcli", command...)
+		}
 	case "connect":
 		if len(args) > 0 {
 			_ = common.RunAttached("nmcli", "connection", "up", "uuid", args[0])
@@ -482,7 +508,33 @@ func printDevices() {
 	}
 }
 
+func getActiveWiFiSignals() map[string]string {
+	signals := make(map[string]string)
+	out := run("nmcli", "-t", "-f", "IN-USE,SSID,SIGNAL,DEVICE", "device", "wifi", "list", "--rescan", "no")
+	for _, line := range strings.Split(strings.TrimSpace(out), "\n") {
+		if line == "" {
+			continue
+		}
+		parts := splitTerse(line)
+		if len(parts) >= 3 && parts[0] == "*" {
+			ssid := parts[1]
+			sig := parts[2]
+			if ssid != "" && ssid != "--" {
+				signals[ssid] = sig
+			}
+			if len(parts) >= 4 {
+				device := strings.Join(parts[3:], ":")
+				if device != "" && device != "--" {
+					signals["dev:"+device] = sig
+				}
+			}
+		}
+	}
+	return signals
+}
+
 func printConnections() {
+	activeSignals := getActiveWiFiSignals()
 	out := run("nmcli", "-t", "-f", "NAME,UUID,TYPE,DEVICE", "connection", "show")
 	for _, line := range strings.Split(strings.TrimSpace(out), "\n") {
 		if line == "" {
@@ -498,7 +550,15 @@ func printConnections() {
 		if active {
 			deviceOutput = device
 		}
-		fmt.Printf("%s\t%s\t%s\t%s\t%s\n", parts[0], parts[1], parts[2], common.YesNo(active), deviceOutput)
+		signal := "0"
+		if active && (parts[2] == "802-11-wireless" || parts[2] == "wifi" || parts[2] == "wireless") {
+			if s, ok := activeSignals[parts[0]]; ok && s != "" {
+				signal = s
+			} else if s, ok := activeSignals["dev:"+device]; ok && s != "" {
+				signal = s
+			}
+		}
+		fmt.Printf("%s\t%s\t%s\t%s\t%s\t%s\n", parts[0], parts[1], parts[2], common.YesNo(active), deviceOutput, signal)
 	}
 }
 
@@ -629,6 +689,36 @@ func stopHotspot() int {
 	return 0
 }
 
+type wifiRow struct {
+	InUse    string
+	BSSID    string
+	SSID     string
+	Signal   int
+	Security string
+	Channel  string
+	Device   string
+	Saved    bool
+}
+
+func getSavedWiFiSSIDs() map[string]string {
+	out := common.RunOutput(3*time.Second, "nmcli", "-t", "-f", "NAME,UUID,TYPE", "connection", "show")
+	saved := make(map[string]string)
+	for _, line := range strings.Split(strings.TrimSpace(out), "\n") {
+		if line == "" {
+			continue
+		}
+		parts := splitTerse(line)
+		if len(parts) >= 3 && (parts[2] == "802-11-wireless" || parts[2] == "wifi") && parts[0] != hotspotName {
+			saved[parts[0]] = parts[1]
+		}
+	}
+	return saved
+}
+
+func getSavedWiFiUUID(ssid string) string {
+	return getSavedWiFiSSIDs()[ssid]
+}
+
 func printWiFiScan(args []string) {
 	rescan := "no"
 	for index := 0; index < len(args); index++ {
@@ -641,17 +731,356 @@ func printWiFiScan(args []string) {
 		"nmcli", "-t", "-f", "IN-USE,BSSID,SSID,SIGNAL,SECURITY,CHAN,DEVICE",
 		"device", "wifi", "list", "--rescan", rescan,
 	)
+	savedMap := getSavedWiFiSSIDs()
+	bySSID := make(map[string]*wifiRow)
 	for _, line := range strings.Split(strings.TrimSpace(out), "\n") {
 		if line == "" {
 			continue
 		}
 		parts := splitTerse(line)
-		if len(parts) < 7 || parts[2] == "" {
+		if len(parts) < 7 {
 			continue
 		}
+		inUse := parts[0]
+		bssid := parts[1]
+		ssid := parts[2]
+		signalStr := parts[3]
+		security := parts[4]
+		channel := parts[5]
+		device := strings.Join(parts[6:], ":")
+
+		if ssid == "" || ssid == "--" {
+			if inUse == "*" {
+				upstream := activeWiFiUpstream()
+				if upstream.SSID != "" && upstream.SSID != "--" {
+					ssid = upstream.SSID
+				} else {
+					ssid = "Connected Wi-Fi"
+				}
+			} else {
+				continue
+			}
+		}
+
+		signal, err := strconv.Atoi(signalStr)
+		if err != nil {
+			signal = 0
+		}
+
+		_, isSaved := savedMap[ssid]
+
+		existing, ok := bySSID[ssid]
+		if !ok {
+			bySSID[ssid] = &wifiRow{
+				InUse:    inUse,
+				BSSID:    bssid,
+				SSID:     ssid,
+				Signal:   signal,
+				Security: security,
+				Channel:  channel,
+				Device:   device,
+				Saved:    isSaved,
+			}
+		} else {
+			if inUse == "*" {
+				existing.InUse = "*"
+			}
+			if signal > existing.Signal {
+				existing.BSSID = bssid
+				existing.Signal = signal
+				existing.Channel = channel
+				if device != "" && device != "--" {
+					existing.Device = device
+				}
+				if security != "" && security != "--" {
+					existing.Security = security
+				}
+			}
+		}
+	}
+
+	activeUpstream := activeWiFiUpstream()
+	rows := make([]wifiRow, 0, len(bySSID))
+	for _, row := range bySSID {
+		if activeUpstream.SSID != "" && activeUpstream.SSID != "--" {
+			if row.SSID == activeUpstream.SSID {
+				row.InUse = "*"
+			} else {
+				row.InUse = " "
+			}
+		}
+		rows = append(rows, *row)
+	}
+
+	sort.Slice(rows, func(i, j int) bool {
+		if rows[i].InUse == "*" && rows[j].InUse != "*" {
+			return true
+		}
+		if rows[i].InUse != "*" && rows[j].InUse == "*" {
+			return false
+		}
+		if rows[i].Signal != rows[j].Signal {
+			return rows[i].Signal > rows[j].Signal
+		}
+		return strings.ToLower(rows[i].SSID) < strings.ToLower(rows[j].SSID)
+	})
+
+	for _, row := range rows {
+		savedFlag := "no"
+		if row.Saved {
+			savedFlag = "yes"
+		}
 		fmt.Printf(
-			"%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
-			parts[0], parts[1], parts[2], parts[3], parts[4], parts[5], strings.Join(parts[6:], ":"),
+			"%s\t%s\t%s\t%d\t%s\t%s\t%s\t%s\n",
+			row.InUse, row.BSSID, row.SSID, row.Signal, row.Security, row.Channel, row.Device, savedFlag,
 		)
 	}
+}
+
+type savedWiFiRow struct {
+	Name        string
+	UUID        string
+	Active      bool
+	Device      string
+	Autoconnect bool
+	Password    string
+}
+
+func printSavedWiFiNetworks() {
+	out := common.RunOutput(5*time.Second, "nmcli", "-t", "-f", "NAME,UUID,TYPE,DEVICE,ACTIVE,AUTOCONNECT", "connection", "show")
+	var items []*savedWiFiRow
+	for _, line := range strings.Split(strings.TrimSpace(out), "\n") {
+		if line == "" {
+			continue
+		}
+		parts := splitTerse(line)
+		if len(parts) < 6 {
+			continue
+		}
+		name := parts[0]
+		uuid := parts[1]
+		connType := parts[2]
+		device := parts[3]
+		active := parts[4] == "yes" || parts[4] == "true" || parts[4] == "1"
+		autoconnect := parts[5] == "yes" || parts[5] == "true" || parts[5] == "1"
+
+		if (connType == "802-11-wireless" || connType == "wifi") && name != hotspotName && name != "lo" {
+			items = append(items, &savedWiFiRow{
+				Name:        name,
+				UUID:        uuid,
+				Active:      active,
+				Device:      device,
+				Autoconnect: autoconnect,
+			})
+		}
+	}
+
+	var wg sync.WaitGroup
+	for _, item := range items {
+		wg.Add(1)
+		go func(row *savedWiFiRow) {
+			defer wg.Done()
+			res := common.RunOutput(3*time.Second, "nmcli", "-s", "-g", "802-11-wireless-security.psk", "connection", "show", "uuid", row.UUID)
+			row.Password = strings.TrimSpace(res)
+		}(item)
+	}
+	wg.Wait()
+
+	sort.Slice(items, func(i, j int) bool {
+		if items[i].Active && !items[j].Active {
+			return true
+		}
+		if !items[i].Active && items[j].Active {
+			return false
+		}
+		return strings.ToLower(items[i].Name) < strings.ToLower(items[j].Name)
+	})
+
+	for _, item := range items {
+		activeStr := "no"
+		if item.Active {
+			activeStr = "yes"
+		}
+		autoStr := "no"
+		if item.Autoconnect {
+			autoStr = "yes"
+		}
+		fmt.Printf("%s\t%s\t%s\t%s\t%s\t%s\n", item.Name, item.UUID, activeStr, item.Device, autoStr, item.Password)
+	}
+}
+
+func runSpeedTest() int {
+	bestPing := time.Hour
+	for i := 0; i < 3; i++ {
+		start := time.Now()
+		conn, err := net.DialTimeout("tcp", "1.1.1.1:80", 2*time.Second)
+		if err == nil {
+			rtt := time.Since(start)
+			conn.Close()
+			if rtt < bestPing {
+				bestPing = rtt
+			}
+		} else {
+			start = time.Now()
+			conn2, err2 := net.DialTimeout("tcp", "www.google.com:80", 2*time.Second)
+			if err2 == nil {
+				rtt := time.Since(start)
+				conn2.Close()
+				if rtt < bestPing {
+					bestPing = rtt
+				}
+			}
+		}
+		time.Sleep(50 * time.Millisecond)
+	}
+	pingStr := "-- ms"
+	if bestPing != time.Hour {
+		pingStr = fmt.Sprintf("%d ms", bestPing.Milliseconds())
+	}
+
+	client := &http.Client{
+		Timeout: 6 * time.Second,
+	}
+
+	downSpeedStr := "-- Mbps"
+	start := time.Now()
+	reqDown, _ := http.NewRequest("GET", "https://speed.cloudflare.com/__down?bytes=10000000", nil)
+	if reqDown != nil {
+		reqDown.Header.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64)")
+		resp, err := client.Do(reqDown)
+		if err == nil && resp.StatusCode == 200 {
+			buf := make([]byte, 32*1024)
+			var totalBytes int64
+			for {
+				n, readErr := resp.Body.Read(buf)
+				if n > 0 {
+					totalBytes += int64(n)
+				}
+				if readErr != nil || time.Since(start) >= 5*time.Second {
+					break
+				}
+			}
+			resp.Body.Close()
+			duration := time.Since(start).Seconds()
+			if duration > 0.1 && totalBytes > 0 {
+				mbps := (float64(totalBytes) * 8.0) / (duration * 1000000.0)
+				downSpeedStr = fmt.Sprintf("%.1f Mbps", mbps)
+			}
+		}
+	}
+	if downSpeedStr == "-- Mbps" {
+		start = time.Now()
+		resp, err := client.Get("http://proof.ovh.net/files/10Mb.dat")
+		if err == nil && resp.StatusCode == 200 {
+			buf := make([]byte, 32*1024)
+			var totalBytes int64
+			for {
+				n, readErr := resp.Body.Read(buf)
+				if n > 0 {
+					totalBytes += int64(n)
+				}
+				if readErr != nil || time.Since(start) >= 5*time.Second {
+					break
+				}
+			}
+			resp.Body.Close()
+			duration := time.Since(start).Seconds()
+			if duration > 0.1 && totalBytes > 0 {
+				mbps := (float64(totalBytes) * 8.0) / (duration * 1000000.0)
+				downSpeedStr = fmt.Sprintf("%.1f Mbps", mbps)
+			}
+		}
+	}
+
+	upSpeedStr := "-- Mbps"
+	payload := make([]byte, 3000000)
+	start = time.Now()
+	req, reqErr := http.NewRequest("POST", "https://speed.cloudflare.com/__up", bytes.NewReader(payload))
+	if reqErr == nil {
+		req.Header.Set("Content-Type", "application/octet-stream")
+		req.ContentLength = int64(len(payload))
+		respUp, upErr := client.Do(req)
+		if upErr == nil && (respUp.StatusCode == 200 || respUp.StatusCode == 201) {
+			duration := time.Since(start).Seconds()
+			if duration > 0.1 {
+				mbps := (float64(len(payload)) * 8.0) / (duration * 1000000.0)
+				upSpeedStr = fmt.Sprintf("%.1f Mbps", mbps)
+			}
+			respUp.Body.Close()
+		}
+	}
+
+	fmt.Printf("%s\t%s\t%s\n", pingStr, downSpeedStr, upSpeedStr)
+	return 0
+}
+
+type wifiShareResult struct {
+	SSID     string `json:"ssid"`
+	Password string `json:"password"`
+	QRPath   string `json:"qrPath"`
+	Success  bool   `json:"success"`
+	Error    string `json:"error,omitempty"`
+}
+
+func printWiFiShare(args []string) {
+	res := wifiShareResult{Success: false}
+	defer func() {
+		data, _ := json.Marshal(res)
+		fmt.Println(string(data))
+	}()
+
+	var ssid, uuid string
+	if len(args) > 0 && strings.TrimSpace(args[0]) != "" {
+		target := strings.TrimSpace(args[0])
+		out := common.RunOutput(3*time.Second, "nmcli", "-t", "-f", "NAME,UUID,TYPE", "connection", "show")
+		for _, line := range strings.Split(strings.TrimSpace(out), "\n") {
+			parts := splitTerse(line)
+			if len(parts) >= 3 && (parts[2] == "802-11-wireless" || parts[2] == "wifi" || parts[2] == "wireless") {
+				if parts[1] == target || parts[0] == target {
+					ssid = parts[0]
+					uuid = parts[1]
+					break
+				}
+			}
+		}
+	}
+
+	if ssid == "" || uuid == "" {
+		out := common.RunOutput(3*time.Second, "nmcli", "-t", "-f", "NAME,UUID,TYPE,ACTIVE", "connection", "show")
+		for _, line := range strings.Split(strings.TrimSpace(out), "\n") {
+			parts := splitTerse(line)
+			if len(parts) >= 4 && (parts[2] == "802-11-wireless" || parts[2] == "wifi" || parts[2] == "wireless") && (parts[3] == "yes" || parts[3] == "true" || parts[3] == "1") && parts[0] != hotspotName {
+				ssid = parts[0]
+				uuid = parts[1]
+				break
+			}
+		}
+	}
+
+	if ssid == "" {
+		res.Error = "No active Wi-Fi connection found"
+		return
+	}
+
+	psk := strings.TrimSpace(common.RunOutput(3*time.Second, "nmcli", "-s", "-g", "802-11-wireless-security.psk", "connection", "show", "uuid", uuid))
+
+	var qrString string
+	if psk != "" {
+		qrString = fmt.Sprintf("WIFI:T:WPA;S:%s;P:%s;;", ssid, psk)
+	} else {
+		qrString = fmt.Sprintf("WIFI:T:nopass;S:%s;;", ssid)
+	}
+
+	uid := fmt.Sprintf("%d", os.Getuid())
+	imgPath := fmt.Sprintf("/run/user/%s/quickshell_wifi_share.png", uid)
+	_ = common.RunOutput(3*time.Second, "qrencode", "-s", "8", "-l", "H", "-o", imgPath, qrString)
+	if _, err := os.Stat(imgPath); err != nil {
+		res.Error = "Failed to create QR code image"
+		return
+	}
+
+	res.SSID = ssid
+	res.Password = psk
+	res.QRPath = fmt.Sprintf("file://%s", imgPath)
+	res.Success = true
 }

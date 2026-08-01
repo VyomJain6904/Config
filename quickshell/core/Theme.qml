@@ -49,11 +49,10 @@ Singleton {
     readonly property int buttonHeight: 30
     readonly property int chipHeight: 28
     readonly property int workspaceButtonSize: 16
-    readonly property int compactButtonHeight: 40
     readonly property int confirmButtonHeight: 48
     readonly property int titleFontSize: 18
     readonly property int bodyFontSize: 14
-    readonly property int panelFontSize: 11
+    property int panelFontSize: 11
     readonly property int smallFontSize: 12
     readonly property int tinyFontSize: 10
     readonly property int inputFontSize: 16

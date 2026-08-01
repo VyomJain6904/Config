@@ -33,7 +33,9 @@ RowLayout {
             Layout.minimumHeight: root.fixedHeight
             Layout.preferredHeight: root.fixedHeight
             Layout.maximumHeight: root.fixedHeight
-            color: root.aiModel.selectedPlatform === tab.modelData.id ? Theme.surfaceActive : Theme.surface
+            color: root.aiModel.selectedPlatform === tab.modelData.id
+                ? Theme.buttonSelectedBackground
+                : (tabMouse.containsMouse ? Theme.buttonHoverBackground : Theme.buttonBackground)
             border.color: root.aiModel.selectedPlatform === tab.modelData.id ? Theme.accent : Theme.border
             border.width: 1
             radius: Theme.radius
@@ -56,12 +58,13 @@ RowLayout {
                 UiText {
                     anchors.verticalCenter: parent.verticalCenter
                     text: tab.modelData.name
-                    color: root.aiModel.selectedPlatform === tab.modelData.id ? Theme.textStrong : Theme.textMuted
+                    color: root.aiModel.selectedPlatform === tab.modelData.id ? Theme.accentText : Theme.textMuted
                     font.bold: root.aiModel.selectedPlatform === tab.modelData.id
                 }
             }
 
             MouseArea {
+                id: tabMouse
                 anchors.fill: parent
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor

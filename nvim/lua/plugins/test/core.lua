@@ -5,7 +5,7 @@ return {{'nvim-neotest/neotest-plenary'}, {
     'rouge8/neotest-rust' -- Rust
     },
     opts = {
-        adapters = {'neotest-plenary'},
+        adapters = {'neotest-plenary', 'neotest-vitest', 'neotest-golang', 'neotest-rust'},
         status = {
             virtual_text = true
         },
@@ -68,7 +68,7 @@ return {{'nvim-neotest/neotest-plenary'}, {
         opts.consumers.overseer = require 'neotest.consumers.overseer'
 
         if opts.adapters then
-            local adapters = {require 'neotest-vitest', require 'neotest-golang', require 'neotest-rust'}
+            local adapters = {}
 
             for name, config in pairs(opts.adapters or {}) do
                 if type(name) == 'number' then

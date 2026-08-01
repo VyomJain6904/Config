@@ -186,8 +186,10 @@ return { -----------------------------------------------------------------------
             return vim.json.decode(json.json_strip_comments(str))
         end
 
-        -- Overseer integration
-        require("overseer").enable_dap()
+        -- Overseer integration (pcall in case overseer hasn't loaded yet)
+        pcall(function()
+            require("overseer").enable_dap()
+        end)
     end
 }, ---------------------------------------------------------------------------
 -- DAP UI

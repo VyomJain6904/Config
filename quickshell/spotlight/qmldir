@@ -1,0 +1,3 @@
+module qs.spotlight
+SpotlightModel 1.0 SpotlightModel.qml
+SpotlightWindow 1.0 SpotlightWindow.qml

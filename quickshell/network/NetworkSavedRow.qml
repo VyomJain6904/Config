@@ -10,10 +10,32 @@ Rectangle {
     property bool busy: false
     property bool showPassword: false
     property bool copied: false
+    property bool passwordLoaded: false
+    property string password: ""
+
+    onProfileChanged: {
+        root.showPassword = false;
+        root.passwordLoaded = false;
+        root.password = "";
+    }
+
+    Process {
+        id: secretProcess
+        command: Commands.networkHelperCommand("wifi-secret", [root.profile.uuid])
+        running: false
+
+        stdout: StdioCollector {
+            onStreamFinished: {
+                root.password = this.text.trim();
+                root.passwordLoaded = true;
+                root.showPassword = true;
+            }
+        }
+    }
 
     Process {
         id: copyProcess
-        command: ["sh", "-c", "printf '%s' \"$1\" | xclip -selection clipboard", "_", root.profile.password]
+        command: Commands.clipboardHelperCommand("copy", [root.password])
     }
 
     Timer {
@@ -28,7 +50,7 @@ Rectangle {
     signal toggleAutoconnectRequested(string uuid, bool enable)
 
     height: contentColumn.implicitHeight + 24
-    color: root.profile.active ? Theme.surfaceHover : Theme.surface
+    color: root.profile.active ? Theme.buttonFocusBackground : Theme.buttonBackground
     border.color: root.profile.active ? Theme.accent : Theme.border
     border.width: root.profile.active ? 1 : 0
     radius: Theme.radius
@@ -77,7 +99,7 @@ Rectangle {
 
         Text {
             Layout.fillWidth: true
-            text: root.showPassword ? "Password: " + (root.profile.password.length > 0 ? root.profile.password : "(No PSK / Open)") : "Password: ••••••••••••"
+            text: root.showPassword ? "Password: " + (root.password.length > 0 ? root.password : "(No PSK / Open)") : "Password: ••••••••••••"
             color: root.showPassword ? Theme.accent : Theme.textMuted
             font.family: Theme.fontFamily
             font.pixelSize: Theme.smallFontSize
@@ -93,7 +115,9 @@ Rectangle {
             Rectangle {
                 Layout.preferredWidth: passText.implicitWidth + 16
                 Layout.preferredHeight: Theme.chipHeight
-                color: passMouse.containsMouse && !root.busy ? Theme.surfaceActive : Theme.border
+                color: passMouse.containsMouse && !root.busy ? Theme.buttonHoverBackground : Theme.buttonBackground
+                border.color: Theme.border
+                border.width: 1
                 radius: Theme.radius
 
                 Text {
@@ -111,7 +135,17 @@ Rectangle {
                     enabled: !root.busy
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
-                    onClicked: root.showPassword = !root.showPassword
+                    onClicked: {
+                        if (root.showPassword) {
+                            root.showPassword = false;
+                            root.password = "";
+                            root.passwordLoaded = false;
+                        } else if (root.passwordLoaded) {
+                            root.showPassword = true;
+                        } else if (!secretProcess.running) {
+                            secretProcess.running = true;
+                        }
+                    }
                 }
             }
 
@@ -119,7 +153,9 @@ Rectangle {
             Rectangle {
                 Layout.preferredWidth: autoText.implicitWidth + 16
                 Layout.preferredHeight: Theme.chipHeight
-                color: autoMouse.containsMouse && !root.busy ? Theme.surfaceActive : Theme.border
+                color: autoMouse.containsMouse && !root.busy ? Theme.buttonHoverBackground : Theme.buttonBackground
+                border.color: Theme.border
+                border.width: 1
                 radius: Theme.radius
 
                 Text {
@@ -144,10 +180,12 @@ Rectangle {
 
             // Copy password button
             Rectangle {
-                visible: root.profile.password.length > 0 && root.profile.password !== "(No PSK / Open)" && root.profile.password !== "--"
+                visible: root.password.length > 0 && root.password !== "(No PSK / Open)" && root.password !== "--"
                 Layout.preferredWidth: copyText.implicitWidth + 16
                 Layout.preferredHeight: Theme.chipHeight
-                color: copyMouse.containsMouse && !root.busy ? Theme.surfaceActive : Theme.border
+                color: copyMouse.containsMouse && !root.busy ? Theme.buttonHoverBackground : Theme.buttonBackground
+                border.color: Theme.border
+                border.width: 1
                 radius: Theme.radius
 
                 Text {
@@ -180,7 +218,7 @@ Rectangle {
             Rectangle {
                 Layout.preferredWidth: connText.implicitWidth + 16
                 Layout.preferredHeight: Theme.chipHeight
-                color: connMouse.containsMouse && !root.busy ? (root.profile.active ? Theme.border : Theme.accent) : (root.profile.active ? Theme.border : Theme.surfaceHover)
+                color: connMouse.containsMouse && !root.busy ? Theme.buttonHoverBackground : Theme.buttonBackground
                 border.color: root.profile.active ? Theme.border : Theme.accent
                 border.width: 1
                 radius: Theme.radius
@@ -189,7 +227,7 @@ Rectangle {
                     id: connText
                     anchors.centerIn: parent
                     text: root.profile.active ? "Disconnect" : "Connect"
-                    color: (!root.profile.active && (connMouse.containsMouse || true)) ? Theme.textStrong : Theme.text
+                    color: root.profile.active ? Theme.textStrong : Theme.accent
                     font.family: Theme.fontFamily
                     font.pixelSize: Theme.smallFontSize
                     font.bold: !root.profile.active
@@ -215,14 +253,16 @@ Rectangle {
             Rectangle {
                 Layout.preferredWidth: forgetText.implicitWidth + 16
                 Layout.preferredHeight: Theme.chipHeight
-                color: forgetMouse.containsMouse && !root.busy ? Theme.danger : Theme.border
+                color: forgetMouse.containsMouse && !root.busy ? Theme.buttonHoverBackground : Theme.buttonBackground
+                border.color: Theme.danger
+                border.width: 1
                 radius: Theme.radius
 
                 Text {
                     id: forgetText
                     anchors.centerIn: parent
                     text: "Forget"
-                    color: forgetMouse.containsMouse ? "#FFFFFF" : Theme.danger
+                    color: Theme.danger
                     font.family: Theme.fontFamily
                     font.pixelSize: Theme.smallFontSize
                     font.bold: true

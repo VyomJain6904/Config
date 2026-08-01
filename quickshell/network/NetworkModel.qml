@@ -210,7 +210,7 @@ Scope {
         const lines = text.trim().length > 0 ? text.trim().split("\n") : [];
         for (const line of lines) {
             const fields = line.split("\t");
-            if (fields.length < 6)
+            if (fields.length < 5)
                 continue;
             rows.push({
                 "name": fields[0],
@@ -218,14 +218,14 @@ Scope {
                 "active": fields[2] === "yes",
                 "device": fields[3] || "wlo1",
                 "autoconnect": fields[4] === "yes",
-                "password": fields[5] || ""
+                "password": ""
             });
         }
 
         let identical = root.savedNetworks && root.savedNetworks.length === rows.length;
         if (identical) {
             for (let i = 0; i < rows.length; i++) {
-                if (root.savedNetworks[i].uuid !== rows[i].uuid || root.savedNetworks[i].name !== rows[i].name || root.savedNetworks[i].active !== rows[i].active || root.savedNetworks[i].autoconnect !== rows[i].autoconnect || root.savedNetworks[i].password !== rows[i].password) {
+                if (root.savedNetworks[i].uuid !== rows[i].uuid || root.savedNetworks[i].name !== rows[i].name || root.savedNetworks[i].active !== rows[i].active || root.savedNetworks[i].autoconnect !== rows[i].autoconnect) {
                     identical = false;
                     break;
                 }
@@ -581,7 +581,7 @@ Scope {
 
     Timer {
         id: realtimeSyncTimer
-        interval: 500
+        interval: 750
         repeat: true
         property int pollCount: 0
         function trigger() {
@@ -590,7 +590,7 @@ Scope {
         }
         onTriggered: {
             pollCount++;
-            if (!root.visible || pollCount >= 8) {
+            if (!root.visible || pollCount >= 3) {
                 running = false;
                 return;
             }

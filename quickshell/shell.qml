@@ -13,6 +13,8 @@ import qs.vpn
 import qs.panel
 import qs.power
 import qs.state
+import qs.spotlight
+import qs.ai
 
 ShellRoot {
     FontLoader {
@@ -54,7 +56,59 @@ ShellRoot {
         id: vpnModel
     }
 
+    AiModel {
+        id: aiModel
+    }
+
+    SpotlightModel {
+        id: spotlightModel
+    }
+
     // ── IPC Handlers ──────────────────────────────────────────────────
+
+    IpcHandler {
+        target: "menu"
+
+        function close(): void {
+            networkModel.close();
+            controlsModel.close();
+            vpnModel.close();
+            calendarModel.close();
+            aiModel.close();
+        }
+
+        function open(): void {
+            networkModel.open();
+        }
+
+        function toggle(): void {
+            if (networkModel.visible || controlsModel.visible || vpnModel.visible || calendarModel.visible || aiModel.visible) {
+                networkModel.close();
+                controlsModel.close();
+                vpnModel.close();
+                calendarModel.close();
+                aiModel.close();
+            } else {
+                networkModel.open();
+            }
+        }
+    }
+
+    IpcHandler {
+        target: "spotlight"
+
+        function close(): void {
+            spotlightModel.close();
+        }
+
+        function open(): void {
+            spotlightModel.open();
+        }
+
+        function toggle(): void {
+            spotlightModel.toggle();
+        }
+    }
 
     IpcHandler {
         target: "power"
@@ -185,6 +239,38 @@ ShellRoot {
     }
 
     IpcHandler {
+        target: "calendar"
+
+        function open(): void {
+            calendarModel.open();
+        }
+
+        function close(): void {
+            calendarModel.close();
+        }
+
+        function toggle(): void {
+            calendarModel.toggle();
+        }
+    }
+
+    IpcHandler {
+        target: "ai"
+
+        function open(): void {
+            aiModel.open();
+        }
+
+        function close(): void {
+            aiModel.close();
+        }
+
+        function toggle(): void {
+            aiModel.toggle();
+        }
+    }
+
+    IpcHandler {
         target: "tray"
 
         function count(): int {
@@ -240,8 +326,12 @@ ShellRoot {
         powerMenuModel: powerMenuModel
     }
 
+    SpotlightWindow {
+        spotlightModel: spotlightModel
+    }
+
     LazyLoader {
-        active: networkModel.visible || controlsModel.visible || vpnModel.visible || calendarModel.visible
+        active: networkModel.visible || controlsModel.visible || vpnModel.visible || calendarModel.visible || aiModel.visible
 
         component: UtilityWindow {
             networkModel: networkModel
@@ -249,7 +339,9 @@ ShellRoot {
             controlsModel: controlsModel
             vpnModel: vpnModel
             calendarModel: calendarModel
+            aiModel: aiModel
             i3State: i3State
+            vpnFontFamily: vpnFont.name
         }
     }
 }

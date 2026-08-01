@@ -9,7 +9,7 @@ Rectangle {
     signal disconnectRequested(string device)
 
     height: Theme.confirmButtonHeight
-    color: rowMouse.containsMouse ? Theme.surfaceHover : Theme.surface
+    color: rowMouse.containsMouse ? Theme.buttonHoverBackground : Theme.buttonBackground
     radius: Theme.radius
 
     RowLayout {
@@ -44,7 +44,9 @@ Rectangle {
         Rectangle {
             Layout.preferredWidth: actionText.implicitWidth + 18
             Layout.preferredHeight: Theme.chipHeight
-            color: actionMouse.containsMouse ? Theme.accent : Theme.border
+            color: actionMouse.containsMouse ? Theme.buttonHoverBackground : Theme.buttonBackground
+            border.color: actionMouse.containsMouse ? Theme.accent : Theme.border
+            border.width: 1
             radius: Theme.radius
 
             Text {

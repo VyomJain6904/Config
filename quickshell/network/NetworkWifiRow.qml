@@ -12,7 +12,7 @@ Rectangle {
     signal connectRequested(var network)
 
     height: 54
-    color: root.network.active ? Theme.accent : (root.selected ? Theme.surfaceHover : (rowMouse.containsMouse ? Theme.surfaceHover : Theme.surface))
+    color: root.network.active ? Theme.buttonSelectedBackground : (root.selected ? Theme.buttonFocusBackground : (rowMouse.containsMouse ? Theme.buttonHoverBackground : Theme.buttonBackground))
     border.color: root.selected && !root.network.active ? Theme.accent : Theme.border
     border.width: root.selected && !root.network.active ? 1 : 0
     radius: Theme.radius
@@ -85,7 +85,9 @@ Rectangle {
         Rectangle {
             Layout.preferredWidth: actionText.implicitWidth + 18
             Layout.preferredHeight: Theme.chipHeight
-            color: root.network.active ? (actionMouse.containsMouse && !root.busy ? Theme.surfaceHover : Theme.surface) : (actionMouse.containsMouse && !root.busy ? Theme.accent : Theme.border)
+            color: actionMouse.containsMouse && !root.busy ? Theme.buttonHoverBackground : Theme.buttonBackground
+            border.color: root.network.active ? Theme.border : Theme.accent
+            border.width: 1
             radius: Theme.radius
             opacity: root.busy ? 0.5 : 1
 
@@ -94,7 +96,7 @@ Rectangle {
 
                 anchors.centerIn: parent
                 text: root.network.active ? "Connected" : "Connect"
-                color: (!root.network.active && actionMouse.containsMouse && !root.busy) ? Theme.accentText : Theme.textStrong
+                color: root.network.active ? Theme.textStrong : Theme.accent
                 font.family: Theme.fontFamily
                 font.pixelSize: Theme.smallFontSize
             }

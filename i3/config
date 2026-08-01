@@ -21,9 +21,19 @@ exec --no-startup-id ~/.config/i3/touchpad-settings.sh
 # Wallpaper
 exec_always --no-startup-id xsetroot -solid "#000000"
 
-# Theme
+# Theme & System Defaults
 exec --no-startup-id xsettingsd
 exec_always --no-startup-id xprop -root -f _GTK_THEME_VARIANT 8a -set _GTK_THEME_VARIANT "dark"
+exec_always --no-startup-id gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
+exec_always --no-startup-id gsettings set org.gnome.desktop.interface gtk-theme 'MacTahoe-Dark-solid'
+exec_always --no-startup-id gsettings set org.gnome.desktop.interface icon-theme 'MacTahoe'
+exec_always --no-startup-id gsettings set org.gnome.desktop.interface cursor-theme 'macOS'
+
+# Bluetooth Default Off
+exec --no-startup-id bluetoothctl power off
+
+# Super Key Utility Menu (via local xcape)
+exec_always --no-startup-id pkill xcape; ~/.local/bin/xcape -e 'Super_L=Super_L|Shift_L|Control_L|m'
 
 # Audio
 bindsym XF86AudioRaiseVolume exec --no-startup-id wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ -l 1.5
@@ -67,7 +77,8 @@ bindsym $mod+F4 exec --no-startup-id quickshell ipc call power toggle
 # LAUNCHERS
 
 ############################
-bindsym $mod+space exec --no-startup-id rofi -show drun -theme ~/.config/rofi/spotlight.rasi
+bindsym $mod+space exec --no-startup-id quickshell ipc call spotlight toggle
+bindsym $mod+Shift+Control+m exec --no-startup-id quickshell ipc call menu toggle
 ############################
 
 # WINDOW CONTROL
@@ -198,10 +209,16 @@ for_window [class="Brave-browser" title="Picture-in-Picture"] floating enable, s
 
 for_window [title="^quickshell$"] floating enable, move position center
 for_window [title="^Quickshell Utility$"] floating enable, move position center
+for_window [title="^Quickshell Spotlight$"] floating enable, move position center, border pixel 0
 for_window [title="^dwm system health$"] floating enable, move position center
 for_window [class="^btop$"] floating enable, resize set 1400 980, move position center, focus
 for_window [title="(?i).*authentication.*"] floating enable, border pixel 2, resize set 360 130, move position center, focus
 for_window [class="(?i).*polkit.*"] floating enable, border pixel 2, resize set 360 130, move position center, focus
 for_window [class="(?i).*ukui-polkit.*"] floating enable, border pixel 2, resize set 360 130, move position center, focus
+
+for_window [class="(?i)(gnome-calculator|org.gnome.Calculator)"] floating enable, move position center
+for_window [class="(?i)(localsend.*|LocalSend.*)"] floating enable, resize set 1024 680, move position center
+for_window [class="(?i)(snapshot|org.gnome.Snapshot|camera|cheese)"] floating enable, move position center
+for_window [class="(?i)(thunar)"] floating enable, resize set 1024 680, move position center
 
 for_window [class="(?i)rofi"] border pixel 0

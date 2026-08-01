@@ -307,7 +307,7 @@ ColumnLayout {
                                 Rectangle {
                                     height: parent.height
                                     width: parent.width * root.dailyPercent(dayRow.modelData.tokens) / 100
-                                    color: dayRow.modelData.label === "Today" ? Theme.textStrong : Theme.accentSecondary
+                                    color: Theme.accent
                                     Behavior on width {
                                         NumberAnimation {
                                             duration: Theme.animationNormal

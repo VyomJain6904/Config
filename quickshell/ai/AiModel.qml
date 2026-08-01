@@ -55,8 +55,10 @@ Scope {
     }
 
     function close() {
-        if (root.visible)
+        if (root.visible && usageProcess.running) {
             root.send("close");
+            stopTimer.restart();
+        }
         root.visible = false;
         root.busy = false;
     }
@@ -112,13 +114,28 @@ Scope {
         id: restartTimer
         interval: 2000
         repeat: false
-        onTriggered: usageProcess.running = true
+        onTriggered: {
+            if (root.visible) {
+                usageProcess.running = true;
+            }
+        }
+    }
+
+    Timer {
+        id: stopTimer
+        interval: 100
+        repeat: false
+        onTriggered: {
+            if (!root.visible && usageProcess.running) {
+                usageProcess.signal(15);
+            }
+        }
     }
 
     Process {
         id: usageProcess
         command: Commands.aiHelperCommand("watch")
-        running: true
+        running: false
         stdinEnabled: true
 
         stdout: SplitParser {
@@ -134,7 +151,7 @@ Scope {
                 const command = pendingCommand.command;
                 pendingCommand.command = "";
                 Qt.callLater(() => usageProcess.write(command + "\n"));
-            } else if (!running) {
+            } else if (!running && root.visible) {
                 restartTimer.restart();
             }
         }

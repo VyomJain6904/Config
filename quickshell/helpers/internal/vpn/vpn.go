@@ -25,7 +25,6 @@ const (
 	torProfile           = "Tor"
 	torProfileKey        = "tor-socks"
 	torLabel             = "Tor SOCKS :9050"
-	polkitAgent          = "/usr/lib/x86_64-linux-gnu/ukui-polkit/polkit-ukui-authentication-agent-1"
 )
 
 var logoMap = map[string]string{
@@ -79,10 +78,6 @@ func vpnDir() string {
 
 func vpnCommand() string {
 	return filepath.Join(common.HomeDir(), ".local", "bin", "vpn")
-}
-
-func polkitStylesheet() string {
-	return filepath.Join(common.HomeDir(), ".config", "ukui-polkit", "polkit-dark.qss")
 }
 
 func readObject(path string) map[string]any {
@@ -282,7 +277,17 @@ func connect(args []string) int {
 	if len(args) > 1 {
 		targetIP = args[1]
 	}
-	return runVPN(vpnCommand(), "--target-ip", targetIP, "--", profilePath)
+	code := runVPN(vpnCommand(), "--target-ip", targetIP, "--", profilePath)
+	if code == 0 {
+		for i := 0; i < 32; i++ {
+			if ip := vpnIP(); ip != "" {
+				fmt.Printf("Connected to VPN with IP %s\n", ip)
+				break
+			}
+			time.Sleep(250 * time.Millisecond)
+		}
+	}
+	return code
 }
 
 func disconnect() int {
@@ -322,21 +327,7 @@ func runWarp(args ...string) int {
 }
 
 func ensurePolkitAgent() {
-	uid := fmt.Sprintf("%d", os.Getuid())
-	if common.Run(3*time.Second, "pgrep", "-u", uid, "-f", "polkit.*authentication.*agent|polkit-.*agent").Code == 0 {
-		return
-	}
-	info, err := os.Stat(polkitAgent)
-	if err != nil || info.Mode()&0o111 == 0 {
-		return
-	}
-	args := []string{}
-	if common.FileExists(polkitStylesheet()) {
-		args = append(args, "-stylesheet", polkitStylesheet())
-	}
-	if common.StartDetached(polkitAgent, args...) == nil {
-		time.Sleep(200 * time.Millisecond)
-	}
+	_ = common.EnsurePolkitAgent()
 }
 
 func systemServiceActive(service string) bool {

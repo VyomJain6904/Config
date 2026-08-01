@@ -19,19 +19,31 @@ IconImage {
             for (let i = 0; i < preferredNames.length; i++) {
                 const preferred = preferredNames[i];
                 if (preferred && preferred.length > 0) {
-                    Icons.addMacTahoeFallbacks(sources, preferred);
-                    Icons.addIconSource(sources, Quickshell.iconPath(preferred, true));
-                    if (providerFallback) {
-                        Icons.addIconSource(sources, "image://icon/" + preferred);
+                    if (preferred.indexOf("/") === 0) {
+                        Icons.addIconSource(sources, "file://" + preferred);
+                    } else if (preferred.indexOf("file://") === 0 || preferred.indexOf("image://") === 0) {
+                        Icons.addIconSource(sources, preferred);
+                    } else {
+                        Icons.addMacTahoeFallbacks(sources, preferred);
+                        Icons.addIconSource(sources, Quickshell.iconPath(preferred, true));
+                        if (providerFallback) {
+                            Icons.addIconSource(sources, "image://icon/" + preferred);
+                        }
                     }
                 }
             }
 
             if (iconName.length > 0) {
-                Icons.addMacTahoeFallbacks(sources, iconName);
-                Icons.addIconSource(sources, Quickshell.iconPath(iconName, true));
-                if (providerFallback) {
-                    Icons.addIconSource(sources, "image://icon/" + iconName);
+                if (iconName.indexOf("/") === 0) {
+                    Icons.addIconSource(sources, "file://" + iconName);
+                } else if (iconName.indexOf("file://") === 0 || iconName.indexOf("image://") === 0) {
+                    Icons.addIconSource(sources, iconName);
+                } else {
+                    Icons.addMacTahoeFallbacks(sources, iconName);
+                    Icons.addIconSource(sources, Quickshell.iconPath(iconName, true));
+                    if (providerFallback) {
+                        Icons.addIconSource(sources, "image://icon/" + iconName);
+                    }
                 }
             }
 

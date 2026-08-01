@@ -111,13 +111,18 @@ Singleton {
     }
 
     function addMacTahoeFallbacks(sources, iconName) {
-        if (!iconName || iconName.length === 0) return;
+        if (!iconName || iconName.length === 0)
+            return;
+        if (iconName.indexOf("/") === 0) {
+            addIconSource(sources, "file://" + iconName);
+            return;
+        }
+        if (iconName.indexOf("file://") === 0 || iconName.indexOf("image://") === 0) {
+            addIconSource(sources, iconName);
+            return;
+        }
         const names = iconNameFallbacks(iconName);
-        const statusFirst = iconName.indexOf("audio-volume-") === 0
-            || iconName.indexOf("battery-") === 0
-            || iconName.indexOf("display-brightness") === 0
-            || iconName.indexOf("network-wireless-") === 0
-            || iconName.indexOf("bluetooth") === 0;
+        const statusFirst = iconName.indexOf("audio-volume-") === 0 || iconName.indexOf("battery-") === 0 || iconName.indexOf("display-brightness") === 0 || iconName.indexOf("network-wireless-") === 0 || iconName.indexOf("bluetooth") === 0;
 
         for (let i = 0; i < names.length; i++) {
             if (statusFirst) {

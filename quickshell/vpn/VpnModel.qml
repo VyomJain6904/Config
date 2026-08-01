@@ -123,7 +123,6 @@ Scope {
     }
 
     Timer {
-        id: vpnRefreshTimer
         interval: root.visible ? 5000 : 15000
         running: root.visible || root.connected || root.busy
         repeat: true

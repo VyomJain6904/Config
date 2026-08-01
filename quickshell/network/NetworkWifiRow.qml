@@ -36,18 +36,34 @@ Rectangle {
             Layout.fillWidth: true
             spacing: Theme.compactSpacing
 
-            Text {
+            RowLayout {
                 Layout.fillWidth: true
-                text: root.network.ssid
-                color: root.network.active ? Theme.accentText : Theme.textStrong
-                font.family: Theme.fontFamily
-                font.pixelSize: Theme.panelFontSize
-                elide: Text.ElideRight
+                spacing: 6
+
+                Text {
+                    text: root.network.ssid
+                    color: root.network.active ? Theme.accentText : Theme.textStrong
+                    font.family: Theme.fontFamily
+                    font.pixelSize: Theme.panelFontSize
+                    elide: Text.ElideRight
+                    Layout.maximumWidth: parent.width - (root.network.secured ? 20 : 0)
+                }
+
+                Text {
+                    visible: root.network.secured
+                    text: "\uf023"
+                    color: root.network.active ? Theme.accentText : Theme.textMuted
+                    opacity: root.network.active ? 0.8 : 1.0
+                    font.family: Theme.iconFontFamily
+                    font.pixelSize: 12
+                }
+
+                Item { Layout.fillWidth: true }
             }
 
             Text {
                 Layout.fillWidth: true
-                text: (root.network.security.length > 0 ? root.network.security : "Open") + " - " + root.network.signal + "% - " + root.network.device
+                text: (root.network.security.length > 0 ? root.network.security : "Open") + (root.network.saved ? " • Saved" : "") + " - " + root.network.signal + "% - " + root.network.device
                 color: root.network.active ? Theme.accentText : Theme.textMuted
                 opacity: root.network.active ? 0.7 : 1.0
                 font.family: Theme.fontFamily
@@ -77,7 +93,7 @@ Rectangle {
                 id: actionText
 
                 anchors.centerIn: parent
-                text: "Connect"
+                text: root.network.active ? "Connected" : "Connect"
                 color: (!root.network.active && actionMouse.containsMouse && !root.busy) ? Theme.accentText : Theme.textStrong
                 font.family: Theme.fontFamily
                 font.pixelSize: Theme.smallFontSize

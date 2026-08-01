@@ -27,6 +27,14 @@ Scope {
         root.visible = false;
     }
 
+    function toggle() {
+        if (root.visible) {
+            root.close();
+        } else {
+            root.open();
+        }
+    }
+
     function refreshEvents() {
         const now = new Date();
         root.refreshEventsForMonth(now.getMonth() + 1, now.getFullYear());

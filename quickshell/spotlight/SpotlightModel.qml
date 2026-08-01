@@ -16,7 +16,7 @@ Scope {
         root.query = "";
         root.selectedIndex = 0;
         root.visible = true;
-        if (root.allApps.length === 0 || !listProcess.running) {
+        if (root.allApps.length === 0 && !listProcess.running) {
             listProcess.running = true;
         } else {
             root.updateFilter();
@@ -106,7 +106,7 @@ Scope {
     Process {
         id: listProcess
         command: Commands.launcherHelperCommand("list", [])
-        running: true
+        running: false
 
         stdout: StdioCollector {
             onStreamFinished: root.parseApps(this.text)

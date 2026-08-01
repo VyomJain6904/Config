@@ -10,7 +10,7 @@ build: $(BINARY)
 
 $(BINARY): go.mod Makefile $(GO_SOURCES)
 	mkdir -p $(BIN_DIR)
-	CGO_ENABLED=0 go build -trimpath -ldflags='-s -w' -o $(BINARY) ./cmd/qs-helper
+	CGO_ENABLED=1 go build -buildvcs=false -trimpath -ldflags='-s -w' -o $(BINARY) ./cmd/qs-helper
 
 test:
 	go test ./...

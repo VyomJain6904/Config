@@ -1,71 +1,153 @@
+/* 
+   UKUI Polkit Quickshell Theme - Ultra-Compact Monochrome Black
+   Strictly adheres to Quickshell Theme.qml: solid black background (#000000),
+   zero border radius (flat sharp corners), pastel indigo text & accents (#c0caf5),
+   and rectangular surface buttons (#111111).
+   Removes boilerplate explanation text and compresses vertical spacing.
+*/
+
 QWidget {
     background-color: #000000;
     color: #e0e0e0;
-    font-family: "SF Pro Text", "Inter", "JetBrainsMono Nerd Font";
-    font-size: 11pt;
+    font-family: "JetBrainsMono Nerd Font", "SF Pro Text", monospace, sans-serif;
+    font-size: 10pt;
 }
 
 QDialog,
 QMainWindow,
-QFrame {
+QWidget#MainWindow {
     background-color: #000000;
     border: 1px solid #2a2a2a;
-    min-width: 460px;
-    max-width: 460px;
+    border-radius: 0px;
+    min-width: 360px;
+    max-width: 360px;
+    min-height: 125px;
+    max-height: 135px;
+    padding: 8px 12px;
 }
 
-QDialog,
-QMainWindow {
-    min-height: 580px;
-    max-height: 580px;
-    padding: 18px;
-}
-
-QWidget[windowTitle],
+QFrame,
 QDialog QWidget,
 QMainWindow QWidget {
     background-color: transparent;
+    border: none;
 }
 
-QLabel,
-QCheckBox,
-QRadioButton {
-    margin-top: 6px;
-    margin-bottom: 6px;
-}
-
-QLabel {
-    color: #c0caf5;
+/* Completely COLLAPSE and HIDE the redundant Polkit explanation message ("An application is attempting...") */
+QLabel#lblContent,
+QLabel[text*="An application is attempting"],
+QLabel[text*="requires privileges"],
+QLabel#label_11,
+QLabel#label_13,
+QLabel#label_15,
+QLabel#label_17 {
+    max-height: 0px;
+    min-height: 0px;
+    height: 0px;
+    max-width: 0px;
+    min-width: 0px;
+    width: 0px;
+    font-size: 0pt;
+    color: transparent;
     background: transparent;
-    font-size: 14px;
-    line-height: 20px;
+    margin: 0px;
+    padding: 0px;
+    border: none;
 }
 
-QLineEdit,
+/* Command description header (e.g. Authentication is needed to run...) */
+QLabel#lblHeader,
+QLabel#titleLabel {
+    color: #c0caf5;
+    font-size: 10pt;
+    font-weight: bold;
+    margin-top: 0px;
+    margin-bottom: 4px;
+    padding: 0px;
+    line-height: 14px;
+}
+
+/* General narrative labels */
+QLabel {
+    color: #e0e0e0;
+    background: transparent;
+    font-size: 10pt;
+    margin: 0px;
+    padding: 0px;
+}
+
+/* Password label */
+QLabel#lblPrompt {
+    color: #e0e0e0;
+    font-size: 10pt;
+    font-weight: bold;
+    margin-right: 4px;
+}
+
+/* Administrator / Identity / User dropdown box */
+QLabel#warningLabel,
+QLabel#identityLabel,
+QLabel[text*="Admin"],
+QComboBox#cmbUsers,
 QComboBox {
+    color: #ff5555;
+    font-weight: bold;
+    font-size: 10pt;
+    background: transparent;
+    border: none;
+    margin: 2px 0px;
+    padding: 0px;
+}
+
+QComboBox:focus,
+QComboBox:hover {
+    color: #ff6e6e;
+}
+
+/* The Password Input Box - Flat sharp surface matching Theme.qml */
+QLineEdit,
+QLineEdit#lePassword {
     background-color: #111111;
     color: #e0e0e0;
-    border: 1px solid #333333;
-    padding: 10px 12px;
-    min-height: 40px;
-    font-size: 16px;
+    border: 1px solid #2a2a2a;
+    border-radius: 0px;
+    padding: 2px 8px;
+    min-height: 24px;
+    max-height: 26px;
+    font-size: 10pt;
+    font-weight: bold;
     selection-background-color: #c0caf5;
     selection-color: #000000;
+    margin-top: 2px;
+    margin-bottom: 4px;
 }
 
 QLineEdit:focus,
-QComboBox:focus {
-    border-color: #c0caf5;
+QLineEdit#lePassword:focus {
+    border: 1px solid #c0caf5;
+    background-color: #161616;
 }
 
-QPushButton {
+QLineEdit:disabled {
+    background-color: #0a0a0a;
+    color: #555555;
+    border: 1px solid #222222;
+}
+
+/* Flat Rectangular Action Buttons matching ShellButton.qml (radius: 0) */
+QPushButton,
+QPushButton#btnAuth,
+QPushButton#btnCancel {
     background-color: #111111;
     color: #c0caf5;
     border: 1px solid #2a2a2a;
-    padding: 10px 16px;
-    min-height: 40px;
-    min-width: 96px;
-    font-size: 11pt;
+    border-radius: 0px;
+    padding: 3px 12px;
+    min-height: 26px;
+    max-height: 28px;
+    min-width: 85px;
+    font-size: 10pt;
+    font-weight: bold;
 }
 
 QPushButton:hover,
@@ -76,30 +158,50 @@ QPushButton:focus {
 
 QPushButton:pressed {
     background-color: #222222;
+    border-color: #c0caf5;
 }
 
-QPushButton:disabled,
-QLineEdit:disabled,
-QComboBox:disabled {
+QPushButton:disabled {
+    background-color: #0a0a0a;
     color: #555555;
-    border-color: #2a2a2a;
+    border: 1px solid #1a1a1a;
 }
 
+/* Hide biometric / details buttons if they take unnecessary vertical space */
+QPushButton#btnDetails,
+QPushButton#btnBioAuth {
+    max-height: 0px;
+    max-width: 0px;
+    height: 0px;
+    width: 0px;
+    padding: 0px;
+    margin: 0px;
+    border: none;
+    background: transparent;
+    color: transparent;
+}
+
+/* Dialog Button Box Positioning */
 QDialogButtonBox {
     background: transparent;
-    spacing: 12px;
+    spacing: 10px;
     button-layout: 0;
+    margin-top: 4px;
+    padding: 0px;
 }
 
 QDialogButtonBox QPushButton {
-    min-height: 40px;
+    min-height: 26px;
+    min-width: 85px;
 }
 
+/* Auxiliary Elements */
 QToolButton {
     background: transparent;
     color: #c0caf5;
     border: 1px solid transparent;
-    padding: 4px;
+    padding: 2px;
+    border-radius: 0px;
 }
 
 QToolButton:hover,
@@ -108,33 +210,9 @@ QToolButton:focus {
     border-color: #c0caf5;
 }
 
-QCheckBox,
-QRadioButton {
-    color: #c0caf5;
-    background: transparent;
-}
-
-QGroupBox {
-    border: 1px solid #2a2a2a;
-    margin-top: 12px;
-    padding-top: 12px;
-    color: #e0e0e0;
-}
-
 QMessageBox {
-    min-width: 460px;
-    max-width: 460px;
-    min-height: 580px;
-    max-height: 580px;
-}
-
-QScrollArea,
-QScrollBar,
-QAbstractScrollArea {
-    background-color: #000000;
-    border: none;
-}
-
-QScrollBar::handle {
-    background-color: #333333;
+    min-width: 360px;
+    max-width: 360px;
+    min-height: 125px;
+    max-height: 135px;
 }

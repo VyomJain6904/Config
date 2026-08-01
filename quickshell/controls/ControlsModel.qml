@@ -10,7 +10,7 @@ Scope {
     property bool visible: false
     property bool busy: false
     property string requestedTab: "audio"
-    property string volumeText: "VOL unavailable"
+    property string volumeText: "\uf026  unavailable"
     property int volumePercent: 0
     property bool volumeMuted: false
     property string volumeDisplayText: volumeText + (outputDeviceDescription.length > 0 ? " - " + outputDeviceDescription : "")
@@ -21,12 +21,25 @@ Scope {
     property int targetBrightness: -1
     property int batteryPercent: 0
     property bool batteryCharging: false
+
+    property string focusedDisplay: "eDP"
+    property var displayList: []
+    property string displayScale: "1x"
+    property int textSize: 11
+
+    property string batterySize: "40Wh"
+    property string batteryCycles: "0"
+    property string batteryTime: "22m"
+    property string batteryRate: "0.0W"
+    property string batteryStatusText: "PUMPING POWER"
+    property string powerProfile: "Balanced"
+
     property var outputDevices: []
     property string outputDeviceName: ""
     property string outputDeviceDescription: ""
     property var inputDevices: []
     property string inputDeviceName: ""
-    property string micText: "MIC unavailable"
+    property string micText: "\uf131  unavailable"
     property int micPercent: 0
     property string mediaText: "MEDIA none"
     property string mediaPlayer: ""
@@ -68,11 +81,11 @@ Scope {
         if (sink !== null && sink.ready && sink.audio !== null) {
             root.volumePercent = root.clampPercent(sink.audio.volume * 100);
             root.volumeMuted = sink.audio.muted;
-            root.volumeText = (root.volumeMuted ? "VOL muted " : "VOL ") + root.volumePercent.toString() + "%";
+            root.volumeText = (root.volumeMuted ? "\uf026  Muted " : "\uf028  ") + root.volumePercent.toString() + "%";
             root.outputDeviceName = sink.name;
             root.outputDeviceDescription = sink.description.length > 0 ? sink.description : sink.name;
         } else {
-            root.volumeText = "VOL unavailable";
+            root.volumeText = "\uf026  unavailable";
             root.volumeMuted = false;
             root.outputDeviceName = "";
             root.outputDeviceDescription = "";
@@ -84,9 +97,9 @@ Scope {
         const source = root.audioSource;
         if (source !== null && source.ready && source.audio !== null) {
             root.micPercent = root.clampPercent(source.audio.volume * 100);
-            root.micText = source.audio.muted ? "MIC muted" : "MIC on";
+            root.micText = source.audio.muted ? "\uf131  Muted" : "\uf130  On";
         } else {
-            root.micText = "MIC unavailable";
+            root.micText = "\uf131  unavailable";
             if (!micStatusProcess.running) {
                 micStatusProcess.running = true;
             }
@@ -117,6 +130,12 @@ Scope {
         root.refreshMediaStatus();
         root.refreshBluetoothStatus();
         root.refreshBrightnessStatus();
+        if (!batteryStatusProcess.running)
+            batteryStatusProcess.running = true;
+        if (!batteryDetailsProcess.running)
+            batteryDetailsProcess.running = true;
+        if (!displayListProcess.running)
+            displayListProcess.running = true;
     }
 
     function refreshOutputDevices() {
@@ -142,7 +161,6 @@ Scope {
             mediaStatusProcess.running = true;
         }
     }
-
 
     Timer {
         id: mediaWatchRestartTimer
@@ -214,6 +232,83 @@ Scope {
         }
     }
 
+    function parseBatteryDetails(text) {
+        const lines = text.trim().split("\n");
+        for (let i = 0; i < lines.length; i++) {
+            const parts = lines[i].split("\t");
+            if (parts.length < 2)
+                continue;
+            const key = parts[0];
+            const val = parts[1];
+            if (key === "size")
+                root.batterySize = val;
+            else if (key === "cycles")
+                root.batteryCycles = val;
+            else if (key === "time")
+                root.batteryTime = val;
+            else if (key === "rate")
+                root.batteryRate = val;
+            else if (key === "status")
+                root.batteryStatusText = val;
+            else if (key === "profile")
+                root.powerProfile = val;
+        }
+    }
+
+    function parseDisplayList(text) {
+        const lines = text.trim().split("\n");
+        let list = [];
+        for (let i = 0; i < lines.length; i++) {
+            const parts = lines[i].split("\t");
+            if (parts.length >= 2) {
+                const name = parts[0];
+                const focused = (parts.length >= 3 && parts[2] === "1");
+                if (focused)
+                    root.focusedDisplay = name;
+                list.push({
+                    "name": name,
+                    "focused": focused
+                });
+            }
+        }
+        if (list.length === 0) {
+            list = [
+                {
+                    "name": "eDP-1",
+                    "focused": true
+                }
+            ];
+            root.focusedDisplay = "eDP-1";
+        }
+        root.displayList = list;
+    }
+
+    function setPowerProfile(profile) {
+        root.powerProfile = profile.charAt(0).toUpperCase() + profile.slice(1).toLowerCase();
+        if (profile.toLowerCase() === "power-saver" || profile.toLowerCase() === "powersave") {
+            root.powerProfile = "Power-saver";
+        }
+        if (setPowerProfileProcess.running) {
+            setPowerProfileProcess.running = false;
+        }
+        setPowerProfileProcess.command = Commands.controlsHelperCommand("set-power-profile", [profile.toLowerCase()]);
+        setPowerProfileProcess.running = true;
+    }
+
+    function setDisplayScale(val) {
+        root.displayScale = val;
+        if (setDisplayScaleProcess.running) {
+            setDisplayScaleProcess.running = false;
+        }
+        setDisplayScaleProcess.command = Commands.controlsHelperCommand("set-display-scale", [root.focusedDisplay, val]);
+        setDisplayScaleProcess.running = true;
+    }
+
+    function setTextSize(val) {
+        root.textSize = val;
+        Theme.panelFontSize = val;
+    }
+
     function parseVolume(text) {
         const trimmed = text.trim();
 
@@ -225,7 +320,7 @@ Scope {
         if (match !== null) {
             root.volumePercent = root.clampPercent(parseInt(match[1], 10));
         }
-        root.volumeMuted = trimmed.indexOf("VOL muted") === 0;
+        root.volumeMuted = trimmed.indexOf("\uf026  Muted") !== -1 || trimmed.indexOf("Muted") !== -1 || trimmed.indexOf("muted") !== -1;
     }
 
     function parseBrightness(text) {
@@ -361,7 +456,7 @@ Scope {
         const value = root.clampPercent(percent);
         root.targetVolume = value;
         root.volumePercent = value;
-        root.volumeText = (root.volumeMuted ? "VOL muted " : "VOL ") + value.toString() + "%";
+        root.volumeText = (root.volumeMuted ? "\uf026  Muted " : "\uf028  ") + value.toString() + "%";
         volumeTimer.restart();
     }
 
@@ -544,7 +639,7 @@ Scope {
             onStreamFinished: {
                 const sink = root.audioSink;
                 if (sink === null || !sink.ready || sink.audio === null) {
-                    root.parseVolume(this.text.length > 0 ? this.text : "VOL unavailable");
+                    root.parseVolume(this.text.length > 0 ? this.text : "\uf026  unavailable");
                 }
             }
         }
@@ -574,7 +669,7 @@ Scope {
                 const source = root.audioSource;
                 if (source === null || !source.ready || source.audio === null) {
                     const text = this.text.trim();
-                    root.micText = text.length > 0 ? text : "MIC unavailable";
+                    root.micText = text.length > 0 ? text : "\uf131  unavailable";
                     const match = text.match(/([0-9]+)%/);
                     if (match !== null) {
                         root.micPercent = root.clampPercent(parseInt(match[1], 10));
@@ -605,7 +700,6 @@ Scope {
             onStreamFinished: root.parseInputDevices(this.text)
         }
     }
-
 
     Process {
         id: mediaWatchProcess
@@ -702,7 +796,6 @@ Scope {
     }
 
     Timer {
-        id: mediaSyncTimer
         interval: 500
         running: root.visible
         repeat: true
@@ -722,8 +815,51 @@ Scope {
         }
     }
 
+    Process {
+        id: batteryDetailsProcess
+        command: Commands.controlsHelperCommand("battery-details")
+        running: true
+        stdout: StdioCollector {
+            onStreamFinished: {
+                root.parseBatteryDetails(this.text);
+            }
+        }
+    }
+
+    Process {
+        id: setPowerProfileProcess
+        command: Commands.controlsHelperCommand("set-power-profile", ["balanced"])
+        running: false
+        onRunningChanged: {
+            if (!running && !batteryDetailsProcess.running) {
+                batteryDetailsProcess.running = true;
+            }
+        }
+    }
+
+    Process {
+        id: displayListProcess
+        command: Commands.controlsHelperCommand("display-list")
+        running: true
+        stdout: StdioCollector {
+            onStreamFinished: {
+                root.parseDisplayList(this.text);
+            }
+        }
+    }
+
+    Process {
+        id: setDisplayScaleProcess
+        command: Commands.controlsHelperCommand("set-display-scale", [root.focusedDisplay, root.displayScale])
+        running: false
+        onRunningChanged: {
+            if (!running && !displayListProcess.running) {
+                displayListProcess.running = true;
+            }
+        }
+    }
+
     Timer {
-        id: mediaProgressTimer
         interval: 1000
         running: root.mediaState === "Playing" && root.mediaLengthUs > 0
         repeat: true
@@ -739,6 +875,9 @@ Scope {
         onTriggered: {
             if (!batteryStatusProcess.running) {
                 batteryStatusProcess.running = true;
+            }
+            if (!batteryDetailsProcess.running) {
+                batteryDetailsProcess.running = true;
             }
         }
     }

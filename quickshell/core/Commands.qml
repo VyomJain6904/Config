@@ -44,9 +44,18 @@ Singleton {
         return helperCmd("calendar", action, args)
     }
 
+    // ── AI Usage Tracker ──────────────────────────────────────────────
+    function aiHelperCommand(action, args) {
+        return helperCmd("ai", action, args)
+    }
+
     // ── Lock screen (i3lock) ──────────────────────────────────────────
     function lockHelperCommand() {
         return bashCmd("qs-lock")
     }
 
+    // ── Launcher (.desktop applications) ──────────────────────────────
+    function launcherHelperCommand(action, args) {
+        return helperCmd("launcher", action, args)
+    }
 }

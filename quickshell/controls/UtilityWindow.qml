@@ -2,6 +2,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
+import qs.ai
 import qs.core
 import qs.network
 import QtQuick.Controls
@@ -14,24 +15,23 @@ FloatingWindow {
     required property var controlsModel
     required property var vpnModel
     required property var calendarModel
+    required property var aiModel
     required property var i3State
+    property string vpnFontFamily: "JetBrainsMono-VPN"
 
     property string activeTab: "wifi"
     property int selectedIndex: 0
+    property bool showSavedWifi: false
 
     readonly property int popupWidth: 560
-    readonly property int popupHeight: 740
-    readonly property var tabOrder: ["wifi", "bluetooth", "audio", "brightness", "vpn", "calendar"]
+    readonly property int popupHeight: 820
+    readonly property var tabOrder: ["wifi", "bluetooth", "audio", "brightness", "battery", "vpn", "calendar", "ai"]
     property string pendingTab: ""
     readonly property int contentSpacing: Theme.popupSpacing
     readonly property int rowSpacing: Theme.rowSpacing
-    readonly property int actionButtonHeight: Theme.compactButtonHeight
-    readonly property int volumeControlHeight: 46
+    readonly property int volumeControlHeight: 32
     readonly property int volumePercentWidth: 42
-    readonly property int muteButtonWidth: 84
-    // The media card has 12px side margins plus the popup/content padding.
-    // Keep the preview at 16:9 using the actual usable menu width.
-    readonly property int mediaThumbnailHeight: Math.round((popupWidth - 60) * 9 / 16)
+    readonly property int mediaThumbnailHeight: 240
     readonly property int outputDeviceRowHeight: 32
     readonly property int outputDeviceListMaxHeight: 68
     readonly property int inputDeviceListMaxHeight: 68
@@ -41,7 +41,6 @@ FloatingWindow {
     readonly property var workspaceIconMap: ({
             "ghostty": "apps/scalable/com.mitchellh.ghostty-clear.png",
             "helium": "apps/scalable/helium-clear.png",
-            "librewolf": "apps/scalable/librewolf-mc.png",
             "sublime": "apps/scalable/sublime-mc.png",
             "burp": "/usr/share/icons/MacTahoe/apps/scalable/burpsuitepro.icns",
             "excalidraw": "/usr/share/icons/MacTahoe/apps/scalable/pake-excalidraw-mc.png",
@@ -50,7 +49,6 @@ FloatingWindow {
             "obs": "apps/scalable/com.obsproject.Studio-clear.png",
             "whatsapp": "apps/scalable/com.whatsapp.Whatsapp-clear.png",
             "obsidian": "apps/scalable/md.obsidian-clear.png",
-            "nvidia": "apps/scalable/nvidia-clear.png",
             "thunar": "apps/scalable/org.gtk.FileManager-clear.png",
             "telegram": "apps/scalable/org.telegram.desktop-clear.png",
             "vlc": "apps/scalable/org.videolan.VLC-clear.png",
@@ -60,7 +58,8 @@ FloatingWindow {
             "antigravity": "apps/scalable/antigravity-mc.png",
             "localsend": "apps/scalable/localsend-mc.png",
             "torbrowser": "apps/scalable/torbrowser-mc.png",
-            "vmware-workstation": "apps/scalable/vmware-workstation-mc.png"
+            "vmware-workstation": "apps/scalable/vmware-workstation-mc.png",
+            "brave-origin": "apps/scalable/brave-browser-clear.png"
         })
 
     function workspaceAppIconSource(iconKey) {
@@ -72,7 +71,7 @@ FloatingWindow {
         return icon.indexOf("/") === 0 ? "file://" + icon : root.workspaceIconRoot + icon;
     }
 
-    visible: networkModel.visible || controlsModel.visible || vpnModel.visible || calendarModel.visible
+    visible: networkModel.visible || controlsModel.visible || vpnModel.visible || calendarModel.visible || aiModel.visible
     implicitWidth: popupWidth
     implicitHeight: popupHeight
     title: "Quickshell Utility"
@@ -120,6 +119,15 @@ FloatingWindow {
         }
     }
 
+    Connections {
+        target: root.aiModel
+        function onVisibleChanged() {
+            if (root.aiModel.visible) {
+                root.setActiveTab("ai");
+            }
+        }
+    }
+
     onVisibleChanged: {
         if (visible) {
             root.selectedIndex = 0;
@@ -129,6 +137,7 @@ FloatingWindow {
             root.controlsModel.close();
             root.vpnModel.close();
             root.calendarModel.close();
+            root.aiModel.close();
         }
         root.updateWorkspaceGridActive();
     }
@@ -146,14 +155,16 @@ FloatingWindow {
             root.controlsModel.close();
             root.vpnModel.close();
             root.calendarModel.close();
+            root.aiModel.close();
             root.setActiveTab("wifi");
             root.networkModel.refresh(false);
-        } else if (tab === "bluetooth" || tab === "audio" || tab === "brightness") {
+        } else if (tab === "bluetooth" || tab === "audio" || tab === "brightness" || tab === "battery") {
             root.controlsModel.requestedTab = tab;
             root.controlsModel.visible = true;
             root.networkModel.close();
             root.vpnModel.close();
             root.calendarModel.close();
+            root.aiModel.close();
             root.setActiveTab(tab);
             if (tab === "bluetooth") {
                 root.bluetoothModel.refresh(false);
@@ -163,14 +174,17 @@ FloatingWindow {
                 root.controlsModel.refreshOutputDevices();
                 root.controlsModel.refreshInputDevices();
                 root.controlsModel.refreshMediaStatus();
-            } else {
+            } else if (tab === "brightness") {
                 root.controlsModel.refreshBrightnessStatus();
+            } else if (tab === "battery") {
+                root.controlsModel.refresh();
             }
         } else if (tab === "vpn") {
             root.vpnModel.visible = true;
             root.networkModel.close();
             root.controlsModel.close();
             root.calendarModel.close();
+            root.aiModel.close();
             root.setActiveTab("vpn");
             root.vpnModel.refreshProfiles();
             root.vpnModel.refresh();
@@ -179,10 +193,19 @@ FloatingWindow {
             root.networkModel.close();
             root.controlsModel.close();
             root.vpnModel.close();
+            root.aiModel.close();
             root.setActiveTab("calendar");
             if (root.calendarModel.events.length === 0) {
                 root.calendarModel.refreshEvents();
             }
+        } else if (tab === "ai") {
+            root.aiModel.visible = true;
+            root.networkModel.close();
+            root.controlsModel.close();
+            root.vpnModel.close();
+            root.calendarModel.close();
+            root.setActiveTab("ai");
+            root.aiModel.refresh();
         }
     }
 
@@ -205,6 +228,8 @@ FloatingWindow {
             root.setActiveTab("vpn");
         } else if (root.calendarModel.visible) {
             root.setActiveTab("calendar");
+        } else if (root.aiModel.visible) {
+            root.setActiveTab("ai");
         } else {
             root.updateWorkspaceGridActive();
         }
@@ -300,6 +325,11 @@ FloatingWindow {
 
     function activateSelected() {
         root.normalizeSelectedIndex();
+
+        if (root.activeTab === "ai") {
+            root.aiModel.refresh();
+            return;
+        }
 
         if (root.activeTab === "wifi") {
             if (root.selectedIndex === 0) {
@@ -404,7 +434,9 @@ FloatingWindow {
     }
 
     function adjustSelected(delta) {
-        if (root.activeTab === "brightness") {
+        if (root.activeTab === "ai") {
+            root.aiModel.cyclePlatform(delta);
+        } else if (root.activeTab === "brightness") {
             if (delta > 0)
                 root.controlsModel.brightnessUp();
             else
@@ -446,6 +478,7 @@ FloatingWindow {
                 root.controlsModel.close();
                 root.vpnModel.close();
                 root.calendarModel.close();
+                root.aiModel.close();
                 event.accepted = true;
                 return;
             }
@@ -456,6 +489,9 @@ FloatingWindow {
 
             if (event.key === Qt.Key_Tab) {
                 root.cycleTab((event.modifiers & Qt.ShiftModifier) ? -1 : 1);
+                event.accepted = true;
+            } else if (event.key === Qt.Key_R && root.activeTab === "ai") {
+                root.aiModel.refresh();
                 event.accepted = true;
             } else if (event.key === Qt.Key_Down) {
                 root.moveSelection(1);
@@ -495,8 +531,9 @@ FloatingWindow {
 
                     UiText {
                         anchors.centerIn: parent
-                        text: "Wi-Fi"
-                        font.bold: true
+                        text: "\uf1eb"
+                        font.family: Theme.iconFontFamily
+                        font.pixelSize: 18
                         color: root.activeTab === "wifi" ? Theme.accentText : Theme.textStrong
                     }
 
@@ -515,8 +552,9 @@ FloatingWindow {
 
                     UiText {
                         anchors.centerIn: parent
-                        text: "Bluetooth"
-                        font.bold: true
+                        text: "\uf293"
+                        font.family: Theme.iconFontFamily
+                        font.pixelSize: 18
                         color: root.activeTab === "bluetooth" ? Theme.accentText : Theme.textStrong
                     }
 
@@ -535,8 +573,9 @@ FloatingWindow {
 
                     UiText {
                         anchors.centerIn: parent
-                        text: "Audio"
-                        font.bold: true
+                        text: "\uf028"
+                        font.family: Theme.iconFontFamily
+                        font.pixelSize: 18
                         color: root.activeTab === "audio" ? Theme.accentText : Theme.textStrong
                     }
 
@@ -555,8 +594,9 @@ FloatingWindow {
 
                     UiText {
                         anchors.centerIn: parent
-                        text: "Display"
-                        font.bold: true
+                        text: "\uf26c"
+                        font.family: Theme.iconFontFamily
+                        font.pixelSize: 18
                         color: root.activeTab === "brightness" ? Theme.accentText : Theme.textStrong
                     }
 
@@ -570,13 +610,35 @@ FloatingWindow {
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
+                    color: root.activeTab === "battery" ? Theme.accent : Theme.surface
+                    radius: Theme.radius
+
+                    UiText {
+                        anchors.centerIn: parent
+                        text: "\uf240"
+                        font.family: Theme.iconFontFamily
+                        font.pixelSize: 18
+                        color: root.activeTab === "battery" ? Theme.accentText : Theme.textStrong
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: root.activateTab("battery")
+                    }
+                }
+
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
                     color: root.activeTab === "vpn" ? Theme.accent : Theme.surface
                     radius: Theme.radius
 
                     UiText {
                         anchors.centerIn: parent
-                        text: "VPN"
-                        font.bold: true
+                        text: ""
+                        font.family: root.vpnFontFamily
+                        font.pixelSize: 18
                         color: root.activeTab === "vpn" ? Theme.accentText : Theme.textStrong
                     }
 
@@ -595,8 +657,9 @@ FloatingWindow {
 
                     UiText {
                         anchors.centerIn: parent
-                        text: "Calendar"
-                        font.bold: true
+                        text: "\uf073"
+                        font.family: Theme.iconFontFamily
+                        font.pixelSize: 18
                         color: root.activeTab === "calendar" ? Theme.accentText : Theme.textStrong
                     }
 
@@ -608,6 +671,30 @@ FloatingWindow {
                 }
 
                 Rectangle {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    color: root.activeTab === "ai" ? Theme.accent : Theme.surface
+                    radius: Theme.radius
+
+                    Image {
+                        anchors.centerIn: parent
+                        width: 20
+                        height: 20
+                        source: "file:///usr/share/icons/MacTahoe/apps/scalable/agent.png"
+                        sourceSize.width: 32
+                        sourceSize.height: 32
+                        fillMode: Image.PreserveAspectFit
+                        smooth: true
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: root.activateTab("ai")
+                    }
+                }
+
+                Rectangle {
                     Layout.preferredWidth: Theme.buttonHeight + 10
                     Layout.preferredHeight: Theme.buttonHeight + 10
                     color: Theme.transparent
@@ -615,10 +702,10 @@ FloatingWindow {
 
                     UiText {
                         anchors.centerIn: parent
-                        text: "x"
-                        font.bold: true
+                        text: "\uf00d"
+                        font.family: Theme.iconFontFamily
                         color: closeMouse.containsMouse ? Theme.accent : Theme.textMuted
-                        font.pixelSize: Theme.titleFontSize
+                        font.pixelSize: 18
                     }
 
                     MouseArea {
@@ -631,6 +718,7 @@ FloatingWindow {
                             root.controlsModel.close();
                             root.vpnModel.close();
                             root.calendarModel.close();
+                            root.aiModel.close();
                         }
                     }
                 }
@@ -645,24 +733,69 @@ FloatingWindow {
 
                 RowLayout {
                     Layout.fillWidth: true
-                    spacing: Theme.rowSpacing
+                    spacing: 14
 
                     Text {
+                        text: "\uf1eb"
+                        color: Theme.accent
+                        font.family: Theme.iconFontFamily
+                        font.pixelSize: 28
+                    }
+
+                    ColumnLayout {
                         Layout.fillWidth: true
-                        text: root.networkModel.statusText
-                        color: Theme.text
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.titleFontSize
-                        font.bold: true
-                        elide: Text.ElideRight
-                        verticalAlignment: Text.AlignVCenter
+                        spacing: 2
+                        Text {
+                            Layout.fillWidth: true
+                            text: "Wi-Fi Network"
+                            color: Theme.textStrong
+                            font.family: Theme.fontFamily
+                            font.pixelSize: Theme.titleFontSize
+                            font.bold: true
+                            elide: Text.ElideRight
+                        }
+                        Text {
+                            Layout.fillWidth: true
+                            text: root.networkModel.statusText.replace("\uf1eb", "").trim().toUpperCase()
+                            color: Theme.textMuted
+                            font.family: Theme.fontFamily
+                            font.pixelSize: Theme.tinyFontSize
+                            font.bold: true
+                            elide: Text.ElideRight
+                        }
+                    }
+
+                    Rectangle {
+                        Layout.preferredWidth: 36
+                        Layout.preferredHeight: Theme.buttonHeight
+                        color: qrMouse.containsMouse ? Theme.accent : Theme.surface
+                        border.color: qrMouse.containsMouse ? Theme.accent : Theme.border
+                        border.width: 1
+                        radius: Theme.radius
+                        visible: !root.networkModel.sharingWifi
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: "\udb81\udc33"
+                            color: qrMouse.containsMouse ? Theme.surface : Theme.textStrong
+                            font.family: Theme.iconFontFamily
+                            font.pixelSize: 18
+                        }
+
+                        MouseArea {
+                            id: qrMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: root.networkModel.shareActiveWifi()
+                        }
                     }
 
                     ShellButton {
                         Layout.preferredWidth: implicitWidth
                         Layout.preferredHeight: Theme.buttonHeight
-                        label: "Scan"
-                        enabled: !root.networkModel.busy
+                        label: root.networkModel.scanning ? "Scanning..." : "Scan"
+                        enabled: !root.networkModel.busy && !root.networkModel.scanning
                         selected: root.activeTab === "wifi" && root.selectedIndex === 0
                         onActivated: root.networkModel.refresh(true)
                     }
@@ -678,328 +811,255 @@ FloatingWindow {
                     elide: Text.ElideRight
                 }
 
-                SectionLabel {
-                    label: "Active"
-                }
-
-                ListView {
-                    ScrollBar.vertical: ScrollBar {}
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: Math.min(150, Math.max(42, contentHeight))
-                    clip: true
-                    spacing: Theme.listSpacing
-                    model: root.networkModel.activeConnections
-
-                    delegate: NetworkProfileRow {
-                        required property var modelData
-                        width: ListView.view.width
-                        profile: modelData
-                        onDisconnectRequested: device => root.networkModel.disconnectDevice(device)
-                    }
-                }
-
-                Text {
-                    Layout.fillWidth: true
-                    visible: root.networkModel.activeConnections.length === 0
-                    text: "No active connections"
-                    color: Theme.textMuted
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.smallFontSize
-                }
-
-                SectionLabel {
-                    label: "Hotspot"
-                }
-
+                // OMARCHY-STYLE WI-FI QR SHARE MODAL / CARD
                 Rectangle {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: hotspotColumn.implicitHeight + Theme.rowSpacing * 2
+                    Layout.preferredHeight: 460
+                    Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
+                    visible: root.networkModel.sharingWifi
                     color: Theme.surface
-                    border.color: root.activeTab === "wifi" && root.selectedIndex === 1 ? Theme.accent : Theme.border
+                    border.color: Theme.border
                     border.width: 1
-                    radius: Theme.radius
+                    radius: Theme.radius * 1.5
 
                     ColumnLayout {
-                        id: hotspotColumn
-                        anchors.left: parent.left
-                        anchors.right: parent.right
-                        anchors.verticalCenter: parent.verticalCenter
-                        anchors.leftMargin: Theme.rowSpacing
-                        anchors.rightMargin: Theme.rowSpacing
-                        spacing: Theme.compactSpacing
+                        anchors.centerIn: parent
+                        width: parent.width - 40
+                        spacing: 20
 
                         RowLayout {
                             Layout.fillWidth: true
-                            spacing: Theme.rowSpacing
 
-                            ColumnLayout {
+                            Item {
+                                Layout.preferredWidth: 28
+                            }
+
+                            Text {
                                 Layout.fillWidth: true
-                                spacing: Theme.compactSpacing
+                                horizontalAlignment: Text.AlignHCenter
+                                text: "Share " + root.networkModel.shareSsid
+                                color: Theme.textStrong
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.titleFontSize
+                                font.bold: true
+                                elide: Text.ElideRight
+                            }
+
+                            Rectangle {
+                                Layout.preferredWidth: 28
+                                Layout.preferredHeight: 28
+                                color: closeShareMouse.containsMouse ? Theme.surfaceHover : "transparent"
+                                radius: 14
 
                                 Text {
-                                    Layout.fillWidth: true
-                                    text: root.networkModel.hotspotAvailable ? root.networkModel.hotspotSsid : "Hotspot unavailable"
-                                    color: Theme.textStrong
-                                    font.family: Theme.fontFamily
-                                    font.pixelSize: Theme.panelFontSize
-                                    font.bold: true
-                                    elide: Text.ElideRight
+                                    anchors.centerIn: parent
+                                    text: "\uf00d"
+                                    color: closeShareMouse.containsMouse ? Theme.accent : Theme.textMuted
+                                    font.family: Theme.iconFontFamily
+                                    font.pixelSize: 16
                                 }
-                            }
 
-                            ShellButton {
-                                Layout.preferredWidth: implicitWidth
-                                Layout.preferredHeight: Theme.buttonHeight
-                                label: root.networkModel.editingHotspot ? "Cancel" : "Edit"
-                                enabled: root.networkModel.hotspotAvailable && !root.networkModel.busy
-                                onActivated: {
-                                    if (root.networkModel.editingHotspot) {
-                                        root.networkModel.cancelEditingHotspot();
-                                    } else {
-                                        root.networkModel.startEditingHotspot();
-                                    }
+                                MouseArea {
+                                    id: closeShareMouse
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: root.networkModel.closeShare()
                                 }
-                            }
-
-                            ShellButton {
-                                Layout.preferredWidth: implicitWidth
-                                Layout.preferredHeight: Theme.buttonHeight
-                                label: root.networkModel.hotspotActive ? "Stop" : "Start"
-                                enabled: root.networkModel.hotspotAvailable && !root.networkModel.busy
-                                selected: root.activeTab === "wifi" && root.selectedIndex === 1
-                                onActivated: root.networkModel.toggleHotspot()
                             }
                         }
 
-                        ColumnLayout {
-                            Layout.fillWidth: true
-                            visible: root.networkModel.editingHotspot
-                            spacing: Theme.compactSpacing
+                        Rectangle {
+                            Layout.alignment: Qt.AlignHCenter
+                            Layout.preferredWidth: 280
+                            Layout.preferredHeight: 280
+                            color: "#ffffff"
+                            radius: 12
+                            border.color: "#e0e0e0"
+                            border.width: 1
 
-                            Text {
-                                text: "Hotspot Name (SSID)"
-                                color: Theme.textMuted
-                                font.family: Theme.fontFamily
-                                font.pixelSize: Theme.smallFontSize
-                            }
-
-                            Rectangle {
-                                Layout.fillWidth: true
-                                Layout.preferredHeight: 34
-                                color: Theme.surface
-                                border.color: Theme.border
-                                border.width: 1
-                                radius: Theme.radius
-
-                                TextInput {
-                                    id: hotspotSsidInput
-                                    anchors.fill: parent
-                                    anchors.leftMargin: Theme.rowSpacing
-                                    anchors.rightMargin: Theme.rowSpacing
-                                    text: root.networkModel.hotspotSsidInput
-                                    color: Theme.textStrong
-                                    selectionColor: Theme.accent
-                                    selectedTextColor: Theme.accentText
-                                    font.family: Theme.fontFamily
-                                    font.pixelSize: Theme.inputFontSize
-                                    clip: true
-                                    verticalAlignment: TextInput.AlignVCenter
-                                    onTextChanged: root.networkModel.hotspotSsidInput = text
-                                }
-                            }
-
-                            Text {
-                                text: "Hotspot Password (min 8 chars)"
-                                color: Theme.textMuted
-                                font.family: Theme.fontFamily
-                                font.pixelSize: Theme.smallFontSize
-                            }
-
-                            Rectangle {
-                                Layout.fillWidth: true
-                                Layout.preferredHeight: 34
-                                color: Theme.surface
-                                border.color: Theme.border
-                                border.width: 1
-                                radius: Theme.radius
-
-                                RowLayout {
-                                    anchors.fill: parent
-                                    anchors.leftMargin: Theme.rowSpacing
-                                    anchors.rightMargin: Theme.rowSpacing
-                                    spacing: 4
-
-                                    TextInput {
-                                        id: hotspotPasswordInput
-                                        property bool showPassword: false
-                                        Layout.fillWidth: true
-                                        Layout.fillHeight: true
-                                        text: root.networkModel.hotspotPasswordInput
-                                        echoMode: showPassword ? TextInput.Normal : TextInput.Password
-                                        color: Theme.textStrong
-                                        selectionColor: Theme.accent
-                                        selectedTextColor: Theme.accentText
-                                        font.family: Theme.fontFamily
-                                        font.pixelSize: Theme.inputFontSize
-                                        clip: true
-                                        verticalAlignment: TextInput.AlignVCenter
-                                        onTextChanged: root.networkModel.hotspotPasswordInput = text
-                                    }
-
-                                    Text {
-                                        text: hotspotPasswordInput.showPassword ? "Hide" : "Show"
-                                        color: eyeMouse.containsMouse ? Theme.accent : Theme.textMuted
-                                        font.family: Theme.fontFamily
-                                        font.pixelSize: Theme.smallFontSize
-                                        Layout.alignment: Qt.AlignVCenter
-
-                                        MouseArea {
-                                            id: eyeMouse
-                                            anchors.fill: parent
-                                            hoverEnabled: true
-                                            cursorShape: Qt.PointingHandCursor
-                                            onClicked: hotspotPasswordInput.showPassword = !hotspotPasswordInput.showPassword
-                                        }
-                                    }
-                                }
-                            }
-
-                            RowLayout {
-                                Layout.fillWidth: true
-                                spacing: Theme.rowSpacing
-
-                                Text {
-                                    Layout.fillWidth: true
-                                    visible: hotspotPasswordInput.text.length < 8
-                                    text: "Password must be >= 8 chars"
-                                    color: Theme.danger
-                                    font.family: Theme.fontFamily
-                                    font.pixelSize: Theme.smallFontSize
-                                }
-
-                                Item {
-                                    Layout.fillWidth: true
-                                    visible: hotspotPasswordInput.text.length >= 8
-                                }
-
-                                ShellButton {
-                                    Layout.preferredWidth: implicitWidth
-                                    Layout.preferredHeight: Theme.buttonHeight
-                                    label: "Save"
-                                    enabled: hotspotSsidInput.text.length > 0 && hotspotPasswordInput.text.length >= 8 && !root.networkModel.busy
-                                    onActivated: root.networkModel.saveHotspotConfig(hotspotSsidInput.text, hotspotPasswordInput.text)
-                                }
+                            Image {
+                                anchors.centerIn: parent
+                                width: 256
+                                height: 256
+                                source: root.networkModel.shareQrPath
+                                fillMode: Image.PreserveAspectFit
+                                smooth: false
+                                cache: false
                             }
                         }
 
                         Text {
                             Layout.fillWidth: true
-                            visible: root.networkModel.hotspotActive && root.networkModel.hotspotClients.length === 0
-                            text: "No connected devices"
+                            horizontalAlignment: Text.AlignHCenter
+                            text: "Scan to join this network"
                             color: Theme.textMuted
                             font.family: Theme.fontFamily
-                            font.pixelSize: Theme.smallFontSize
-                            elide: Text.ElideRight
+                            font.pixelSize: Theme.panelFontSize
                         }
 
-                        Repeater {
-                            model: root.networkModel.hotspotClients
+                        Rectangle {
+                            Layout.alignment: Qt.AlignHCenter
+                            Layout.preferredWidth: passText.implicitWidth + 24
+                            Layout.preferredHeight: Theme.chipHeight
+                            color: passMouse.containsMouse ? Theme.surfaceHover : "transparent"
+                            border.color: passMouse.containsMouse || root.networkModel.showSharePassword ? Theme.border : "transparent"
+                            border.width: 1
+                            radius: Theme.radius
 
-                            RowLayout {
-                                required property var modelData
-                                Layout.fillWidth: true
-                                spacing: Theme.rowSpacing
+                            Text {
+                                id: passText
+                                anchors.centerIn: parent
+                                text: root.networkModel.showSharePassword ? ("Password: " + (root.networkModel.sharePassword || "None") + "  \uf0c5") : "Show password"
+                                color: root.networkModel.showSharePassword ? Theme.accent : Theme.textMuted
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.smallFontSize
+                                font.bold: true
+                            }
 
-                                Text {
-                                    Layout.fillWidth: true
-                                    text: modelData.name
-                                    color: Theme.text
-                                    font.family: Theme.fontFamily
-                                    font.pixelSize: Theme.smallFontSize
-                                    elide: Text.ElideRight
-                                }
-
-                                Text {
-                                    text: modelData.ip
-                                    color: Theme.textMuted
-                                    font.family: Theme.fontFamily
-                                    font.pixelSize: Theme.smallFontSize
+                            MouseArea {
+                                id: passMouse
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    if (!root.networkModel.showSharePassword) {
+                                        root.networkModel.showSharePassword = true;
+                                    } else if (root.networkModel.sharePassword && root.networkModel.sharePassword.length > 0) {
+                                        root.networkModel.copyToClipboard(root.networkModel.sharePassword);
+                                        root.networkModel.message = "Wi-Fi password copied to clipboard!";
+                                    }
                                 }
                             }
                         }
                     }
                 }
 
-                SectionLabel {
-                    label: "Wi-Fi"
-                }
-
-                ListView {
-                    ScrollBar.vertical: ScrollBar {}
+                ColumnLayout {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    clip: true
-                    spacing: Theme.listSpacing
-                    model: root.networkModel.wifiNetworks
+                    visible: !root.networkModel.sharingWifi
+                    spacing: Theme.popupSpacing
 
-                    delegate: NetworkWifiRow {
-                        required property int index
-                        required property var modelData
-                        width: ListView.view.width
-                        network: modelData
-                        selected: index === root.networkModel.selectedWifiIndex
-                        busy: root.networkModel.busy
-                        onSelectedRequested: root.networkModel.selectWifi(index)
-                        onConnectRequested: network => {
-                            root.networkModel.selectWifi(index);
-                            root.networkModel.connectWifi(network);
+                    SectionLabel {
+                        label: "\uf1eb  Active Connection"
+                    }
+
+                    ListView {
+                        ScrollBar.vertical: ScrollBar {}
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: Math.min(150, Math.max(42, contentHeight))
+                        clip: true
+                        spacing: Theme.listSpacing
+                        model: root.networkModel.activeConnections
+
+                        delegate: NetworkProfileRow {
+                            required property var modelData
+                            width: ListView.view.width
+                            profile: modelData
+                            onDisconnectRequested: device => root.networkModel.disconnectDevice(device)
                         }
                     }
-                }
 
-                Text {
-                    Layout.fillWidth: true
-                    visible: root.networkModel.wifiNetworks.length === 0
-                    text: "No visible Wi-Fi networks"
-                    color: Theme.textMuted
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.smallFontSize
-                }
+                    Text {
+                        Layout.fillWidth: true
+                        visible: root.networkModel.activeConnections.length === 0
+                        text: "No active connections"
+                        color: Theme.textMuted
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.smallFontSize
+                    }
 
-                Rectangle {
-                    readonly property var currentSelectedNetwork: root.networkModel.selectedWifiNetwork()
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: currentSelectedNetwork !== null && currentSelectedNetwork.secured ? 44 : 0
-                    visible: currentSelectedNetwork !== null && currentSelectedNetwork.secured
-                    color: Theme.surface
-                    border.color: root.activeTab === "wifi" && root.selectedIndex === root.wifiPasswordIndex() ? Theme.accent : Theme.border
-                    border.width: 1
-                    radius: Theme.radius
+                    SectionLabel {
+                        label: "\uf0c1  Hotspot"
+                    }
 
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.leftMargin: Theme.rowSpacing
-                        anchors.rightMargin: Theme.rowSpacing
-                        spacing: Theme.rowSpacing
+                    Rectangle {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: hotspotColumn.implicitHeight + Theme.rowSpacing * 2
+                        color: Theme.surface
+                        border.color: root.activeTab === "wifi" && root.selectedIndex === 1 ? Theme.accent : Theme.border
+                        border.width: 1
+                        radius: Theme.radius
 
-                        Item {
-                            Layout.fillWidth: true
-                            Layout.fillHeight: true
+                        ColumnLayout {
+                            id: hotspotColumn
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.verticalCenter: parent.verticalCenter
+                            anchors.leftMargin: Theme.rowSpacing
+                            anchors.rightMargin: Theme.rowSpacing
+                            spacing: Theme.compactSpacing
 
                             RowLayout {
-                                anchors.fill: parent
-                                spacing: 4
+                                Layout.fillWidth: true
+                                spacing: Theme.rowSpacing
 
-                                Item {
+                                ColumnLayout {
                                     Layout.fillWidth: true
-                                    Layout.fillHeight: true
+                                    spacing: Theme.compactSpacing
+
+                                    Text {
+                                        Layout.fillWidth: true
+                                        text: root.networkModel.hotspotAvailable ? root.networkModel.hotspotSsid : "Hotspot unavailable"
+                                        color: Theme.textStrong
+                                        font.family: Theme.fontFamily
+                                        font.pixelSize: Theme.panelFontSize
+                                        font.bold: true
+                                        elide: Text.ElideRight
+                                    }
+                                }
+
+                                ShellButton {
+                                    Layout.preferredWidth: implicitWidth
+                                    Layout.preferredHeight: Theme.buttonHeight
+                                    label: root.networkModel.editingHotspot ? "Cancel" : "Edit"
+                                    enabled: root.networkModel.hotspotAvailable && !root.networkModel.busy
+                                    onActivated: {
+                                        if (root.networkModel.editingHotspot) {
+                                            root.networkModel.cancelEditingHotspot();
+                                        } else {
+                                            root.networkModel.startEditingHotspot();
+                                        }
+                                    }
+                                }
+
+                                ShellButton {
+                                    Layout.preferredWidth: implicitWidth
+                                    Layout.preferredHeight: Theme.buttonHeight
+                                    label: root.networkModel.hotspotActive ? "Stop" : "Start"
+                                    enabled: root.networkModel.hotspotAvailable && !root.networkModel.busy
+                                    selected: root.activeTab === "wifi" && root.selectedIndex === 1
+                                    onActivated: root.networkModel.toggleHotspot()
+                                }
+                            }
+
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                visible: root.networkModel.editingHotspot
+                                spacing: Theme.compactSpacing
+
+                                Text {
+                                    text: "Hotspot Name (SSID)"
+                                    color: Theme.textMuted
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: Theme.smallFontSize
+                                }
+
+                                Rectangle {
+                                    Layout.fillWidth: true
+                                    Layout.preferredHeight: 34
+                                    color: Theme.surface
+                                    border.color: Theme.border
+                                    border.width: 1
+                                    radius: Theme.radius
 
                                     TextInput {
-                                        id: wifiPasswordInput
-                                        property bool showPassword: false
+                                        id: hotspotSsidInput
                                         anchors.fill: parent
-                                        text: root.networkModel.wifiPassword
-                                        echoMode: showPassword ? TextInput.Normal : TextInput.Password
+                                        anchors.leftMargin: Theme.rowSpacing
+                                        anchors.rightMargin: Theme.rowSpacing
+                                        text: root.networkModel.hotspotSsidInput
                                         color: Theme.textStrong
                                         selectionColor: Theme.accent
                                         selectedTextColor: Theme.accentText
@@ -1007,58 +1067,574 @@ FloatingWindow {
                                         font.pixelSize: Theme.inputFontSize
                                         clip: true
                                         verticalAlignment: TextInput.AlignVCenter
-                                        enabled: !root.networkModel.busy
-                                        onTextChanged: root.networkModel.wifiPassword = text
-                                        onAccepted: root.networkModel.connectSelectedWifi()
-                                    }
-
-                                    Text {
-                                        anchors.left: parent.left
-                                        anchors.verticalCenter: parent.verticalCenter
-                                        visible: wifiPasswordInput.text.length === 0
-                                        text: "Password"
-                                        color: Theme.placeholder
-                                        font.family: Theme.fontFamily
-                                        font.pixelSize: Theme.inputFontSize
+                                        onTextChanged: root.networkModel.hotspotSsidInput = text
                                     }
                                 }
 
                                 Text {
-                                    text: wifiPasswordInput.showPassword ? "Hide" : "Show"
-                                    color: wifiEyeMouse.containsMouse ? Theme.accent : Theme.textMuted
+                                    text: "Hotspot Password (min 8 chars)"
+                                    color: Theme.textMuted
                                     font.family: Theme.fontFamily
                                     font.pixelSize: Theme.smallFontSize
-                                    Layout.alignment: Qt.AlignVCenter
+                                }
 
-                                    MouseArea {
-                                        id: wifiEyeMouse
+                                Rectangle {
+                                    Layout.fillWidth: true
+                                    Layout.preferredHeight: 34
+                                    color: Theme.surface
+                                    border.color: Theme.border
+                                    border.width: 1
+                                    radius: Theme.radius
+
+                                    RowLayout {
                                         anchors.fill: parent
-                                        hoverEnabled: true
-                                        cursorShape: Qt.PointingHandCursor
-                                        onClicked: wifiPasswordInput.showPassword = !wifiPasswordInput.showPassword
+                                        anchors.leftMargin: Theme.rowSpacing
+                                        anchors.rightMargin: Theme.rowSpacing
+                                        spacing: 4
+
+                                        TextInput {
+                                            id: hotspotPasswordInput
+                                            property bool showPassword: false
+                                            Layout.fillWidth: true
+                                            Layout.fillHeight: true
+                                            text: root.networkModel.hotspotPasswordInput
+                                            echoMode: showPassword ? TextInput.Normal : TextInput.Password
+                                            color: Theme.textStrong
+                                            selectionColor: Theme.accent
+                                            selectedTextColor: Theme.accentText
+                                            font.family: Theme.fontFamily
+                                            font.pixelSize: Theme.inputFontSize
+                                            clip: true
+                                            verticalAlignment: TextInput.AlignVCenter
+                                            onTextChanged: root.networkModel.hotspotPasswordInput = text
+                                        }
+
+                                        Text {
+                                            text: hotspotPasswordInput.showPassword ? "\uf070" : "\uf06e"
+                                            color: eyeMouse.containsMouse ? Theme.accent : Theme.textMuted
+                                            font.family: Theme.iconFontFamily
+                                            font.pixelSize: 14
+                                            Layout.alignment: Qt.AlignVCenter
+
+                                            MouseArea {
+                                                id: eyeMouse
+                                                anchors.fill: parent
+                                                hoverEnabled: true
+                                                cursorShape: Qt.PointingHandCursor
+                                                onClicked: hotspotPasswordInput.showPassword = !hotspotPasswordInput.showPassword
+                                            }
+                                        }
+                                    }
+                                }
+
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    spacing: Theme.rowSpacing
+
+                                    Text {
+                                        Layout.fillWidth: true
+                                        visible: hotspotPasswordInput.text.length < 8
+                                        text: "Password must be >= 8 chars"
+                                        color: Theme.danger
+                                        font.family: Theme.fontFamily
+                                        font.pixelSize: Theme.smallFontSize
+                                    }
+
+                                    Item {
+                                        Layout.fillWidth: true
+                                        visible: hotspotPasswordInput.text.length >= 8
+                                    }
+
+                                    ShellButton {
+                                        Layout.preferredWidth: implicitWidth
+                                        Layout.preferredHeight: Theme.buttonHeight
+                                        label: "Save"
+                                        enabled: hotspotSsidInput.text.length > 0 && hotspotPasswordInput.text.length >= 8 && !root.networkModel.busy
+                                        onActivated: root.networkModel.saveHotspotConfig(hotspotSsidInput.text, hotspotPasswordInput.text)
                                     }
                                 }
                             }
+
+                            Text {
+                                Layout.fillWidth: true
+                                visible: root.networkModel.hotspotActive && root.networkModel.hotspotClients.length === 0
+                                text: "No connected devices"
+                                color: Theme.textMuted
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.smallFontSize
+                                elide: Text.ElideRight
+                            }
+
+                            Repeater {
+                                model: root.networkModel.hotspotClients
+
+                                RowLayout {
+                                    required property var modelData
+                                    Layout.fillWidth: true
+                                    spacing: Theme.rowSpacing
+
+                                    Text {
+                                        Layout.fillWidth: true
+                                        text: modelData.name
+                                        color: Theme.text
+                                        font.family: Theme.fontFamily
+                                        font.pixelSize: Theme.smallFontSize
+                                        elide: Text.ElideRight
+                                    }
+
+                                    Text {
+                                        text: modelData.ip
+                                        color: Theme.textMuted
+                                        font.family: Theme.fontFamily
+                                        font.pixelSize: Theme.smallFontSize
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 12
+
+                        SectionLabel {
+                            label: "\uf0e4  Speed Test"
+                        }
+
+                        Item {
+                            Layout.fillWidth: true
                         }
 
                         ShellButton {
                             Layout.preferredWidth: implicitWidth
                             Layout.preferredHeight: Theme.buttonHeight
-                            label: "Connect"
-                            enabled: !root.networkModel.busy
-                            onActivated: root.networkModel.connectSelectedWifi()
+                            label: root.networkModel.testingSpeed ? "Testing..." : "Run Test"
+                            enabled: !root.networkModel.testingSpeed
+                            onActivated: root.networkModel.runSpeedTest()
                         }
                     }
-                }
 
-                ShellButton {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: root.networkModel.editorAvailable ? 36 : 0
-                    visible: root.networkModel.editorAvailable
-                    label: "Edit Connections"
-                    compact: false
-                    selected: root.activeTab === "wifi" && root.selectedIndex === root.wifiEditIndex()
-                    onActivated: root.networkModel.openEditor()
+                    Rectangle {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 58
+                        color: Theme.surface
+                        radius: Theme.radius
+                        border.color: Theme.border
+                        border.width: 1
+
+                        RowLayout {
+                            anchors.fill: parent
+                            spacing: 0
+
+                            Item {
+                                Layout.fillWidth: true
+                                Layout.preferredWidth: 1
+                                Layout.fillHeight: true
+
+                                ColumnLayout {
+                                    anchors.centerIn: parent
+                                    spacing: 4
+
+                                    RowLayout {
+                                        Layout.alignment: Qt.AlignHCenter
+                                        spacing: 6
+                                        Text {
+                                            text: "\uf017"
+                                            color: Theme.accent
+                                            font.family: Theme.iconFontFamily
+                                            font.pixelSize: 13
+                                            Layout.alignment: Qt.AlignVCenter
+                                        }
+                                        Text {
+                                            text: "Ping"
+                                            color: Theme.textMuted
+                                            font.family: Theme.fontFamily
+                                            font.pixelSize: Theme.smallFontSize
+                                            Layout.alignment: Qt.AlignVCenter
+                                        }
+                                    }
+
+                                    Text {
+                                        Layout.alignment: Qt.AlignHCenter
+                                        horizontalAlignment: Text.AlignHCenter
+                                        text: root.networkModel.speedPing
+                                        color: Theme.textStrong
+                                        font.family: Theme.fontFamily
+                                        font.pixelSize: Theme.bodyFontSize
+                                        font.bold: true
+                                    }
+                                }
+                            }
+
+                            Rectangle {
+                                Layout.preferredWidth: 1
+                                Layout.preferredHeight: 36
+                                Layout.alignment: Qt.AlignVCenter
+                                color: Theme.border
+                            }
+
+                            Item {
+                                Layout.fillWidth: true
+                                Layout.preferredWidth: 1
+                                Layout.fillHeight: true
+
+                                ColumnLayout {
+                                    anchors.centerIn: parent
+                                    spacing: 4
+
+                                    RowLayout {
+                                        Layout.alignment: Qt.AlignHCenter
+                                        spacing: 6
+                                        Text {
+                                            text: "\uf019"
+                                            color: Theme.accent
+                                            font.family: Theme.iconFontFamily
+                                            font.pixelSize: 13
+                                            Layout.alignment: Qt.AlignVCenter
+                                        }
+                                        Text {
+                                            text: "Download"
+                                            color: Theme.textMuted
+                                            font.family: Theme.fontFamily
+                                            font.pixelSize: Theme.smallFontSize
+                                            Layout.alignment: Qt.AlignVCenter
+                                        }
+                                    }
+
+                                    Text {
+                                        Layout.alignment: Qt.AlignHCenter
+                                        horizontalAlignment: Text.AlignHCenter
+                                        text: root.networkModel.speedDownload
+                                        color: Theme.textStrong
+                                        font.family: Theme.fontFamily
+                                        font.pixelSize: Theme.bodyFontSize
+                                        font.bold: true
+                                    }
+                                }
+                            }
+
+                            Rectangle {
+                                Layout.preferredWidth: 1
+                                Layout.preferredHeight: 36
+                                Layout.alignment: Qt.AlignVCenter
+                                color: Theme.border
+                            }
+
+                            Item {
+                                Layout.fillWidth: true
+                                Layout.preferredWidth: 1
+                                Layout.fillHeight: true
+
+                                ColumnLayout {
+                                    anchors.centerIn: parent
+                                    spacing: 4
+
+                                    RowLayout {
+                                        Layout.alignment: Qt.AlignHCenter
+                                        spacing: 6
+                                        Text {
+                                            text: "\uf093"
+                                            color: Theme.accent
+                                            font.family: Theme.iconFontFamily
+                                            font.pixelSize: 13
+                                            Layout.alignment: Qt.AlignVCenter
+                                        }
+                                        Text {
+                                            text: "Upload"
+                                            color: Theme.textMuted
+                                            font.family: Theme.fontFamily
+                                            font.pixelSize: Theme.smallFontSize
+                                            Layout.alignment: Qt.AlignVCenter
+                                        }
+                                    }
+
+                                    Text {
+                                        Layout.alignment: Qt.AlignHCenter
+                                        horizontalAlignment: Text.AlignHCenter
+                                        text: root.networkModel.speedUpload
+                                        color: Theme.textStrong
+                                        font.family: Theme.fontFamily
+                                        font.pixelSize: Theme.bodyFontSize
+                                        font.bold: true
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 12
+
+                        SectionLabel {
+                            label: "\uf1eb  Wi-Fi"
+                        }
+
+                        Item {
+                            Layout.fillWidth: true
+                        }
+
+                        Rectangle {
+                            Layout.preferredWidth: availText.implicitWidth + 20
+                            Layout.preferredHeight: Theme.chipHeight
+                            color: !root.showSavedWifi ? Theme.accent : (availMouse.containsMouse ? Theme.surfaceHover : Theme.surface)
+                            radius: Theme.radius
+
+                            Text {
+                                id: availText
+                                anchors.centerIn: parent
+                                text: "Available"
+                                color: !root.showSavedWifi ? Theme.accentText : Theme.textStrong
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.smallFontSize
+                                font.bold: !root.showSavedWifi
+                            }
+
+                            MouseArea {
+                                id: availMouse
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: root.showSavedWifi = false
+                            }
+                        }
+
+                        Rectangle {
+                            Layout.preferredWidth: savedText.implicitWidth + 20
+                            Layout.preferredHeight: Theme.chipHeight
+                            color: root.showSavedWifi ? Theme.accent : (savedMouse.containsMouse ? Theme.surfaceHover : Theme.surface)
+                            radius: Theme.radius
+
+                            Text {
+                                id: savedText
+                                anchors.centerIn: parent
+                                text: "Saved (" + root.networkModel.savedNetworks.length + ")"
+                                color: root.showSavedWifi ? Theme.accentText : Theme.textStrong
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.smallFontSize
+                                font.bold: root.showSavedWifi
+                            }
+
+                            MouseArea {
+                                id: savedMouse
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: root.showSavedWifi = true
+                            }
+                        }
+                    }
+
+                    ListView {
+                        ScrollBar.vertical: ScrollBar {}
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        visible: !root.showSavedWifi
+                        clip: true
+                        spacing: Theme.listSpacing
+                        model: root.networkModel.wifiNetworks
+
+                        delegate: NetworkWifiRow {
+                            required property int index
+                            required property var modelData
+                            width: ListView.view.width
+                            network: modelData
+                            selected: index === root.networkModel.selectedWifiIndex
+                            busy: root.networkModel.busy
+                            onSelectedRequested: root.networkModel.selectWifi(index)
+                            onConnectRequested: network => {
+                                root.networkModel.selectWifi(index);
+                                root.networkModel.connectWifi(network);
+                            }
+                        }
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        visible: !root.showSavedWifi && root.networkModel.wifiNetworks.length === 0
+                        text: root.networkModel.scanning ? "Scanning for available Wi-Fi networks..." : "No Wi-Fi networks scanned — click 'Scan' to search"
+                        color: Theme.textMuted
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.smallFontSize
+                    }
+
+                    ListView {
+                        ScrollBar.vertical: ScrollBar {}
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        visible: root.showSavedWifi
+                        clip: true
+                        spacing: Theme.listSpacing
+                        model: root.networkModel.savedNetworks
+
+                        delegate: NetworkSavedRow {
+                            required property var modelData
+                            width: ListView.view.width
+                            profile: modelData
+                            busy: root.networkModel.busy
+                            onConnectRequested: uuid => root.networkModel.connectSavedNetwork(uuid)
+                            onDisconnectRequested: device => root.networkModel.disconnectDevice(device)
+                            onForgetRequested: uuid => root.networkModel.forgetSavedNetwork(uuid)
+                            onToggleAutoconnectRequested: (uuid, enable) => root.networkModel.toggleAutoconnect(uuid, enable)
+                        }
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        visible: root.showSavedWifi && root.networkModel.savedNetworks.length === 0
+                        text: "No saved Wi-Fi networks found"
+                        color: Theme.textMuted
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.smallFontSize
+                    }
+
+                    Rectangle {
+                        readonly property var currentSelectedNetwork: root.networkModel.selectedWifiNetwork()
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: (!root.showSavedWifi && currentSelectedNetwork !== null && currentSelectedNetwork.secured && !currentSelectedNetwork.saved && !currentSelectedNetwork.active) ? 44 : 0
+                        visible: !root.showSavedWifi && currentSelectedNetwork !== null && currentSelectedNetwork.secured && !currentSelectedNetwork.saved && !currentSelectedNetwork.active
+                        color: Theme.surface
+                        border.color: root.activeTab === "wifi" && root.selectedIndex === root.wifiPasswordIndex() ? Theme.accent : Theme.border
+                        border.width: 1
+                        radius: Theme.radius
+
+                        transform: Translate {
+                            id: passwordTranslate
+                            x: 0
+                        }
+
+                        SequentialAnimation {
+                            id: passwordShakeAnimation
+                            NumberAnimation {
+                                target: passwordTranslate
+                                property: "x"
+                                to: -14
+                                duration: 40
+                            }
+                            NumberAnimation {
+                                target: passwordTranslate
+                                property: "x"
+                                to: 14
+                                duration: 40
+                            }
+                            NumberAnimation {
+                                target: passwordTranslate
+                                property: "x"
+                                to: -10
+                                duration: 40
+                            }
+                            NumberAnimation {
+                                target: passwordTranslate
+                                property: "x"
+                                to: 10
+                                duration: 40
+                            }
+                            NumberAnimation {
+                                target: passwordTranslate
+                                property: "x"
+                                to: -5
+                                duration: 40
+                            }
+                            NumberAnimation {
+                                target: passwordTranslate
+                                property: "x"
+                                to: 0
+                                duration: 40
+                            }
+                        }
+
+                        Connections {
+                            target: root.networkModel
+                            function onPasswordFailed(attempt) {
+                                passwordShakeAnimation.start();
+                                Qt.callLater(() => wifiPasswordInput.forceActiveFocus());
+                            }
+                        }
+
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.leftMargin: Theme.rowSpacing
+                            anchors.rightMargin: Theme.rowSpacing
+                            spacing: Theme.rowSpacing
+
+                            Item {
+                                Layout.fillWidth: true
+                                Layout.fillHeight: true
+
+                                RowLayout {
+                                    anchors.fill: parent
+                                    spacing: 4
+
+                                    Item {
+                                        Layout.fillWidth: true
+                                        Layout.fillHeight: true
+
+                                        TextInput {
+                                            id: wifiPasswordInput
+                                            property bool showPassword: false
+                                            anchors.fill: parent
+                                            text: root.networkModel.wifiPassword
+                                            echoMode: showPassword ? TextInput.Normal : TextInput.Password
+                                            color: Theme.textStrong
+                                            selectionColor: Theme.accent
+                                            selectedTextColor: Theme.accentText
+                                            font.family: Theme.fontFamily
+                                            font.pixelSize: Theme.inputFontSize
+                                            clip: true
+                                            verticalAlignment: TextInput.AlignVCenter
+                                            enabled: !root.networkModel.busy
+                                            onTextChanged: root.networkModel.wifiPassword = text
+                                            onAccepted: root.networkModel.connectSelectedWifi()
+                                        }
+
+                                        Text {
+                                            anchors.left: parent.left
+                                            anchors.verticalCenter: parent.verticalCenter
+                                            visible: wifiPasswordInput.text.length === 0
+                                            text: "Password"
+                                            color: Theme.placeholder
+                                            font.family: Theme.fontFamily
+                                            font.pixelSize: Theme.inputFontSize
+                                        }
+                                    }
+
+                                    Text {
+                                        text: wifiPasswordInput.showPassword ? "\uf070" : "\uf06e"
+                                        color: wifiEyeMouse.containsMouse ? Theme.accent : Theme.textMuted
+                                        font.family: Theme.iconFontFamily
+                                        font.pixelSize: 14
+                                        Layout.alignment: Qt.AlignVCenter
+
+                                        MouseArea {
+                                            id: wifiEyeMouse
+                                            anchors.fill: parent
+                                            hoverEnabled: true
+                                            cursorShape: Qt.PointingHandCursor
+                                            onClicked: wifiPasswordInput.showPassword = !wifiPasswordInput.showPassword
+                                        }
+                                    }
+                                }
+                            }
+
+                            ShellButton {
+                                Layout.preferredWidth: implicitWidth
+                                Layout.preferredHeight: Theme.buttonHeight
+                                label: "Connect"
+                                enabled: !root.networkModel.busy
+                                onActivated: root.networkModel.connectSelectedWifi()
+                            }
+                        }
+                    }
+
+                    ShellButton {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: root.networkModel.editorAvailable ? 36 : 0
+                        visible: root.networkModel.editorAvailable
+                        label: "Edit Connections"
+                        compact: false
+                        selected: root.activeTab === "wifi" && root.selectedIndex === root.wifiEditIndex()
+                        onActivated: root.networkModel.openEditor()
+                    }
                 }
             }
 
@@ -1071,14 +1647,36 @@ FloatingWindow {
 
                 RowLayout {
                     Layout.fillWidth: true
-                    spacing: Theme.rowSpacing
-                    UiText {
-                        Layout.fillWidth: true
-                        text: root.bluetoothModel.statusText
-                        color: Theme.textStrong
-                        font.pixelSize: Theme.titleFontSize
-                        font.bold: true
+                    spacing: 14
+
+                    Text {
+                        text: "\uf293"
+                        color: root.bluetoothModel.statusText.indexOf("off") === -1 && root.bluetoothModel.statusText.indexOf("unavailable") === -1 ? Theme.accent : Theme.textMuted
+                        font.family: Theme.iconFontFamily
+                        font.pixelSize: 28
                     }
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 2
+                        Text {
+                            Layout.fillWidth: true
+                            text: "Bluetooth"
+                            color: Theme.textStrong
+                            font.family: Theme.fontFamily
+                            font.pixelSize: Theme.titleFontSize
+                            font.bold: true
+                        }
+                        Text {
+                            Layout.fillWidth: true
+                            text: root.bluetoothModel.statusText.indexOf("on") !== -1 ? "POWERED ON" : (root.bluetoothModel.statusText.indexOf("off") !== -1 ? "POWERED OFF" : root.bluetoothModel.statusText.toUpperCase())
+                            color: Theme.textMuted
+                            font.family: Theme.fontFamily
+                            font.pixelSize: Theme.tinyFontSize
+                            font.bold: true
+                        }
+                    }
+
                     ShellButton {
                         Layout.preferredWidth: implicitWidth
                         Layout.preferredHeight: Theme.buttonHeight
@@ -1117,6 +1715,10 @@ FloatingWindow {
                     }
                 }
 
+                SectionLabel {
+                    label: "\uf293  Paired & Available Devices"
+                }
+
                 ListView {
                     ScrollBar.vertical: ScrollBar {}
                     Layout.fillWidth: true
@@ -1142,8 +1744,13 @@ FloatingWindow {
                             anchors.rightMargin: Theme.rowSpacing
                             spacing: Theme.rowSpacing
 
-                            FallbackIcon {
-                                iconName: "bluetooth-active"
+                            Text {
+                                text: "\uf293"
+                                color: modelData.connected ? Theme.accentText : Theme.text
+                                font.family: Theme.fontFamily
+                                font.pixelSize: 18
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
                                 Layout.preferredWidth: 24
                                 Layout.preferredHeight: 24
                             }
@@ -1203,17 +1810,36 @@ FloatingWindow {
 
                 RowLayout {
                     Layout.fillWidth: true
-                    spacing: Theme.rowSpacing
+                    spacing: 14
 
                     Text {
+                        text: ""
+                        color: root.vpnModel.connected ? Theme.success : Theme.accent
+                        font.family: root.vpnFontFamily
+                        font.pixelSize: 28
+                    }
+
+                    ColumnLayout {
                         Layout.fillWidth: true
-                        text: root.vpnModel.connected ? "VPN connected" + (root.vpnModel.activeProfile.length > 0 ? " - " + root.vpnModel.activeProfile : "") : "VPN disconnected"
-                        color: Theme.text
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.titleFontSize
-                        font.bold: true
-                        elide: Text.ElideRight
-                        verticalAlignment: Text.AlignVCenter
+                        spacing: 2
+                        Text {
+                            Layout.fillWidth: true
+                            text: "VPN Network"
+                            color: Theme.textStrong
+                            font.family: Theme.fontFamily
+                            font.pixelSize: Theme.titleFontSize
+                            font.bold: true
+                            elide: Text.ElideRight
+                        }
+                        Text {
+                            Layout.fillWidth: true
+                            text: (root.vpnModel.connected ? (root.vpnModel.activeProfile.length > 0 ? "CONNECTED: " + root.vpnModel.activeProfile : "CONNECTED") : "DISCONNECTED").toUpperCase()
+                            color: Theme.textMuted
+                            font.family: Theme.fontFamily
+                            font.pixelSize: Theme.tinyFontSize
+                            font.bold: true
+                            elide: Text.ElideRight
+                        }
                     }
 
                     ShellButton {
@@ -1237,7 +1863,7 @@ FloatingWindow {
                 }
 
                 SectionLabel {
-                    label: "Target IP"
+                    label: "\uf132  Target IP"
                 }
 
                 Rectangle {
@@ -1300,7 +1926,7 @@ FloatingWindow {
 
                     SectionLabel {
                         Layout.fillWidth: true
-                        label: "Profiles"
+                        label: "\uf132  Profiles"
                     }
 
                     ShellButton {
@@ -1423,12 +2049,81 @@ FloatingWindow {
 
             ColumnLayout {
                 Layout.fillWidth: true
-                Layout.alignment: Qt.AlignTop
+                Layout.fillHeight: true
                 visible: root.activeTab === "brightness"
                 spacing: root.contentSpacing
 
-                SectionLabel {
-                    label: "Brightness"
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 14
+
+                    Text {
+                        text: "\uf26c"
+                        color: Theme.accent
+                        font.family: Theme.iconFontFamily
+                        font.pixelSize: 28
+                    }
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 2
+                        Text {
+                            text: "Display"
+                            color: Theme.textStrong
+                            font.family: Theme.fontFamily
+                            font.pixelSize: Theme.titleFontSize
+                            font.bold: true
+                        }
+                    }
+                }
+
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 1
+                    color: Theme.border
+                    opacity: 0.5
+                }
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    SectionLabel {
+                        label: "\uf185  Brightness"
+                    }
+                    TextInput {
+                        id: brightnessPercentInput
+                        text: root.controlsModel.brightnessPercent + "%"
+                        color: Theme.textStrong
+                        selectionColor: Theme.accent
+                        selectedTextColor: Theme.accentText
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.panelFontSize
+                        font.bold: true
+                        horizontalAlignment: TextInput.AlignRight
+                        selectByMouse: true
+                        clip: true
+                        onActiveFocusChanged: {
+                            if (activeFocus) {
+                                selectAll();
+                            } else {
+                                text = root.controlsModel.brightnessPercent + "%";
+                            }
+                        }
+                        onAccepted: {
+                            const value = root.percentFromText(text, root.controlsModel.brightnessPercent);
+                            root.controlsModel.brightnessSet(value);
+                            text = value + "%";
+                            content.forceActiveFocus();
+                        }
+
+                        Connections {
+                            target: root.controlsModel
+                            function onBrightnessPercentChanged() {
+                                if (!brightnessPercentInput.activeFocus) {
+                                    brightnessPercentInput.text = root.controlsModel.brightnessPercent + "%";
+                                }
+                            }
+                        }
+                    }
                 }
 
                 RowLayout {
@@ -1495,48 +2190,193 @@ FloatingWindow {
                             }
                         }
                     }
+                }
 
-                    TextInput {
-                        id: brightnessPercentInput
-                        Layout.preferredWidth: root.volumePercentWidth
-                        text: root.controlsModel.brightnessPercent + "%"
-                        color: Theme.text
-                        selectionColor: Theme.accent
-                        selectedTextColor: Theme.accentText
+                RowLayout {
+                    Layout.fillWidth: true
+                    Layout.topMargin: 4
+                    SectionLabel {
+                        label: "\uf031  Text Size"
+                    }
+                    Text {
+                        text: root.controlsModel.textSize.toString() + "px"
+                        color: Theme.textStrong
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.panelFontSize
                         font.bold: true
-                        horizontalAlignment: TextInput.AlignRight
-                        verticalAlignment: TextInput.AlignVCenter
-                        selectByMouse: true
-                        clip: true
-                        onActiveFocusChanged: {
-                            if (activeFocus) {
-                                selectAll();
-                            } else {
-                                text = root.controlsModel.brightnessPercent + "%";
+                    }
+                }
+
+                Item {
+                    id: textSizeSlider
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 32
+
+                    property int minSize: 9
+                    property int maxSize: 14
+                    property int currentSize: root.controlsModel.textSize
+
+                    function sizeFromX(xPos) {
+                        let ratio = Math.max(0, Math.min(1, xPos / Math.max(1, width)));
+                        return Math.round(minSize + ratio * (maxSize - minSize));
+                    }
+
+                    Rectangle {
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.verticalCenter: parent.verticalCenter
+                        height: 8
+                        color: Theme.surface
+                        radius: Theme.radius
+
+                        Rectangle {
+                            width: Math.round(((textSizeSlider.currentSize - textSizeSlider.minSize) / (textSizeSlider.maxSize - textSizeSlider.minSize)) * parent.width)
+                            height: parent.height
+                            color: Theme.accent
+                            radius: parent.radius
+                        }
+                    }
+
+                    Rectangle {
+                        width: 20
+                        height: 20
+                        x: Math.max(0, Math.min(parent.width - width, Math.round(((textSizeSlider.currentSize - textSizeSlider.minSize) / (textSizeSlider.maxSize - textSizeSlider.minSize)) * parent.width) - width / 2))
+                        y: parent.height / 2 - height / 2
+                        color: Theme.text
+                        border.color: Theme.border
+                        border.width: 1
+                        radius: height / 2
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onPressed: function (mouse) {
+                            root.controlsModel.setTextSize(textSizeSlider.sizeFromX(mouse.x));
+                        }
+                        onPositionChanged: function (mouse) {
+                            if (pressed) {
+                                root.controlsModel.setTextSize(textSizeSlider.sizeFromX(mouse.x));
                             }
                         }
-                        onAccepted: {
-                            const value = root.percentFromText(text, root.controlsModel.brightnessPercent);
-                            root.controlsModel.brightnessSet(value);
-                            text = value + "%";
-                            content.forceActiveFocus();
+                        onReleased: function (mouse) {
+                            root.controlsModel.setTextSize(textSizeSlider.sizeFromX(mouse.x));
                         }
+                    }
+                }
 
-                        Connections {
-                            target: root.controlsModel
-                            function onBrightnessPercentChanged() {
-                                if (!brightnessPercentInput.activeFocus) {
-                                    brightnessPercentInput.text = root.controlsModel.brightnessPercent + "%";
-                                }
+                RowLayout {
+                    Layout.fillWidth: true
+                    Layout.topMargin: 4
+                    SectionLabel {
+                        label: "\uf065  Display Scale"
+                    }
+                    Text {
+                        text: root.controlsModel.focusedDisplay
+                        color: Theme.textStrong
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.smallFontSize
+                    }
+                }
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 8
+
+                    Repeater {
+                        model: ["1x", "1.25x", "1.6x", "2x", "3x", "4x"]
+                        delegate: Rectangle {
+                            required property string modelData
+                            Layout.fillWidth: true
+                            Layout.preferredWidth: 1
+                            Layout.preferredHeight: 34
+                            color: root.controlsModel.displayScale === modelData ? Theme.accent : Theme.surface
+                            border.color: Theme.border
+                            border.width: 1
+                            radius: Theme.radius
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: parent.modelData
+                                color: root.controlsModel.displayScale === parent.modelData ? Theme.accentText : Theme.textStrong
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.panelFontSize
+                                font.bold: true
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: root.controlsModel.setDisplayScale(parent.modelData)
                             }
                         }
                     }
                 }
 
                 SectionLabel {
-                    label: "Workspaces"
+                    label: "\uf26c  Active Displays"
+                }
+
+                Repeater {
+                    model: root.controlsModel.displayList
+                    delegate: Rectangle {
+                        required property var modelData
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 44
+                        color: Theme.surface
+                        border.color: Theme.border
+                        border.width: 1
+                        radius: Theme.radius
+
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.leftMargin: 12
+                            anchors.rightMargin: 12
+                            spacing: 12
+
+                            Text {
+                                text: "\uf108"
+                                color: modelData.focused ? Theme.accent : Theme.textMuted
+                                font.family: Theme.iconFontFamily
+                                font.pixelSize: 16
+                            }
+
+                            Text {
+                                text: modelData.name + (modelData.focused ? " \u00b7 focused" : "")
+                                color: Theme.textStrong
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.bodyFontSize
+                                font.bold: modelData.focused
+                            }
+
+                            Item {
+                                Layout.fillWidth: true
+                            }
+
+                            Text {
+                                text: "\uf00c"
+                                visible: modelData.focused
+                                color: Theme.accent
+                                font.family: Theme.iconFontFamily
+                                font.pixelSize: 14
+                            }
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                root.controlsModel.focusedDisplay = modelData.name;
+                            }
+                        }
+                    }
+                }
+
+                SectionLabel {
+                    label: "\uf108  Workspaces"
                 }
 
                 GridLayout {
@@ -1554,7 +2394,7 @@ FloatingWindow {
                             required property var modelData
 
                             Layout.fillWidth: true
-                            Layout.preferredHeight: Math.max(74, (Math.ceil(modelData.windows.length / 3) * 56) + 16)
+                            Layout.preferredHeight: Math.max(42, (Math.ceil(modelData.windows.length / 4) * 32) + 12)
                             color: modelData.focused ? Theme.surfaceActive : ((workspaceMouse.containsMouse || workspaceDrop.containsDrag) ? Theme.surfaceHover : Theme.surface)
                             border.color: (modelData.focused || workspaceDrop.containsDrag) ? Theme.accent : Theme.border
                             border.width: 1
@@ -1571,7 +2411,7 @@ FloatingWindow {
 
                             Item {
                                 anchors.fill: parent
-                                anchors.margins: 8
+                                anchors.margins: 6
 
                                 Item {
                                     anchors.centerIn: parent
@@ -1582,11 +2422,11 @@ FloatingWindow {
                                         id: iconGrid
 
                                         anchors.centerIn: parent
-                                        width: Math.min(parent.width, Math.max(0, Math.min(3, modelData.windows.length) * 46 + Math.max(0, Math.min(3, modelData.windows.length) - 1) * 10))
+                                        width: Math.min(parent.width, Math.max(0, Math.min(4, modelData.windows.length) * 26 + Math.max(0, Math.min(4, modelData.windows.length) - 1) * 6))
                                         height: implicitHeight
-                                        columns: 3
-                                        columnSpacing: 10
-                                        rowSpacing: 10
+                                        columns: 4
+                                        columnSpacing: 6
+                                        rowSpacing: 6
 
                                         Repeater {
                                             model: modelData.windows
@@ -1596,12 +2436,12 @@ FloatingWindow {
 
                                                 required property var modelData
 
-                                                Layout.preferredWidth: 46
-                                                Layout.preferredHeight: 46
-                                                Layout.minimumWidth: 46
-                                                Layout.minimumHeight: 46
-                                                Layout.maximumWidth: 46
-                                                Layout.maximumHeight: 46
+                                                Layout.preferredWidth: 26
+                                                Layout.preferredHeight: 26
+                                                Layout.minimumWidth: 26
+                                                Layout.minimumHeight: 26
+                                                Layout.maximumWidth: 26
+                                                Layout.maximumHeight: 26
 
                                                 property bool dragStarted: false
                                                 property bool dragging: dragStarted
@@ -1706,16 +2546,309 @@ FloatingWindow {
                         }
                     }
                 }
+
+                Item {
+                    Layout.fillHeight: true
+                }
             }
 
             ColumnLayout {
                 Layout.fillWidth: true
-                Layout.alignment: Qt.AlignTop
+                Layout.fillHeight: true
+                visible: root.activeTab === "battery"
+                spacing: root.contentSpacing
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 14
+
+                    Text {
+                        text: "\uf240"
+                        color: root.controlsModel.batteryCharging ? Theme.success : Theme.accent
+                        font.family: Theme.iconFontFamily
+                        font.pixelSize: 28
+                    }
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 2
+                        Text {
+                            text: "Battery"
+                            color: Theme.textStrong
+                            font.family: Theme.fontFamily
+                            font.pixelSize: Theme.titleFontSize
+                            font.bold: true
+                        }
+                        Text {
+                            text: root.controlsModel.batteryStatusText
+                            color: Theme.textMuted
+                            font.family: Theme.fontFamily
+                            font.pixelSize: Theme.tinyFontSize
+                            font.bold: true
+                        }
+                    }
+
+                    Text {
+                        text: root.controlsModel.batteryPercent.toString() + "%"
+                        color: Theme.textStrong
+                        font.family: Theme.fontFamily
+                        font.pixelSize: 26
+                        font.bold: true
+                    }
+                }
+
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 1
+                    color: Theme.border
+                    opacity: 0.5
+                }
+
+                SectionLabel {
+                    label: "\uf240  Charge Level"
+                }
+
+                Item {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 24
+
+                    Rectangle {
+                        anchors.fill: parent
+                        color: Theme.surface
+                        border.color: Theme.border
+                        border.width: 1
+                        radius: 12
+
+                        Rectangle {
+                            width: Math.max(height, Math.round((root.controlsModel.batteryPercent / 100) * parent.width))
+                            height: parent.height
+                            color: root.controlsModel.batteryCharging ? Theme.success : (root.controlsModel.batteryPercent <= 20 ? Theme.danger : Theme.accent)
+                            radius: 12
+                        }
+                    }
+                }
+
+                SectionLabel {
+                    label: "\uf080  Battery Statistics"
+                }
+
+                GridLayout {
+                    Layout.fillWidth: true
+                    columns: 2
+                    columnSpacing: Theme.rowSpacing
+                    rowSpacing: Theme.rowSpacing
+
+                    Repeater {
+                        model: [
+                            {
+                                "label": "Capacity",
+                                "icon": "\uf242",
+                                "value": root.controlsModel.batterySize
+                            },
+                            {
+                                "label": root.controlsModel.batteryCharging ? "Time to Full" : "Remaining Time",
+                                "icon": "\uf017",
+                                "value": root.controlsModel.batteryTime
+                            },
+                            {
+                                "label": "Charge Cycles",
+                                "icon": "\uf021",
+                                "value": root.controlsModel.batteryCycles
+                            },
+                            {
+                                "label": root.controlsModel.batteryCharging ? "Charge Rate" : "Power Draw",
+                                "icon": "\uf0e4",
+                                "value": root.controlsModel.batteryRate
+                            }
+                        ]
+
+                        delegate: Rectangle {
+                            required property var modelData
+                            Layout.fillWidth: true
+                            Layout.preferredWidth: 1
+                            Layout.preferredHeight: 52
+                            color: Theme.surface
+                            border.color: Theme.border
+                            border.width: 1
+                            radius: Theme.radius
+
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.leftMargin: 12
+                                anchors.rightMargin: 12
+                                spacing: 10
+
+                                Text {
+                                    text: modelData.icon
+                                    color: Theme.accent
+                                    font.family: Theme.iconFontFamily
+                                    font.pixelSize: 18
+                                }
+
+                                ColumnLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 2
+                                    Text {
+                                        Layout.fillWidth: true
+                                        text: modelData.label
+                                        color: Theme.textMuted
+                                        font.family: Theme.fontFamily
+                                        font.pixelSize: Theme.tinyFontSize
+                                        font.bold: true
+                                        elide: Text.ElideRight
+                                    }
+                                    Text {
+                                        Layout.fillWidth: true
+                                        text: modelData.value
+                                        color: Theme.textStrong
+                                        font.family: Theme.fontFamily
+                                        font.pixelSize: Theme.panelFontSize
+                                        font.bold: true
+                                        elide: Text.ElideRight
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                SectionLabel {
+                    label: "\uf0e4  Power Profile"
+                }
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 8
+
+                    Repeater {
+                        model: [
+                            {
+                                "id": "Power-saver",
+                                "icon": "\uf06c",
+                                "label": "Power-saver"
+                            },
+                            {
+                                "id": "Balanced",
+                                "icon": "\uf248",
+                                "label": "Balanced"
+                            },
+                            {
+                                "id": "Performance",
+                                "icon": "\uf135",
+                                "label": "Performance"
+                            }
+                        ]
+
+                        delegate: Rectangle {
+                            required property var modelData
+                            Layout.fillWidth: true
+                            Layout.preferredWidth: 1
+                            Layout.preferredHeight: 46
+                            color: root.controlsModel.powerProfile === modelData.id ? Theme.accent : (profileMouse.containsMouse ? Theme.surfaceHover : Theme.surface)
+                            border.color: Theme.border
+                            border.width: 1
+                            radius: Theme.radius
+
+                            RowLayout {
+                                anchors.centerIn: parent
+                                spacing: 8
+                                Text {
+                                    text: modelData.icon
+                                    color: root.controlsModel.powerProfile === modelData.id ? Theme.accentText : Theme.textStrong
+                                    font.family: Theme.iconFontFamily
+                                    font.pixelSize: 15
+                                }
+                                Text {
+                                    text: modelData.label
+                                    color: root.controlsModel.powerProfile === modelData.id ? Theme.accentText : Theme.textStrong
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: Theme.bodyFontSize
+                                    font.bold: true
+                                }
+                            }
+
+                            MouseArea {
+                                id: profileMouse
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: root.controlsModel.setPowerProfile(modelData.id)
+                            }
+                        }
+                    }
+                }
+
+                Item {
+                    Layout.fillHeight: true
+                }
+            }
+
+            ColumnLayout {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
                 visible: root.activeTab === "audio"
                 spacing: Theme.compactSpacing
 
-                SectionLabel {
-                    label: "Volume"
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 14
+                    Layout.bottomMargin: 8
+
+                    Text {
+                        text: "\uf028"
+                        color: Theme.accent
+                        font.family: Theme.iconFontFamily
+                        font.pixelSize: 28
+                    }
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 2
+                        Text {
+                            text: "Audio & Media"
+                            color: Theme.textStrong
+                            font.family: Theme.fontFamily
+                            font.pixelSize: Theme.titleFontSize
+                            font.bold: true
+                        }
+                    }
+                }
+
+                Item {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: root.volumeControlHeight
+
+                    SectionLabel {
+                        anchors.left: parent.left
+                        anchors.verticalCenter: parent.verticalCenter
+                        label: root.controlsModel.volumeMuted ? "\uf026  Volume" : "\uf028  Volume"
+                    }
+
+                    Text {
+                        anchors.centerIn: parent
+                        width: Math.max(80, parent.width - 240)
+                        height: parent.height
+                        text: root.controlsModel.volumeMuted ? "\uf026  Muted" : ""
+                        color: Theme.danger
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.panelFontSize
+                        font.bold: true
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                        elide: Text.ElideRight
+                    }
+
+                    ShellButton {
+                        compact: true
+                        anchors.right: parent.right
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: implicitWidth
+                        height: Theme.buttonHeight
+                        label: root.controlsModel.volumeMuted ? "\uf028  Unmute" : "\uf026  Mute"
+                        enabled: !root.controlsModel.busy
+                        selected: root.activeTab === "audio" && root.selectedIndex === 1
+                        onActivated: root.controlsModel.volumeToggleMute()
+                    }
                 }
 
                 RowLayout {
@@ -1820,20 +2953,10 @@ FloatingWindow {
                             }
                         }
                     }
-
-                    ControlsActionButton {
-                        Layout.preferredWidth: implicitWidth
-                        Layout.preferredHeight: Theme.buttonHeight
-                        Layout.alignment: Qt.AlignVCenter
-                        label: root.controlsModel.volumeMuted ? "Unmute" : "Mute"
-                        enabled: !root.controlsModel.busy
-                        selected: root.activeTab === "audio" && root.selectedIndex === 1
-                        onActivated: root.controlsModel.volumeToggleMute()
-                    }
                 }
 
                 SectionLabel {
-                    label: "Output"
+                    label: "\uf025  Output Devices"
                 }
 
                 Text {
@@ -1926,7 +3049,7 @@ FloatingWindow {
                     SectionLabel {
                         anchors.left: parent.left
                         anchors.verticalCenter: parent.verticalCenter
-                        label: "Microphone"
+                        label: (root.controlsModel.micText.indexOf("\uf131") !== -1 || root.controlsModel.micText === "MIC muted") ? "\uf131  Microphone" : "\uf130  Microphone"
                     }
 
                     Text {
@@ -1934,7 +3057,7 @@ FloatingWindow {
                         width: Math.max(80, parent.width - 240)
                         height: parent.height
                         text: root.controlsModel.micText
-                        color: root.controlsModel.micText === "MIC muted" ? Theme.danger : Theme.text
+                        color: (root.controlsModel.micText === "MIC muted" || root.controlsModel.micText.indexOf("\uf131") !== -1) ? Theme.danger : Theme.text
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.panelFontSize
                         font.bold: true
@@ -1943,12 +3066,13 @@ FloatingWindow {
                         elide: Text.ElideRight
                     }
 
-                    ControlsActionButton {
+                    ShellButton {
+                        compact: true
                         anchors.right: parent.right
                         anchors.verticalCenter: parent.verticalCenter
                         width: implicitWidth
                         height: Theme.buttonHeight
-                        label: root.controlsModel.micText === "MIC muted" ? "Unmute Mic" : "Mute Mic"
+                        label: (root.controlsModel.micText === "MIC muted" || root.controlsModel.micText.indexOf("\uf131") !== -1) ? "\uf130  Unmute Mic" : "\uf131  Mute Mic"
                         enabled: !root.controlsModel.busy
                         selected: root.activeTab === "audio" && root.selectedIndex === 2 + root.controlsModel.outputDevices.length
                         onActivated: root.controlsModel.micToggleMute()
@@ -1956,13 +3080,11 @@ FloatingWindow {
                 }
 
                 Item {
-                    id: micSlider
 
                     Layout.fillWidth: true
                     Layout.preferredHeight: 28
 
                     Item {
-                        id: micTrack
                         anchors.left: parent.left
                         anchors.right: micPercentLabel.left
                         anchors.rightMargin: root.rowSpacing
@@ -1980,7 +3102,7 @@ FloatingWindow {
                             Rectangle {
                                 width: Math.round((root.controlsModel.micPercent / 100) * parent.width)
                                 height: parent.height
-                                color: root.controlsModel.micText === "MIC muted" ? Theme.textMuted : Theme.accent
+                                color: (root.controlsModel.micText === "MIC muted" || root.controlsModel.micText.indexOf("\uf131") !== -1) ? Theme.textMuted : Theme.accent
                                 radius: parent.radius
                             }
                         }
@@ -2002,7 +3124,9 @@ FloatingWindow {
                             enabled: !root.controlsModel.busy
                             hoverEnabled: true
                             cursorShape: Qt.PointingHandCursor
-                            onPressed: function (mouse) { root.setMicFromX(mouse.x, width); }
+                            onPressed: function (mouse) {
+                                root.setMicFromX(mouse.x, width);
+                            }
                             onPositionChanged: function (mouse) {
                                 if (pressed) {
                                     root.setMicFromX(mouse.x, width);
@@ -2111,12 +3235,12 @@ FloatingWindow {
                 }
 
                 SectionLabel {
-                    label: "Media"
+                    label: "\uf03d  Media Player"
                 }
 
                 Rectangle {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: root.mediaThumbnailHeight + 64
+                    Layout.preferredHeight: root.mediaThumbnailHeight + 88
                     color: Theme.surface
                     radius: Theme.radius
                     border.color: Theme.border
@@ -2140,79 +3264,158 @@ FloatingWindow {
                             border.width: 1
 
                             Image {
-                                id: mediaThumbnail
-                                anchors.centerIn: parent
-                                source: root.controlsModel.mediaArtUrl
-                                asynchronous: true
-                                // Artwork paths are managed by the bridge and
-                                // may be replaced while a browser player stays
-                                // active. Do not let Qt retain a deleted MPRIS
-                                // file or an older image for the same source.
-                                cache: false
-                                fillMode: Image.PreserveAspectFit
+                                anchors.fill: parent
+                                source: mediaThumbnail.source
+                                fillMode: Image.PreserveAspectCrop
+                                visible: mediaThumbnail.visible
+                                opacity: 0.4
                                 smooth: true
                                 mipmap: true
-                                width: parent.width
-                                height: parent.height
-                                visible: source.toString().length > 0 && status === Image.Ready
                             }
 
                             Image {
-                                anchors.centerIn: parent
-                                visible: !mediaThumbnail.visible
-                                width: 42
-                                height: 42
-                                source: "file:///usr/share/icons/MacTahoe/apps/scalable/multimedia.svg"
+                                id: mediaThumbnail
+                                anchors.fill: parent
+                                source: root.controlsModel.mediaArtUrl
                                 asynchronous: true
-                                fillMode: Image.PreserveAspectFit
+                                cache: true
+                                fillMode: Image.PreserveAspectCrop
+                                smooth: true
+                                mipmap: true
+                                visible: source.toString().length > 0 && (status === Image.Ready || status === Image.Loading)
+                            }
+
+                            ColumnLayout {
+                                anchors.centerIn: parent
+                                width: Math.max(100, parent.width - 32)
+                                visible: !mediaThumbnail.visible
+                                spacing: Theme.compactSpacing
+
+                                Image {
+                                    Layout.alignment: Qt.AlignHCenter
+                                    Layout.preferredWidth: 48
+                                    Layout.preferredHeight: 48
+                                    source: "file:///usr/share/icons/MacTahoe/apps/scalable/multimedia.svg"
+                                    asynchronous: true
+                                    fillMode: Image.PreserveAspectFit
+                                    smooth: true
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    Layout.alignment: Qt.AlignHCenter
+                                    horizontalAlignment: Text.AlignHCenter
+                                    text: root.controlsModel.mediaText.length > 0 && root.controlsModel.mediaText !== "MEDIA none" ? root.controlsModel.mediaText : "No Media Playing"
+                                    color: Theme.textMuted
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: Theme.smallFontSize
+                                    elide: Text.ElideRight
+                                    wrapMode: Text.NoWrap
+                                }
                             }
                         }
 
-                        Item {
-                            id: mediaProgressBar
-
+                        // ── Media progress scrubber + timestamps ─────────────────────────
+                        ColumnLayout {
                             Layout.fillWidth: true
-                            Layout.preferredHeight: 16
-                            Layout.alignment: Qt.AlignVCenter
+                            spacing: 4
 
-                            function progressFromX(x) {
-                                return Math.max(0, Math.min(1, x / Math.max(1, width)));
+                            // Formats microseconds into M:SS or H:MM:SS
+                            function formatTime(us) {
+                                const totalSec = Math.max(0, Math.floor(us / 1000000));
+                                const h = Math.floor(totalSec / 3600);
+                                const m = Math.floor((totalSec % 3600) / 60);
+                                const s = totalSec % 60;
+                                const mm = m.toString().padStart(h > 0 ? 2 : 1, "0");
+                                const ss = s.toString().padStart(2, "0");
+                                return h > 0 ? h + ":" + mm + ":" + ss : mm + ":" + ss;
                             }
 
-                            Rectangle {
-                                anchors.left: parent.left
-                                anchors.right: parent.right
-                                anchors.verticalCenter: parent.verticalCenter
-                                height: 6
-                                color: Theme.barBackground
-                                radius: height / 2
-                                border.color: Theme.border
-                                border.width: 1
+                            Item {
+                                id: mediaProgressBar
+
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: 16
+
+                                function progressFromX(x) {
+                                    return Math.max(0, Math.min(1, x / Math.max(1, width)));
+                                }
 
                                 Rectangle {
-                                    width: Math.round(root.controlsModel.mediaProgress * parent.width)
-                                    height: parent.height
-                                    color: root.controlsModel.mediaPlayer.length > 0 ? Theme.accent : Theme.textMuted
-                                    radius: parent.radius
+                                    anchors.left: parent.left
+                                    anchors.right: parent.right
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    height: 6
+                                    color: Theme.barBackground
+                                    radius: height / 2
+                                    border.color: Theme.border
+                                    border.width: 1
+
+                                    Rectangle {
+                                        width: Math.round(root.controlsModel.mediaProgress * parent.width)
+                                        height: parent.height
+                                        color: root.controlsModel.mediaPlayer.length > 0 ? Theme.accent : Theme.textMuted
+                                        radius: parent.radius
+
+                                        // Scrubber handle — visible thumb dot at the progress head
+                                        Rectangle {
+                                            visible: root.controlsModel.mediaLengthUs > 0
+                                            anchors.right: parent.right
+                                            anchors.verticalCenter: parent.verticalCenter
+                                            anchors.rightMargin: -width / 2
+                                            width: 10
+                                            height: 10
+                                            radius: 5
+                                            color: Theme.accent
+                                            border.color: Theme.barBackground
+                                            border.width: 1.5
+                                        }
+                                    }
+                                }
+
+                                MouseArea {
+                                    anchors.fill: parent
+                                    anchors.topMargin: -6
+                                    anchors.bottomMargin: -6
+                                    enabled: root.controlsModel.mediaLengthUs > 0
+                                    hoverEnabled: true
+                                    cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+                                    onPressed: function (mouse) {
+                                        root.controlsModel.mediaPositionUs = root.controlsModel.mediaLengthUs * mediaProgressBar.progressFromX(mouse.x);
+                                    }
+                                    onPositionChanged: function (mouse) {
+                                        if (pressed) {
+                                            root.controlsModel.mediaPositionUs = root.controlsModel.mediaLengthUs * mediaProgressBar.progressFromX(mouse.x);
+                                        }
+                                    }
+                                    onReleased: function (mouse) {
+                                        root.controlsModel.mediaSeek(mediaProgressBar.progressFromX(mouse.x));
+                                    }
                                 }
                             }
 
-                            MouseArea {
-                                id: mediaProgressMouse
-                                anchors.fill: parent
-                                enabled: !root.controlsModel.busy && root.controlsModel.mediaLengthUs > 0
-                                hoverEnabled: true
-                                cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
-                                onPressed: function (mouse) {
-                                    root.controlsModel.mediaPositionUs = root.controlsModel.mediaLengthUs * mediaProgressBar.progressFromX(mouse.x);
+                            // Timestamp row: current position (left) + total duration (right)
+                            RowLayout {
+                                Layout.fillWidth: true
+                                visible: root.controlsModel.mediaLengthUs > 0
+
+                                Text {
+                                    text: parent.parent.formatTime(root.controlsModel.mediaPositionUs)
+                                    color: root.controlsModel.mediaPlayer.length > 0 ? Theme.accent : Theme.textMuted
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: Theme.smallFontSize
+                                    font.bold: true
                                 }
-                                onPositionChanged: function (mouse) {
-                                    if (pressed) {
-                                        root.controlsModel.mediaPositionUs = root.controlsModel.mediaLengthUs * mediaProgressBar.progressFromX(mouse.x);
-                                    }
+
+                                Item {
+                                    Layout.fillWidth: true
                                 }
-                                onReleased: function (mouse) {
-                                    root.controlsModel.mediaSeek(mediaProgressBar.progressFromX(mouse.x));
+
+                                Text {
+                                    text: parent.parent.formatTime(root.controlsModel.mediaLengthUs)
+                                    color: Theme.textMuted
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: Theme.smallFontSize
                                 }
                             }
                         }
@@ -2228,7 +3431,7 @@ FloatingWindow {
                                 Layout.preferredHeight: 26
                                 label: "−5s"
                                 labelPixelSize: 11
-                                enabled: !root.controlsModel.busy && root.controlsModel.mediaPlayer.length > 0
+                                enabled: root.controlsModel.mediaText.length > 0 && root.controlsModel.mediaText !== "No Media Playing" && root.controlsModel.mediaText !== "MEDIA none"
                                 onActivated: root.controlsModel.mediaSeekBy(-5)
                             }
 
@@ -2238,7 +3441,7 @@ FloatingWindow {
                                 label: ""
                                 labelFontFamily: Theme.iconFontFamily
                                 labelPixelSize: 13
-                                enabled: !root.controlsModel.busy && root.controlsModel.mediaPlayer.length > 0
+                                enabled: root.controlsModel.mediaText.length > 0 && root.controlsModel.mediaText !== "No Media Playing" && root.controlsModel.mediaText !== "MEDIA none"
                                 selected: root.activeTab === "audio" && root.selectedIndex === 3 + root.controlsModel.outputDevices.length + root.controlsModel.inputDevices.length
                                 onActivated: root.controlsModel.mediaPrevious()
                             }
@@ -2249,7 +3452,7 @@ FloatingWindow {
                                 label: root.controlsModel.mediaState === "Playing" ? "" : ""
                                 labelFontFamily: Theme.iconFontFamily
                                 labelPixelSize: 13
-                                enabled: !root.controlsModel.busy && root.controlsModel.mediaPlayer.length > 0
+                                enabled: root.controlsModel.mediaText.length > 0 && root.controlsModel.mediaText !== "No Media Playing" && root.controlsModel.mediaText !== "MEDIA none"
                                 selected: root.activeTab === "audio" && root.selectedIndex === 4 + root.controlsModel.outputDevices.length + root.controlsModel.inputDevices.length
                                 onActivated: root.controlsModel.mediaPlayPause()
                             }
@@ -2260,7 +3463,7 @@ FloatingWindow {
                                 label: ""
                                 labelFontFamily: Theme.iconFontFamily
                                 labelPixelSize: 13
-                                enabled: !root.controlsModel.busy && root.controlsModel.mediaPlayer.length > 0
+                                enabled: root.controlsModel.mediaText.length > 0 && root.controlsModel.mediaText !== "No Media Playing" && root.controlsModel.mediaText !== "MEDIA none"
                                 selected: root.activeTab === "audio" && root.selectedIndex === 5 + root.controlsModel.outputDevices.length + root.controlsModel.inputDevices.length
                                 onActivated: root.controlsModel.mediaNext()
                             }
@@ -2270,11 +3473,15 @@ FloatingWindow {
                                 Layout.preferredHeight: 26
                                 label: "+5s"
                                 labelPixelSize: 11
-                                enabled: !root.controlsModel.busy && root.controlsModel.mediaPlayer.length > 0
+                                enabled: root.controlsModel.mediaText.length > 0 && root.controlsModel.mediaText !== "No Media Playing" && root.controlsModel.mediaText !== "MEDIA none"
                                 onActivated: root.controlsModel.mediaSeekBy(5)
                             }
                         }
                     }
+                }
+
+                Item {
+                    Layout.fillHeight: true
                 }
             } // Audio ColumnLayout
 
@@ -2635,6 +3842,13 @@ FloatingWindow {
                     }
                 }
             } // End calContainer ColumnLayout
+
+            AiUsageView {
+                visible: root.activeTab === "ai"
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                aiModel: root.aiModel
+            }
         }
     }
 }

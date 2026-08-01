@@ -52,6 +52,8 @@ Scope {
     property string pendingAction: ""
     readonly property var audioSink: Pipewire.defaultAudioSink
     readonly property var audioSource: Pipewire.defaultAudioSource
+    readonly property string backlightPath: "/sys/class/backlight/amdgpu_bl0"
+    readonly property string batteryPath: "/sys/class/power_supply/BAT1"
 
     Timer {
         id: volumeTimer
@@ -130,8 +132,7 @@ Scope {
         root.refreshMediaStatus();
         root.refreshBluetoothStatus();
         root.refreshBrightnessStatus();
-        if (!batteryStatusProcess.running)
-            batteryStatusProcess.running = true;
+        root.syncBatteryStatus();
         if (!batteryDetailsProcess.running)
             batteryDetailsProcess.running = true;
         if (!displayListProcess.running)
@@ -180,9 +181,33 @@ Scope {
     }
 
     function refreshBrightnessStatus() {
-        if (!brightnessStatusProcess.running) {
+        brightnessMaxFile.reload();
+        brightnessValueFile.reload();
+        Qt.callLater(root.syncBrightnessStatus);
+    }
+
+    function syncBrightnessStatus() {
+        const current = Number(brightnessValueFile.text().trim());
+        const maximum = Number(brightnessMaxFile.text().trim());
+        if (isFinite(current) && isFinite(maximum) && maximum > 0) {
+            root.brightnessPercent = root.clampPercent((current / maximum) * 100);
+            root.brightnessReady = true;
+        } else if (!brightnessStatusProcess.running) {
             brightnessStatusProcess.running = true;
         }
+    }
+
+    function syncBatteryStatus() {
+        const capacity = Number(batteryCapacityFile.text().trim());
+        const status = batteryStatusFile.text().trim();
+        if (!isFinite(capacity) || status.length === 0) {
+            root.batteryPercent = 0;
+            root.batteryCharging = false;
+            return;
+        }
+
+        root.batteryPercent = root.clampPercent(capacity);
+        root.batteryCharging = status !== "Discharging" && status !== "Unknown";
     }
 
     function parseMedia(text) {
@@ -557,6 +582,62 @@ Scope {
         objects: [root.audioSink, root.audioSource]
     }
 
+    FileView {
+        id: brightnessValueFile
+        path: root.backlightPath + "/brightness"
+        preload: true
+        watchChanges: true
+        printErrors: false
+
+        onLoaded: root.syncBrightnessStatus()
+        onFileChanged: {
+            brightnessValueFile.reload();
+            Qt.callLater(root.syncBrightnessStatus);
+        }
+    }
+
+    FileView {
+        id: brightnessMaxFile
+        path: root.backlightPath + "/max_brightness"
+        preload: true
+        watchChanges: true
+        printErrors: false
+
+        onLoaded: root.syncBrightnessStatus()
+        onFileChanged: {
+            brightnessMaxFile.reload();
+            Qt.callLater(root.syncBrightnessStatus);
+        }
+    }
+
+    FileView {
+        id: batteryCapacityFile
+        path: root.batteryPath + "/capacity"
+        preload: true
+        watchChanges: true
+        printErrors: false
+
+        onLoaded: root.syncBatteryStatus()
+        onFileChanged: {
+            batteryCapacityFile.reload();
+            Qt.callLater(root.syncBatteryStatus);
+        }
+    }
+
+    FileView {
+        id: batteryStatusFile
+        path: root.batteryPath + "/status"
+        preload: true
+        watchChanges: true
+        printErrors: false
+
+        onLoaded: root.syncBatteryStatus()
+        onFileChanged: {
+            batteryStatusFile.reload();
+            Qt.callLater(root.syncBatteryStatus);
+        }
+    }
+
     Connections {
         target: Pipewire
 
@@ -649,7 +730,7 @@ Scope {
         id: brightnessStatusProcess
 
         command: Commands.controlsHelperCommand("brightness-status")
-        running: true
+        running: false
 
         stdout: StdioCollector {
             onStreamFinished: {
@@ -803,22 +884,9 @@ Scope {
     }
 
     Process {
-        id: batteryStatusProcess
-
-        command: Commands.controlsHelperCommand("battery-status")
-        running: true
-
-        stdout: StdioCollector {
-            onStreamFinished: {
-                root.parseBattery(this.text);
-            }
-        }
-    }
-
-    Process {
         id: batteryDetailsProcess
         command: Commands.controlsHelperCommand("battery-details")
-        running: true
+        running: false
         stdout: StdioCollector {
             onStreamFinished: {
                 root.parseBatteryDetails(this.text);
@@ -873,10 +941,10 @@ Scope {
         running: true
         repeat: true
         onTriggered: {
-            if (!batteryStatusProcess.running) {
-                batteryStatusProcess.running = true;
-            }
-            if (!batteryDetailsProcess.running) {
+            batteryCapacityFile.reload();
+            batteryStatusFile.reload();
+            Qt.callLater(root.syncBatteryStatus);
+            if (root.visible && !batteryDetailsProcess.running) {
                 batteryDetailsProcess.running = true;
             }
         }
@@ -884,14 +952,14 @@ Scope {
 
     Timer {
         interval: 2000
-        running: true
+        running: root.visible
         repeat: true
-        onTriggered: {
-            if (!brightnessStatusProcess.running) {
-                brightnessStatusProcess.running = true;
-            }
-        }
+        onTriggered: root.refreshBrightnessStatus()
     }
 
-    Component.onCompleted: root.refreshAudioStatus()
+    Component.onCompleted: {
+        root.refreshAudioStatus();
+        root.syncBatteryStatus();
+        root.syncBrightnessStatus();
+    }
 }

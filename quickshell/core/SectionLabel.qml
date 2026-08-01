@@ -7,7 +7,7 @@ Text {
 
     Layout.fillWidth: true
     text: label
-    color: Theme.textMuted
+    color: Theme.text
     font.family: Theme.fontFamily
     font.pixelSize: Theme.smallFontSize
     font.bold: true

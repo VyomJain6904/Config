@@ -322,12 +322,20 @@ ShellRoot {
 
     // ── Global windows ────────────────────────────────────────────────
 
-    PowerMenuWindow {
-        powerMenuModel: powerMenuModel
+    LazyLoader {
+        active: powerMenuModel.visible
+
+        component: PowerMenuWindow {
+            powerMenuModel: powerMenuModel
+        }
     }
 
-    SpotlightWindow {
-        spotlightModel: spotlightModel
+    LazyLoader {
+        active: spotlightModel.visible
+
+        component: SpotlightWindow {
+            spotlightModel: spotlightModel
+        }
     }
 
     LazyLoader {

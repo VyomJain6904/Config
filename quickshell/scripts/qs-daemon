@@ -2,25 +2,40 @@
 
 set -euo pipefail
 
-# Terminate any old qs-daemon instances (skip ourselves)
-SCRIPT_PATH="$(realpath "$0")"
-for pid in $(pgrep -f "$SCRIPT_PATH" || true); do
-    if [ "$pid" != "$$" ] && [ "$pid" != "$PPID" ]; then
-        kill -9 "$pid" 2>/dev/null || true
-    fi
-done
+# i3 reloads can overlap. Let the first launcher finish instead of having
+# multiple copies kill each other and leave monitor processes orphaned.
+exec 9>"/tmp/qs-daemon.lock"
+flock -n 9 || exit 0
 
 # Terminate orphaned monitor helpers from old Quickshell instances.
+pkill -f "qs-helper controls media-watch" 2>/dev/null || true
 pkill -f "playerctl --follow --all-players metadata" 2>/dev/null || true
 pkill -f "nmcli monitor" 2>/dev/null || true
 pkill -f "i3-msg -t subscribe -m \\[ \"workspace\", \"window\" \\]" 2>/dev/null || true
 
-# Terminate any already running Quickshell instances.
-pkill -x quickshell 2>/dev/null || true
+# Ask existing Quickshell instances to stop cleanly so their Process children
+# receive termination too. Use a targeted hard stop only after a short grace.
+pkill -TERM -x quickshell 2>/dev/null || true
+for _ in $(seq 1 20); do
+    pgrep -x quickshell >/dev/null 2>&1 || break
+    sleep 0.05
+done
+pkill -KILL -x quickshell 2>/dev/null || true
 
-# Wait briefly to ensure processes have shut down
-sleep 0.5
+# Ensure uniform macOS mouse cursor theme for Qt/QML windows in i3/X11.
+export XCURSOR_THEME="macOS"
+export XCURSOR_SIZE="24"
+printf 'Xcursor.theme: macOS\nXcursor.size: 24\n' | xrdb -merge - 2>/dev/null || true
+
+mkdir -p "$HOME/.icons/default" "$HOME/.local/share/icons/default" 2>/dev/null || true
+for path in "$HOME/.icons/default/index.theme" "$HOME/.local/share/icons/default/index.theme"; do
+    if [ ! -f "$path" ] || ! grep -q "Inherits=macOS" "$path" 2>/dev/null; then
+        printf '[Icon Theme]\nName=Default\nComment=Default Cursor Theme\nInherits=macOS\n' > "$path" 2>/dev/null || true
+    fi
+done
 
 # Launch Quickshell detached; i3's exec_always reruns this on reload/restart.
 CONFIG_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-quickshell -d -p "$CONFIG_DIR"
+flock -u 9
+exec 9>&-
+quickshell -n -d -p "$CONFIG_DIR"

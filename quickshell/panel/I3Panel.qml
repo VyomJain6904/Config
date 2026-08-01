@@ -113,8 +113,11 @@ PanelWindow {
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     onClicked: {
-                        root.networkModel.open();
-                        root.calendarModel.open();
+                        if (root.calendarModel.visible) {
+                            root.calendarModel.close();
+                        } else {
+                            root.calendarModel.open();
+                        }
                     }
                 }
             }
@@ -156,7 +159,6 @@ PanelWindow {
                             }
 
                             Item {
-                                id: vpnIpTarget
                                 visible: root.vpnModel && root.vpnModel.vpnIp.length > 0
                                 z: 1
                                 Layout.preferredWidth: vpnIpText.implicitWidth
@@ -192,7 +194,6 @@ PanelWindow {
                             }
 
                             Item {
-                                id: vpnTargetIpTarget
                                 visible: root.vpnModel && root.vpnModel.targetIp.length > 0
                                 z: 1
                                 Layout.preferredWidth: vpnTargetIpText.implicitWidth
@@ -356,7 +357,7 @@ PanelWindow {
                         visible: true
                         Layout.preferredWidth: batteryRow.implicitWidth + Theme.pillHorizontalPadding * 2
                         Layout.preferredHeight: Theme.pillHeight
-                        active: root.controlsModel.visible
+                        active: root.controlsModel.visible && root.controlsModel.requestedTab === "battery"
 
                         RowLayout {
                             id: batteryRow
@@ -391,6 +392,19 @@ PanelWindow {
                             }
                         }
 
+                        MouseArea {
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                if (root.controlsModel.visible && root.controlsModel.requestedTab === "battery") {
+                                    root.controlsModel.close();
+                                } else {
+                                    root.controlsModel.requestedTab = "battery";
+                                    root.controlsModel.open();
+                                }
+                            }
+                        }
                     }
 
                     PanelPill {

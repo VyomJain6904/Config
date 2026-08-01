@@ -39,10 +39,11 @@ return {{
 }, {
     'neovim/nvim-lspconfig',
     opts = function(_, opts)
-        local servers = {'pyright', 'basedpyright', 'ruff', ruff, lsp}
+        -- Only enable servers we actually use (pyright and ruff)
+        -- Don't add basedpyright to opts.servers to avoid mason ensure_installed issues
+        local servers = {'pyright', 'ruff'}
         for _, server in ipairs(servers) do
             opts.servers[server] = opts.servers[server] or {}
-            opts.servers[server].enabled = server == lsp or server == ruff
         end
     end
 }, {

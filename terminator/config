@@ -2,6 +2,7 @@
   enabled_plugins = MavenPluginURLHandler, LaunchpadBugURLHandler, LaunchpadCodeURLHandler, APTURLHandler, Logger, TerminalShot
   ask_before_closing = never
 [keybindings]
+  zoom_in = <Primary>equal
   cycle_next = <Primary>grave
   split_horiz = <Primary><Shift>h
   split_vert = <Primary><Shift>v

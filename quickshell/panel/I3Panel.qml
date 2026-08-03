@@ -4,10 +4,20 @@ import QtQuick.Layouts
 import Quickshell
 import qs.core
 
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ *                    I3 SYSTEM STATUS PANEL (I3Panel.qml)
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Top desktop bar for the i3 window manager. Incorporates workspace switchers,
+ * system time, network tray icons, VPN details, audio volume, display brightness,
+ * battery power meters, and power management shortcuts.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
 // qmllint disable uncreatable-type
 PanelWindow {
     id: root
 
+    // ── Global Model Injection ───────────────────────────────────────────────
     required property var state
     required property var clock
     required property string vpnFontFamily
@@ -17,6 +27,7 @@ PanelWindow {
     required property var powerMenuModel
     required property var vpnModel
 
+    // ── Bar Dimensions & Window Manager Integration ──────────────────────────
     implicitHeight: Theme.panelHeight
     color: Theme.transparent
     exclusiveZone: Theme.panelHeight
@@ -27,6 +38,10 @@ PanelWindow {
         left: true
         right: true
     }
+
+    // =========================================================================
+    // 1. PRIMARY BAR ISLAND CONTAINER
+    // =========================================================================
 
     Rectangle {
         id: island
@@ -51,6 +66,9 @@ PanelWindow {
             anchors.rightMargin: Theme.panelGap
             spacing: Theme.panelGap
 
+            // =================================================================
+            // 2. LEFT SECTION: WORKSPACE SWITCHER
+            // =================================================================
             Item {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
@@ -92,6 +110,9 @@ PanelWindow {
                 }
             }
 
+            // =================================================================
+            // 3. CENTER SECTION: CLOCK & CALENDAR TRIGGER
+            // =================================================================
             PanelPill {
                 Layout.preferredWidth: clockLabel.implicitWidth + Theme.pillHorizontalPadding * 2
                 Layout.preferredHeight: Theme.pillHeight
@@ -122,6 +143,9 @@ PanelWindow {
                 }
             }
 
+            // =================================================================
+            // 4. RIGHT SECTION: TRAY & SYSTEM CONTROLS
+            // =================================================================
             Item {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
@@ -135,8 +159,10 @@ PanelWindow {
                         Layout.fillWidth: true
                     }
 
+                    // System Tray Icons
                     TrayArea {}
 
+                    // ── VPN Connectivity Badge ───────────────────────────────
                     PanelPill {
                         visible: root.vpnModel && root.vpnModel.active
                         Layout.preferredWidth: vpnRow.implicitWidth + Theme.pillHorizontalPadding * 2
@@ -152,7 +178,7 @@ PanelWindow {
 
                             IconText {
                                 visible: root.vpnModel && root.vpnModel.active
-                                text: "" // Custom JetBrainsMono-VPN icon
+                                text: "" // Custom JetBrainsMono-VPN glyph
                                 color: "#50fa7b" // Dracula Green
                                 font.family: root.vpnFontFamily
                                 font.pixelSize: 14
@@ -225,6 +251,7 @@ PanelWindow {
                         }
                     }
 
+                    // ── Audio Volume Meter ───────────────────────────────────
                     PanelPill {
                         visible: true
                         Layout.preferredWidth: volumeRow.implicitWidth + Theme.pillHorizontalPadding * 2
@@ -289,6 +316,7 @@ PanelWindow {
                         }
                     }
 
+                    // ── Display Brightness Meter ─────────────────────────────
                     PanelPill {
                         visible: true
                         Layout.preferredWidth: brightnessRow.implicitWidth + Theme.pillHorizontalPadding * 2
@@ -353,6 +381,7 @@ PanelWindow {
                         }
                     }
 
+                    // ── Battery Power Meter ──────────────────────────────────
                     PanelPill {
                         visible: true
                         Layout.preferredWidth: batteryRow.implicitWidth + Theme.pillHorizontalPadding * 2
@@ -407,6 +436,7 @@ PanelWindow {
                         }
                     }
 
+                    // ── Network Wi-Fi / Ethernet Indicator ───────────────────
                     PanelPill {
                         visible: true
                         Layout.preferredWidth: networkRow.implicitWidth + Theme.pillHorizontalPadding * 2
@@ -435,6 +465,7 @@ PanelWindow {
                         }
                     }
 
+                    // ── Power & Session Options Button ───────────────────────
                     PanelPill {
                         visible: true
                         Layout.preferredWidth: Theme.pillHeight

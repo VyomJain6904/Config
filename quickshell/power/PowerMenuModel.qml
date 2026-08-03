@@ -2,15 +2,27 @@ import Quickshell
 import Quickshell.Io
 import qs.core
 
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ *                    POWER MENU STATE ENGINE (PowerMenuModel.qml)
+ * ─────────────────────────────────────────────────────────────────────────────
+ * State controller and command executor for system session actions including
+ * rebooting, logging out of i3, screen locking, and ACPI shutdown.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
 Scope {
     id: root
 
+    // ── Visibility & Confirmation State Variables ────────────────────────────
     property bool visible: false
     property bool confirming: false
     property var pendingAction: null
     property int selectedActionIndex: 0
     property int selectedConfirmIndex: 0
 
+    // =========================================================================
+    // 1. SESSION COMMAND REGISTRY
+    // =========================================================================
     readonly property var sessionActions: [
         {
             "id": "reboot",
@@ -41,6 +53,10 @@ Scope {
             "confirm": true
         }
     ]
+
+    // =========================================================================
+    // 2. WINDOW & SELECTION LIFECYCLE METHODS
+    // =========================================================================
 
     function open() {
         root.visible = true;
@@ -96,6 +112,10 @@ Scope {
         }
     }
 
+    // =========================================================================
+    // 3. CONFIRMATION & EXECUTION ROUTERS
+    // =========================================================================
+
     function requestAction(action) {
         if (!action) {
             return;
@@ -136,6 +156,7 @@ Scope {
         root.close();
     }
 
+    // Async process runner for executing terminal system commands
     Process {
         id: actionProcess
 

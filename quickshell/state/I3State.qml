@@ -2,15 +2,25 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ *                    I3 WORKSPACE & WINDOW TREE ENGINE (I3State.qml)
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Master state synchronization engine for i3wm. Connects directly to the
+ * i3 IPC socket via `i3-msg -t subscribe` to track window Focus, Workspace
+ * switching, application icon normalizations, and live window container moves.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
 Scope {
     id: root
 
-    property int    currentWorkspaceNum: 1
-    property var    workspaceNames:      []
-    property var    workspaceAppGrid:   []
-    property var    workspaceWindowMap: ({})
-    property var    pendingWindowMove:  null
-    property bool   windowGridActive:   false
+    // ── Global i3 State & Window Grid Properties ─────────────────────────────
+    property int currentWorkspaceNum: 1
+    property var workspaceNames: []
+    property var workspaceAppGrid: []
+    property var workspaceWindowMap: ({})
+    property var pendingWindowMove: null
+    property bool windowGridActive: false
     readonly property var workspaceSlots: ["1", "2", "3", "4", "5", "6", "7", "8"]
 
     onWindowGridActiveChanged: {
@@ -18,6 +28,10 @@ Scope {
             treeFetchProc.running = true;
         }
     }
+
+    // =========================================================================
+    // 1. APPLICATION ICON NORMALIZATION PIPELINE
+    // =========================================================================
 
     function normalizeAppIconName(rawName) {
         if (!rawName || rawName.length === 0) {
@@ -115,6 +129,10 @@ Scope {
         return true;
     }
 
+    // =========================================================================
+    // 2. TREE RECURSIVE PARSERS & GRID REBUILDERS
+    // =========================================================================
+
     function parseWorkspaceWindows(tree) {
         const windowMap = {};
 
@@ -176,7 +194,6 @@ Scope {
             if (!name || slots[name]) {
                 return;
             }
-
             slots[name] = true;
             ordered.push(name);
         }
@@ -214,7 +231,10 @@ Scope {
         root.workspaceAppGrid = rows;
     }
 
-    // ── Switch to workspace by its number ─────────────────────────────
+    // =========================================================================
+    // 3. I3-MSG COMMAND DISPATCHERS
+    // =========================================================================
+
     function switchWorkspace(num) {
         if (!switchProc.running) {
             switchProc.command = ["i3-msg", "workspace", "number", num.toString()];
@@ -223,8 +243,10 @@ Scope {
     }
 
     function refreshWorkspaceState(includeTree) {
-        if (!wsFetchProc.running) wsFetchProc.running = true;
-        if ((includeTree || root.windowGridActive) && !treeFetchProc.running) treeFetchProc.running = true;
+        if (!wsFetchProc.running)
+            wsFetchProc.running = true;
+        if ((includeTree || root.windowGridActive) && !treeFetchProc.running)
+            treeFetchProc.running = true;
     }
 
     function runWindowMove(conIdText, workspaceNumText) {
@@ -251,18 +273,25 @@ Scope {
         root.runWindowMove(conIdText, workspaceNumText);
     }
 
+    // =========================================================================
+    // 4. PROCESS WORKERS & IPC EVENT SUBSCRIBERS
+    // =========================================================================
+
     Process {
         id: switchProc
+
         running: false
         stderr: StdioCollector {
             onStreamFinished: {
-                if (this.text.length > 0) console.warn("i3-msg switch error: " + this.text);
+                if (this.text.length > 0)
+                    console.warn("i3-msg switch error: " + this.text);
             }
         }
     }
 
     Process {
         id: moveProc
+
         running: false
         onRunningChanged: {
             if (!running) {
@@ -276,14 +305,15 @@ Scope {
         }
         stderr: StdioCollector {
             onStreamFinished: {
-                if (this.text.length > 0) console.warn("i3-msg move error: " + this.text);
+                if (this.text.length > 0)
+                    console.warn("i3-msg move error: " + this.text);
             }
         }
     }
 
-    // ── Fetch workspaces periodically via i3-msg ─────────────────────
     Process {
         id: wsFetchProc
+
         command: ["i3-msg", "-t", "get_workspaces"]
         running: false
         stdout: StdioCollector {
@@ -291,16 +321,16 @@ Scope {
                 try {
                     let wss = JSON.parse(this.text);
                     let nums = [];
-                    for(let i=0; i<wss.length; i++) {
+                    for (let i = 0; i < wss.length; i++) {
                         nums.push(wss[i].num.toString());
                         if (wss[i].focused) {
                             root.currentWorkspaceNum = wss[i].num;
                         }
                     }
-                    nums.sort((a,b) => parseInt(a) - parseInt(b));
+                    nums.sort((a, b) => parseInt(a) - parseInt(b));
                     root.workspaceNames = nums;
                     root.rebuildWorkspaceGrid();
-                } catch(e) {
+                } catch (e) {
                     console.warn("i3-msg get_workspaces parse error: " + e);
                 }
             }
@@ -309,9 +339,9 @@ Scope {
 
     Process {
         id: treeFetchProc
+
         command: ["i3-msg", "-t", "get_tree"]
         running: false
-
         stdout: StdioCollector {
             onStreamFinished: {
                 try {
@@ -327,23 +357,20 @@ Scope {
 
     Timer {
         id: i3SubRestartTimer
+
         interval: 3000
         repeat: false
         onTriggered: i3SubProcess.running = true
     }
 
-    // ── Subscribe to i3 events for updates ────────────────────────────
     Process {
         id: i3SubProcess
+
         command: ["i3-msg", "-t", "subscribe", "-m", "[ \"workspace\", \"window\" ]"]
         running: true
-
         stdout: SplitParser {
-            onRead: {
-                root.refreshWorkspaceState(false);
-            }
+            onRead: root.refreshWorkspaceState(false)
         }
-        
         onRunningChanged: {
             if (!running) {
                 i3SubRestartTimer.restart();
@@ -351,8 +378,5 @@ Scope {
         }
     }
 
-    // ── Init ──────────────────────────────────────────────────────────
-    Component.onCompleted: {
-        wsFetchProc.running = true;
-    }
+    Component.onCompleted: wsFetchProc.running = true
 }

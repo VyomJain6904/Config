@@ -2,6 +2,14 @@ import QtQuick
 import QtQuick.Layouts
 import qs.core
 
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ *                    SECTION LABEL HEADER (SectionLabel.qml)
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Standardized bold title heading used to separate categorized groupings inside
+ * modals, menus, and network lists.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
 Text {
     required property string label
 

@@ -1,0 +1,137 @@
+{
+    // ─────────────────────────────────────────────────────────────────────────────
+    //                    ANTIGRAVITY IDE USER SETTINGS
+    // ─────────────────────────────────────────────────────────────────────────────
+    // Carefully organized workspace preferences, aesthetics, editor mechanics,
+    // terminal configurations, and formatting associations.
+    // ─────────────────────────────────────────────────────────────────────────────
+
+    // =========================================================================
+    // 1. WORKBENCH & APPEARANCE THEME
+    // =========================================================================
+    // Primary color palette theme
+    "workbench.colorTheme": "Sweet Dracula",
+    // Icon theme for file tree and tabs
+    "workbench.iconTheme": "material-icon-theme",
+    // Hide arrow indicators next to expandable folders in explorer
+    "material-icon-theme.hidesExplorerArrows": true,
+    // Position sidebar on the right side of the editor
+    "workbench.sideBar.location": "right",
+    // Hide layout window management controls in title bar
+    "workbench.layoutControl.enabled": false,
+    // Hide bottom status bar for minimal screen aesthetic
+    "workbench.statusBar.visible": false,
+    // Disable initial welcome startup page
+    "workbench.startupEditor": "none",
+    // Disable popup tip notifications on startup
+    "workbench.tips.enabled": false,
+    // Set interface display zoom scale (1.0 default scaling)
+    "window.zoomLevel": 1,
+
+    // =========================================================================
+    // 2. EDITOR TYPOGRAPHY & RENDERING
+    // =========================================================================
+    // Editor code font (quoted correctly for multi-word font family names)
+    "editor.fontFamily": "'JetBrainsMono Nerd Font', 'JetBrainsMono Nerd Font Mono', 'JetBrainsMono NFM', monospace",
+    // Enable font ligatures (e.g. -> to arrow glyphs)
+    "editor.fontLigatures": true,
+    // Line height multiplier (double line spacing)
+    "editor.lineHeight": 2,
+    // Keep cursor solid without blinking animation
+    "editor.cursorBlinking": "solid",
+    // Custom UI color overrides
+    "workbench.colorCustomizations": {
+        "editorCursor.background": "#000000",
+    },
+    // Custom grammar token color customizations
+    "editor.tokenColorCustomizations": {
+        "textMateRules": [
+            {
+                "scope": "comment",
+                "settings": {
+                    "fontStyle": "italic",
+                },
+            },
+        ],
+    },
+
+    // =========================================================================
+    // 3. EDITOR MECHANICS & FORMATTING
+    // =========================================================================
+    // Hide file path breadcrumbs navigation at top of editor
+    "breadcrumbs.enabled": false,
+    // Disable inline CodeLens action annotations
+    "editor.codeLens": false,
+    // Disable clickable web links inside editor text
+    "editor.links": false,
+    // Hide code action / quick-fix lightbulb icon overlay
+    "editor.lightbulb.enabled": "off",
+    // Hide horizontal and vertical scrollbar track overlays
+    "editor.scrollbar.horizontal": "hidden",
+    "editor.scrollbar.vertical": "hidden",
+    // Place snippet auto-completion suggestions at top of intellisense list
+    "editor.snippetSuggestions": "top",
+    // Automatically match and close brackets
+    "editor.matchBrackets": "always",
+    // Default indentation tab size in spaces
+    "editor.tabSize": 4,
+    // Detect file indentation formatting automatically on load
+    "editor.detectIndentation": true,
+    // Strip trailing whitespace automatically on file save
+    "files.trimTrailingWhitespace": true,
+    // Ensure file finishes with a terminating newline character
+    "files.insertFinalNewline": true,
+    // Save modified files automatically after inactivity delay
+    "files.autoSave": "afterDelay",
+    // Emmet snippet expansion triggered on Tab press
+    "emmet.triggerExpansionOnTab": true,
+    // Default tab indentation width for Prettier formatter
+    "prettier.tabWidth": 4,
+
+    // =========================================================================
+    // 4. FILE EXPLORER & GIT DECORATIONS
+    // =========================================================================
+    // Disable confirmation popup on file deletion in tree
+    "explorer.confirmDelete": false,
+    // Disable native paste confirmation prompt in explorer
+    "explorer.confirmPasteNative": false,
+    // Disable confirmation popup when moving files via drag-and-drop
+    "explorer.confirmDragAndDrop": false,
+    // Disable folder collapsing for empty nested intermediate directories
+    "explorer.compactFolders": false,
+    // Hide status decoration badges on file explorer rows
+    "explorer.decorations.badges": false,
+    // Disable sticky scroll header overlays in file tree
+    "workbench.tree.enableStickyScroll": false,
+    // Set visual indentation spacing in file tree hierarchy
+    "workbench.tree.indent": 8,
+    // Hide Git status color highlighting and decorations in UI
+    "git.decorations.enabled": false,
+
+    // =========================================================================
+    // 5. INTEGRATED TERMINAL
+    // =========================================================================
+    // Integrated terminal font family matching editor code font
+    "terminal.integrated.fontFamily": "'JetBrainsMono Nerd Font', 'JetBrainsMono Nerd Font Mono', 'JetBrainsMono NFM', monospace",
+
+    // =========================================================================
+    // 6. WORKSPACE & PROFILE ASSOCIATIONS
+    // =========================================================================
+    // File extension editor associations
+    "workbench.editorAssociations": {
+        "{git,gitlens,git-graph,git-graph-3}:/**/*.qrc": "default",
+        "*.qrc": "qt-core.qrcEditor",
+    },
+    // Language-specific formatter preferences
+    "[jsonc]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+    },
+    // Automatically apply essential visual settings across all user profiles
+    "workbench.settings.applyToAllProfiles": [
+        "editor.fontFamily",
+        "terminal.integrated.fontFamily",
+        "editor.fontLigatures",
+    ],
+    // Suppress popup extension recommendation notices
+    "extensions.ignoreRecommendations": true,
+}

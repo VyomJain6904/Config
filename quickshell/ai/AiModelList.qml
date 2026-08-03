@@ -4,12 +4,22 @@ import QtQuick.Layouts
 import QtQuick.Controls
 import qs.core
 
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ *                    AI MODEL USAGE LIST (AiModelList.qml)
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Vertical scrolling list of individual language model activity cards. Displays
+ * token counters, usage percentages, local execution tags, and quota timers.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
 ColumnLayout {
     id: root
 
+    // ── External Model Integration & Max Scaling ─────────────────────────────
     required property var aiModel
     required property var platform
     required property int nowSeconds
+
     readonly property real maximumModelTokens: {
         const models = root.platform.models || [];
         let maximum = 0;
@@ -18,6 +28,10 @@ ColumnLayout {
         return maximum;
     }
     spacing: 8
+
+    // =========================================================================
+    // 1. FORMATTING & TIME COMPUTATION UTILITIES
+    // =========================================================================
 
     function formatTokens(value) {
         const tokens = Number(value || 0);
@@ -65,6 +79,10 @@ ColumnLayout {
         }
     }
 
+    // =========================================================================
+    // 2. HEADER LABEL & EMPTY STATE PLACEHOLDER
+    // =========================================================================
+
     UiText {
         text: root.platform.id === "antigravity" ? "MODEL QUOTAS" : "TOKENS BY MODEL"
         color: Theme.textMuted
@@ -87,6 +105,10 @@ ColumnLayout {
             color: Theme.textMuted
         }
     }
+
+    // =========================================================================
+    // 3. MODEL ACTIVITY CARD LIST VIEW
+    // =========================================================================
 
     ListView {
         id: modelList
@@ -140,6 +162,7 @@ ColumnLayout {
             border.color: Theme.border
             border.width: 1
 
+            // Animated progress fill background
             Rectangle {
                 x: 1
                 y: 1

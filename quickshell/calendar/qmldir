@@ -1,2 +1,3 @@
 module qs.calendar
 CalendarModel 1.0 CalendarModel.qml
+CalendarView 1.0 CalendarView.qml

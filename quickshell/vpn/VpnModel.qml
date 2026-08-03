@@ -3,9 +3,18 @@ import Quickshell
 import Quickshell.Io
 import qs.core
 
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ *                    VPN CLIENT ENGINE (VpnModel.qml)
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Manages active VPN tunnel connections, configuration file profiles, and target
+ * IP routing via `qs-helper vpn-*` commands. Supports clipboard IP copying.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
 Scope {
     id: root
 
+    // ── Active Tunnel & Profile State Variables ──────────────────────────────
     property bool visible: false
     property bool busy: false
     property string message: ""
@@ -17,6 +26,10 @@ Scope {
     property bool active: vpnIp !== ""
     property bool connected: active
     property bool targetLocked: connected || busy
+
+    // =========================================================================
+    // 1. LIFECYCLE & REFRESH ROUTERS
+    // =========================================================================
 
     function open() {
         root.visible = true;
@@ -50,6 +63,10 @@ Scope {
             statusProcess.running = true;
         }
     }
+
+    // =========================================================================
+    // 2. PARSING & CONNECTION EXECUTORS
+    // =========================================================================
 
     function parseProfiles(text) {
         const rows = [];
@@ -122,6 +139,10 @@ Scope {
         copyProcess.running = true;
     }
 
+    // =========================================================================
+    // 3. BACKGROUND PROCESSES & TIMERS
+    // =========================================================================
+
     Timer {
         interval: root.visible ? 5000 : 15000
         running: root.visible || root.connected || root.busy
@@ -131,6 +152,7 @@ Scope {
 
     Timer {
         id: postActionRefreshTimer
+
         interval: 1200
         running: false
         repeat: false
@@ -139,9 +161,9 @@ Scope {
 
     Process {
         id: profilesProcess
+
         command: Commands.vpnHelperCommand("list")
         running: false
-
         stdout: StdioCollector {
             onStreamFinished: root.parseProfiles(this.text)
         }
@@ -149,9 +171,9 @@ Scope {
 
     Process {
         id: statusProcess
+
         command: Commands.vpnHelperCommand("status")
         running: true
-
         stdout: StdioCollector {
             onStreamFinished: root.parseStatus(this.text)
         }
@@ -159,8 +181,8 @@ Scope {
 
     Process {
         id: actionProcess
-        running: false
 
+        running: false
         onRunningChanged: {
             if (!running) {
                 root.busy = false;
@@ -181,6 +203,7 @@ Scope {
 
     Process {
         id: copyProcess
+
         running: false
     }
 }

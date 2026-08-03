@@ -2,6 +2,14 @@ import QtQuick
 import QtQuick.Layouts
 import qs.core
 
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ *                    WORKSPACE SWITCHER BUTTON (WorkspaceButton.qml)
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Renders individual workspace numbers on the panel. Features high contrast
+ * white text and active slate background highlighting for selected workspaces.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
 Rectangle {
     id: root
 
@@ -17,7 +25,7 @@ Rectangle {
     Text {
         anchors.centerIn: parent
         text: root.label
-        color: root.selected ? Theme.accent : Theme.textMuted
+        color: root.selected ? "#ffffff" : Theme.textMuted
         font.family: Theme.fontFamily
         font.pixelSize: Theme.panelFontSize
         font.bold: root.selected

@@ -1,12 +1,25 @@
 pragma Singleton
 import Quickshell
 
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ *                    QUICKSHELL HELPER & SCRIPT REGISTRY
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Central command router for calling external shell scripts and native Go
+ * background daemons (qs-helper) across all UI widgets and IPC handlers.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
 Singleton {
-    // Resolve helper paths relative to this file
+    // ── Relative Helper Paths ────────────────────────────────────────────────
+    // Dynamically resolves scripts/ and helpers/bin paths without hardcoded directories
     readonly property string scriptsPath: Qt.resolvedUrl("../scripts/").toString().replace("file://", "")
     readonly property string helperPath: Qt.resolvedUrl("../helpers/bin/qs-helper").toString().replace("file://", "")
 
-    // ── Native Go helper ──────────────────────────────────────────────
+    // =========================================================================
+    // 1. CORE EXECUTION ROUTERS
+    // =========================================================================
+
+    // Constructs argv command array for calling the compiled Go helper binary
     function helperCmd(helper, action, extra) {
         const argv  = extra || []
         const cmd   = [helperPath, helper]
@@ -16,45 +29,51 @@ Singleton {
         return cmd.concat(argv)
     }
 
+    // Constructs bash execution array for running standalone shell scripts
     function bashCmd(script) {
         return ["bash", scriptsPath + script]
     }
 
-    // ── Network (nmcli) ───────────────────────────────────────────────
+    // =========================================================================
+    // 2. DOMAIN-SPECIFIC COMMAND BUILDERS
+    // =========================================================================
+
+    // Network manager interface (nmcli wrappers for Wi-Fi and Ethernet profiles)
     function networkHelperCommand(action, args) {
         return helperCmd("network", action, args)
     }
 
-    // ── Controls (wpctl / playerctl / bluetoothctl) ───────────────────
+    // Audio & media controls (wpctl volume, playerctl playback, bluetoothctl)
     function controlsHelperCommand(action, args) {
         return helperCmd("controls", action, args)
     }
 
-    // ── VPN (OpenVPN profiles) ───────────────────────────────────────
+    // VPN connection routing (OpenVPN connection management)
     function vpnHelperCommand(action, args) {
         return helperCmd("vpn", action, args)
     }
 
+    // Clipboard system interaction (history and buffer utilities)
     function clipboardHelperCommand(action, args) {
         return helperCmd("clipboard", action, args)
     }
 
-    // ── Calendar (Google Calendar API) ────────────────────────────────
+    // Calendar data polling (Google Calendar API synchronization)
     function calendarHelperCommand(action, args) {
         return helperCmd("calendar", action, args)
     }
 
-    // ── AI Usage Tracker ──────────────────────────────────────────────
+    // AI telemetry & prompt consumption usage tracking
     function aiHelperCommand(action, args) {
         return helperCmd("ai", action, args)
     }
 
-    // ── Lock screen (i3lock) ──────────────────────────────────────────
+    // Screen locker invocation (delegates to qs-lock bash script)
     function lockHelperCommand() {
         return bashCmd("qs-lock")
     }
 
-    // ── Launcher (.desktop applications) ──────────────────────────────
+    // Desktop application indexing and launcher execution (.desktop items)
     function launcherHelperCommand(action, args) {
         return helperCmd("launcher", action, args)
     }

@@ -126,7 +126,7 @@
     },
     "custom/powermenu": {
         "format": "⏻",
-        "on-click": "/home/jain/.config/waybar/scripts/powermenu.sh",
+        "on-click": "$HOME/.config/waybar/scripts/powermenu.sh",
         "interval": "once",
         "tooltip": false
     },

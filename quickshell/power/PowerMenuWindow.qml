@@ -4,6 +4,14 @@ import QtQuick.Layouts
 import Quickshell
 import qs.core
 
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ *                POWER MENU MODAL WINDOW (PowerMenuWindow.qml)
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Floating dialog window presenting session controls. Supports keyboard arrow
+ * navigation and dedicated confirmation modals for destructive system operations.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
 FloatingWindow {
     id: root
 
@@ -23,6 +31,7 @@ FloatingWindow {
         }
     }
 
+    // ── Static Button Descriptors for Confirmation Mode ──────────────────────
     readonly property var cancelAction: {
         "label": "Cancel",
         "detail": "Return to power menu"
@@ -32,6 +41,10 @@ FloatingWindow {
         "label": "Confirm",
         "detail": powerMenuModel.pendingAction ? powerMenuModel.pendingAction.label : ""
     }
+
+    // =========================================================================
+    // 1. PRIMARY DIALOG SURFACE & KEYBOARD SHORTCUTS
+    // =========================================================================
 
     ShellSurface {
         id: content
@@ -64,6 +77,9 @@ FloatingWindow {
             anchors.fill: parent
             spacing: Theme.listSpacing
 
+            // =================================================================
+            // 2. HEADER TITLE BAR
+            // =================================================================
             RowLayout {
                 Layout.fillWidth: true
                 visible: !root.powerMenuModel.confirming
@@ -97,6 +113,9 @@ FloatingWindow {
                 }
             }
 
+            // =================================================================
+            // 3. MAIN ACTION SELECTION LIST
+            // =================================================================
             Repeater {
                 model: root.powerMenuModel.confirming ? [] : root.powerMenuModel.sessionActions
 
@@ -113,6 +132,9 @@ FloatingWindow {
                 }
             }
 
+            // =================================================================
+            // 4. DESTRUCTIVE ACTION CONFIRMATION DIALOG
+            // =================================================================
             ColumnLayout {
                 visible: root.powerMenuModel.confirming
                 Layout.fillWidth: true

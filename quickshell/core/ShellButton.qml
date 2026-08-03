@@ -1,16 +1,26 @@
 import QtQuick
 import qs.core
 
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ *                    INTERACTIVE SHELL BUTTON (ShellButton.qml)
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Unified interactive action button used across confirmation modals, network
+ * toggles, and system controls. Includes automatic hover and selected states.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
 Rectangle {
     id: root
 
-    required property string label
-    property bool compact: true
-    property bool selected: false
+    // ── Public Interface & Signals ───────────────────────────────────────────
+    required property string label          // Display text label
+    property bool compact: true             // Uses smaller text sizing if true
+    property bool selected: false           // Highlights button when toggled active
     property bool hovered: buttonMouse.containsMouse
 
-    signal activated
+    signal activated                        // Emitted upon mouse click
 
+    // ── Dimensions & Dynamic Styling ─────────────────────────────────────────
     implicitWidth: buttonLabel.implicitWidth + 18
     implicitHeight: Theme.buttonHeight
     color: selected ? Theme.buttonFocusBackground : (hovered && enabled ? Theme.buttonHoverBackground : Theme.buttonBackground)
@@ -19,6 +29,7 @@ Rectangle {
     radius: Theme.radius
     opacity: enabled ? 1 : 0.5
 
+    // ── Centered Label Text ──────────────────────────────────────────────────
     Text {
         id: buttonLabel
 
@@ -31,6 +42,7 @@ Rectangle {
         elide: Text.ElideRight
     }
 
+    // ── Mouse Interaction Handling ───────────────────────────────────────────
     MouseArea {
         id: buttonMouse
 

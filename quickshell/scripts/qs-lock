@@ -1,11 +1,19 @@
-#!/bin/bash
-# Quickshell lock helper — i3lock with fallbacks
+#!/usr/bin/env bash
+# =============================================================================
+# Quickshell Screen Lock Helper (qs-lock)
+# =============================================================================
+# Tries locking the display session using i3lock with solid black background
+# (#000000), automatically falling back to xdg-screensaver or xlock if missing.
+# =============================================================================
 set -e
 
 if command -v i3lock >/dev/null 2>&1; then
+    # -c 000000: solid black background color, -e: discard empty password, -n: do not fork
     i3lock -c 000000 -e -n &
 elif command -v xdg-screensaver >/dev/null 2>&1; then
+    # Fallback for standard XDG-compliant environments
     xdg-screensaver lock
 elif command -v xlock >/dev/null 2>&1; then
+    # Final fallback for minimal X11 server displays
     xlock -mode blank
 fi

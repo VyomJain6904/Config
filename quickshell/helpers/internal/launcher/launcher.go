@@ -46,12 +46,33 @@ func Run(args []string) int {
 	}
 }
 
-func listApps() int {
-	dirs := []string{
-		"/usr/share/applications",
-		"/usr/local/share/applications",
-		filepath.Join(common.HomeDir(), ".local", "share", "applications"),
+func appDirs() []string {
+	home := common.HomeDir()
+
+	dataHome := os.Getenv("XDG_DATA_HOME")
+	if dataHome == "" {
+		dataHome = filepath.Join(home, ".local", "share")
 	}
+
+	dataDirs := os.Getenv("XDG_DATA_DIRS")
+	if dataDirs == "" {
+		dataDirs = "/usr/local/share:/usr/share"
+	}
+
+	var dirs []string
+	dirs = append(dirs, filepath.Join(dataHome, "applications"))
+	for _, d := range strings.Split(dataDirs, ":") {
+		if d == "" {
+			continue
+		}
+		dirs = append(dirs, filepath.Join(d, "applications"))
+	}
+
+	return dirs
+}
+
+func listApps() int {
+	dirs := appDirs()
 
 	appMap := make(map[string]AppEntry)
 

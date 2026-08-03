@@ -1,26 +1,66 @@
-workspace_auto_back_and_forth yes
+# ##############################################################################
+#
+#                         I3 WINDOW MANAGER CONFIGURATION
+#                         Customized for Debian / X11
+#
+# ##############################################################################
+
+# ##############################################################################
+# 1. CORE VARIABLES & BEHAVIOR
+# ##############################################################################
+
+# Set Super key (Mod4) as the primary modifier
 set $mod Mod4
-font pango:SF Pro Text 10
 
-default_border pixel 2
-default_floating_border pixel 2
+# Default applications
+set $term ghostty
+set $browser brave-origin
+set $editor nvim
 
+# Workspace behavior: switching to the active workspace toggles back to previous
+workspace_auto_back_and_forth yes
+
+# Focus & Mouse behavior
 focus_follows_mouse yes
 mouse_warping none
 
-# Auto Start
-exec --no-startup-id /home/jain/.config/quickshell/helpers/bin/qs-helper polkit ensure
-exec --no-startup-id pkill dunst
-exec --no-startup-id ~/.config/i3/power-monitor.sh
-exec_always --no-startup-id ~/.config/i3/monitor-hotplug-listener.sh
-exec_always --no-startup-id ~/.config/quickshell/scripts/qs-daemon
-exec --no-startup-id touchegg
-exec --no-startup-id ~/.config/i3/touchpad-settings.sh
+# Modifier mouse controls: Hold Super + Left-Click to move, Super + Right-Click to resize
+floating_modifier $mod
 
-# Wallpaper
+# Default tiling split orientation
+default_orientation horizontal
+
+
+# ##############################################################################
+# 2. APPEARANCE, BORDERS & GAPS
+# ##############################################################################
+
+# Interface font for titlebars and system dialogs
+font pango:SF Pro Text 10
+
+# Default border widths (no title bars)
+default_border pixel 2
+default_floating_border pixel 2
+
+# Workspace window gaps
+gaps inner 0
+gaps outer 0
+smart_gaps on
+
+# Color Theme: Focus Window
+# class                 border  bground text    indicator child_border
+client.focused          #c0caf5 #c0caf5 #0d1117 #c0caf5   #c0caf5
+client.focused_inactive #1a1a2e #1a1a2e #888888 #1a1a2e   #1a1a2e
+client.unfocused        #1a1a2e #1a1a2e #555555 #1a1a2e   #1a1a2e
+client.urgent           #ff4444 #ff4444 #ffffff #ff4444   #ff4444
+
+
+# ##############################################################################
+# 3. AUTOSTART & ENVIRONMENT SETUP
+# ##############################################################################
+
+# Wallpaper & Visual Styling
 exec_always --no-startup-id xsetroot -solid "#000000"
-
-# Theme & System Defaults
 exec --no-startup-id xsettingsd
 exec_always --no-startup-id xprop -root -f _GTK_THEME_VARIANT 8a -set _GTK_THEME_VARIANT "dark"
 exec_always --no-startup-id gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
@@ -28,105 +68,77 @@ exec_always --no-startup-id gsettings set org.gnome.desktop.interface gtk-theme 
 exec_always --no-startup-id gsettings set org.gnome.desktop.interface icon-theme 'MacTahoe'
 exec_always --no-startup-id gsettings set org.gnome.desktop.interface cursor-theme 'macOS'
 
-# Bluetooth Default Off
+# System Services & Daemons
+exec --no-startup-id ~/.config/quickshell/helpers/bin/qs-helper polkit ensure
+exec --no-startup-id pkill dunst
+exec --no-startup-id ~/.config/i3/power-monitor.sh
+exec_always --no-startup-id ~/.config/i3/monitor-hotplug-listener.sh
+exec_always --no-startup-id ~/.config/quickshell/scripts/qs-daemon
+exec --no-startup-id touchegg
+exec --no-startup-id ~/.config/i3/touchpad-settings.sh
+
+# Turn Bluetooth off by default on login
 exec --no-startup-id bluetoothctl power off
 
-# Super Key Utility Menu (via local xcape)
+# Super Key utility menu overlay (via local xcape)
 exec_always --no-startup-id pkill xcape; ~/.local/bin/xcape -e 'Super_L=Super_L|Shift_L|Control_L|m'
 
-# Audio
-bindsym XF86AudioRaiseVolume exec --no-startup-id wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ -l 1.5
-bindsym XF86AudioLowerVolume exec --no-startup-id wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%- -l 1.5
-bindsym XF86AudioMute exec --no-startup-id wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
 
-# Brightness
-bindsym XF86MonBrightnessUp exec brightnessctl set +10%
-bindsym XF86MonBrightnessDown exec brightnessctl set 10%-
+# ##############################################################################
+# 4. KEY BINDINGS: LAUNCHERS & APPLICATIONS
+# ##############################################################################
 
-# Focus Window Color
-# class                 border  bground text    indicator child_border
-client.focused          #0d1117 #0d1117 #f5a623 #0d1117   #0d1117
-client.focused_inactive #1a1a2e #1a1a2e #888888 #1a1a2e   #1a1a2e
-client.unfocused        #1a1a2e #1a1a2e #555555 #1a1a2e   #1a1a2e
-client.urgent           #ff4444 #ff4444 #ffffff #ff4444   #ff4444
-
-############################
-
-# TERMINAL / APPS
-
-############################
-
-set $term ghostty
-set $browser helium
-set $editor nvim
-
+# Primary Application Launchers
 bindsym $mod+t exec $term
 bindsym $mod+b exec $browser
-bindsym $mod+w exec vmware
 bindsym $mod+v exec $editor
 bindsym $mod+c exec librewolf
 bindsym $mod+e exec thunar
 bindsym $mod+n exec obsidian
-bindsym $mod+Shift+s exec flameshot gui -c -p ~/Pictures/Screenshots/
 bindsym $mod+m exec alacritty
+
+# Specialized Utilities & System Monitoring
+bindsym $mod+w exec vmware
+bindsym $mod+Shift+s exec flameshot gui -c -p ~/Pictures/Screenshots/
 bindsym $mod+Ctrl+t exec --no-startup-id /usr/bin/alacritty --class btop --title Activity -o font.size=7 -e /usr/local/bin/btop
-bindsym $mod+F4 exec --no-startup-id quickshell ipc call power toggle
-############################
 
-# LAUNCHERS
-
-############################
+# Quickshell Integrated Launchers & Overlays
 bindsym $mod+space exec --no-startup-id quickshell ipc call spotlight toggle
 bindsym $mod+Shift+Control+m exec --no-startup-id quickshell ipc call menu toggle
-############################
+bindsym $mod+F4 exec --no-startup-id quickshell ipc call power toggle
 
-# WINDOW CONTROL
 
-############################
+# ##############################################################################
+# 5. KEY BINDINGS: WINDOW MANAGEMENT & LAYOUT
+# ##############################################################################
 
+# Window Actions
 bindsym $mod+q kill
+bindsym $mod+f fullscreen toggle
+bindsym $mod+Shift+space floating toggle, resize set 1024 680, move position center, border pixel 2
 
-############################
+# Tiling Split Direction
+bindsym $mod+Return split h
+bindsym $mod+h split v
 
-# FOCUS
-
-############################
-
+# Change Window Focus
 bindsym $mod+Left focus left
 bindsym $mod+Down focus down
 bindsym $mod+Up focus up
 bindsym $mod+Right focus right
 
-############################
-
-# MOVE WINDOW
-
-############################
-
+# Move Focused Window / Container
 bindsym $mod+Shift+Left move left
 bindsym $mod+Shift+Down move down
 bindsym $mod+Shift+Up move up
 bindsym $mod+Shift+Right move right
 
-############################
 
-# LAYOUT
+# ##############################################################################
+# 6. WORKSPACES
+# ##############################################################################
 
-############################
-
-default_orientation horizontal
-
-bindsym $mod+Return split h
-bindsym $mod+h split v
-bindsym $mod+f fullscreen toggle
-bindsym $mod+Shift+space floating toggle
-
-############################
-
-# WORKSPACES
-
-############################
-
+# Workspace Names / Identifiers
 set $ws1 "1"
 set $ws2 "2"
 set $ws3 "3"
@@ -138,6 +150,7 @@ set $ws8 "8"
 set $ws9 "9"
 set $ws10 "10"
 
+# Switch to Workspace
 bindsym $mod+1 workspace number $ws1
 bindsym $mod+2 workspace number $ws2
 bindsym $mod+3 workspace number $ws3
@@ -149,6 +162,7 @@ bindsym $mod+8 workspace number $ws8
 bindsym $mod+9 workspace number $ws9
 bindsym $mod+0 workspace number $ws10
 
+# Move Active Window to Workspace
 bindsym $mod+Shift+1 move container to workspace number $ws1
 bindsym $mod+Shift+2 move container to workspace number $ws2
 bindsym $mod+Shift+3 move container to workspace number $ws3
@@ -160,64 +174,91 @@ bindsym $mod+Shift+8 move container to workspace number $ws8
 bindsym $mod+Shift+9 move container to workspace number $ws9
 bindsym $mod+Shift+0 move container to workspace number $ws10
 
-############################
 
-# RESIZE MODE
+# ##############################################################################
+# 7. RESIZE MODE
+# ##############################################################################
 
-############################
+# Enter resize mode with Super + r
+bindsym $mod+r mode "resize"
 
 mode "resize" {
+    # Vim key bindings (10px step)
     bindsym h resize shrink width 10 px
     bindsym l resize grow width 10 px
     bindsym j resize grow height 10 px
     bindsym k resize shrink height 10 px
 
+    # Arrow key bindings (standard 10px step)
+    bindsym Left resize shrink width 10 px
+    bindsym Right resize grow width 10 px
+    bindsym Down resize grow height 10 px
+    bindsym Up resize shrink height 10 px
+
+    # Shift + Arrow key bindings (fast 50px step)
+    bindsym Shift+Left resize shrink width 50 px
+    bindsym Shift+Right resize grow width 50 px
+    bindsym Shift+Down resize grow height 50 px
+    bindsym Shift+Up resize shrink height 50 px
+
+    # Exit resize mode
     bindsym Return mode "default"
     bindsym Escape mode "default"
 }
 
-bindsym $mod+r mode "resize"
-############################
 
-# SYSTEM
+# ##############################################################################
+# 8. MEDIA & HARDWARE CONTROLS
+# ##############################################################################
 
-############################
+# Audio Controls via PipeWire / WirePlumber (wpctl)
+bindsym XF86AudioRaiseVolume exec --no-startup-id wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ -l 1.5
+bindsym XF86AudioLowerVolume exec --no-startup-id wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%- -l 1.5
+bindsym XF86AudioMute exec --no-startup-id wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
 
+# Backlight & Display Brightness
+bindsym XF86MonBrightnessUp exec brightnessctl set +10%
+bindsym XF86MonBrightnessDown exec brightnessctl set 10%-
+
+
+# ##############################################################################
+# 9. I3 SESSION MANAGEMENT
+# ##############################################################################
+
+# Reload config immediately without restarting
 bindsym $mod+Shift+c reload
+# Restart i3 inplace (preserves window layouts and open apps)
 bindsym $mod+Shift+r restart
+# Exit i3 session
 bindsym $mod+Shift+e exec "i3-msg exit"
 
-############################
 
-# GAPS
+# ##############################################################################
+# 10. WINDOW RULES & FLOATING EXCEPTIONS
+# ##############################################################################
 
-############################
-
-gaps inner 0
-gaps outer 0
-smart_gaps on
-
-############################
-
-# WINDOW RULES
-
-############################
-
+# Media & Browser Picture-in-Picture Mode
 for_window [class="Firefox" title="Picture-in-Picture"] floating enable, sticky enable
 for_window [class="Brave-browser" title="Picture-in-Picture"] floating enable, sticky enable
 
+# Quickshell Interfaces & System Overlays
 for_window [title="^quickshell$"] floating enable, move position center
 for_window [title="^Quickshell Utility$"] floating enable, move position center
 for_window [title="^Quickshell Spotlight$"] floating enable, move position center, border pixel 0
 for_window [title="^dwm system health$"] floating enable, move position center
+
+# System Utilities & Authentication Dialogs
 for_window [class="^btop$"] floating enable, resize set 1400 980, move position center, focus
 for_window [title="(?i).*authentication.*"] floating enable, border pixel 2, resize set 360 130, move position center, focus
 for_window [class="(?i).*polkit.*"] floating enable, border pixel 2, resize set 360 130, move position center, focus
 for_window [class="(?i).*ukui-polkit.*"] floating enable, border pixel 2, resize set 360 130, move position center, focus
 
+# Common Application Utilities
 for_window [class="(?i)(gnome-calculator|org.gnome.Calculator)"] floating enable, move position center
 for_window [class="(?i)(localsend.*|LocalSend.*)"] floating enable, resize set 1024 680, move position center
 for_window [class="(?i)(snapshot|org.gnome.Snapshot|camera|cheese)"] floating enable, move position center
 for_window [class="(?i)(thunar)"] floating enable, resize set 1024 680, move position center
 
+# Application Launchers & Overlays
 for_window [class="(?i)rofi"] border pixel 0
+

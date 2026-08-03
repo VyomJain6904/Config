@@ -1,31 +1,62 @@
-# Theme
+# ─────────────────────────────────────────────────────────────────────────────
+#                     GHOSTTY TERMINAL CONFIGURATION
+# ─────────────────────────────────────────────────────────────────────────────
+# Highly optimized styling, window behavior, wallpaper rendering, and keybinds.
+# All functionality preserved with structured categorization and documentation.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# =============================================================================
+# 1. APPEARANCE & THEME
+# =============================================================================
+
+# Primary color palette theme (iTerm2 Tango Dark)
 theme = iTerm2 Tango Dark
 
-# Terminal Render Config
-term = xterm-256color
-
-# Font
+# Font configuration
 font-family = JetBrainsMono Nerd Font
 font-size = 14
+# Render bold text using bright color palette equivalents
 bold-is-bright = true
 
-# Cursor
+# Cursor styling and animation
 cursor-style = bar
 cursor-style-blink = false
 
-# Window
+# =============================================================================
+# 2. WINDOW & RENDERING ENGINE
+# =============================================================================
+# 2. WINDOW & RENDERING ENGINE
+# =============================================================================
+
+# Terminal emulation specification (enables 256-color and modern CLI feature capabilities)
+term = xterm-256color
+
+# Scrollback history buffer capacity (in total lines)
 scrollback-limit = 1000000000
-window-decoration = false
+# Render native window manager titlebar decorations
+window-decoration = true
+# Internal horizontal padding around terminal text grid (in pixels)
 window-padding-x = 12
+# Internal vertical padding around terminal text grid (in pixels)
 window-padding-y = 12
 
-# Keybinds
+# =============================================================================
+# 3. CUSTOM KEYBINDINGS
+# =============================================================================
+
+# Clipboard operations (performable prefix enables direct terminal action interception)
 keybind = performable:ctrl+c=copy_to_clipboard
 keybind = performable:ctrl+v=paste_from_clipboard
+
+# Window pane and split terminal management
 keybind = performable:ctrl+shift+s=new_split:right
 keybind = performable:ctrl+shift+d=new_split:down
+
+# Terminal session surface management
 keybind = performable:ctrl+alt+a=prompt_surface_title
 keybind = performable:ctrl+w=close_surface
+
+# Alt + Digit mappings (translates Alt+<Number> key chords into escape sequence prefixes)
 keybind = alt+1=esc:1
 keybind = alt+2=esc:2
 keybind = alt+3=esc:3

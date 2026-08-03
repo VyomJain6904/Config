@@ -3,14 +3,27 @@ import Quickshell
 import Quickshell.Io
 import qs.core
 
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ *                SPOTLIGHT APPLICATION ENGINE (SpotlightModel.qml)
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Indexed desktop application launcher engine. Uses `qs-helper launcher list`
+ * to stream desktop items and implements real-time multi-term token matching.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
 Scope {
     id: root
 
+    // ── Application Lists & Search Parameters ────────────────────────────────
     property bool visible: false
     property var allApps: []
     property var filteredApps: []
     property string query: ""
     property int selectedIndex: 0
+
+    // =========================================================================
+    // 1. LIFECYCLE & TOGGLE CONTROLLERS
+    // =========================================================================
 
     function open() {
         root.query = "";
@@ -40,6 +53,10 @@ Scope {
         root.selectedIndex = 0;
         root.updateFilter();
     }
+
+    // =========================================================================
+    // 2. KEYWORD FILTER & SEARCH MATCHING ENGINE
+    // =========================================================================
 
     function updateFilter() {
         const trimmed = root.query.trim().toLowerCase();
@@ -74,6 +91,10 @@ Scope {
         }
     }
 
+    // =========================================================================
+    // 3. SELECTION & APPLICATION EXECUTION
+    // =========================================================================
+
     function moveSelection(delta) {
         const count = root.filteredApps.length;
         if (count === 0) {
@@ -103,6 +124,7 @@ Scope {
         root.close();
     }
 
+    // ── Background Indexing & Execution Processes ────────────────────────────
     Process {
         id: listProcess
         command: Commands.launcherHelperCommand("list", [])
@@ -118,6 +140,7 @@ Scope {
         command: []
     }
 
+    // Parses tab-separated application metadata output from Go daemon
     function parseApps(text) {
         const lines = text.trim().length > 0 ? text.trim().split("\n") : [];
         const items = [];

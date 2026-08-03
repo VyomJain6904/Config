@@ -4,12 +4,25 @@ import Quickshell
 import Quickshell.Widgets
 import qs.core
 
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ *                    SYSTEM TRAY APPLET ITEM (TrayItem.qml)
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Individual tray icon square. Handles left/middle click executions and opens
+ * native context menus via QsMenuAnchor on right click.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
 Rectangle {
     id: root
 
+    // ── Tray State & Source Resolution ───────────────────────────────────────
     required property var trayItem
     property var iconSources: Icons.trayIconSources(root.trayItem)
     property int iconSourceIndex: 0
+
+    // =========================================================================
+    // 1. ACTION EVENT HANDLERS
+    // =========================================================================
 
     function openContextMenu() {
         if (root.trayItem && root.trayItem.hasMenu) {
@@ -33,6 +46,7 @@ Rectangle {
         iconSourceIndex = 0;
     }
 
+    // ── Applet Box Geometry ──────────────────────────────────────────────────
     Layout.preferredWidth: Theme.trayItemSize
     Layout.preferredHeight: Theme.trayItemSize
     radius: Theme.smallRadius
@@ -45,6 +59,7 @@ Rectangle {
         anchor.item: root
     }
 
+    // ── Icon Rendering & Fallback Cycling ────────────────────────────────────
     IconImage {
         id: trayIcon
 
@@ -64,6 +79,7 @@ Rectangle {
         }
     }
 
+    // Fallback Initial Character text badge when icon image fails entirely
     Text {
         anchors.centerIn: parent
         visible: !trayIcon.visible
@@ -77,6 +93,7 @@ Rectangle {
         font.bold: true
     }
 
+    // ── Mouse Interactivity ──────────────────────────────────────────────────
     MouseArea {
         id: trayMouse
 

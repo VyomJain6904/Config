@@ -6,6 +6,14 @@ import Quickshell.Widgets
 import QtQuick.Controls
 import qs.core
 
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ *                SPOTLIGHT LAUNCHER WINDOW (SpotlightWindow.qml)
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Modern floating search overlay with a responsive 4-column application icon
+ * grid, intelligent auto-scroll alignment, and keyboard shortcuts.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
 FloatingWindow {
     id: root
 
@@ -25,6 +33,10 @@ FloatingWindow {
         }
     }
 
+    // =========================================================================
+    // 1. PRIMARY WINDOW CONTAINER & SEARCH BAR
+    // =========================================================================
+
     Rectangle {
         anchors.fill: parent
         color: "#ee111111"
@@ -36,7 +48,7 @@ FloatingWindow {
             anchors.fill: parent
             spacing: 0
 
-            // Input Bar (inputbar)
+            // Search Input Bar (inputbar)
             Item {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 56
@@ -118,14 +130,16 @@ FloatingWindow {
                 }
             }
 
-            // 1px Divider Line
+            // 1px Separation Divider
             Rectangle {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 1
                 color: "#12ffffff"
             }
 
-            // Application Grid (listview & elements)
+            // =================================================================
+            // 2. APPLICATION GRID VIEWPORT & SCROLLING
+            // =================================================================
             Item {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
@@ -218,6 +232,7 @@ FloatingWindow {
                             }
                         }
 
+                        // No applications placeholder
                         Item {
                             Layout.fillWidth: true
                             Layout.fillHeight: true
@@ -233,6 +248,7 @@ FloatingWindow {
                             }
                         }
 
+                        // Spacer item to preserve consistent grid height when results are few
                         Item {
                             Layout.fillWidth: true
                             Layout.fillHeight: true

@@ -3,14 +3,24 @@ import QtQuick
 import QtQuick.Layouts
 import qs.core
 
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ *                    AI PLATFORM SWITCHER TABS (AiPlatformTabs.qml)
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Horizontal button strip for switching the active AI view between Codex,
+ * Antigravity, and OpenCode with custom themed brand icons.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
 RowLayout {
     id: root
 
+    // ── External Controller Binding & Layout Geometry ────────────────────────
     required property var aiModel
     readonly property int fixedHeight: 42
     spacing: Theme.rowSpacing
     implicitHeight: fixedHeight
 
+    // Resolves MacTahoe themed clear icons for AI platforms
     function iconFor(platformId) {
         if (platformId === "codex")
             return "file:///usr/share/icons/MacTahoe/apps/scalable/com.openai.ChatGPT-clear.png";
@@ -19,6 +29,9 @@ RowLayout {
         return "file:///usr/share/icons/MacTahoe/apps/scalable/antigravity-clear.png";
     }
 
+    // =========================================================================
+    // 1. PROVIDER TAB REPEATER
+    // =========================================================================
     Repeater {
         model: [
             { id: "codex", name: "Codex" },
@@ -29,10 +42,12 @@ RowLayout {
         delegate: Rectangle {
             id: tab
             required property var modelData
+
             Layout.fillWidth: true
             Layout.minimumHeight: root.fixedHeight
             Layout.preferredHeight: root.fixedHeight
             Layout.maximumHeight: root.fixedHeight
+
             color: root.aiModel.selectedPlatform === tab.modelData.id
                 ? Theme.buttonSelectedBackground
                 : (tabMouse.containsMouse ? Theme.buttonHoverBackground : Theme.buttonBackground)

@@ -1,16 +1,26 @@
 import QtQuick
 import qs.core
 
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ *                POWER MENU ACTION BUTTON (PowerMenuActionButton.qml)
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Reusable selection card for power management operations. Supports compact
+ * modal sizing and semantic danger highlighting for shutdown actions.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
 Rectangle {
     id: root
 
-    required property var action
-    property bool compact: false
-    property bool danger: false
-    property bool selected: false
+    // ── Configuration & Interaction Properties ───────────────────────────────
+    required property var action          // Power action descriptor object
+    property bool compact: false          // Enables condensed confirmation padding
+    property bool danger: false           // Applies danger accent colors when true
+    property bool selected: false         // True when highlighted via keyboard arrows
 
     signal activated
 
+    // ── Visual Geometry & Styling ────────────────────────────────────────────
     radius: Theme.radius
     color: selected ? Theme.buttonFocusBackground : (actionMouse.containsMouse ? Theme.buttonHoverBackground : Theme.buttonBackground)
     border.color: selected ? Theme.accent : (danger ? Theme.danger : Theme.border)
@@ -25,6 +35,7 @@ Rectangle {
         onClicked: root.activated()
     }
 
+    // ── Action Title and Detail Text ─────────────────────────────────────────
     Column {
         anchors.left: parent.left
         anchors.right: parent.right

@@ -1,4 +1,5 @@
 module qs.controls
+AudioMediaView 1.0 AudioMediaView.qml
 BluetoothModel 1.0 BluetoothModel.qml
 ControlsActionButton 1.0 ControlsActionButton.qml
 ControlsModel 1.0 ControlsModel.qml

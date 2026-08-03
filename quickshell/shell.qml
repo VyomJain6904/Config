@@ -32,7 +32,7 @@ ShellRoot {
     // Custom icon font for VPN status badges
     FontLoader {
         id: vpnFont
-        source: "file:///home/jain/.local/share/fonts/JetBrainsMono-VPN.ttf"
+        source: Qt.resolvedUrl("../../.local/share/fonts/JetBrainsMono-VPN.ttf")
     }
 
     // System clock polling service (synchronized to minute transitions)

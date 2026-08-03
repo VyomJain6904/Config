@@ -73,3 +73,11 @@ btop/btop.log
 
 # Polybar ruff cache
 polybar/.ruff_cache/
+
+# Antigravity IDE runtime/state (only track User/settings.json and User/keybindings.json)
+Antigravity IDE/Backups/
+Antigravity IDE/User/globalStorage/
+Antigravity IDE/User/workspaceStorage/
+Antigravity IDE/User/History/
+Antigravity IDE/machineid
+Antigravity IDE/languagepacks.json

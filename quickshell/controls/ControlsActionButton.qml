@@ -1,9 +1,18 @@
 import QtQuick
 import qs.core
 
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ *              CONTROLS ACTION BUTTON (ControlsActionButton.qml)
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Customizable pill button used across utility panels for toggling device
+ * states, triggering scans, and running system configurations.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
 Rectangle {
     id: root
 
+    // ── Button Text & Interactive States ─────────────────────────────────────
     required property string label
     property bool enabled: true
     property bool selected: false
@@ -12,6 +21,7 @@ Rectangle {
 
     signal activated
 
+    // ── Geometry & Visual Feedback ───────────────────────────────────────────
     implicitWidth: buttonLabel.implicitWidth + 18
     implicitHeight: Theme.buttonHeight
     radius: Theme.radius

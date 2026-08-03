@@ -2,12 +2,22 @@ import QtQuick
 import QtQuick.Layouts
 import qs.core
 
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ *              NETWORK PROFILE ROW (NetworkProfileRow.qml)
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Interactive item entry representing an actively connected Wi-Fi or Ethernet
+ * profile in the network list, equipped with an instant disconnect button.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
 Rectangle {
     id: root
 
+    // ── Profile Binding & Action Signal ──────────────────────────────────────
     required property var profile
     signal disconnectRequested(string device)
 
+    // ── Row Styling & Hover Visuals ──────────────────────────────────────────
     height: Theme.confirmButtonHeight
     color: rowMouse.containsMouse ? Theme.buttonHoverBackground : Theme.buttonBackground
     radius: Theme.radius
@@ -41,6 +51,7 @@ Rectangle {
             }
         }
 
+        // Disconnect Action Chip
         Rectangle {
             Layout.preferredWidth: actionText.implicitWidth + 18
             Layout.preferredHeight: Theme.chipHeight

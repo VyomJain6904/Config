@@ -3,9 +3,19 @@ import QtQuick.Layouts
 import Quickshell.Io
 import qs.core
 
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ *              NETWORK SAVED ROW (NetworkSavedRow.qml)
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Represents an entry in the list of known/saved NetworkManager profiles.
+ * Provides quick actions to reveal stored passwords via PolicyKit/roothelper,
+ * copy passkeys, toggle auto-connect flags, and delete forgotten networks.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
 Rectangle {
     id: root
 
+    // ── External Profile Metadata & UI State ─────────────────────────────────
     required property var profile
     property bool busy: false
     property bool showPassword: false
@@ -19,36 +29,13 @@ Rectangle {
         root.password = "";
     }
 
-    Process {
-        id: secretProcess
-        command: Commands.networkHelperCommand("wifi-secret", [root.profile.uuid])
-        running: false
-
-        stdout: StdioCollector {
-            onStreamFinished: {
-                root.password = this.text.trim();
-                root.passwordLoaded = true;
-                root.showPassword = true;
-            }
-        }
-    }
-
-    Process {
-        id: copyProcess
-        command: Commands.clipboardHelperCommand("copy", [root.password])
-    }
-
-    Timer {
-        id: resetCopyTimer
-        interval: 2000
-        onTriggered: root.copied = false
-    }
-
+    // ── Action Signals ───────────────────────────────────────────────────────
     signal connectRequested(string uuid)
     signal disconnectRequested(string device)
     signal forgetRequested(string uuid)
     signal toggleAutoconnectRequested(string uuid, bool enable)
 
+    // ── Styling & Dynamic Geometry ───────────────────────────────────────────
     height: contentColumn.implicitHeight + 24
     color: root.profile.active ? Theme.buttonFocusBackground : Theme.buttonBackground
     border.color: root.profile.active ? Theme.accent : Theme.border
@@ -56,14 +43,19 @@ Rectangle {
     radius: Theme.radius
     opacity: root.busy ? 0.6 : 1.0
 
+    // =========================================================================
+    // 1. CONTENT COLUMN: HEADER, SECRET DISPLAY & ACTION STRIP
+    // =========================================================================
     ColumnLayout {
         id: contentColumn
+
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.margins: 12
         spacing: 10
 
+        // Header: Profile Name & Active State Badge
         RowLayout {
             Layout.fillWidth: true
             spacing: Theme.rowSpacing
@@ -87,6 +79,7 @@ Rectangle {
 
                 Text {
                     id: activeLabel
+
                     anchors.centerIn: parent
                     text: "Active"
                     color: Theme.accentText
@@ -97,6 +90,7 @@ Rectangle {
             }
         }
 
+        // Masked/Revealed Passkey Display Row
         Text {
             Layout.fillWidth: true
             text: root.showPassword ? "Password: " + (root.password.length > 0 ? root.password : "(No PSK / Open)") : "Password: ••••••••••••"
@@ -107,11 +101,12 @@ Rectangle {
             elide: Text.ElideRight
         }
 
+        // Interactive Action Button Strip
         RowLayout {
             Layout.fillWidth: true
             spacing: 8
 
-            // Show/Hide Password button
+            // Toggle Password Visibility Button
             Rectangle {
                 Layout.preferredWidth: passText.implicitWidth + 16
                 Layout.preferredHeight: Theme.chipHeight
@@ -122,6 +117,7 @@ Rectangle {
 
                 Text {
                     id: passText
+
                     anchors.centerIn: parent
                     text: root.showPassword ? "\uf070" : "\uf06e"
                     color: Theme.textStrong
@@ -131,6 +127,7 @@ Rectangle {
 
                 MouseArea {
                     id: passMouse
+
                     anchors.fill: parent
                     enabled: !root.busy
                     hoverEnabled: true
@@ -149,7 +146,7 @@ Rectangle {
                 }
             }
 
-            // Auto-connect toggle button
+            // Auto-connect Policy Switch Chip
             Rectangle {
                 Layout.preferredWidth: autoText.implicitWidth + 16
                 Layout.preferredHeight: Theme.chipHeight
@@ -160,6 +157,7 @@ Rectangle {
 
                 Text {
                     id: autoText
+
                     anchors.centerIn: parent
                     text: root.profile.autoconnect ? "Auto: ON" : "Auto: OFF"
                     color: root.profile.autoconnect ? Theme.success : Theme.textMuted
@@ -170,6 +168,7 @@ Rectangle {
 
                 MouseArea {
                     id: autoMouse
+
                     anchors.fill: parent
                     enabled: !root.busy
                     hoverEnabled: true
@@ -178,7 +177,7 @@ Rectangle {
                 }
             }
 
-            // Copy password button
+            // Copy Passkey to Clipboard Chip
             Rectangle {
                 visible: root.password.length > 0 && root.password !== "(No PSK / Open)" && root.password !== "--"
                 Layout.preferredWidth: copyText.implicitWidth + 16
@@ -190,6 +189,7 @@ Rectangle {
 
                 Text {
                     id: copyText
+
                     anchors.centerIn: parent
                     text: root.copied ? "\uf00c" : "\uf0c5"
                     color: root.copied ? Theme.success : Theme.textStrong
@@ -200,6 +200,7 @@ Rectangle {
 
                 MouseArea {
                     id: copyMouse
+
                     anchors.fill: parent
                     enabled: !root.busy && !root.copied
                     hoverEnabled: true
@@ -212,9 +213,11 @@ Rectangle {
                 }
             }
 
-            Item { Layout.fillWidth: true }
+            Item {
+                Layout.fillWidth: true
+            }
 
-            // Connect / Disconnect button
+            // Connect / Disconnect Action Chip
             Rectangle {
                 Layout.preferredWidth: connText.implicitWidth + 16
                 Layout.preferredHeight: Theme.chipHeight
@@ -225,6 +228,7 @@ Rectangle {
 
                 Text {
                     id: connText
+
                     anchors.centerIn: parent
                     text: root.profile.active ? "Disconnect" : "Connect"
                     color: root.profile.active ? Theme.textStrong : Theme.accent
@@ -235,6 +239,7 @@ Rectangle {
 
                 MouseArea {
                     id: connMouse
+
                     anchors.fill: parent
                     enabled: !root.busy
                     hoverEnabled: true
@@ -249,7 +254,7 @@ Rectangle {
                 }
             }
 
-            // Forget button
+            // Forget Network Deletion Chip
             Rectangle {
                 Layout.preferredWidth: forgetText.implicitWidth + 16
                 Layout.preferredHeight: Theme.chipHeight
@@ -260,6 +265,7 @@ Rectangle {
 
                 Text {
                     id: forgetText
+
                     anchors.centerIn: parent
                     text: "Forget"
                     color: Theme.danger
@@ -270,6 +276,7 @@ Rectangle {
 
                 MouseArea {
                     id: forgetMouse
+
                     anchors.fill: parent
                     enabled: !root.busy
                     hoverEnabled: true
@@ -278,5 +285,37 @@ Rectangle {
                 }
             }
         }
+    }
+
+    // =========================================================================
+    // 2. BACKGROUND HELPER PROCESSES & TIMERS
+    // =========================================================================
+
+    Process {
+        id: secretProcess
+
+        command: Commands.networkHelperCommand("wifi-secret", [root.profile.uuid])
+        running: false
+
+        stdout: StdioCollector {
+            onStreamFinished: {
+                root.password = this.text.trim();
+                root.passwordLoaded = true;
+                root.showPassword = true;
+            }
+        }
+    }
+
+    Process {
+        id: copyProcess
+
+        command: Commands.clipboardHelperCommand("copy", [root.password])
+    }
+
+    Timer {
+        id: resetCopyTimer
+
+        interval: 2000
+        onTriggered: root.copied = false
     }
 }

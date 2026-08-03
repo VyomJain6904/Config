@@ -2,15 +2,25 @@ import QtQuick
 import QtQuick.Layouts
 import qs.core
 
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ *              NETWORK WIFI ROW (NetworkWifiRow.qml)
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Interactive listdelegate representing a discovered wireless access point.
+ * Shows signal percentage, security cipher badges, and saved network flags.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
 Rectangle {
     id: root
 
+    // ── External Binding & Action Signals ────────────────────────────────────
     required property var network
     property bool selected: false
     property bool busy: false
     signal selectedRequested
     signal connectRequested(var network)
 
+    // ── Geometry & State Styling ─────────────────────────────────────────────
     height: 54
     color: root.network.active ? Theme.buttonSelectedBackground : (root.selected ? Theme.buttonFocusBackground : (rowMouse.containsMouse ? Theme.buttonHoverBackground : Theme.buttonBackground))
     border.color: root.selected && !root.network.active ? Theme.accent : Theme.border
@@ -26,6 +36,9 @@ Rectangle {
         onClicked: root.selectedRequested()
     }
 
+    // =========================================================================
+    // 1. ACCESS POINT ROW LAYOUT & ACTION CHIP
+    // =========================================================================
     RowLayout {
         anchors.fill: parent
         anchors.leftMargin: Theme.rowSpacing
@@ -58,7 +71,9 @@ Rectangle {
                     font.pixelSize: 12
                 }
 
-                Item { Layout.fillWidth: true }
+                Item {
+                    Layout.fillWidth: true
+                }
             }
 
             Text {
@@ -82,6 +97,7 @@ Rectangle {
             elide: Text.ElideRight
         }
 
+        // Interactive Connection Trigger Button
         Rectangle {
             Layout.preferredWidth: actionText.implicitWidth + 18
             Layout.preferredHeight: Theme.chipHeight

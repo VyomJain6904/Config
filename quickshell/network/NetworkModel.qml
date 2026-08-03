@@ -3,9 +3,19 @@ import Quickshell
 import Quickshell.Io
 import qs.core
 
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ *                    NETWORK MANAGER ENGINE (NetworkModel.qml)
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Master state controller for Linux NetworkManager. Interfaces with `nmcli`
+ * and custom helper daemons to handle Wi-Fi scanning, saved connections,
+ * access point password authentication, speed tests, and QR hotspot sharing.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
 Scope {
     id: root
 
+    // ── Connectivity & Hotspot State Variables ───────────────────────────────
     property bool visible: false
     property bool busy: false
     property bool scanning: false
@@ -27,6 +37,7 @@ Scope {
     property var wifiNetworks: []
     property var savedNetworks: []
 
+    // ── Speed Test & Wi-Fi Share State ───────────────────────────────────────
     property int passwordAttempts: 0
     property bool connectingWithPassword: false
     property bool testingSpeed: false
@@ -42,9 +53,14 @@ Scope {
 
     signal passwordFailed(int attempt)
 
+    // Filtered profile array excluding loopback, docker, and virtual bridges
     readonly property var activeConnections: root.connections.filter(function (profile) {
         return profile.active && profile.name !== "lo" && profile.name !== "Quickshell Hotspot" && !profile.name.startsWith("docker") && !profile.name.startsWith("br-") && (profile.type === "802-11-wireless" || profile.type === "wifi" || profile.type === "wireless");
     })
+
+    // =========================================================================
+    // 1. WINDOW & VIEWPORT CONTROLLERS
+    // =========================================================================
 
     function open() {
         root.visible = true;
@@ -109,6 +125,10 @@ Scope {
         copyProcess.running = true;
     }
 
+    // =========================================================================
+    // 2. REFRESH & DEVICE SCANNING
+    // =========================================================================
+
     function refresh(rescanWifi) {
         root.refreshStatus();
         if (!root.visible) {
@@ -146,17 +166,19 @@ Scope {
         }
     }
 
+    // =========================================================================
+    // 3. NETWORK METADATA PARSERS
+    // =========================================================================
+
     function parseConnections(text) {
         const rows = [];
         const lines = text.trim().length > 0 ? text.trim().split("\n") : [];
 
         for (const line of lines) {
             const fields = line.split("\t");
-
             if (fields.length < 5) {
                 continue;
             }
-
             rows.push({
                 "name": fields[0],
                 "uuid": fields[1],
@@ -194,7 +216,6 @@ Scope {
             if (fields.length < 4 || fields[0] !== "client") {
                 continue;
             }
-
             clients.push({
                 "name": fields[1],
                 "ip": fields[2],
@@ -245,7 +266,6 @@ Scope {
 
         for (const line of lines) {
             const fields = line.split("\t");
-
             if (fields.length < 7 || fields[2].length === 0) {
                 continue;
             }
@@ -291,11 +311,14 @@ Scope {
         }
     }
 
+    // =========================================================================
+    // 4. CONNECTION EXECUTORS & PASSWORD VALIDATION
+    // =========================================================================
+
     function selectedWifiNetwork() {
         if (root.selectedWifiIndex < 0 || root.selectedWifiIndex >= root.wifiNetworks.length) {
             return null;
         }
-
         return root.wifiNetworks[root.selectedWifiIndex];
     }
 
@@ -303,7 +326,6 @@ Scope {
         if (index < 0 || index >= root.wifiNetworks.length) {
             return;
         }
-
         root.selectedWifiIndex = index;
         root.passwordAttempts = 0;
         root.wifiPassword = "";
@@ -379,7 +401,6 @@ Scope {
         if (!root.hotspotAvailable || root.busy) {
             return;
         }
-
         root.busy = true;
         root.message = root.hotspotActive ? "Stopping hotspot " + root.hotspotSsid : "Starting hotspot " + root.hotspotSsid + (root.hotspotChannel.length > 0 ? " on channel " + root.hotspotChannel : "");
         actionProcess.command = Commands.networkHelperCommand(root.hotspotActive ? "hotspot-stop" : "hotspot-start");
@@ -390,7 +411,6 @@ Scope {
         if (!device || device.length === 0) {
             return;
         }
-
         root.busy = true;
         root.message = "Disconnecting " + device;
         actionProcess.command = Commands.networkHelperCommand("disconnect", [device]);
@@ -401,14 +421,18 @@ Scope {
         if (!root.editorAvailable) {
             return;
         }
-
         if (!editorProcess.running) {
             editorProcess.running = true;
         }
     }
 
+    // =========================================================================
+    // 5. DEBOUNCERS, TIMERS & BACKEND PROCESSES
+    // =========================================================================
+
     Timer {
         id: networkRefreshDebouncer
+
         interval: 150
         running: false
         repeat: false
@@ -430,7 +454,6 @@ Scope {
         stdout: StdioCollector {
             onStreamFinished: {
                 const text = this.text.trim();
-
                 root.statusText = text.length > 0 ? text : "NET offline";
             }
         }
@@ -507,12 +530,15 @@ Scope {
 
     Process {
         id: savedNetworksProcess
+
         command: Commands.networkHelperCommand("wifi-saved")
         running: false
         stdout: StdioCollector {
             onStreamFinished: root.parseSavedNetworks(this.text)
         }
     }
+
+    // ── Speed Test & Wi-Fi Share Processes ───────────────────────────────────
 
     function runSpeedTest() {
         if (root.testingSpeed)
@@ -581,6 +607,7 @@ Scope {
 
     Timer {
         id: realtimeSyncTimer
+
         interval: 750
         repeat: true
         property int pollCount: 0
@@ -617,6 +644,7 @@ Scope {
 
     Timer {
         id: wifiScanPoller
+
         property int pollCount: 0
         interval: 1500
         repeat: true
@@ -637,6 +665,7 @@ Scope {
 
     Timer {
         id: monitorRestartTimer
+
         interval: 3000
         repeat: false
         onTriggered: monitorProcess.running = true
@@ -644,6 +673,7 @@ Scope {
 
     Process {
         id: monitorProcess
+
         command: Commands.networkHelperCommand("monitor")
         running: true
 
@@ -683,6 +713,10 @@ Scope {
         }
     }
 
+    // =========================================================================
+    // 6. HOTSPOT CONFIGURATION EDITOR
+    // =========================================================================
+
     function startEditingHotspot() {
         root.hotspotSsidInput = root.hotspotSsid;
         root.hotspotPasswordInput = root.hotspotPassword;
@@ -698,7 +732,6 @@ Scope {
             root.message = "Hotspot password must be at least 8 characters";
             return;
         }
-
         root.busy = true;
         root.message = "Saving Hotspot settings...";
         hotspotSaveProcess.command = Commands.networkHelperCommand("hotspot-save", ["--ssid", newSsid, "--password", newPassword]);

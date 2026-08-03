@@ -1,23 +1,35 @@
 pragma Singleton
-
 import Quickshell
 
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ *                    ICON THEME RESOLVER (Icons.qml)
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Advanced icon source resolution library. Evaluates custom fallback pipelines
+ * for system tray applications, MacTahoe icon bundles, Flatpak exports, and
+ * symbolic theme substitutes.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
 Singleton {
 
+    // =========================================================================
+    // 1. SOURCE PIPELINE UTILITY FUNCTIONS
+    // =========================================================================
+
+    // Safely pushes unique URI strings into an icon source candidates array
     function addIconSource(sources, source) {
         if (typeof source !== "string" && !(source instanceof String)) {
             return;
         }
-
         if (source.length === 0) {
             return;
         }
-
         if (sources.indexOf(source) < 0) {
             sources.push(source);
         }
     }
 
+    // Safely decodes URL encoded characters in icon paths (e.g. spaces, symbols)
     function decodeIconPart(value) {
         try {
             return decodeURIComponent(value);
@@ -26,13 +38,19 @@ Singleton {
         }
     }
 
+    // Checks if a path target points directly to an image filesystem file
     function looksLikeIconFilePath(path) {
         return /\.(ico|png|svg|tga|webp|xpm)$/i.test(path);
     }
 
+    // =========================================================================
+    // 2. ICON NAME SUBSTITUTION MAPPING
+    // =========================================================================
+    // Generates alternative candidate icon filenames for common Linux system apps
     function iconNameFallbacks(iconName) {
         const names = [iconName];
 
+        // Automatically test symbolic variant if not already specified
         if (iconName.indexOf("-symbolic") < 0) {
             names.push(iconName + "-symbolic");
         }
@@ -57,6 +75,10 @@ Singleton {
 
         return names;
     }
+
+    // =========================================================================
+    // 3. THEME DIRECTORY TRAVERSAL
+    // =========================================================================
 
     function addIconThemeFileSources(sources, themeRoot, iconName) {
         if (themeRoot.length === 0 || iconName.length === 0) {
@@ -110,6 +132,7 @@ Singleton {
         }
     }
 
+    // Direct targeted lookups inside the installed MacTahoe system theme
     function addMacTahoeFallbacks(sources, iconName) {
         if (!iconName || iconName.length === 0)
             return;
@@ -155,27 +178,32 @@ Singleton {
             addIconSource(sources, Quickshell.iconPath(names[index], true));
         }
     }
+
+    // =========================================================================
+    // 4. SYSTEM TRAY APPLICATION ICON ROUTE GENERATOR
+    // =========================================================================
+
     function trayIconSources(trayItem) {
         let rawIconName = decodeIconPart(trayItem.icon);
         let iconName = rawIconName;
         const iconPath = decodeIconPart(trayItem.iconPath);
 
         // Quickshell prefixes tray icons with its image provider (e.g. image://icon/discord)
-        // We need the raw name to match our custom flatpak resolution rules
+        // We strip the prefix to apply custom flatpak & theme resolution rules
         if (iconName && iconName.indexOf("image://icon/") === 0) {
             iconName = iconName.substring(13); // remove "image://icon/"
         }
 
         const sources = [];
 
-        // Always add the raw Quickshell provided URI as the last resort fallback
+        // Always retain the raw Quickshell provided URI as initial fallback
         if (rawIconName && rawIconName.indexOf("image://") === 0) {
             addIconSource(sources, rawIconName);
         }
 
-        // Special case flameshot
+        // Special application case: Flameshot screenshot daemon
         if (trayItem.id === "flameshot") {
-            // Already hidden in TrayArea, but just in case
+            // Suppress icon generation when hidden in TrayArea
             return sources;
         } else if (iconName === "flameshot-tray") {
             addIconSource(sources, "file:///usr/share/icons/MacTahoe/48x48/apps/flameshot.png");
@@ -185,7 +213,7 @@ Singleton {
             addIconSource(sources, "image://icon/org.flameshot.Flameshot");
         }
 
-        // Special case: Discord - use MacTahoe com.discordapp.Discord-clear.png
+        // Special application case: Discord - enforce MacTahoe clear themed icons
         if (iconName === "discord" || trayItem.id === "discord" || iconName === "com.discordapp.Discord" || (trayItem.id && trayItem.id.indexOf("discord") >= 0)) {
             addIconSource(sources, "file:///usr/share/icons/MacTahoe/apps/scalable/com.discordapp.Discord-clear.png");
             addIconSource(sources, "file:///usr/share/icons/MacTahoe/apps/scalable/com.discordapp.Discord.svg");
@@ -196,7 +224,7 @@ Singleton {
             return sources;
         }
 
-        // Special case: Telegram - use MacTahoe org.telegram.desktop-clear.png
+        // Special application case: Telegram Desktop - enforce MacTahoe status badges
         if (iconName === "telegram-panel" || iconName === "telegram" || iconName === "telegram-desktop" || iconName === "org.telegram.desktop" || (trayItem.id && trayItem.id.indexOf("telegram") >= 0)) {
             addIconSource(sources, "file:///usr/share/icons/MacTahoe/apps/scalable/org.telegram.desktop-clear.png");
             addIconSource(sources, "file:///usr/share/icons/MacTahoe/status/22/telegram-panel.svg");
@@ -227,7 +255,7 @@ Singleton {
         } else if (iconName.length > 0) {
             const names = iconNameFallbacks(iconName);
             for (let i = 0; i < names.length; i++) {
-                // Direct targeted paths in MacTahoe (fast, no heavy loops)
+                // Direct targeted paths in MacTahoe (high efficiency lookups)
                 addIconSource(sources, "file:///usr/share/icons/MacTahoe/apps/scalable/" + names[i] + ".png");
                 addIconSource(sources, "file:///usr/share/icons/MacTahoe/apps/scalable/" + names[i] + ".svg");
                 addIconSource(sources, "file:///usr/share/icons/MacTahoe/status/24/" + names[i] + ".svg");
@@ -242,7 +270,6 @@ Singleton {
         if (typeof iconName !== "string" && !(iconName instanceof String)) {
             return sources;
         }
-
         if (iconName.length === 0) {
             return sources;
         }
@@ -293,16 +320,13 @@ Singleton {
                 addIconSource(sources, iconString);
                 return sources;
             }
-
             if (iconString.indexOf("/") === 0 && iconString.indexOf("file://") !== 0) {
                 addIconSource(sources, "file://" + iconString);
                 return sources;
             }
-
             if (iconString === "dialog-password") {
                 addIconSource(sources, Quickshell.iconPath("dialog-password-symbolic", true));
             }
-
             addMacTahoeFallbacks(sources, iconString);
             addCheckedThemeSources(sources, iconString);
             addIconSource(sources, iconString);

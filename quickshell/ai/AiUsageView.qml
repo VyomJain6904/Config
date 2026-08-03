@@ -3,13 +3,26 @@ import QtQuick
 import QtQuick.Layouts
 import qs.core
 
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ *                    AI USAGE DASHBOARD VIEW (AiUsageView.qml)
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Comprehensive status panel displaying AI provider connectivity, live billing
+ * token limits, daily usage distribution histograms, and model quotas.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
 ColumnLayout {
     id: root
 
+    // ── External Model Injectors & Time State ────────────────────────────────
     required property var aiModel
     readonly property var platform: root.aiModel.activePlatform
     property int nowSeconds: Math.floor(Date.now() / 1000)
     spacing: Theme.popupSpacing
+
+    // =========================================================================
+    // 1. DATA PARSING & TIME FORMATTING UTILITIES
+    // =========================================================================
 
     function iconFor(platformId) {
         if (platformId === "codex")
@@ -78,6 +91,10 @@ ColumnLayout {
         onTriggered: root.nowSeconds = Math.floor(Date.now() / 1000)
     }
 
+    // =========================================================================
+    // 2. HEADER: PROVIDER PROFILE & REFRESH ACTION
+    // =========================================================================
+
     RowLayout {
         Layout.fillWidth: true
         spacing: 12
@@ -111,6 +128,7 @@ ColumnLayout {
                 Layout.fillWidth: true
                 Layout.minimumWidth: 0
                 spacing: 8
+
                 UiText {
                     text: root.platform.name || "AI Usage"
                     color: Theme.textStrong
@@ -119,12 +137,14 @@ ColumnLayout {
                     elide: Text.ElideRight
                     Layout.minimumWidth: 0
                 }
+
                 Rectangle {
                     implicitWidth: planLabel.implicitWidth + 12
                     implicitHeight: 20
                     color: Theme.surfaceActive
                     border.color: Theme.border
                     border.width: 1
+
                     UiText {
                         id: planLabel
                         anchors.centerIn: parent
@@ -134,6 +154,7 @@ ColumnLayout {
                         font.bold: true
                     }
                 }
+
                 Item {
                     Layout.fillWidth: true
                 }
@@ -149,6 +170,7 @@ ColumnLayout {
             }
         }
 
+        // Live Connectivity Status Light Badge
         Rectangle {
             Layout.preferredWidth: 8
             Layout.preferredHeight: 8
@@ -166,6 +188,9 @@ ColumnLayout {
         }
     }
 
+    // =========================================================================
+    // 3. PROVIDER SELECTION TAB STRIP
+    // =========================================================================
     AiPlatformTabs {
         Layout.fillWidth: true
         Layout.minimumHeight: 42
@@ -174,11 +199,15 @@ ColumnLayout {
         aiModel: root.aiModel
     }
 
+    // =========================================================================
+    // 4. METRICS BODY: LIMITS, DAILY CHARTS & MODEL CARDS
+    // =========================================================================
     ColumnLayout {
         Layout.fillWidth: true
         Layout.fillHeight: true
         spacing: Theme.popupSpacing
 
+        // Provider Error Warning Alert Box
         Rectangle {
             visible: (root.platform.error || "").length > 0
             Layout.fillWidth: true
@@ -186,6 +215,7 @@ ColumnLayout {
             color: "#1b1414"
             border.color: "#5a3030"
             border.width: 1
+
             UiText {
                 id: warningText
                 anchors.fill: parent
@@ -197,6 +227,7 @@ ColumnLayout {
             }
         }
 
+        // Live Limits Quota Window Section
         ColumnLayout {
             visible: (root.platform.quotaWindows || []).length > 0
             Layout.fillWidth: true
@@ -211,9 +242,11 @@ ColumnLayout {
 
             Repeater {
                 model: root.platform.quotaWindows || []
+
                 delegate: Rectangle {
                     id: quotaCard
                     required property var modelData
+
                     Layout.fillWidth: true
                     Layout.preferredHeight: 78
                     color: Theme.surface
@@ -224,6 +257,7 @@ ColumnLayout {
                         anchors.fill: parent
                         anchors.margins: 11
                         spacing: 6
+
                         RowLayout {
                             Layout.fillWidth: true
                             UiText {
@@ -240,21 +274,22 @@ ColumnLayout {
                                 font.bold: true
                             }
                         }
+
                         Rectangle {
                             Layout.fillWidth: true
                             Layout.preferredHeight: 7
                             color: Theme.surfaceActive
+
                             Rectangle {
                                 height: parent.height
                                 width: parent.width * root.percent(quotaCard.modelData.usedPercent) / 100
                                 color: root.percent(quotaCard.modelData.usedPercent) >= 90 ? Theme.danger : Theme.accent
                                 Behavior on width {
-                                    NumberAnimation {
-                                        duration: Theme.animationNormal
-                                    }
+                                    NumberAnimation { duration: Theme.animationNormal }
                                 }
                             }
                         }
+
                         UiText {
                             text: root.resetText(quotaCard.modelData.resetAt)
                             color: Theme.textMuted
@@ -265,6 +300,7 @@ ColumnLayout {
             }
         }
 
+        // Daily Usage Distribution Histogram Section
         ColumnLayout {
             visible: (root.platform.dailyUsage || []).length > 0
             Layout.fillWidth: true
@@ -276,45 +312,51 @@ ColumnLayout {
                 font.pixelSize: Theme.tinyFontSize
                 font.bold: true
             }
+
             Rectangle {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 7 * 32 + 22
                 color: Theme.surface
                 border.color: Theme.border
                 border.width: 1
+
                 ColumnLayout {
                     anchors.fill: parent
                     anchors.margins: 10
                     spacing: 5
+
                     Repeater {
                         model: root.platform.dailyUsage || []
+
                         delegate: RowLayout {
                             id: dayRow
                             required property var modelData
                             Layout.fillWidth: true
                             Layout.preferredHeight: 27
                             spacing: 10
+
                             UiText {
                                 Layout.preferredWidth: 48
                                 text: dayRow.modelData.label
                                 color: dayRow.modelData.label === "Today" ? Theme.textStrong : Theme.textMuted
                                 font.bold: dayRow.modelData.label === "Today"
                             }
+
                             Rectangle {
                                 Layout.fillWidth: true
                                 Layout.preferredHeight: 7
                                 color: Theme.surfaceActive
+
                                 Rectangle {
                                     height: parent.height
                                     width: parent.width * root.dailyPercent(dayRow.modelData.tokens) / 100
                                     color: Theme.accent
                                     Behavior on width {
-                                        NumberAnimation {
-                                            duration: Theme.animationNormal
-                                        }
+                                        NumberAnimation { duration: Theme.animationNormal }
                                     }
                                 }
                             }
+
                             UiText {
                                 Layout.preferredWidth: 66
                                 horizontalAlignment: Text.AlignRight
@@ -328,6 +370,7 @@ ColumnLayout {
             }
         }
 
+        // Model Breakdown Scroll List
         AiModelList {
             Layout.fillWidth: true
             Layout.fillHeight: true

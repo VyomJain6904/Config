@@ -1,5 +1,4 @@
 //@ pragma UseQApplication
-
 pragma ComponentBehavior: Bound
 
 import QtQuick
@@ -16,22 +15,38 @@ import qs.state
 import qs.spotlight
 import qs.ai
 
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ *                        QUICKSHELL ROOT CONFIGURATION
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Entry point for Quickshell under the i3 window manager. Defines global state
+ * engines, multi-monitor bars, IPC socket targets, and lazy modal dialogs.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
 ShellRoot {
+
+    // =========================================================================
+    // 1. GLOBAL FONTS, SERVICES & STATE MODELS
+    // =========================================================================
+
+    // Custom icon font for VPN status badges
     FontLoader {
         id: vpnFont
         source: "file:///home/jain/.local/share/fonts/JetBrainsMono-VPN.ttf"
     }
 
+    // System clock polling service (synchronized to minute transitions)
     SystemClock {
         id: clock
-
         precision: SystemClock.Minutes
     }
 
+    // Window manager live state tracking (workspaces and focused window title)
     I3State {
         id: i3State
     }
 
+    // Interactive service state controllers
     PowerMenuModel {
         id: powerMenuModel
     }
@@ -64,8 +79,13 @@ ShellRoot {
         id: spotlightModel
     }
 
-    // ── IPC Handlers ──────────────────────────────────────────────────
+    // =========================================================================
+    // 2. INTERACTION & IPC SOCKET HANDLERS
+    // =========================================================================
+    // Allows terminal command-line scripts (via `quickshell ipc call <target>`)
+    // to toggle windows, refresh networking, or control media playback.
 
+    // ── Global Menu Control (Utility Overlay) ────────────────────────────────
     IpcHandler {
         target: "menu"
 
@@ -94,6 +114,7 @@ ShellRoot {
         }
     }
 
+    // ── Spotlight Search Dialog ──────────────────────────────────────────────
     IpcHandler {
         target: "spotlight"
 
@@ -110,6 +131,7 @@ ShellRoot {
         }
     }
 
+    // ── Power & Session Options ──────────────────────────────────────────────
     IpcHandler {
         target: "power"
 
@@ -126,6 +148,7 @@ ShellRoot {
         }
     }
 
+    // ── Network Management (Wi-Fi / Ethernet) ────────────────────────────────
     IpcHandler {
         target: "network"
 
@@ -150,6 +173,7 @@ ShellRoot {
         }
     }
 
+    // ── System Controls (Audio Volume, Media Playback & Brightness) ──────────
     IpcHandler {
         target: "controls"
 
@@ -214,6 +238,7 @@ ShellRoot {
         }
     }
 
+    // ── VPN Connectivity ─────────────────────────────────────────────────────
     IpcHandler {
         target: "vpn"
 
@@ -238,6 +263,7 @@ ShellRoot {
         }
     }
 
+    // ── Calendar & Agenda Overlay ────────────────────────────────────────────
     IpcHandler {
         target: "calendar"
 
@@ -254,6 +280,7 @@ ShellRoot {
         }
     }
 
+    // ── AI Assistant & Prompt Workspace ──────────────────────────────────────
     IpcHandler {
         target: "ai"
 
@@ -270,6 +297,7 @@ ShellRoot {
         }
     }
 
+    // ── System Tray Inspection ───────────────────────────────────────────────
     IpcHandler {
         target: "tray"
 
@@ -301,7 +329,9 @@ ShellRoot {
         }
     }
 
-    // ── Multi-monitor panel: one I3Panel per screen ──────────────────
+    // =========================================================================
+    // 3. MULTI-MONITOR STATUS BAR (One I3Panel per Display)
+    // =========================================================================
     Variants {
         model: Quickshell.screens
 
@@ -320,7 +350,10 @@ ShellRoot {
         }
     }
 
-    // ── Global windows ────────────────────────────────────────────────
+    // =========================================================================
+    // 4. ON-DEMAND LAZY LOADED WINDOWS & MODALS
+    // =========================================================================
+    // Utilizes LazyLoader to keep modal memory utilization at zero until opened.
 
     LazyLoader {
         active: powerMenuModel.visible

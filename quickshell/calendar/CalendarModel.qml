@@ -3,9 +3,18 @@ import Quickshell
 import Quickshell.Io
 import qs.core
 
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ *                    CALENDAR EVENT MODEL (CalendarModel.qml)
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Synchronizes local cached agenda data and runs asynchronous network fetches
+ * via `qs-helper calendar` to populate dates and schedule items.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
 Scope {
     id: root
 
+    // ── Agenda State & Cache Parameters ──────────────────────────────────────
     property bool visible: false
     property bool loading: false
     property var events: []
@@ -17,6 +26,10 @@ Scope {
     property string freshKey: ""
     property bool cacheQueued: false
     property bool refreshQueued: false
+
+    // =========================================================================
+    // 1. WINDOW & REFRESH LIFECYCLE ROUTERS
+    // =========================================================================
 
     function open() {
         root.visible = true;
@@ -53,6 +66,10 @@ Scope {
         root.startCacheRead();
         root.startNetworkRefresh();
     }
+
+    // =========================================================================
+    // 2. EVENT PARSING & DICTIONARY INDEXING
+    // =========================================================================
 
     function applyEvents(parsed, key) {
         if (key !== root.requestedKey) {
@@ -92,6 +109,10 @@ Scope {
         }
     }
 
+    // =========================================================================
+    // 3. PROCESS MANAGERS (LOCAL CACHE & REMOTE FETCH)
+    // =========================================================================
+
     function startCacheRead() {
         if (cacheProcess.running) {
             root.cacheQueued = true;
@@ -99,10 +120,7 @@ Scope {
         }
         root.cacheQueued = false;
         cacheProcess.requestKey = root.requestedKey;
-        cacheProcess.command = Commands.calendarHelperCommand("cached", [
-            root.requestedMonth.toString(),
-            root.requestedYear.toString()
-        ]);
+        cacheProcess.command = Commands.calendarHelperCommand("cached", [root.requestedMonth.toString(), root.requestedYear.toString()]);
         cacheProcess.running = true;
     }
 
@@ -114,10 +132,7 @@ Scope {
         root.refreshQueued = false;
         root.loading = true;
         eventsProcess.requestKey = root.requestedKey;
-        eventsProcess.command = Commands.calendarHelperCommand("events", [
-            root.requestedMonth.toString(),
-            root.requestedYear.toString()
-        ]);
+        eventsProcess.command = Commands.calendarHelperCommand("events", [root.requestedMonth.toString(), root.requestedYear.toString()]);
         eventsProcess.running = true;
     }
 

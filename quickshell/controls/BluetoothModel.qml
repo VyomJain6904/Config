@@ -2,13 +2,26 @@ import Quickshell
 import Quickshell.Io
 import qs.core
 
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ *                    BLUETOOTH STATE ENGINE (BluetoothModel.qml)
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Manages Bluetooth adapter status, device discovery scans, and pairing action
+ * executions via `qs-helper bluetooth-*` system subcommands.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
 Scope {
     id: root
 
+    // ── Adapter Status & Discovered Devices ──────────────────────────────────
     property bool busy: false
     property string statusText: "BT unavailable"
     property var devices: []
     property string message: ""
+
+    // =========================================================================
+    // 1. SCANNING & COMMAND EXECUTION methods
+    // =========================================================================
 
     function refresh(scan) {
         root.message = "";
@@ -25,7 +38,12 @@ Scope {
         for (const line of lines) {
             const fields = line.split("\t");
             if (fields.length < 4) continue;
-            rows.push({ "address": fields[0], "name": fields[1], "paired": fields[2] === "yes", "connected": fields[3] === "yes" });
+            rows.push({
+                "address": fields[0],
+                "name": fields[1],
+                "paired": fields[2] === "yes",
+                "connected": fields[3] === "yes"
+            });
         }
         root.devices = rows;
     }
@@ -37,6 +55,10 @@ Scope {
         actionProcess.command = Commands.controlsHelperCommand(name, args || []);
         actionProcess.running = true;
     }
+
+    // =========================================================================
+    // 2. BACKGROUND STATUS PROCESSES
+    // =========================================================================
 
     Process {
         id: statusProcess
@@ -53,7 +75,7 @@ Scope {
     Process {
         id: actionProcess
         property string lastError: ""
-        
+
         stderr: StdioCollector {
             onStreamFinished: actionProcess.lastError = this.text.trim()
         }

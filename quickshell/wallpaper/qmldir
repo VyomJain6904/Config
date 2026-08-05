@@ -1,0 +1,4 @@
+module qs.wallpaper
+WallpaperModel 1.0 WallpaperModel.qml
+WallpaperCard 1.0 WallpaperCard.qml
+WallpaperView 1.0 WallpaperView.qml

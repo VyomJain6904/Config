@@ -12,27 +12,27 @@ import Quickshell
 Singleton {
 
     // =========================================================================
-    // 1. COLOR PALETTE (Monochrome Black & Tokyo Night Accents)
+    // 1. COLOR PALETTE (Monochrome Black)
     // =========================================================================
 
     // Core Backgrounds & Surfaces
     readonly property string transparent: "#00000000"       // Fully transparent UI layer
-    readonly property string bg: "#000000"                  // Primary deep black background
-    readonly property string barBackground: "#000000"       // System top panel background
-    readonly property string surface: "#111111"             // Default card and menu container surface
-    readonly property string surfaceHover: "#1a1a1a"        // Interactive hover state surface
+    readonly property string bg: "#101010"                  // Primary deep charcoal background
+    readonly property string barBackground: "#000000"       // System panel black background
+    readonly property string surface: "#171717"             // Default card and menu container surface
+    readonly property string surfaceHover: "#1e1e1e"        // Interactive hover state surface
     readonly property string surfaceActive: "#3d4468"       // Active workspace and selected item highlight (Tokyo Night Slate)
 
     // Shared Utility & Menu Button Palette
     // Keeps handcrafted controls and reusable button components unified
     readonly property string buttonBackground: surface
     readonly property string buttonHoverBackground: surfaceHover
-    readonly property string buttonFocusBackground: surfaceActive
+    readonly property string buttonFocusBackground: "#242424"       // Keyboard focused and interactive button background
     readonly property string buttonSelectedBackground: accent
 
     // Borders & Dividers
-    readonly property string border: "#2a2a2a"              // Subtle separating border line color
-    readonly property string borderStrong: "#333333"        // Prominent outline and structural border color
+    readonly property string border: "#242424"              // Subtle separating border line color
+    readonly property string borderStrong: "#242424"        // Prominent outline and structural border color
 
     // Typography & Text Colors
     readonly property string text: "#c0caf5"                // Primary standard body text (Tokyo Night Periwinkle)
@@ -61,14 +61,14 @@ Singleton {
     readonly property int inputFontSize: 16                 // Text input fields, CLI bars, and search boxes
     readonly property int bodyFontSize: 14                  // Standard list items, labels, and descriptions
     readonly property int smallFontSize: 12                 // Sub-labels, captions, metadata, and timestamps
-    property int panelFontSize: 11                          // System panel workspace digits and compact status indicators
+    property int panelFontSize: 12                          // System panel workspace digits and compact status indicators
     readonly property int tinyFontSize: 10                  // Compact badges, footnotes, and fine print
 
     // =========================================================================
     // 3. PANEL & STATUS BAR GEOMETRY
     // =========================================================================
 
-    readonly property int panelHeight: 20                   // Global bar thickness (synchronized with exclusiveZone)
+    readonly property int panelHeight: 24                   // Global bar thickness (synchronized with exclusiveZone)
     readonly property int panelMargin: 0                    // Offset around panel exterior margins
     readonly property int panelEdgeMargin: 0                // Distance from left and right screen boundaries
     readonly property int panelGap: 4                       // Spacing between major panel item groups

@@ -18,7 +18,7 @@ Rectangle {
 
     // ── Surface Geometry & Colors ────────────────────────────────────────────
     color: Theme.bg
-    border.color: Theme.borderStrong
+    border.color: Theme.border
     border.width: Theme.pillBorderWidth
     radius: Theme.radius
 

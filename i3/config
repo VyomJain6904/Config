@@ -49,18 +49,17 @@ smart_gaps on
 
 # Color Theme: Focus Window
 # class                 border  bground text    indicator child_border
-client.focused          #c0caf5 #c0caf5 #0d1117 #c0caf5   #c0caf5
-client.focused_inactive #1a1a2e #1a1a2e #888888 #1a1a2e   #1a1a2e
-client.unfocused        #1a1a2e #1a1a2e #555555 #1a1a2e   #1a1a2e
+client.focused          #242424 #242424 #ffffff #242424   #242424
+client.focused_inactive #242424 #242424 #888888 #242424   #242424
+client.unfocused        #242424 #242424 #555555 #242424   #242424
 client.urgent           #ff4444 #ff4444 #ffffff #ff4444   #ff4444
-
 
 # ##############################################################################
 # 3. AUTOSTART & ENVIRONMENT SETUP
 # ##############################################################################
 
 # Wallpaper & Visual Styling
-exec_always --no-startup-id xsetroot -solid "#000000"
+exec_always --no-startup-id feh --bg-fill --image-bg '#1f252a' ~/Pictures/Wallpapers/w83.png
 exec --no-startup-id xsettingsd
 exec_always --no-startup-id xprop -root -f _GTK_THEME_VARIANT 8a -set _GTK_THEME_VARIANT "dark"
 exec_always --no-startup-id gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
@@ -76,6 +75,7 @@ exec_always --no-startup-id ~/.config/i3/monitor-hotplug-listener.sh
 exec_always --no-startup-id ~/.config/quickshell/scripts/qs-daemon
 exec --no-startup-id touchegg
 exec --no-startup-id ~/.config/i3/touchpad-settings.sh
+exec --no-startup-id flameshot
 
 # Turn Bluetooth off by default on login
 exec --no-startup-id bluetoothctl power off

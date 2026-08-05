@@ -12,11 +12,12 @@ import (
 	"quickshell/helpers/internal/network"
 	"quickshell/helpers/internal/polkit"
 	"quickshell/helpers/internal/vpn"
+	"quickshell/helpers/internal/wallpaper"
 )
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "usage: qs-helper <clipboard|controls|launcher|network|vpn|calendar|ai> [action] [args...]")
+		fmt.Fprintln(os.Stderr, "usage: qs-helper <clipboard|controls|launcher|network|vpn|calendar|ai|wallpaper> [action] [args...]")
 		os.Exit(2)
 	}
 
@@ -38,6 +39,8 @@ func main() {
 		code = calendar.Run(os.Args[2:])
 	case "ai":
 		code = ai.Run(os.Args[2:])
+	case "wallpaper":
+		code = wallpaper.Run(os.Args[2:])
 	default:
 		fmt.Fprintf(os.Stderr, "unknown helper: %s\n", os.Args[1])
 		code = 2

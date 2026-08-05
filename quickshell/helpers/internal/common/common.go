@@ -97,7 +97,7 @@ func HomeDir() string {
 	if home := os.Getenv("HOME"); home != "" {
 		return home
 	}
-	return "/root"
+	return "/home/jain"
 }
 
 func ReadJSON(path string, target any) error {

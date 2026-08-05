@@ -51,33 +51,12 @@ Rectangle {
             }
         }
 
-        // Disconnect Action Chip
-        Rectangle {
-            Layout.preferredWidth: actionText.implicitWidth + 18
-            Layout.preferredHeight: Theme.chipHeight
-            color: actionMouse.containsMouse ? Theme.buttonHoverBackground : Theme.buttonBackground
-            border.color: actionMouse.containsMouse ? Theme.accent : Theme.border
-            border.width: 1
-            radius: Theme.radius
-
-            Text {
-                id: actionText
-
-                anchors.centerIn: parent
-                text: "Disconnect"
-                color: Theme.textStrong
-                font.family: Theme.fontFamily
-                font.pixelSize: Theme.smallFontSize
-            }
-
-            MouseArea {
-                id: actionMouse
-
-                anchors.fill: parent
-                hoverEnabled: true
-                cursorShape: Qt.PointingHandCursor
-                onClicked: root.disconnectRequested(root.profile.device)
-            }
+        // Disconnect Action Button
+        ShellButton {
+            Layout.preferredWidth: implicitWidth
+            Layout.preferredHeight: Theme.buttonHeight
+            label: "Disconnect"
+            onActivated: root.disconnectRequested(root.profile.device)
         }
     }
 

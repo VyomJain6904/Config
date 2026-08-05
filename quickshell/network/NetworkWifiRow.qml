@@ -98,34 +98,12 @@ Rectangle {
         }
 
         // Interactive Connection Trigger Button
-        Rectangle {
-            Layout.preferredWidth: actionText.implicitWidth + 18
-            Layout.preferredHeight: Theme.chipHeight
-            color: actionMouse.containsMouse && !root.busy ? Theme.buttonHoverBackground : Theme.buttonBackground
-            border.color: root.network.active ? Theme.border : Theme.accent
-            border.width: 1
-            radius: Theme.radius
-            opacity: root.busy ? 0.5 : 1
-
-            Text {
-                id: actionText
-
-                anchors.centerIn: parent
-                text: root.network.active ? "Connected" : "Connect"
-                color: root.network.active ? Theme.textStrong : Theme.accent
-                font.family: Theme.fontFamily
-                font.pixelSize: Theme.smallFontSize
-            }
-
-            MouseArea {
-                id: actionMouse
-
-                anchors.fill: parent
-                enabled: !root.busy
-                hoverEnabled: true
-                cursorShape: Qt.PointingHandCursor
-                onClicked: root.connectRequested(root.network)
-            }
+        ShellButton {
+            Layout.preferredWidth: implicitWidth
+            Layout.preferredHeight: Theme.buttonHeight
+            label: root.network.active ? "Connected" : "Connect"
+            enabled: !root.busy && !root.network.active
+            onActivated: root.connectRequested(root.network)
         }
     }
 }

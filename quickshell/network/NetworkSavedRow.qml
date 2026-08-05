@@ -37,7 +37,7 @@ Rectangle {
 
     // ── Styling & Dynamic Geometry ───────────────────────────────────────────
     height: contentColumn.implicitHeight + 24
-    color: root.profile.active ? Theme.buttonFocusBackground : Theme.buttonBackground
+    color: root.profile.active ? Theme.buttonSelectedBackground : Theme.buttonBackground
     border.color: root.profile.active ? Theme.accent : Theme.border
     border.width: root.profile.active ? 1 : 0
     radius: Theme.radius

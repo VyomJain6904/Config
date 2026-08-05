@@ -136,7 +136,7 @@ ColumnLayout {
 
             background: Rectangle {
                 implicitWidth: 7
-                color: Theme.surfaceActive
+                color: Theme.buttonFocusBackground
                 opacity: modelScrollBar.size < 1 ? 0.55 : 0
             }
         }
@@ -173,7 +173,9 @@ ColumnLayout {
                 opacity: modelCard.progressDanger ? 0.24 : 1
 
                 Behavior on width {
-                    NumberAnimation { duration: Theme.animationNormal }
+                    NumberAnimation {
+                        duration: Theme.animationNormal
+                    }
                 }
             }
 
@@ -198,9 +200,7 @@ ColumnLayout {
                         }
 
                         UiText {
-                            text: modelCard.quota !== null && (modelCard.quota.label || "").length > 0
-                                ? modelCard.quota.label
-                                : (modelCard.modelData.provider || "provider") + (modelCard.modelData.kind === "local" ? "  ·  LOCAL" : "")
+                            text: modelCard.quota !== null && (modelCard.quota.label || "").length > 0 ? modelCard.quota.label : (modelCard.modelData.provider || "provider") + (modelCard.modelData.kind === "local" ? "  ·  LOCAL" : "")
                             color: modelCard.modelData.kind === "local" ? Theme.success : Theme.textMuted
                             font.pixelSize: Theme.tinyFontSize
                             elide: Text.ElideRight

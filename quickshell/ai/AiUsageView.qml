@@ -139,17 +139,16 @@ ColumnLayout {
                 }
 
                 Rectangle {
-                    implicitWidth: planLabel.implicitWidth + 12
+                    implicitWidth: planLabel.implicitWidth + 14
                     implicitHeight: 20
-                    color: Theme.surfaceActive
-                    border.color: Theme.border
-                    border.width: 1
+                    color: Theme.accent
+                    radius: 10
 
                     UiText {
                         id: planLabel
                         anchors.centerIn: parent
                         text: root.platform.plan || "CONNECTED"
-                        color: Theme.textMuted
+                        color: Theme.accentText
                         font.pixelSize: Theme.tinyFontSize
                         font.bold: true
                     }
@@ -179,9 +178,8 @@ ColumnLayout {
         }
 
         ShellButton {
-            Layout.minimumWidth: 72
-            Layout.preferredWidth: 72
-            Layout.maximumWidth: 72
+            Layout.preferredWidth: implicitWidth
+            Layout.preferredHeight: Theme.buttonHeight
             label: root.aiModel.busy ? "Wait…" : "Refresh"
             enabled: !root.aiModel.busy
             onActivated: root.aiModel.refresh()
@@ -278,14 +276,17 @@ ColumnLayout {
                         Rectangle {
                             Layout.fillWidth: true
                             Layout.preferredHeight: 7
-                            color: Theme.surfaceActive
+                            color: Theme.buttonFocusBackground
+                            radius: 3
 
                             Rectangle {
                                 height: parent.height
                                 width: parent.width * root.percent(quotaCard.modelData.usedPercent) / 100
                                 color: root.percent(quotaCard.modelData.usedPercent) >= 90 ? Theme.danger : Theme.accent
                                 Behavior on width {
-                                    NumberAnimation { duration: Theme.animationNormal }
+                                    NumberAnimation {
+                                        duration: Theme.animationNormal
+                                    }
                                 }
                             }
                         }
@@ -345,14 +346,17 @@ ColumnLayout {
                             Rectangle {
                                 Layout.fillWidth: true
                                 Layout.preferredHeight: 7
-                                color: Theme.surfaceActive
+                                color: Theme.buttonFocusBackground
+                                radius: 3
 
                                 Rectangle {
                                     height: parent.height
                                     width: parent.width * root.dailyPercent(dayRow.modelData.tokens) / 100
                                     color: Theme.accent
                                     Behavior on width {
-                                        NumberAnimation { duration: Theme.animationNormal }
+                                        NumberAnimation {
+                                            duration: Theme.animationNormal
+                                        }
                                     }
                                 }
                             }

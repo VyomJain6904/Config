@@ -39,7 +39,7 @@ FloatingWindow {
 
     Rectangle {
         anchors.fill: parent
-        color: "#ee111111"
+        color: Theme.bg
         border.color: "#1affffff"
         border.width: 1
         radius: 0

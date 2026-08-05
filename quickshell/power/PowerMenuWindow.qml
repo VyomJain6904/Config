@@ -50,7 +50,6 @@ FloatingWindow {
         id: content
 
         anchors.fill: parent
-        anchors.bottomMargin: 12
         focus: true
 
         Keys.onPressed: function (event) {

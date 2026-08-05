@@ -8,6 +8,7 @@ import qs.calendar
 import qs.controls
 import qs.core
 import qs.network
+import qs.wallpaper
 
 /**
  * ─────────────────────────────────────────────────────────────────────────────
@@ -27,6 +28,7 @@ FloatingWindow {
     required property var vpnModel
     required property var calendarModel
     required property var aiModel
+    required property var wallpaperModel
     required property var i3State
     property string vpnFontFamily: "JetBrainsMono-VPN"
 
@@ -36,7 +38,7 @@ FloatingWindow {
 
     readonly property int popupWidth: 560
     readonly property int popupHeight: 820
-    readonly property var tabOrder: ["wifi", "bluetooth", "audio", "brightness", "battery", "vpn", "calendar", "ai"]
+    readonly property var tabOrder: ["wifi", "bluetooth", "audio", "brightness", "battery", "vpn", "calendar", "wallpaper", "ai"]
     property string pendingTab: ""
     readonly property int contentSpacing: Theme.popupSpacing
     readonly property int rowSpacing: Theme.rowSpacing
@@ -82,7 +84,7 @@ FloatingWindow {
         return icon.indexOf("/") === 0 ? "file://" + icon : root.workspaceIconRoot + icon;
     }
 
-    visible: networkModel.visible || controlsModel.visible || vpnModel.visible || calendarModel.visible || aiModel.visible
+    visible: networkModel.visible || controlsModel.visible || vpnModel.visible || calendarModel.visible || aiModel.visible || wallpaperModel.visible
     implicitWidth: popupWidth
     implicitHeight: popupHeight
     title: "Quickshell Utility"
@@ -139,6 +141,15 @@ FloatingWindow {
         }
     }
 
+    Connections {
+        target: root.wallpaperModel
+        function onVisibleChanged() {
+            if (root.wallpaperModel.visible) {
+                root.setActiveTab("wallpaper");
+            }
+        }
+    }
+
     onVisibleChanged: {
         if (visible) {
             root.selectedIndex = 0;
@@ -149,6 +160,7 @@ FloatingWindow {
             root.vpnModel.close();
             root.calendarModel.close();
             root.aiModel.close();
+            root.wallpaperModel.close();
         }
         root.updateWorkspaceGridActive();
     }
@@ -167,6 +179,7 @@ FloatingWindow {
             root.vpnModel.close();
             root.calendarModel.close();
             root.aiModel.close();
+            root.wallpaperModel.close();
             root.setActiveTab("wifi");
             root.networkModel.refresh(false);
         } else if (tab === "bluetooth" || tab === "audio" || tab === "brightness" || tab === "battery") {
@@ -176,6 +189,7 @@ FloatingWindow {
             root.vpnModel.close();
             root.calendarModel.close();
             root.aiModel.close();
+            root.wallpaperModel.close();
             root.setActiveTab(tab);
             if (tab === "bluetooth") {
                 root.bluetoothModel.refresh(false);
@@ -196,6 +210,7 @@ FloatingWindow {
             root.controlsModel.close();
             root.calendarModel.close();
             root.aiModel.close();
+            root.wallpaperModel.close();
             root.setActiveTab("vpn");
             root.vpnModel.refreshProfiles();
             root.vpnModel.refresh();
@@ -205,6 +220,7 @@ FloatingWindow {
             root.controlsModel.close();
             root.vpnModel.close();
             root.aiModel.close();
+            root.wallpaperModel.close();
             root.setActiveTab("calendar");
             if (root.calendarModel.events.length === 0) {
                 root.calendarModel.refreshEvents();
@@ -215,8 +231,18 @@ FloatingWindow {
             root.controlsModel.close();
             root.vpnModel.close();
             root.calendarModel.close();
+            root.wallpaperModel.close();
             root.setActiveTab("ai");
             root.aiModel.refresh();
+        } else if (tab === "wallpaper") {
+            root.wallpaperModel.visible = true;
+            root.networkModel.close();
+            root.controlsModel.close();
+            root.vpnModel.close();
+            root.calendarModel.close();
+            root.aiModel.close();
+            root.setActiveTab("wallpaper");
+            root.wallpaperModel.refresh();
         }
     }
 
@@ -241,6 +267,8 @@ FloatingWindow {
             root.setActiveTab("calendar");
         } else if (root.aiModel.visible) {
             root.setActiveTab("ai");
+        } else if (root.wallpaperModel.visible) {
+            root.setActiveTab("wallpaper");
         } else {
             root.updateWorkspaceGridActive();
         }
@@ -470,7 +498,6 @@ FloatingWindow {
     ShellSurface {
         id: content
         anchors.fill: parent
-        anchors.bottomMargin: 12
         focus: true
 
         Keys.onPressed: function (event) {
@@ -480,6 +507,7 @@ FloatingWindow {
                 root.vpnModel.close();
                 root.calendarModel.close();
                 root.aiModel.close();
+                root.wallpaperModel.close();
                 event.accepted = true;
                 return;
             }
@@ -688,6 +716,29 @@ FloatingWindow {
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
+                    color: root.activeTab === "wallpaper" ? Theme.buttonSelectedBackground : (wallpaperTabMouse.containsMouse ? Theme.buttonHoverBackground : Theme.buttonBackground)
+                    radius: Theme.radius
+
+                    UiText {
+                        anchors.centerIn: parent
+                        text: "\uf03e"
+                        font.family: Theme.iconFontFamily
+                        font.pixelSize: 18
+                        color: root.activeTab === "wallpaper" ? Theme.accentText : Theme.textStrong
+                    }
+
+                    MouseArea {
+                        id: wallpaperTabMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: root.activateTab("wallpaper")
+                    }
+                }
+
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
                     color: root.activeTab === "ai" ? Theme.buttonSelectedBackground : (aiTabMouse.containsMouse ? Theme.buttonHoverBackground : Theme.buttonBackground)
                     radius: Theme.radius
 
@@ -738,6 +789,7 @@ FloatingWindow {
                             root.vpnModel.close();
                             root.calendarModel.close();
                             root.aiModel.close();
+                            root.wallpaperModel.close();
                         }
                     }
                 }
@@ -2849,6 +2901,19 @@ FloatingWindow {
                 sourceComponent: Component {
                     AiUsageView {
                         aiModel: root.aiModel
+                    }
+                }
+            }
+
+            Loader {
+                active: root.activeTab === "wallpaper"
+                visible: root.activeTab === "wallpaper"
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+
+                sourceComponent: Component {
+                    WallpaperView {
+                        wallpaperModel: root.wallpaperModel
                     }
                 }
             }

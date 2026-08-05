@@ -26,7 +26,7 @@ Rectangle {
     implicitHeight: Theme.buttonHeight
     radius: Theme.radius
     color: selected ? Theme.buttonFocusBackground : (controlMouse.containsMouse && root.enabled ? Theme.buttonHoverBackground : Theme.buttonBackground)
-    border.color: selected ? Theme.accent : Theme.border
+    border.color: selected ? Theme.accent : (controlMouse.containsMouse && root.enabled ? Theme.borderStrong : Theme.border)
     border.width: 1
     opacity: root.enabled ? 1 : 0.5
 

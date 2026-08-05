@@ -1,0 +1,282 @@
+#!/usr/bin/env python3
+"""
+──────────────────────────────────────────────────────────────────────────────
+                        QUICKSHELL WALLPAPER UTILITY (qs-wallpaper)
+──────────────────────────────────────────────────────────────────────────────
+High-performance backend engine for Quickshell wallpaper gallery & switching:
+ - Sub-millisecond JSON directory scanning of ~/Pictures/Wallpapers/
+ - Non-blocking background parallel thumbnail generation via ImageMagick
+ - Persistent state tracking in ~/.local/state/quickshell/wallpaper_state.json
+ - feh background applying with scaling modes and custom border fill color
+ - Automatic synchronization with i3 autostart configuration (~/.config/i3/config)
+──────────────────────────────────────────────────────────────────────────────
+"""
+
+import sys
+import os
+import json
+import random
+import subprocess
+import hashlib
+import re
+from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor
+
+WALLPAPER_DIR = Path(os.path.expanduser("~/Pictures/Wallpapers")).resolve()
+CACHE_DIR = Path(os.path.expanduser("~/.cache/quickshell/wallpaper_thumbnails")).resolve()
+STATE_DIR = Path(os.path.expanduser("~/.local/state/quickshell")).resolve()
+STATE_FILE = STATE_DIR / "wallpaper_state.json"
+I3_CONFIG_PATH = Path(os.path.expanduser("~/.config/i3/config")).resolve()
+SUPPORTED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".bmp"}
+
+def get_current_state():
+    """Reads current active wallpaper state from JSON state or i3 config."""
+    state = {"path": "", "mode": "fill", "color": "#000000"}
+    
+    # 1. Check saved JSON state
+    if STATE_FILE.exists():
+        try:
+            with open(STATE_FILE, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                if isinstance(data, dict) and "path" in data and os.path.exists(data["path"]):
+                    state.update(data)
+                    return state
+        except Exception:
+            pass
+
+    # 2. Fallback to extracting from i3 config
+    if I3_CONFIG_PATH.exists():
+        try:
+            with open(I3_CONFIG_PATH, "r", encoding="utf-8") as f:
+                content = f.read()
+            match = re.search(r'feh\s+(?:--image-bg\s+[\'"]?([^\s\'"]+)[\'"]?\s+)?--bg-(fill|max|scale|center|tile)\s+([^\s\r\n]+)', content)
+            if not match:
+                # Try opposite order (--bg-mode before --image-bg)
+                match = re.search(r'feh\s+--bg-(fill|max|scale|center|tile)(?:\s+--image-bg\s+[\'"]?([^\s\'"]+)[\'"]?)?\s+([^\s\r\n]+)', content)
+                if match:
+                    state["mode"] = match.group(1)
+                    if match.group(2):
+                        state["color"] = match.group(2)
+                    state["path"] = os.path.expanduser(match.group(3))
+            else:
+                if match.group(1):
+                    state["color"] = match.group(1)
+                state["mode"] = match.group(2)
+                state["path"] = os.path.expanduser(match.group(3))
+        except Exception:
+            pass
+
+    # 3. If still empty, pick first image in directory
+    if not state["path"] or not os.path.exists(state["path"]):
+        if WALLPAPER_DIR.exists():
+            for entry in os.scandir(WALLPAPER_DIR):
+                if entry.is_file() and Path(entry.name).suffix.lower() in SUPPORTED_EXTENSIONS:
+                    state["path"] = os.path.abspath(entry.path)
+                    break
+
+    save_state(state["path"], state["mode"], state["color"])
+    return state
+
+def save_state(path, mode="fill", color="#000000"):
+    """Atomically writes current state to JSON file."""
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
+    state = {"path": str(path), "mode": str(mode), "color": str(color)}
+    temp_file = STATE_FILE.with_suffix(".tmp")
+    try:
+        with open(temp_file, "w", encoding="utf-8") as f:
+            json.dump(state, f, indent=2)
+        temp_file.replace(STATE_FILE)
+    except Exception as e:
+        sys.stderr.write(f"Error saving state: {e}\n")
+    return state
+
+def update_i3_config(path, mode="fill", color="#000000"):
+    """Persistently updates the feh command in ~/.config/i3/config."""
+    if not I3_CONFIG_PATH.exists():
+        return
+    try:
+        with open(I3_CONFIG_PATH, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+        
+        updated = False
+        new_command = f"exec_always --no-startup-id feh --bg-{mode} --image-bg '{color}' {path}\n"
+        
+        for i, line in enumerate(lines):
+            if "feh " in line and "--bg-" in line:
+                # Preserve indentation if any
+                indent = re.match(r'^\s*', line).group(0)
+                lines[i] = f"{indent}{new_command}"
+                updated = True
+                break
+        
+        if not updated:
+            # If no feh line found, append to end of config
+            lines.append(f"\n# Desktop Wallpaper\n{new_command}")
+
+        temp_config = I3_CONFIG_PATH.with_suffix(".tmp")
+        with open(temp_config, "w", encoding="utf-8") as f:
+            f.writelines(lines)
+        temp_config.replace(I3_CONFIG_PATH)
+    except Exception as e:
+        sys.stderr.write(f"Error updating i3 config: {e}\n")
+
+def generate_thumbnail_worker(args):
+    """Worker function to generate a single thumbnail using ImageMagick."""
+    src_path, thumb_path = args
+    try:
+        cmd = ["magick", "convert", str(src_path), "-thumbnail", "350x220", "-quality", "85", str(thumb_path)]
+        subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False)
+    except Exception:
+        pass
+
+def action_worker(paths):
+    """Background parallel worker executed detached to build missing thumbnails."""
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    tasks = []
+    for path_str in paths:
+        src = Path(path_str)
+        if not src.exists():
+            continue
+        thumb_name = hashlib.md5(str(src).encode("utf-8")).hexdigest() + ".thumb.jpg"
+        thumb_path = CACHE_DIR / thumb_name
+        if not thumb_path.exists() or thumb_path.stat().st_mtime < src.stat().st_mtime:
+            tasks.append((src, thumb_path))
+    
+    if tasks:
+        with ThreadPoolExecutor(max_workers=min(len(tasks), (os.cpu_count() or 4))) as executor:
+            executor.map(generate_thumbnail_worker, tasks)
+
+def action_list():
+    """Outputs high-speed JSON array of wallpapers and active state."""
+    if not WALLPAPER_DIR.exists():
+        WALLPAPER_DIR.mkdir(parents=True, exist_ok=True)
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+
+    current_state = get_current_state()
+    current_path = os.path.abspath(current_state.get("path", ""))
+
+    wallpapers = []
+    missing_thumbnails = []
+
+    for entry in os.scandir(WALLPAPER_DIR):
+        if entry.is_file() and Path(entry.name).suffix.lower() in SUPPORTED_EXTENSIONS:
+            abs_path = os.path.abspath(entry.path)
+            stat_res = entry.stat()
+            size_bytes = stat_res.st_size
+            
+            thumb_name = hashlib.md5(abs_path.encode("utf-8")).hexdigest() + ".thumb.jpg"
+            thumb_path = CACHE_DIR / thumb_name
+            
+            if thumb_path.exists() and thumb_path.stat().st_mtime >= stat_res.st_mtime:
+                thumb_url = f"file://{thumb_path}"
+            else:
+                thumb_url = f"file://{abs_path}"
+                missing_thumbnails.append(abs_path)
+
+            is_active = (abs_path == current_path)
+            wallpapers.append({
+                "name": entry.name,
+                "path": abs_path,
+                "url": f"file://{abs_path}",
+                "thumbnail": thumb_url,
+                "sizeBytes": size_bytes,
+                "active": is_active
+            })
+
+    # Sort alphabetically by name (case insensitive)
+    wallpapers.sort(key=lambda x: x["name"].lower())
+
+    output = {
+        "current": current_state,
+        "wallpapers": wallpapers,
+        "count": len(wallpapers)
+    }
+    print(json.dumps(output))
+    sys.stdout.flush()
+
+    # Trigger asynchronous detached background worker for any missing thumbnails
+    if missing_thumbnails:
+        try:
+            worker_cmd = [sys.executable, os.path.abspath(__file__), "--worker", *missing_thumbnails]
+            subprocess.Popen(worker_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL, start_new_session=True)
+        except Exception:
+            pass
+
+def action_set(path_arg, mode="fill", color="#000000"):
+    """Applies wallpaper with specified mode and border padding fill color."""
+    if not path_arg:
+        state = get_current_state()
+        path_arg = state.get("path")
+    
+    target_path = Path(path_arg).expanduser()
+    if not target_path.is_absolute():
+        target_path = WALLPAPER_DIR / path_arg
+
+    if not target_path.exists():
+        sys.stderr.write(f"Wallpaper file not found: {target_path}\n")
+        sys.exit(1)
+
+    abs_path = str(target_path.resolve())
+    valid_modes = {"fill", "max", "scale", "center", "tile"}
+    if mode not in valid_modes:
+        mode = "fill"
+    if not color or not color.startswith("#"):
+        color = "#000000"
+
+    # Execute feh background command
+    try:
+        cmd = ["feh", f"--bg-{mode}", "--image-bg", color, abs_path]
+        subprocess.run(cmd, check=True)
+    except Exception as e:
+        sys.stderr.write(f"Error calling feh: {e}\n")
+
+    # Save persistent state and sync i3 config
+    new_state = save_state(abs_path, mode, color)
+    update_i3_config(abs_path, mode, color)
+
+    # Output updated state JSON for QML interface
+    print(json.dumps({"current": new_state}))
+    sys.stdout.flush()
+
+def action_random(mode=None, color=None):
+    """Randomly selects and sets a wallpaper from the catalog."""
+    state = get_current_state()
+    if not mode:
+        mode = state.get("mode", "fill")
+    if not color:
+        color = state.get("color", "#000000")
+
+    if not WALLPAPER_DIR.exists():
+        return
+
+    pictures = [e.path for e in os.scandir(WALLPAPER_DIR) if e.is_file() and Path(e.name).suffix.lower() in SUPPORTED_EXTENSIONS]
+    if not pictures:
+        return
+    
+    chosen = random.choice(pictures)
+    action_set(chosen, mode, color)
+
+def main():
+    args = sys.argv[1:]
+    if not args or args[0] == "list":
+        action_list()
+    elif args[0] == "--worker":
+        action_worker(args[1:])
+    elif args[0] == "current":
+        state = get_current_state()
+        print(json.dumps({"current": state}))
+    elif args[0] == "set":
+        path = args[1] if len(args) > 1 else ""
+        mode = args[2] if len(args) > 2 else "fill"
+        color = args[3] if len(args) > 3 else "#000000"
+        action_set(path, mode, color)
+    elif args[0] == "random":
+        mode = args[1] if len(args) > 1 else None
+        color = args[2] if len(args) > 2 else None
+        action_random(mode, color)
+    else:
+        sys.stderr.write(f"Unknown command: {args[0]}\n")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()

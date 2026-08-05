@@ -14,6 +14,7 @@ import qs.power
 import qs.state
 import qs.spotlight
 import qs.ai
+import qs.wallpaper
 
 /**
  * ─────────────────────────────────────────────────────────────────────────────
@@ -32,7 +33,7 @@ ShellRoot {
     // Custom icon font for VPN status badges
     FontLoader {
         id: vpnFont
-        source: Qt.resolvedUrl("../../.local/share/fonts/JetBrainsMono-VPN.ttf")
+        source: "file:///home/jain/.local/share/fonts/JetBrainsMono-VPN.ttf"
     }
 
     // System clock polling service (synchronized to minute transitions)
@@ -75,6 +76,10 @@ ShellRoot {
         id: aiModel
     }
 
+    WallpaperModel {
+        id: wallpaperModel
+    }
+
     SpotlightModel {
         id: spotlightModel
     }
@@ -95,6 +100,7 @@ ShellRoot {
             vpnModel.close();
             calendarModel.close();
             aiModel.close();
+            wallpaperModel.close();
         }
 
         function open(): void {
@@ -102,12 +108,13 @@ ShellRoot {
         }
 
         function toggle(): void {
-            if (networkModel.visible || controlsModel.visible || vpnModel.visible || calendarModel.visible || aiModel.visible) {
+            if (networkModel.visible || controlsModel.visible || vpnModel.visible || calendarModel.visible || aiModel.visible || wallpaperModel.visible) {
                 networkModel.close();
                 controlsModel.close();
                 vpnModel.close();
                 calendarModel.close();
                 aiModel.close();
+                wallpaperModel.close();
             } else {
                 networkModel.open();
             }
@@ -297,6 +304,23 @@ ShellRoot {
         }
     }
 
+    // ── Wallpaper Switcher & Background Styling ──────────────────────────────
+    IpcHandler {
+        target: "wallpaper"
+
+        function open(): void {
+            wallpaperModel.open();
+        }
+
+        function close(): void {
+            wallpaperModel.close();
+        }
+
+        function toggle(): void {
+            wallpaperModel.toggle();
+        }
+    }
+
     // ── System Tray Inspection ───────────────────────────────────────────────
     IpcHandler {
         target: "tray"
@@ -372,7 +396,7 @@ ShellRoot {
     }
 
     LazyLoader {
-        active: networkModel.visible || controlsModel.visible || vpnModel.visible || calendarModel.visible || aiModel.visible
+        active: networkModel.visible || controlsModel.visible || vpnModel.visible || calendarModel.visible || aiModel.visible || wallpaperModel.visible
 
         component: UtilityWindow {
             networkModel: networkModel
@@ -381,6 +405,7 @@ ShellRoot {
             vpnModel: vpnModel
             calendarModel: calendarModel
             aiModel: aiModel
+            wallpaperModel: wallpaperModel
             i3State: i3State
             vpnFontFamily: vpnFont.name
         }
